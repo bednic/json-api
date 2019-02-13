@@ -1,0 +1,161 @@
+<?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: tomas
+ * Date: 01.02.2019
+ * Time: 14:33
+ */
+
+namespace OpenAPI;
+
+use Doctrine\Common\Util\ClassUtils;
+use OpenAPI\Annotation\Relationship;
+use OpenAPI\Document\Fields;
+use OpenAPI\Document\Links;
+use OpenAPI\Document\Relationships;
+use OpenAPI\Document\Resource;
+use OpenAPI\Document\ResourceIdentifier;
+use OpenAPI\Exception\NullException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+
+class Encoder
+{
+    /**
+     * @var MetadataFactory
+     */
+    private $metadataFactory;
+
+
+    private $logger = null;
+
+    /**
+     * @var object
+     */
+    private $object;
+
+    /**
+     * @var \ReflectionClass
+     */
+    private $ref;
+
+    /**
+     * @var ClassMetadata
+     */
+    private $metadata = [];
+    /**
+     * @var Fields
+     */
+    private $fields = null;
+
+    /**
+     * Encoder constructor.
+     * @param MetadataFactory $metadataFactory
+     * @param LoggerInterface $logger
+     */
+    public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
+    {
+        $this->metadataFactory = $metadataFactory;
+        $this->logger = $logger ? $logger : new NullLogger();
+    }
+
+    /**
+     * @param $object
+     * @return Encoder
+     * @throws NullException
+     */
+    public function __invoke($object): Encoder
+    {
+        $className = ClassUtils::getClass($object);
+        $that = new self($this->metadataFactory, $this->logger);
+        $that->object = $object;
+        $this->logger->debug("Init encoding of {$className}.");
+        try {
+            $that->ref = new \ReflectionClass($className);
+            $that->metadata = $this->metadataFactory->getMetadataByClass($className);
+        } catch (\ReflectionException $e) {
+            throw new NullException("Class {$className} doesn't exists");
+        }
+        return $that;
+    }
+
+    /**
+     * @param null $filter
+     * @return Encoder
+     * @throws NullException
+     */
+    public function withFields($filter = null): Encoder
+    {
+        try {
+            $this->fields = new Fields();
+            foreach (array_merge($this->metadata->getAttributes(), $this->metadata->getRelationships()) as $name => $field) {
+                if ($filter && in_array($name, $filter) || !$filter) {
+                    if ($field->getter != null) {
+                        $value = call_user_func([$this->object, $field->getter]);
+                    } else {
+                        $value = $this->ref->getProperty($field->property)->getValue($this->object);
+                    }
+                    if ($field instanceof Relationship) {
+                        if (is_iterable($value)) {
+                            $relationships = new Relationships($field->isCollection);
+                            foreach ($value as $object) {
+                                $relationships->addResource($this($object)->encode());
+                            }
+                        } else {
+                            $relationships = new Relationships($field->isCollection, $this($value)->encode());
+
+                        }
+                        $relationships->setLinks(Links::createRelationshipsLinks(new ResourceIdentifier($this->getType(), $this->getId()), $name));
+                        $value = $relationships;
+                        $this->logger->debug("Field {$name} is relationship");
+                    }
+                    $this->logger->debug("Adding field {$name}");
+                    $this->fields->addField($name, $value);
+                }
+            }
+        } catch (\ReflectionException $e) {
+            throw new NullException($e->getMessage(), $e->getCode(), $e);
+        }
+        return $this;
+    }
+
+    /**
+     * @return ResourceIdentifier|Resource
+     * @throws \ReflectionException
+     */
+    public function encode()
+    {
+
+        $type = $this->getType();
+        $id = $this->getId();
+        $identifier = new ResourceIdentifier($type, $id);
+        $this->logger->debug("Encoding resource <{$type}>[{$id}]");
+        if ($this->fields) {
+            return new Resource($identifier, $this->fields);
+        } else {
+            return $identifier;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->metadata->getResource()->type;
+    }
+
+    /**
+     * @return int|string
+     * @throws \ReflectionException
+     */
+    public function getId()
+    {
+        if ($this->metadata->getId()->getter != null) {
+            return call_user_func([$this->object, $this->metadata->getId()->getter]);
+        } else {
+            return $this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
+        }
+    }
+
+}
