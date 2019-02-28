@@ -6,9 +6,12 @@
  * Time: 14:03
  */
 
-namespace OpenAPI\Exception;
+namespace JSONAPI\Exception;
 
-
+/**
+ * Class ClassMetadataException
+ * @package JSONAPI\Exception
+ */
 class ClassMetadataException extends \Exception
 {
 

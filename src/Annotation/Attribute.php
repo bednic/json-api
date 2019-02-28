@@ -6,11 +6,11 @@
  * Time: 0:17
  */
 
-namespace OpenAPI\Annotation;
+namespace JSONAPI\Annotation;
 
 /**
  * Class Attribute
- * @package OpenAPI\Annotation
+ * @package JSONAPI\Annotation
  * @Annotation
  * @Target({"METHOD", "PROPERTY"})
  */

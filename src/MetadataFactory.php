@@ -6,52 +6,108 @@
  * Time: 14:57
  */
 
-namespace OpenAPI;
+namespace JSONAPI;
 
-use Doctrine\Common\Cache\ApcuCache;
 use Doctrine\Common\Cache\ArrayCache;
-use OpenAPI\Driver\AnnotationDriver;
-use OpenAPI\Exception\InvalidObjectException;
-use OpenAPI\Exception\NullException;
+use Doctrine\Common\Cache\Cache;
+use Doctrine\Common\Util\ClassUtils;
+use JSONAPI\Driver\AnnotationDriver;
+use JSONAPI\Driver\IDriver;
+use JSONAPI\Exception\ClassMetadataException;
+use JSONAPI\Exception\NullException;
 
 class MetadataFactory
 {
-    private $cache;
-    private $typeToClassMap = [];
+    /**
+     * @var string
+     */
     private $path;
-    private $metadata = [];
+    /**
+     * @var ArrayCache|Cache|null
+     */
+    private $cache;
+    /**
+     * @var AnnotationDriver|IDriver|null
+     */
     private $driver;
+    /**
+     * @var bool
+     */
+    private $debug;
+    /**
+     * @var array
+     */
+    private $typeToClassMap = [];
+    /**
+     * @var array
+     */
+    private $metadata = [];
 
     /**
      * MetadataFactory constructor.
-     * @param MetadataFactoryOptions $options
-     * @throws Exception\ClassMetadataException
-     * @throws InvalidObjectException
+     * @param string       $pathToObjects
+     * @param Cache|null   $cache
+     * @param IDriver|null $driver
+     * @param bool         $debug
+     * @throws ClassMetadataException
      * @throws NullException
      * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \ReflectionException
      */
-    public function __construct(MetadataFactoryOptions $options)
+    public function __construct(string $pathToObjects, Cache $cache = null, IDriver $driver = null, bool $debug = false)
     {
-        $this->path = $options->getPath();
-        $this->driver = $options->getDriver() ? $options->getDriver() : new AnnotationDriver();
-        $this->cache = $options->getCache() ? $options->getCache() : new ArrayCache();
-
+        if (!is_dir($pathToObjects)) throw new NullException("Path to object is not directory.");
+        $this->path = $pathToObjects;
+        $this->driver = $driver ?: new AnnotationDriver();
+        $this->cache = $cache ?: new ArrayCache();
+        $this->debug = $debug;
+        // todo: make this call only once!
         $this->createMetadataCache();
     }
 
     /**
-     * @return void
-     * @throws Exception\ClassMetadataException
-     * @throws InvalidObjectException
+     * @param string $className
+     * @return ClassMetadata
+     * @throws ClassMetadataException
      * @throws NullException
-     * @throws \ReflectionException
+     */
+    public function getMetadataByClass(string $className): ClassMetadata
+    {
+        $className = ClassUtils::getRealClass($className);
+        if ($this->cache->contains($className)) {
+            return $this->cache->fetch($className);
+        } elseif ($classMetadata = $this->driver->getClassMetadata($className)) {
+            $this->cache->save($className, $classMetadata);
+            return $classMetadata;
+        } else {
+            throw new NullException("Metadata for class {$className} does not exists.");
+        }
+    }
+
+    /**
+     * @param string $resourceType
+     * @return ClassMetadata | null
+     * @throws ClassMetadataException
+     * @throws NullException
+     */
+    public function getMetadataClassByType(string $resourceType): ?ClassMetadata
+    {
+        return $this->getMetadataByClass($this->typeToClassMap[$resourceType]);
+    }
+
+    /**
+     * @return array
+     */
+    public function getAllMetadata()
+    {
+        return $this->metadata;
+    }
+
+    /**
+     * @return void
+     * @throws ClassMetadataException
      */
     private function createMetadataCache()
     {
-        if (!is_dir($this->path)) {
-            throw new NullException("Path is not directory.");
-        }
         $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->path));
         $it->rewind();
         while ($it->valid()) {
@@ -68,48 +124,13 @@ class MetadataFactory
 
 
         foreach (get_declared_classes() as $className) {
-            $classMetadata = null;
             try {
                 $classMetadata = $this->getMetadataByClass($className);
+                $this->metadata[$className] = $classMetadata;
+                $this->typeToClassMap[$classMetadata->getResource()->type] = $className;
             } catch (NullException $e) {
-                if ($classMetadata = $this->driver->getClassMetadata($className)) {
-                    $this->cache->save($className, $classMetadata);
-                }
-            } finally {
-                if ($classMetadata) {
-                    $this->metadata[$className] = $classMetadata;
-                    $this->typeToClassMap[$classMetadata->getResource()->type] = $className;
-                }
+                // not existing class
             }
         }
-    }
-
-    /**
-     * @param $className
-     * @return ClassMetadata
-     * @throws NullException
-     */
-    public function getMetadataByClass(string $className): ClassMetadata
-    {
-        if ($this->cache->contains($className)) {
-            return $this->cache->fetch($className);
-        } else {
-            throw new NullException("Metadata for class {$className} not exists");
-        }
-    }
-
-    /**
-     * @param string $resourceType
-     * @return ClassMetadata
-     * @throws NullException
-     */
-    public function getMetadataClassByType(string $resourceType): ClassMetadata
-    {
-        return $this->getMetadataByClass($this->typeToClassMap[$resourceType]);
-    }
-
-    public function getAllMetadata()
-    {
-        return $this->metadata;
     }
 }

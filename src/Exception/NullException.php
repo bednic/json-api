@@ -6,9 +6,12 @@
  * Time: 15:28
  */
 
-namespace OpenAPI\Exception;
+namespace JSONAPI\Exception;
 
-
+/**
+ * Class NullException
+ * @package JSONAPI\Exception
+ */
 class NullException extends \Exception
 {
 

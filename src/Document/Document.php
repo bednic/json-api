@@ -6,59 +6,90 @@
  * Time: 14:48
  */
 
-namespace OpenAPI\Document;
+namespace JSONAPI\Document;
 
-use OpenAPI\EncoderOptions;
-use OpenAPI\Exception\DocumentException;
-use OpenAPI\Filter;
+use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Exception\DocumentException;
 
-
+/**
+ * Class Document
+ * @package JSONAPI\Document
+ */
 class Document implements \JsonSerializable
 {
+    const MEDIA_TYPE = "application/vnd.api+json";
 
     private $data;
     private $errors = null;
-    private $meta = null;
+    /**
+     * @var ArrayCollection
+     */
+    private $meta;
     private $jsonapi = [
         "version" => "1.0"
     ];
-    private $links = [];
-    private $included = null;
-
-    private $filter;
+    /**
+     * @var ArrayCollection
+     */
+    private $links;
+    private $included;
 
     /**
      * Document constructor.
+     * @param array $data
+     * @param array $includes
+     * @param array $links
+     * @param array $metas
      */
-    public function __construct()
+    public function __construct(array $data = null, array $includes = [], array $links = [], array $metas = [])
     {
-        $this->filter = new Filter();
-        $this->links = [
-            Links::SELF => $_SERVER['REQUEST_SCHEME'] . '://' .$_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']
-        ];
+
+        $this->links = new ArrayCollection($links);
+        $this->meta = new ArrayCollection($metas);
+        if ($data) $this->setData($data);
+        $this->included = new ArrayCollection($includes);
     }
 
     /**
-     * @param Resource|Resource[] $data
+     * @param \JSONAPI\Document\Resource | \JSONAPI\Document\Resource[] | null $data
      */
     public function setData($data)
     {
         $this->data = $data;
+        if ($this->data instanceof Resource) {
+            $this->addLink(Link::SELF, $this->data->getLinks()->get(Link::SELF));
+            $this->data->getLinks()->remove(Link::SELF);
+        } else {
+            $uri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+            $parsed = parse_url($uri);
+            $this->addLink(Link::SELF, $parsed["scheme"] . '://' . $parsed["host"] . $parsed["path"]);
+        }
+
     }
 
-    public function setIncludes($includes)
+    public function getIncludes()
+    {
+        return $this->included;
+    }
+
+    public function setIncludes(ArrayCollection $includes)
     {
         $this->included = $includes;
     }
 
-    public function setErrors($errors)
+    public function addLink($key, $link)
     {
-        $this->errors = $errors;
+        $this->links->set($key, $link);
     }
 
-    public function setMeta($meta)
+    public function addMeta($key, $value)
     {
-        $this->meta = $meta;
+        $this->meta->set($key, $value);
+    }
+
+    public function addError($error)
+    {
+        $this->errors[] = $error;
     }
 
     /**
@@ -75,8 +106,8 @@ class Document implements \JsonSerializable
         if ($this->jsonapi) {
             $ret["jsonapi"] = $this->jsonapi;
         }
-        if ($this->meta) {
-            $ret["meta"] = $this->meta;
+        if (!$this->meta->isEmpty()) {
+            $ret["meta"] = $this->meta->toArray();
         }
         if ($this->data && $this->errors) {
             throw new DocumentException("Non-valid document. Data AND Errors are set. Only Data XOR Errors are allowed");
@@ -88,11 +119,11 @@ class Document implements \JsonSerializable
             $ret["data"] = $this->data;
         }
 
-        if ($this->links) {
-            $ret["links"] = $this->links;
+        if (!$this->links->isEmpty()) {
+            $ret["links"] = $this->links->toArray();
         }
-        if ($this->included) {
-            $ret["included"] = $this->included;
+        if (!$this->included->isEmpty()) {
+            $ret["included"] = $this->included->toArray();
         }
         return $ret;
     }

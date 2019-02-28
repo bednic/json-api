@@ -6,9 +6,12 @@
  * Time: 12:44
  */
 
-namespace OpenAPI\Exception;
+namespace JSONAPI\Exception;
 
-
+/**
+ * Class InvalidOptionArgumentException
+ * @package JSONAPI\Exception
+ */
 class InvalidOptionArgumentException extends \Exception
 {
 

@@ -7,12 +7,12 @@
  */
 
 
-namespace OpenAPI\Document;
+namespace JSONAPI\Document;
 
 
 /**
  * Class Error
- * @package OpenAPI\Document
+ * @package JSONAPI\Document
  */
 class Error implements \JsonSerializable
 {
@@ -43,7 +43,7 @@ class Error implements \JsonSerializable
     /**
      * @var
      */
-    private $source;
+    private $source = [];
     /**
      * @var
      */
@@ -55,9 +55,37 @@ class Error implements \JsonSerializable
      */
     public function __construct(\Throwable $exception)
     {
-
+        $this->setTitle(get_class($exception));
+        $this->setCode($exception->getCode());
+        $this->setStatus(500);
+        $this->setDetail($exception->getMessage());
+        $this->setSource([
+            "Line" => "{$exception->getFile()} ({$exception->getLine()})",
+            "Pointer" => "/data"
+        ]);
+        $this->setMeta($exception->getTraceAsString());
     }
 
+    /**
+     * Specify data which should be serialized to JSON
+     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * which is a value of any type other than a resource.
+     * @since 5.4.0
+     */
+    public function jsonSerialize()
+    {
+        return [
+            'id' => $this->getId(),
+            'links' => $this->getLinks(),
+            'status' => $this->getStatus(),
+            'code' => $this->getCode(),
+            'title' => $this->getTitle(),
+            'detail' => $this->getDetail(),
+            'source' => $this->getSource(),
+            'meta' => $this->getMeta()
+        ];
+    }
 
     /**
      * @return mixed
@@ -185,27 +213,5 @@ class Error implements \JsonSerializable
     public function setMeta($meta): void
     {
         $this->meta = $meta;
-    }
-
-
-    /**
-     * Specify data which should be serialized to JSON
-     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
-     */
-    public function jsonSerialize()
-    {
-        return [
-            'id' => $this->getId(),
-            'links' => $this->getLinks(),
-            'status' => $this->getStatus(),
-            'code' => $this->getCode(),
-            'title' => $this->getTitle(),
-            'detail' => $this->getDetail(),
-            'source' => $this->getSource(),
-            'meta' => $this->getMeta()
-        ];
     }
 }

@@ -6,14 +6,18 @@
  * Time: 13:03
  */
 
-namespace OpenAPI;
+namespace JSONAPI;
 
 
-use OpenAPI\Annotation\Attribute;
-use OpenAPI\Annotation\Id;
-use OpenAPI\Annotation\Relationship;
-use OpenAPI\Annotation\Resource;
+use JSONAPI\Annotation\Attribute;
+use JSONAPI\Annotation\Id;
+use JSONAPI\Annotation\Relationship;
+use JSONAPI\Annotation\Resource;
 
+/**
+ * Class ClassMetadata
+ * @package JSONAPI
+ */
 class ClassMetadata
 {
 
@@ -36,10 +40,10 @@ class ClassMetadata
 
     /**
      * ClassMetadata constructor.
-     * @param Id $id
+     * @param Id       $id
      * @param Resource $resource
-     * @param array $attributes
-     * @param array $relationships
+     * @param array    $attributes
+     * @param array    $relationships
      */
     public function __construct(Id $id, Resource $resource, array $attributes, array $relationships)
     {
@@ -81,13 +85,35 @@ class ClassMetadata
         return $this->relationships;
     }
 
+    /**
+     * @param string $name
+     * @return Relationship|null
+     */
     public function getRelationship(string $name): ?Relationship
     {
-        foreach ($this->relationships as $relationship){
-            if($relationship->name == $name){
+        foreach ($this->relationships as $relationship) {
+            if ($relationship->name == $name) {
                 return $relationship;
             }
         }
         return null;
+    }
+
+    /**
+     * @param string $fieldName
+     * @return bool
+     */
+    public function isRelationship(string $fieldName): bool
+    {
+        return array_key_exists($fieldName, $this->relationships);
+    }
+
+    /**
+     * @param string $fieldName
+     * @return bool
+     */
+    public function isAttribute(string $fieldName): bool
+    {
+        return array_key_exists($fieldName, $this->attributes);
     }
 }

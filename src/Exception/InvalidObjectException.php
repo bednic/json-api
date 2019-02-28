@@ -6,9 +6,12 @@
  * Time: 15:58
  */
 
-namespace OpenAPI\Exception;
+namespace JSONAPI\Exception;
 
-
+/**
+ * Class InvalidObjectException
+ * @package JSONAPI\Exception
+ */
 class InvalidObjectException extends \Exception
 {
 

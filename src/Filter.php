@@ -6,17 +6,20 @@
  * Time: 13:19
  */
 
-namespace OpenAPI;
+namespace JSONAPI;
 
+/**
+ * Class Filter
+ * @package JSONAPI
+ */
 class Filter
 {
 
-
-    const LIKE = '~=';
-    const GREATER_THEN = '>';
-    const LOWER_THEN = '<';
-    const EQUAL = '=';
-    const IN = '|';
+    const EQUAL = "=";
+    const NOT_EQUAL = "!";
+    const GREATER_THEN = ">";
+    const LOWER_THEN = "<";
+    const IN = "IN";
 
     const OFFSET = 'offset';
     const LIMIT = 'limit';
@@ -53,6 +56,50 @@ class Filter
 
     }
 
+    /**
+     * @return array
+     */
+    public function getIncludes(): array
+    {
+        return $this->includes;
+    }
+
+    /**
+     * @param $resourceType
+     * @return array
+     */
+    public function getFieldsFor($resourceType): array
+    {
+        return isset($this->fields[$resourceType]) ? $this->fields[$resourceType] : [];
+    }
+
+    /**
+     * @return array
+     */
+    public function getSort(): array
+    {
+        return $this->sort;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPagination(): array
+    {
+        return $this->pagination;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFilter(): array
+    {
+        return $this->filter;
+    }
+
+    /**
+     * @param string $query
+     */
     private function parseIncludes(string $query)
     {
         $t = explode(",", $query);
@@ -69,6 +116,9 @@ class Filter
         }
     }
 
+    /**
+     * @param array $query
+     */
     private function parseFields(array $query)
     {
         foreach ($query as $type => $fields) {
@@ -76,6 +126,9 @@ class Filter
         }
     }
 
+    /**
+     * @param string $query
+     */
     private function parseSort(string $query)
     {
         preg_match_all('/((?P<sort>-?)(?P<field>[a-z]+))/', $query, $matches);
@@ -84,6 +137,9 @@ class Filter
         }
     }
 
+    /**
+     * @param array $pagination
+     */
     private function parsePage(array $pagination)
     {
         if (isset($pagination[self::OFFSET])) {
@@ -94,46 +150,54 @@ class Filter
         }
     }
 
+    /**
+     * @param array $filters
+     */
     private function parseFilter(array $filters)
     {
-        foreach ($filters as $column => $condition) {
-            preg_match_all('/(?P<operand>OR|AND|)(?P<comparator>>|<|)(?P<value>[a-z0-9- ]+)/',$condition, $matches);
-            foreach ($matches['value'] as $i => $value){
-                $this->filter[$column][$matches['operand'][$i]?$matches['operand'][$i]:'OR'][] = [$value, $matches['comparator'][$i]?$matches['comparator'][$i]:'='];
+        foreach ($filters as $field => $value) {
+            preg_match('/^(?P<operand>!|>|<|)(?P<value>.+)/', $value, $matches);
+            $value = $this->guessDataType($matches["value"]);
+            if (is_array($value)) {
+                $operand = self::IN;
+            } elseif (in_array($matches["operand"], [self::GREATER_THEN, self::LOWER_THEN, self::NOT_EQUAL])) {
+                $operand = $matches["operand"];
+            } else {
+                $operand = self::EQUAL;
             }
+            $this->filter[$field] = [$operand, $value];
         }
     }
 
     /**
-     * @return array
+     * @param $value
+     * @return \DateTime|mixed|string|null
      */
-    public function getIncludes()
+    private function guessDataType($value)
     {
-        return $this->includes;
-    }
-
-    /**
-     * @param $resourceType
-     * @return array
-     */
-    public function getFieldsFor($resourceType)
-    {
-        return isset($this->fields[$resourceType]) ? $this->fields[$resourceType] : [];
-    }
-
-    /**
-     * @return array
-     */
-    public function getSort()
-    {
-        return $this->sort;
-    }
-
-    /**
-     * @return array
-     */
-    public function getPagination()
-    {
-        return $this->pagination;
+        if (preg_match('/^\[([a-zA-Z0-9-_. ]+\,?)+\]$/', $value, $matches)) {
+            preg_match_all('/([a-zA-Z0-9-_. ]+)\,?/', $matches[0], $values);
+            $ret = $values[1];
+            foreach ($ret as &$item) {
+                $item = $this->guessDataType($item);
+            }
+            return $ret;
+        } elseif ($ret = filter_var($value, FILTER_VALIDATE_INT)) {
+            return $ret;
+        } elseif ($ret = filter_var($value, FILTER_VALIDATE_FLOAT)) {
+            return $ret;
+        } elseif (($ret = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) !== null) {
+            return $ret;
+        } elseif ($value === "null") {
+            return null;
+        } elseif (strtotime($value)) {
+            try {
+                return new \DateTime($value);
+            } catch (\Exception $e) {
+                return $value;
+            }
+        } else {
+            return (string)$value;
+        }
     }
 }

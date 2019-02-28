@@ -6,22 +6,27 @@
  * Time: 15:10
  */
 
-namespace OpenAPI\Document;
+namespace JSONAPI\Document;
 
-
-class Links
+/**
+ * Class Link
+ * @package JSONAPI\Document
+ */
+class Link
 {
     const SELF = 'self';
+    const RELATED = 'related';
 
     /**
      * @param ResourceIdentifier $from owning resource
-     * @param string $to field name
+     * @param string             $to field name
      * @return array
      */
     public static function createRelationshipsLinks(ResourceIdentifier $from, string $to)
     {
         return [
-            self::SELF => BASE_API_URL . '/' . $from->getType() . '/' . $from->getId() . '/relationships/' . $to
+            self::SELF => BASE_API_URL . '/' . $from->getType() . '/' . $from->getId() . '/relationships/' . $to,
+            self::RELATED => BASE_API_URL . '/' . $from->getType() . '/' . $from->getId() . '/' . $to
         ];
     }
 

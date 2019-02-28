@@ -6,19 +6,24 @@
  * Time: 14:33
  */
 
-namespace OpenAPI;
+namespace JSONAPI;
 
 use Doctrine\Common\Util\ClassUtils;
-use OpenAPI\Annotation\Relationship;
-use OpenAPI\Document\Fields;
-use OpenAPI\Document\Links;
-use OpenAPI\Document\Relationships;
-use OpenAPI\Document\Resource;
-use OpenAPI\Document\ResourceIdentifier;
-use OpenAPI\Exception\NullException;
+use JSONAPI\Annotation\Relationship;
+use JSONAPI\Document\Fields;
+use JSONAPI\Document\Link;
+use JSONAPI\Document\Relationships;
+use JSONAPI\Document\Resource;
+use JSONAPI\Document\ResourceIdentifier;
+use JSONAPI\Exception\ClassMetadataException;
+use JSONAPI\Exception\NullException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class Encoder
+ * @package JSONAPI
+ */
 class Encoder
 {
     /**
@@ -26,8 +31,10 @@ class Encoder
      */
     private $metadataFactory;
 
-
-    private $logger = null;
+    /**
+     * @var LoggerInterface|NullLogger
+     */
+    private $logger;
 
     /**
      * @var object
@@ -42,7 +49,8 @@ class Encoder
     /**
      * @var ClassMetadata
      */
-    private $metadata = [];
+    private $metadata = null;
+
     /**
      * @var Fields
      */
@@ -62,12 +70,25 @@ class Encoder
     /**
      * @param $object
      * @return Encoder
+     * @throws ClassMetadataException
+     * @throws NullException
+     */
+    public function create($object): Encoder
+    {
+        return $this->__invoke($object);
+    }
+
+    /**
+     * @param $object
+     * @return Encoder
+     * @throws ClassMetadataException
      * @throws NullException
      */
     public function __invoke($object): Encoder
     {
-        $className = ClassUtils::getClass($object);
         $that = new self($this->metadataFactory, $this->logger);
+        // todo: this is only because using doctrine proxy
+        $className = ClassUtils::getClass($object);
         $that->object = $object;
         $this->logger->debug("Init encoding of {$className}.");
         try {
@@ -80,11 +101,12 @@ class Encoder
     }
 
     /**
-     * @param null $filter
+     * @param array $filter
      * @return Encoder
+     * @throws ClassMetadataException
      * @throws NullException
      */
-    public function withFields($filter = null): Encoder
+    public function withFields(array $filter = null): Encoder
     {
         try {
             $this->fields = new Fields();
@@ -102,12 +124,16 @@ class Encoder
                                 $relationships->addResource($this($object)->encode());
                             }
                         } else {
-                            $relationships = new Relationships($field->isCollection, $this($value)->encode());
+                            $relationships = new Relationships($field->isCollection, $value ? $this($value)->encode() : null);
 
                         }
-                        $relationships->setLinks(Links::createRelationshipsLinks(new ResourceIdentifier($this->getType(), $this->getId()), $name));
+                        $relationships->setLinks(Link::createRelationshipsLinks(new ResourceIdentifier($this->getType(), $this->getId()), $name));
                         $value = $relationships;
                         $this->logger->debug("Field {$name} is relationship");
+                    }
+                    if ($value instanceof \DateTime) {
+                        // ISO 8601
+                        $value = $value->format(DATE_ATOM);
                     }
                     $this->logger->debug("Adding field {$name}");
                     $this->fields->addField($name, $value);
@@ -120,12 +146,10 @@ class Encoder
     }
 
     /**
-     * @return ResourceIdentifier|Resource
-     * @throws \ReflectionException
+     * @return ResourceIdentifier | Resource
      */
     public function encode()
     {
-
         $type = $this->getType();
         $id = $this->getId();
         $identifier = new ResourceIdentifier($type, $id);
@@ -146,15 +170,18 @@ class Encoder
     }
 
     /**
-     * @return int|string
-     * @throws \ReflectionException
+     * @return int|string|null
      */
     public function getId()
     {
-        if ($this->metadata->getId()->getter != null) {
-            return call_user_func([$this->object, $this->metadata->getId()->getter]);
-        } else {
-            return $this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
+        try {
+            if ($this->metadata->getId()->getter != null) {
+                return call_user_func([$this->object, $this->metadata->getId()->getter]);
+            } else {
+                return $this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
+            }
+        } catch (\ReflectionException $e) {
+            return null;
         }
     }
 

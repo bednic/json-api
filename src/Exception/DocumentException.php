@@ -6,9 +6,12 @@
  * Time: 14:53
  */
 
-namespace OpenAPI\Exception;
+namespace JSONAPI\Exception;
 
-
+/**
+ * Class DocumentException
+ * @package JSONAPI\Exception
+ */
 class DocumentException extends \Exception
 {
 

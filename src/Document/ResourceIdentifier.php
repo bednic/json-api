@@ -6,31 +6,42 @@
  * Time: 12:41
  */
 
-namespace OpenAPI\Document;
+namespace JSONAPI\Document;
 
+
+use Doctrine\Common\Collections\ArrayCollection;
 
 class ResourceIdentifier implements \JsonSerializable
 {
 
+    /**
+     * @var string
+     */
     protected $type;
+    /**
+     * @var mixed
+     */
     protected $id;
-    protected $meta = null;
+    /**
+     * @var ArrayCollection
+     */
+    protected $meta;
 
     /**
      * ResourceIdentifier constructor.
      * @param $type
      * @param $id
-     * @param null $meta
      */
     public function __construct(string $type, $id)
     {
         $this->type = $type;
         $this->id = $id;
+        $this->meta = new ArrayCollection();
     }
 
-    public function setMeta($meta)
+    public function addMeta($key, $value)
     {
-        $this->meta = $meta;
+        $this->meta[$key] = $value;
     }
 
     /**
@@ -60,8 +71,8 @@ class ResourceIdentifier implements \JsonSerializable
     public function jsonSerialize()
     {
         $ret = ['type' => $this->type, 'id' => $this->id];
-        if ($this->meta) {
-            $ret['meta'] = $this->meta;
+        if (!$this->meta->isEmpty()) {
+            $ret['meta'] = $this->meta->toArray();
         }
         return $ret;
     }

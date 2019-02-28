@@ -6,30 +6,36 @@
  * Time: 14:57
  */
 
-namespace OpenAPI\Document;
+namespace JSONAPI\Document;
 
-class Resource extends ResourceIdentifier implements \JsonSerializable
+use Doctrine\Common\Collections\ArrayCollection;
+
+/**
+ * Class Resource
+ * @package JSONAPI\Document
+ */
+class Resource extends ResourceIdentifier
 {
     /**
      * @var Fields
      */
     private $fields;
-    /**
-     * @var array
-     */
-    private $links = [];
 
     /**
-     *
+     * @var ArrayCollection
+     */
+    private $links;
+
+    /**
      * @param ResourceIdentifier $resourceIdentifier
-     * @param Fields $fields
+     * @param Fields             $fields
      */
 
     public function __construct(ResourceIdentifier $resourceIdentifier, Fields $fields)
     {
         parent::__construct($resourceIdentifier->type, $resourceIdentifier->id);
         $this->fields = $fields;
-        $this->links = Links::createResourceLinks($resourceIdentifier);
+        $this->links = new ArrayCollection(Link::createResourceLinks($resourceIdentifier));
     }
 
     /**
@@ -49,17 +55,17 @@ class Resource extends ResourceIdentifier implements \JsonSerializable
     }
 
     /**
-     * @return array
+     * @return ArrayCollection
      */
-    public function getLinks(): array
+    public function getLinks(): ArrayCollection
     {
         return $this->links;
     }
 
     /**
-     * @return array
+     * @return ArrayCollection
      */
-    public function getMeta(): array
+    public function getMeta(): ArrayCollection
     {
         return $this->meta;
     }
@@ -74,10 +80,14 @@ class Resource extends ResourceIdentifier implements \JsonSerializable
     public function jsonSerialize()
     {
         $ret = parent::jsonSerialize();
-        $ret['attributes'] = $this->fields->getAttributes()->toArray();
-        $ret['relationships'] = $this->fields->getRelationships()->toArray();
-        if($this->links){
-            $ret['links'] = $this->links;
+        if (!$this->fields->getAttributes()->isEmpty()) {
+            $ret['attributes'] = $this->fields->getAttributes()->toArray();
+        }
+        if (!$this->fields->getRelationships()->isEmpty()) {
+            $ret['relationships'] = $this->fields->getRelationships()->toArray();
+        }
+        if (!$this->links->isEmpty()) {
+            $ret['links'] = $this->links->toArray();
         }
         return $ret;
     }

@@ -6,9 +6,12 @@
  * Time: 13:30
  */
 
-namespace OpenAPI\Annotation;
+namespace JSONAPI\Annotation;
 
-
+/**
+ * Class Common
+ * @package JSONAPI\Annotation
+ */
 class Common
 {
     /**

@@ -1,5 +1,5 @@
 {
-    "name": "tomas-benedikt/open-api",
+    "name": "lasicka/json-api",
     "version": "1.0.0",
     "description": "Open API implementation onto Doctrine Annotations",
     "type": "library",
@@ -9,6 +9,7 @@
         "doctrine/annotations": "^1.6",
         "doctrine/cache": "^1.8",
         "psr/log": "^1.1",
+        "psr/http-server-middleware": "^1.0",
         "doctrine/common": "^2.10"
     },
     "require-dev": {

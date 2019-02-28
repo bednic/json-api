@@ -6,18 +6,19 @@
  * Time: 15:57
  */
 
-namespace OpenAPI\Driver;
+namespace JSONAPI\Driver;
 
+use JSONAPI\ClassMetadata;
 
-use OpenAPI\ClassMetadata;
-use OpenAPI\Exception\InvalidObjectException;
-
+/**
+ * Interface IDriver
+ * @package JSONAPI\Driver
+ */
 interface IDriver
 {
     /**
      * @param string $className
-     * @return ClassMetadata | null if no Resource object for $classname found.
-     * @throws InvalidObjectException
+     * @return ClassMetadata|null
      */
     public function getClassMetadata(string $className): ?ClassMetadata;
 }

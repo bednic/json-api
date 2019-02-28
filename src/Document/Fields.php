@@ -6,14 +6,16 @@
  * Time: 12:49
  */
 
-namespace OpenAPI\Document;
+namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
+/**
+ * Class Fields
+ * @package JSONAPI\Document
+ */
 class Fields implements \JsonSerializable
 {
-    protected $name;
-
     /**
      * @var ArrayCollection
      */
@@ -40,16 +42,6 @@ class Fields implements \JsonSerializable
 
     }
 
-    public function getAttributes()
-    {
-        return $this->attributes;
-    }
-
-    public function getRelationships()
-    {
-        return $this->relationships;
-    }
-
     /**
      * Specify data which should be serialized to JSON
      * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -66,6 +58,16 @@ class Fields implements \JsonSerializable
             $ret['relationships'] = $this->getRelationships()->toArray();
         }
         return $ret;
+    }
+
+    public function getAttributes()
+    {
+        return $this->attributes;
+    }
+
+    public function getRelationships()
+    {
+        return $this->relationships;
     }
 
 }

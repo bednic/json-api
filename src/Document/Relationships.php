@@ -6,11 +6,14 @@
  * Time: 12:46
  */
 
-namespace OpenAPI\Document;
-
+namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
+/**
+ * Class Relationships
+ * @package JSONAPI\Document
+ */
 class Relationships extends Fields
 {
     private $isCollection = true;
@@ -29,7 +32,7 @@ class Relationships extends Fields
 
     /**
      * Relationships constructor.
-     * @param bool $isCollection
+     * @param bool                    $isCollection
      * @param ResourceIdentifier|null $resourceIdentifier
      */
     public function __construct($isCollection = true, ResourceIdentifier $resourceIdentifier = null)
@@ -41,7 +44,6 @@ class Relationships extends Fields
         } else {
             $this->data = $resourceIdentifier;
         }
-
 
 
     }
