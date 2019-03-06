@@ -19,6 +19,7 @@ class Filter
     const NOT_EQUAL = "!";
     const GREATER_THEN = ">";
     const LOWER_THEN = "<";
+    const LIKE = "~";
     const IN = "IN";
 
     const OFFSET = 'offset';
@@ -160,7 +161,7 @@ class Filter
             $value = $this->guessDataType($matches["value"]);
             if (is_array($value)) {
                 $operand = self::IN;
-            } elseif (in_array($matches["operand"], [self::GREATER_THEN, self::LOWER_THEN, self::NOT_EQUAL])) {
+            } elseif (in_array($matches["operand"], [self::GREATER_THEN, self::LOWER_THEN, self::NOT_EQUAL, self::LIKE])) {
                 $operand = $matches["operand"];
             } else {
                 $operand = self::EQUAL;
@@ -171,7 +172,7 @@ class Filter
 
     /**
      * @param $value
-     * @return \DateTime|mixed|string|null
+     * @return mixed
      */
     private function guessDataType($value)
     {

@@ -32,7 +32,17 @@ class Document implements \JsonSerializable
      * @var ArrayCollection
      */
     private $links;
+
+    /**
+     * @var ArrayCollection
+     */
     private $included;
+
+    /**
+     * Determine if included was called, then we will return included prop in Document even it it's empty
+     * @var bool
+     */
+    private $withIncluded = false;
 
     /**
      * Document constructor.
@@ -43,11 +53,11 @@ class Document implements \JsonSerializable
      */
     public function __construct(array $data = null, array $includes = [], array $links = [], array $metas = [])
     {
-
         $this->links = new ArrayCollection($links);
         $this->meta = new ArrayCollection($metas);
-        if ($data) $this->setData($data);
         $this->included = new ArrayCollection($includes);
+        if ($data) $this->setData($data);
+
     }
 
     /**
@@ -67,13 +77,21 @@ class Document implements \JsonSerializable
 
     }
 
+    /**
+     * @return ArrayCollection
+     */
     public function getIncludes()
     {
+        $this->withIncluded = true;
         return $this->included;
     }
 
+    /**
+     * @param ArrayCollection $includes
+     */
     public function setIncludes(ArrayCollection $includes)
     {
+        $this->withIncluded = true;
         $this->included = $includes;
     }
 
@@ -122,7 +140,7 @@ class Document implements \JsonSerializable
         if (!$this->links->isEmpty()) {
             $ret["links"] = $this->links->toArray();
         }
-        if (!$this->included->isEmpty()) {
+        if ($this->withIncluded || !$this->included->isEmpty()) {
             $ret["included"] = $this->included->toArray();
         }
         return $ret;

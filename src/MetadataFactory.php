@@ -15,6 +15,8 @@ use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Driver\IDriver;
 use JSONAPI\Exception\ClassMetadataException;
 use JSONAPI\Exception\NullException;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class MetadataFactory
 {
@@ -31,9 +33,9 @@ class MetadataFactory
      */
     private $driver;
     /**
-     * @var bool
+     * @var LoggerInterface
      */
-    private $debug;
+    private $logger;
     /**
      * @var array
      */
@@ -45,23 +47,22 @@ class MetadataFactory
 
     /**
      * MetadataFactory constructor.
-     * @param string       $pathToObjects
-     * @param Cache|null   $cache
-     * @param IDriver|null $driver
-     * @param bool         $debug
+     * @param string               $pathToObjects
+     * @param Cache|null           $cache
+     * @param IDriver|null         $driver
+     * @param LoggerInterface|null $logger
      * @throws ClassMetadataException
      * @throws NullException
      * @throws \Doctrine\Common\Annotations\AnnotationException
      */
-    public function __construct(string $pathToObjects, Cache $cache = null, IDriver $driver = null, bool $debug = false)
+    public function __construct(string $pathToObjects, Cache $cache = null, IDriver $driver = null, LoggerInterface $logger = null)
     {
         if (!is_dir($pathToObjects)) throw new NullException("Path to object is not directory.");
         $this->path = $pathToObjects;
-        $this->driver = $driver ?: new AnnotationDriver();
+        $this->driver = $driver ?: new AnnotationDriver($logger);
         $this->cache = $cache ?: new ArrayCache();
-        $this->debug = $debug;
-        // todo: make this call only once!
-        $this->createMetadataCache();
+        $this->logger = $logger ?: new NullLogger();
+        $this->load();
     }
 
     /**
@@ -106,7 +107,7 @@ class MetadataFactory
      * @return void
      * @throws ClassMetadataException
      */
-    private function createMetadataCache()
+    private function createMetadataCache(): void
     {
         $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->path));
         $it->rewind();
@@ -125,12 +126,38 @@ class MetadataFactory
 
         foreach (get_declared_classes() as $className) {
             try {
-                $classMetadata = $this->getMetadataByClass($className);
-                $this->metadata[$className] = $classMetadata;
-                $this->typeToClassMap[$classMetadata->getResource()->type] = $className;
+                $this->loadMetadata($className);
             } catch (NullException $e) {
                 // not existing class
             }
         }
+        $this->cache->save(self::class, array_keys($this->metadata));
+    }
+
+    /**
+     * @throws ClassMetadataException
+     * @throws NullException
+     */
+    private function load(): void
+    {
+        if ($this->cache->contains(self::class)) {
+            foreach ($this->cache->fetch(self::class) as $className) {
+                $this->loadMetadata($className);
+            }
+        } else {
+            $this->createMetadataCache();
+        }
+    }
+
+    /**
+     * @param string $className
+     * @throws ClassMetadataException
+     * @throws NullException
+     */
+    private function loadMetadata(string $className)
+    {
+        $classMetadata = $this->getMetadataByClass($className);
+        $this->metadata[$className] = $classMetadata;
+        $this->typeToClassMap[$classMetadata->getResource()->type] = $classMetadata;
     }
 }
