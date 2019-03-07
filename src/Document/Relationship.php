@@ -14,7 +14,7 @@ use Doctrine\Common\Collections\ArrayCollection;
  * Class Relationships
  * @package JSONAPI\Document
  */
-class Relationships extends Fields
+class Relationship extends Fields
 {
     private $isCollection = true;
     /**
@@ -48,6 +48,9 @@ class Relationships extends Fields
 
     }
 
+    /**
+     * @param ResourceIdentifier $resourceIdentifier
+     */
     public function addResource(ResourceIdentifier $resourceIdentifier)
     {
         if ($this->isCollection && !$this->data->contains($resourceIdentifier)) {
@@ -55,11 +58,17 @@ class Relationships extends Fields
         }
     }
 
+    /**
+     * @param array $links
+     */
     public function setLinks(array $links)
     {
         $this->links = $links;
     }
 
+    /**
+     * @return array|mixed
+     */
     public function jsonSerialize()
     {
         $ret = [

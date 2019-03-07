@@ -8,7 +8,6 @@
 
 namespace JSONAPI\Document;
 
-
 use Doctrine\Common\Collections\ArrayCollection;
 
 class ResourceIdentifier implements \JsonSerializable
@@ -29,8 +28,8 @@ class ResourceIdentifier implements \JsonSerializable
 
     /**
      * ResourceIdentifier constructor.
-     * @param $type
-     * @param $id
+     * @param string $type
+     * @param mixed $id
      */
     public function __construct(string $type, $id)
     {

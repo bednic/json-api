@@ -6,6 +6,7 @@
     "license": "BSD 3-Clause",
     "require": {
         "php": "^7.1",
+        "ext-json": "*",
         "doctrine/annotations": "^1.6",
         "doctrine/cache": "^1.8",
         "psr/log": "^1.1",

@@ -6,7 +6,7 @@
  * Time: 13:19
  */
 
-namespace JSONAPI;
+namespace JSONAPI\Filter;
 
 /**
  * Class Filter
@@ -156,17 +156,33 @@ class Filter
      */
     private function parseFilter(array $filters)
     {
-        foreach ($filters as $field => $value) {
-            preg_match('/^(?P<operand>!|>|<|)(?P<value>.+)/', $value, $matches);
-            $value = $this->guessDataType($matches["value"]);
-            if (is_array($value)) {
-                $operand = self::IN;
-            } elseif (in_array($matches["operand"], [self::GREATER_THEN, self::LOWER_THEN, self::NOT_EQUAL, self::LIKE])) {
-                $operand = $matches["operand"];
+        foreach ($filters as $field => $values) {
+            if (is_array($values)) {
+                foreach ($values as $value) {
+                    preg_match('/^(?P<operand>!|>|<|~|)(?P<value>.+)/', $value, $matches);
+                    $value = $this->guessDataType($matches["value"]);
+                    if (is_array($value)) {
+                        $operand = self::IN;
+                    } elseif (in_array($matches["operand"], [self::GREATER_THEN, self::LOWER_THEN, self::NOT_EQUAL, self::LIKE])) {
+                        $operand = $matches["operand"];
+                    } else {
+                        $operand = self::EQUAL;
+                    }
+                    $this->filter[$field][] = new Condition($value, $operand);
+                }
             } else {
-                $operand = self::EQUAL;
+                preg_match('/^(?P<operand>!|>|<|~|)(?P<value>.+)/', $values, $matches);
+                $value = $this->guessDataType($matches["value"]);
+                if (is_array($value)) {
+                    $operand = self::IN;
+                } elseif (in_array($matches["operand"], [self::GREATER_THEN, self::LOWER_THEN, self::NOT_EQUAL, self::LIKE])) {
+                    $operand = $matches["operand"];
+                } else {
+                    $operand = self::EQUAL;
+                }
+                $this->filter[$field] = new Condition($value, $operand);
             }
-            $this->filter[$field] = [$operand, $value];
+
         }
     }
 

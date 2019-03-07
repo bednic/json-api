@@ -12,7 +12,6 @@ use Doctrine\Common\Util\ClassUtils;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Document\Fields;
 use JSONAPI\Document\Link;
-use JSONAPI\Document\Relationships;
 use JSONAPI\Document\Resource;
 use JSONAPI\Document\ResourceIdentifier;
 use JSONAPI\Exception\ClassMetadataException;
@@ -119,12 +118,12 @@ class Encoder
                     }
                     if ($field instanceof Relationship) {
                         if (is_iterable($value)) {
-                            $relationships = new Relationships($field->isCollection);
+                            $relationships = new Document\Relationship($field->isCollection);
                             foreach ($value as $object) {
                                 $relationships->addResource($this($object)->encode());
                             }
                         } else {
-                            $relationships = new Relationships($field->isCollection, $value ? $this($value)->encode() : null);
+                            $relationships = new Document\Relationship($field->isCollection, $value ? $this($value)->encode() : null);
 
                         }
                         $relationships->setLinks(Link::createRelationshipsLinks(new ResourceIdentifier($this->getType(), $this->getId()), $name));

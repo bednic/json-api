@@ -82,7 +82,6 @@ class Document implements \JsonSerializable
      */
     public function getIncludes()
     {
-        $this->withIncluded = true;
         return $this->included;
     }
 
@@ -91,7 +90,6 @@ class Document implements \JsonSerializable
      */
     public function setIncludes(ArrayCollection $includes)
     {
-        $this->withIncluded = true;
         $this->included = $includes;
     }
 

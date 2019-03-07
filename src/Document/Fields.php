@@ -25,21 +25,43 @@ class Fields implements \JsonSerializable
      */
     private $relationships;
 
+    /**
+     * Fields constructor.
+     */
     public function __construct()
     {
         $this->attributes = new ArrayCollection();
         $this->relationships = new ArrayCollection();
     }
 
-    public function addField($name, $value)
+    /**
+     * @param string $name
+     * @param mixed $value
+     */
+    public function addField(string $name, $value): void
     {
-        if ($value instanceof Relationships) {
-
+        if ($value instanceof Relationship) {
             $this->relationships->set($name, $value);
         } else {
             $this->attributes->set($name, $value);
         }
 
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getAttributes(): ArrayCollection
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * @return ArrayCollection|Relationship[]
+     */
+    public function getRelationships(): ArrayCollection
+    {
+        return $this->relationships;
     }
 
     /**
@@ -60,14 +82,5 @@ class Fields implements \JsonSerializable
         return $ret;
     }
 
-    public function getAttributes()
-    {
-        return $this->attributes;
-    }
-
-    public function getRelationships()
-    {
-        return $this->relationships;
-    }
 
 }
