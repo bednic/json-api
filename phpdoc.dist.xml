@@ -4,7 +4,7 @@
     <title>JSON API Documentation</title>
     <parser>
         <default-package-name>phpDocumentor</default-package-name>
-        <target>./cache</target>
+        <target>cache</target>
     </parser>
     <transformer>
         <target>docs</target>
@@ -16,6 +16,6 @@
         <plugin path="Core"/>
     </plugins>
     <transformations>
-        <template name="clean"/>
+        <template name="responsive"/>
     </transformations>
 </phpdocumentor>
