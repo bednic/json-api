@@ -1,7 +1,7 @@
 /docker export-ignore
 /test export-ignore
 /vendor export-ignore
-/.* export-ignore
-/*.xml export-ignore
-/phpDocumentor.phar export-ignore
-/phpDocumentor.phar.pubkey export-ignore
+.* export-ignore
+*.xml export-ignore
+phpDocumentor.phar export-ignore
+phpDocumentor.phar.pubkey export-ignore

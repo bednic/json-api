@@ -46,10 +46,10 @@
             "/docker",
             "/test",
             "/vendor",
-            "/.*",
-            "/*.xml",
-            "/phpDocumentor.phar",
-            "/phpDocumentor.phar.pubkey"
+            ".*",
+            "*.xml",
+            "phpDocumentor.phar",
+            "phpDocumentor.phar.pubkey"
         ]
     }
 }
