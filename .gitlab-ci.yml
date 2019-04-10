@@ -21,7 +21,7 @@ test:
 pages:
     stage: docs
     only:
-        - master
+        - tags
     script:
         - php -n phpDocumentor.phar
         - mkdir -p public
