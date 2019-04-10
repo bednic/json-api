@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "JSON API implementation driven by annotations",
     "type": "library",
-    "license": "BSD 3-Clause",
+    "license": "MIT",
     "require": {
         "php": "^7.1",
         "doctrine/annotations": "^1.6",
