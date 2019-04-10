@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdocumentor>
+    <version>3</version>
+    <title>JSON API Documentation</title>
+    <parser>
+        <default-package-name>phpDocumentor</default-package-name>
+        <target>./cache</target>
+    </parser>
+    <transformer>
+        <target>docs</target>
+    </transformer>
+    <files>
+        <directory>src</directory>
+    </files>
+    <plugins>
+        <plugin path="Core"/>
+    </plugins>
+    <transformations>
+        <template name="clean"/>
+    </transformations>
+</phpdocumentor>

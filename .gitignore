@@ -1,3 +1,6 @@
-/vendor
-/.idea
-/*.iml
+vendor/
+.idea
+*.iml
+tmp/
+cache/
+docs/

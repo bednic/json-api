@@ -137,7 +137,7 @@ class AnnotationDriver implements IDriver
                         $attribute->property = $reflectionClass->hasProperty($property) ? $property : null;
                     }
 
-                    if (!$attribute->setter) {
+                    if ($attribute->setter === null) {
                         if ($reflectionClass->hasMethod(str_replace(['get', 'is'], 'set', $attribute->getter))) {
                             $attribute->setter = str_replace(['get', 'is'], 'set', $attribute->getter);
                         } elseif ($reflectionClass->hasMethod('set' . ucfirst($attribute->name))) {

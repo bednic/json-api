@@ -1,7 +1,7 @@
 {
-    "name": "lasicka/json-api",
+    "name": "bednic/json-api",
     "version": "1.0.0",
-    "description": "Open API implementation onto Doctrine Annotations",
+    "description": "JSON API implementation driven by annotations",
     "type": "library",
     "license": "BSD 3-Clause",
     "require": {
@@ -10,7 +10,8 @@
         "doctrine/cache": "^1.8",
         "psr/log": "^1.1",
         "psr/http-server-middleware": "^1.0",
-        "doctrine/common": "^2.10"
+        "doctrine/common": "^2.10",
+        "ext-json": "*"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.3"
@@ -21,7 +22,7 @@
             "src"
         ],
         "psr-4": {
-            "OpenAPI\\":"src/"
+            "JSONAPI\\":"src/"
         }
     }
 }

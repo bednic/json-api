@@ -25,12 +25,12 @@ class Common
     public $property;
 
     /**
-     * @var string
+     * @var string|null
      */
     public $getter = null;
 
     /**
-     * @var string
+     * @var mixed
      */
     public $setter = null;
 }
