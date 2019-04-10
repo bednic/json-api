@@ -1,9 +1,20 @@
 {
     "name": "bednic/json-api",
-    "version": "1.0.0",
-    "description": "JSON API implementation driven by annotations",
     "type": "library",
+    "description": "JSON API implementation driven by annotations",
+    "keywords": [
+        "json",
+        "api",
+        "rest",
+        "annotations"
+    ],
     "license": "MIT",
+    "authors": [
+        {
+            "name": "Tomáš Benedikt",
+            "email": "tomas.benedikt@gmail.com"
+        }
+    ],
     "require": {
         "php": "^7.1",
         "doctrine/annotations": "^1.6",
@@ -22,7 +33,23 @@
             "src"
         ],
         "psr-4": {
-            "JSONAPI\\":"src/"
+            "JSONAPI\\": "src/"
         }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "JSONAPI\\": "test/"
+        }
+    },
+    "archive": {
+        "exclude": [
+            "/docker",
+            "/test",
+            "/vendor",
+            "/.*",
+            "/*.xml",
+            "/phpDocumentor.phar",
+            "/phpDocumentor.phar.pubkey"
+        ]
     }
 }
