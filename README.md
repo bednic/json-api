@@ -18,7 +18,7 @@ This library only provides data and wrappers to create valid JSON API document. 
 ```php
 <?php
 
-use JSONAPI\Annotation as API;
+use \JSONAPI\Annotation as API;
 
 /**
  * Class Attribute
@@ -84,7 +84,7 @@ class Attribute
 $factory = new \JSONAPI\MetadataFactory('/path/to/your/resources');
 
 // Getting metadata
-$metadata = $factory->getMetadataByClass(\JSONAPI\Annotation\Attribute::class);
+$metadata = $factory->getMetadataByClass(\Attribute::class);
 
 // Bellow you can see, you have access to all necessary data
 $resourceType = $metadata->getResource()->type;
@@ -98,7 +98,7 @@ $linkProvider = new \JSONAPI\LinkProvider('http://localhost/');
 $encoder = new \JSONAPI\Encoder($factory, $linkProvider);
 
 // Our object
-$attribute = new Attribute();
+$attribute = new \Attribute();
 
 $resourceIdentifier = $encoder($attribute)->encode();
 // OR
