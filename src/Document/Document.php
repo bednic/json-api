@@ -10,6 +10,7 @@ namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\DocumentException;
+use JSONAPI\LinkProvider;
 
 /**
  * Class Document
@@ -19,7 +20,11 @@ class Document implements \JsonSerializable
 {
     const MEDIA_TYPE = "application/vnd.api+json";
 
+    private $linkProvider;
+
+
     private $data;
+
     private $errors = null;
     /**
      * @var ArrayCollection
@@ -39,25 +44,16 @@ class Document implements \JsonSerializable
     private $included;
 
     /**
-     * Determine if included was called, then we will return included prop in Document even it it's empty
-     * @var bool
-     */
-    private $withIncluded = false;
-
-    /**
      * Document constructor.
-     * @param array $data
-     * @param array $includes
-     * @param array $links
-     * @param array $metas
+     * @param LinkProvider $linkProvider
      */
-    public function __construct(array $data = null, array $includes = [], array $links = [], array $metas = [])
+    public function __construct(LinkProvider $linkProvider)
     {
-        $this->links = new ArrayCollection($links);
-        $this->meta = new ArrayCollection($metas);
-        $this->included = new ArrayCollection($includes);
-        if ($data) $this->setData($data);
-
+        $this->linkProvider = $linkProvider;
+        $this->links = new ArrayCollection();
+        $this->meta = new ArrayCollection();
+        $this->included = new ArrayCollection();
+        $this->addLink(...$linkProvider->createPrimaryDataLink());
     }
 
     /**
@@ -66,15 +62,6 @@ class Document implements \JsonSerializable
     public function setData($data)
     {
         $this->data = $data;
-        if ($this->data instanceof Resource) {
-            $this->addLink(Link::SELF, $this->data->getLinks()->get(Link::SELF));
-            $this->data->getLinks()->remove(Link::SELF);
-        } else {
-            $uri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-            $parsed = parse_url($uri);
-            $this->addLink(Link::SELF, $parsed["scheme"] . '://' . $parsed["host"] . $parsed["path"]);
-        }
-
     }
 
     /**
@@ -96,6 +83,11 @@ class Document implements \JsonSerializable
     public function addLink($key, $link)
     {
         $this->links->set($key, $link);
+    }
+
+    public function getLink($key)
+    {
+        return $this->links->get($key);
     }
 
     public function addMeta($key, $value)
@@ -138,7 +130,7 @@ class Document implements \JsonSerializable
         if (!$this->links->isEmpty()) {
             $ret["links"] = $this->links->toArray();
         }
-        if ($this->withIncluded || !$this->included->isEmpty()) {
+        if (!$this->included->isEmpty()) {
             $ret["included"] = $this->included->toArray();
         }
         return $ret;

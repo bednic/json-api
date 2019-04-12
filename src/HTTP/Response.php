@@ -11,6 +11,11 @@ namespace JSONAPI\HTTP;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
+/**
+ * Class Response
+ * @package JSONAPI\HTTP
+ * TODO: WIP
+ */
 class Response implements ResponseInterface
 {
     /**

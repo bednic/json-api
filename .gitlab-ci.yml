@@ -1,0 +1,31 @@
+image: registry.gitlab.com/bednic/json-api/ci:latest
+
+stages:
+    - build
+    - test
+    - docs
+
+build:
+    stage: build
+    script:
+        - composer install
+    artifacts:
+        paths:
+            - vendor
+
+test:
+    stage: test
+    script:
+        - vendor/bin/phpunit
+
+pages:
+    stage: docs
+    only:
+        - tags
+    script:
+        - php -n phpDocumentor.phar
+        - mkdir -p public
+        - mv docs/* public/
+    artifacts:
+        paths:
+            - public

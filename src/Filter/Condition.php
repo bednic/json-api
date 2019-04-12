@@ -7,13 +7,21 @@
  */
 
 namespace JSONAPI\Filter;
-
+/**
+ * Class Condition
+ * @package JSONAPI\Filter
+ */
 class Condition
 {
 
     public $operand = Filter::EQUAL;
     public $value;
 
+    /**
+     * Condition constructor.
+     * @param        $value
+     * @param string $operand
+     */
     public function __construct($value, $operand = Filter::EQUAL)
     {
         $this->value = $value;

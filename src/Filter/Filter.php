@@ -132,7 +132,7 @@ class Filter
      */
     private function parseSort(string $query)
     {
-        preg_match_all('/((?P<sort>-?)(?P<field>[a-z]+))/', $query, $matches);
+        preg_match_all('/((?P<sort>-?)(?P<field>[a-zA-Z0-9]+))/', $query, $matches);
         foreach ($matches['field'] as $i => $field) {
             $this->sort[$field] = $matches['sort'][$i] ? "DESC" : "ASC";
         }
@@ -207,7 +207,7 @@ class Filter
             return $ret;
         } elseif ($value === "null") {
             return null;
-        } elseif (strtotime($value)) {
+        } elseif (strlen($value) >= 4 && strtotime($value)) {
             try {
                 return new \DateTime($value);
             } catch (\Exception $e) {

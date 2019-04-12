@@ -22,11 +22,6 @@ class Resource extends ResourceIdentifier
     private $fields;
 
     /**
-     * @var ArrayCollection
-     */
-    private $links;
-
-    /**
      * @param ResourceIdentifier $resourceIdentifier
      * @param Fields             $fields
      */
@@ -35,7 +30,6 @@ class Resource extends ResourceIdentifier
     {
         parent::__construct($resourceIdentifier->type, $resourceIdentifier->id);
         $this->fields = $fields;
-        $this->links = new ArrayCollection(Link::createResourceLinks($resourceIdentifier));
     }
 
     /**
@@ -52,14 +46,6 @@ class Resource extends ResourceIdentifier
     public function getId()
     {
         return $this->id;
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getLinks(): ArrayCollection
-    {
-        return $this->links;
     }
 
     /**
@@ -85,9 +71,6 @@ class Resource extends ResourceIdentifier
         }
         if (!$this->fields->getRelationships()->isEmpty()) {
             $ret['relationships'] = $this->fields->getRelationships()->toArray();
-        }
-        if (!$this->links->isEmpty()) {
-            $ret['links'] = $this->links->toArray();
         }
         return $ret;
     }

@@ -17,7 +17,7 @@ namespace JSONAPI\Document;
 class Error implements \JsonSerializable
 {
     /**
-     * @var
+     * @var string
      */
     private $id;
     /**
@@ -33,19 +33,19 @@ class Error implements \JsonSerializable
      */
     private $code;
     /**
-     * @var
+     * @var string
      */
     private $title;
     /**
-     * @var
+     * @var string
      */
     private $detail;
     /**
-     * @var
+     * @var array
      */
     private $source = [];
     /**
-     * @var
+     * @var array
      */
     private $meta;
 

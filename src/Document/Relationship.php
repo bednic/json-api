@@ -33,28 +33,28 @@ class Relationship extends Fields
     /**
      * Relationships constructor.
      * @param bool                    $isCollection
-     * @param ResourceIdentifier|null $resourceIdentifier
      */
-    public function __construct($isCollection = true, ResourceIdentifier $resourceIdentifier = null)
+    public function __construct($isCollection = true)
     {
         parent::__construct();
         $this->isCollection = $isCollection;
         if ($this->isCollection) {
             $this->data = new ArrayCollection();
-        } else {
-            $this->data = $resourceIdentifier;
         }
 
 
     }
 
     /**
-     * @param ResourceIdentifier $resourceIdentifier
+     * @param ResourceIdentifier|null $resourceIdentifier
      */
-    public function addResource(ResourceIdentifier $resourceIdentifier)
+    public function addResource(?ResourceIdentifier $resourceIdentifier)
     {
         if ($this->isCollection && !$this->data->contains($resourceIdentifier)) {
             $this->data->add($resourceIdentifier);
+        }
+        else{
+            $this->data = $resourceIdentifier;
         }
     }
 

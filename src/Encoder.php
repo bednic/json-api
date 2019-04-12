@@ -11,7 +11,6 @@ namespace JSONAPI;
 use Doctrine\Common\Util\ClassUtils;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Document\Fields;
-use JSONAPI\Document\Link;
 use JSONAPI\Document\Resource;
 use JSONAPI\Document\ResourceIdentifier;
 use JSONAPI\Exception\ClassMetadataException;
@@ -55,14 +54,18 @@ class Encoder
      */
     private $fields = null;
 
+    private $linkProvider;
+
     /**
      * Encoder constructor.
      * @param MetadataFactory $metadataFactory
+     * @param LinkProvider    $linkProvider
      * @param LoggerInterface $logger
      */
-    public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
+    public function __construct(MetadataFactory $metadataFactory, LinkProvider $linkProvider, LoggerInterface $logger = null)
     {
         $this->metadataFactory = $metadataFactory;
+        $this->linkProvider = $linkProvider;
         $this->logger = $logger ? $logger : new NullLogger();
     }
 
@@ -85,8 +88,8 @@ class Encoder
      */
     public function __invoke($object): Encoder
     {
-        $that = new self($this->metadataFactory, $this->logger);
-        // todo: this is only because using doctrine proxy
+        $that = new self($this->metadataFactory, $this->linkProvider, $this->logger);
+        // this is only necessary cause using doctrine proxy
         $className = ClassUtils::getClass($object);
         $that->object = $object;
         $this->logger->debug("Init encoding of {$className}.");
@@ -117,17 +120,18 @@ class Encoder
                         $value = $this->ref->getProperty($field->property)->getValue($this->object);
                     }
                     if ($field instanceof Relationship) {
+                        $relationship = new Document\Relationship($field->isCollection);
                         if (is_iterable($value)) {
-                            $relationships = new Document\Relationship($field->isCollection);
                             foreach ($value as $object) {
-                                $relationships->addResource($this($object)->encode());
+                                $relationship->addResource($this($object)->encode());
                             }
                         } else {
-                            $relationships = new Document\Relationship($field->isCollection, $value ? $this($value)->encode() : null);
-
+                            $relationship->addResource($value ? $this($value)->encode() : null);
                         }
-                        $relationships->setLinks(Link::createRelationshipsLinks(new ResourceIdentifier($this->getType(), $this->getId()), $name));
-                        $value = $relationships;
+                        $relationship->setLinks(
+                            $this->linkProvider->createRelationshipsLinks(
+                                new ResourceIdentifier($this->getType(), $this->getId()), $name));
+                        $value = $relationship;
                         $this->logger->debug("Field {$name} is relationship");
                     }
                     if ($value instanceof \DateTime) {
@@ -169,7 +173,7 @@ class Encoder
     }
 
     /**
-     * @return int|string|null
+     * @return mixed|null
      */
     public function getId()
     {
