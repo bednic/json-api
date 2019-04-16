@@ -15,8 +15,6 @@ use Doctrine\Common\Util\ClassUtils;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\FactoryException;
-use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Exception\NullException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -68,22 +66,19 @@ class MetadataFactory
     /**
      * @param string $className
      * @return ClassMetadata
+     * @throws DriverException
      * @throws FactoryException
      */
     public function getMetadataByClass(string $className): ClassMetadata
     {
         $className = ClassUtils::getRealClass($className);
-        try{
-            if ($this->cache->contains($className)) {
-                return $this->cache->fetch($className);
-            } elseif ($classMetadata = $this->driver->getClassMetadata($className)) {
-                $this->cache->save($className, $classMetadata);
-                return $classMetadata;
-            } else {
-                throw new FactoryException("Metadata for class {$className} does not exists.");
-            }
-        }catch (DriverException $e){
-            throw new FactoryException("Metadata for class {$className} are not valid. See previous exception",0, $e);
+        if ($this->cache->contains($className)) {
+            return $this->cache->fetch($className);
+        } elseif ($classMetadata = $this->driver->getClassMetadata($className)) {
+            $this->cache->save($className, $classMetadata);
+            return $classMetadata;
+        } else {
+            throw new FactoryException("Metadata for class {$className} does not exists.");
         }
     }
 
@@ -91,10 +86,20 @@ class MetadataFactory
      * @param string $resourceType
      * @return ClassMetadata | null
      * @throws FactoryException
+     * @throws DriverException
      */
     public function getMetadataClassByType(string $resourceType): ?ClassMetadata
     {
-        return $this->getMetadataByClass($this->typeToClassMap[$resourceType]);
+        return $this->getMetadataByClass($this->getClassByType($resourceType));
+    }
+
+    /**
+     * @param string $resourceType
+     * @return string
+     */
+    public function getClassByType(string $resourceType): string
+    {
+        return $this->typeToClassMap[$resourceType];
     }
 
     /**
@@ -105,9 +110,6 @@ class MetadataFactory
         return $this->metadata;
     }
 
-    /**
-     * @throws FactoryException
-     */
     private function createMetadataCache(): void
     {
         $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->path));
@@ -131,9 +133,6 @@ class MetadataFactory
         $this->cache->save(self::class, array_keys($this->metadata));
     }
 
-    /**
-     * @throws FactoryException
-     */
     private function load(): void
     {
         if ($this->cache->contains(self::class)) {
@@ -148,11 +147,12 @@ class MetadataFactory
     /**
      * @param string $className
      * @throws FactoryException
+     * @throws DriverException
      */
     private function loadMetadata(string $className)
     {
         $classMetadata = $this->getMetadataByClass($className);
         $this->metadata[$className] = $classMetadata;
-        $this->typeToClassMap[$classMetadata->getResource()->type] = $classMetadata;
+        $this->typeToClassMap[$classMetadata->getResource()->type] = $className;
     }
 }

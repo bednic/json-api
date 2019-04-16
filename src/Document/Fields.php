@@ -35,17 +35,19 @@ class Fields implements \JsonSerializable
     }
 
     /**
-     * @param string $name
-     * @param mixed $value
+     * @param Attribute $attribute
      */
-    public function addField(string $name, $value): void
+    public function addAttribute(Attribute $attribute): void
     {
-        if ($value instanceof Relationship) {
-            $this->relationships->set($name, $value);
-        } else {
-            $this->attributes->set($name, $value);
-        }
+        $this->attributes->set($attribute->getName(), $attribute);
+    }
 
+    /**
+     * @param Relationship $relationship
+     */
+    public function addRelationship(Relationship $relationship): void 
+    {
+        $this->relationships->set($relationship->getName(), $relationship);
     }
 
     /**

@@ -78,6 +78,20 @@ final class ClassMetadata
     }
 
     /**
+     * @param string $name
+     * @return Attribute|null
+     */
+    public function getAttribute(string $name): ?Attribute
+    {
+        foreach ($this->attributes as $attribute) {
+            if ($attribute->name == $name) {
+                return $attribute;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return Relationship[]
      */
     public function getRelationships(): array

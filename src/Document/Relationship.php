@@ -9,16 +9,25 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Exception\EncoderException;
 
 /**
  * Class Relationships
  * @package JSONAPI\Document
  */
-class Relationship extends Fields
+class Relationship
 {
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var bool
+     */
     private $isCollection = true;
     /**
-     * @var ResourceIdentifier|ArrayCollection|ResourceIdentifier[]
+     * @var ResourceIdentifier|ResourceIdentifier[]|ArrayCollection
      */
     private $data;
     /**
@@ -31,18 +40,26 @@ class Relationship extends Fields
     private $meta;
 
     /**
-     * Relationships constructor.
-     * @param bool                    $isCollection
+     * Relationship constructor.
+     * @param string $name
+     * @param bool   $isCollection
+     * @throws EncoderException
      */
-    public function __construct($isCollection = true)
+    public function __construct(string $name, $isCollection = true)
     {
-        parent::__construct();
+        if (!preg_match("/[a-zA-Z0-9-_]/", $name)) {
+            throw new EncoderException("Attribute name character violation.");
+        }
+        $this->name = $name;
         $this->isCollection = $isCollection;
         if ($this->isCollection) {
             $this->data = new ArrayCollection();
         }
+    }
 
-
+    public function getName(): string
+    {
+        return $this->name;
     }
 
     /**
@@ -52,8 +69,7 @@ class Relationship extends Fields
     {
         if ($this->isCollection && !$this->data->contains($resourceIdentifier)) {
             $this->data->add($resourceIdentifier);
-        }
-        else{
+        } else {
             $this->data = $resourceIdentifier;
         }
     }

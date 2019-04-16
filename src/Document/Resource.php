@@ -17,19 +17,23 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Resource extends ResourceIdentifier
 {
     /**
-     * @var Fields
+     * @var ArrayCollection | Attribute[]
      */
-    private $fields;
+    private $attributes;
+    /**
+     * @var ArrayCollection | Relationship[]
+     */
+    private $relationships;
 
     /**
      * @param ResourceIdentifier $resourceIdentifier
-     * @param Fields             $fields
      */
 
-    public function __construct(ResourceIdentifier $resourceIdentifier, Fields $fields)
+    public function __construct(ResourceIdentifier $resourceIdentifier)
     {
         parent::__construct($resourceIdentifier->type, $resourceIdentifier->id);
-        $this->fields = $fields;
+        $this->attributes = new ArrayCollection();
+        $this->relationships = new ArrayCollection();
     }
 
     /**
@@ -57,6 +61,22 @@ class Resource extends ResourceIdentifier
     }
 
     /**
+     * @param Attribute $attribute
+     */
+    public function addAttribute(Attribute $attribute)
+    {
+        $this->attributes->set($attribute->getName(), $attribute);
+    }
+
+    /**
+     * @param Relationship $relationship
+     */
+    public function addRelationship(Relationship $relationship)
+    {
+        $this->relationships->set($relationship->getName(), $relationship);
+    }
+
+    /**
      * Specify data which should be serialized to JSON
      * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,
@@ -66,11 +86,11 @@ class Resource extends ResourceIdentifier
     public function jsonSerialize()
     {
         $ret = parent::jsonSerialize();
-        if (!$this->fields->getAttributes()->isEmpty()) {
-            $ret['attributes'] = $this->fields->getAttributes()->toArray();
+        if (!$this->attributes->isEmpty()) {
+            $ret['attributes'] = $this->attributes->toArray();
         }
-        if (!$this->fields->getRelationships()->isEmpty()) {
-            $ret['relationships'] = $this->fields->getRelationships()->toArray();
+        if (!$this->relationships->isEmpty()) {
+            $ret['relationships'] = $this->relationships->toArray();
         }
         return $ret;
     }

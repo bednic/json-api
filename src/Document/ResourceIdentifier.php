@@ -29,7 +29,7 @@ class ResourceIdentifier implements \JsonSerializable
     /**
      * ResourceIdentifier constructor.
      * @param string $type
-     * @param mixed $id
+     * @param mixed  $id
      */
     public function __construct(string $type, $id)
     {
@@ -69,7 +69,10 @@ class ResourceIdentifier implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        $ret = ['type' => $this->type, 'id' => $this->id];
+        $ret = [
+            'type' => $this->type,
+            'id' => $this->id
+        ];
         if (!$this->meta->isEmpty()) {
             $ret['meta'] = $this->meta->toArray();
         }

@@ -12,7 +12,7 @@ namespace JSONAPI\Exception;
  * Class DocumentException
  * @package JSONAPI\Exception
  */
-class DocumentException extends \Exception
+class DocumentException extends JsonApiException
 {
 
 }

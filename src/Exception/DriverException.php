@@ -4,9 +4,7 @@
 namespace JSONAPI\Exception;
 
 
-use Exception;
-
-class DriverException extends Exception
+class DriverException extends JsonApiException
 {
 
 }
