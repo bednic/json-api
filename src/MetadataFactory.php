@@ -8,12 +8,14 @@
 
 namespace JSONAPI;
 
+use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Cache\Cache;
 use Doctrine\Common\Util\ClassUtils;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Driver\IDriver;
-use JSONAPI\Exception\ClassMetadataException;
+use JSONAPI\Exception\DriverException;
+use JSONAPI\Exception\FactoryException;
+use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Exception\NullException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -29,7 +31,7 @@ class MetadataFactory
      */
     private $cache;
     /**
-     * @var AnnotationDriver|IDriver|null
+     * @var AnnotationDriver|null
      */
     private $driver;
     /**
@@ -49,17 +51,15 @@ class MetadataFactory
      * MetadataFactory constructor.
      * @param string               $pathToObjects
      * @param Cache|null           $cache
-     * @param IDriver|null         $driver
      * @param LoggerInterface|null $logger
-     * @throws ClassMetadataException
-     * @throws NullException
-     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws AnnotationException
+     * @throws FactoryException
      */
-    public function __construct(string $pathToObjects, Cache $cache = null, IDriver $driver = null, LoggerInterface $logger = null)
+    public function __construct(string $pathToObjects, Cache $cache = null, LoggerInterface $logger = null)
     {
-        if (!is_dir($pathToObjects)) throw new NullException("Path to object is not directory.");
+        if (!is_dir($pathToObjects)) throw new FactoryException("Path to object is not directory.");
+        $this->driver = new AnnotationDriver($logger);
         $this->path = $pathToObjects;
-        $this->driver = $driver ?: new AnnotationDriver($logger);
         $this->cache = $cache ?: new ArrayCache();
         $this->logger = $logger ?: new NullLogger();
         $this->load();
@@ -68,27 +68,29 @@ class MetadataFactory
     /**
      * @param string $className
      * @return ClassMetadata
-     * @throws ClassMetadataException
-     * @throws NullException
+     * @throws FactoryException
      */
     public function getMetadataByClass(string $className): ClassMetadata
     {
         $className = ClassUtils::getRealClass($className);
-        if ($this->cache->contains($className)) {
-            return $this->cache->fetch($className);
-        } elseif ($classMetadata = $this->driver->getClassMetadata($className)) {
-            $this->cache->save($className, $classMetadata);
-            return $classMetadata;
-        } else {
-            throw new NullException("Metadata for class {$className} does not exists.");
+        try{
+            if ($this->cache->contains($className)) {
+                return $this->cache->fetch($className);
+            } elseif ($classMetadata = $this->driver->getClassMetadata($className)) {
+                $this->cache->save($className, $classMetadata);
+                return $classMetadata;
+            } else {
+                throw new FactoryException("Metadata for class {$className} does not exists.");
+            }
+        }catch (DriverException $e){
+            throw new FactoryException("Metadata for class {$className} are not valid. See previous exception",0, $e);
         }
     }
 
     /**
      * @param string $resourceType
      * @return ClassMetadata | null
-     * @throws ClassMetadataException
-     * @throws NullException
+     * @throws FactoryException
      */
     public function getMetadataClassByType(string $resourceType): ?ClassMetadata
     {
@@ -104,8 +106,7 @@ class MetadataFactory
     }
 
     /**
-     * @return void
-     * @throws ClassMetadataException
+     * @throws FactoryException
      */
     private function createMetadataCache(): void
     {
@@ -123,20 +124,15 @@ class MetadataFactory
             $it->next();
         }
 
-
         foreach (get_declared_classes() as $className) {
-            try {
-                $this->loadMetadata($className);
-            } catch (NullException $e) {
-                // not existing class
-            }
+            $this->loadMetadata($className);
         }
+
         $this->cache->save(self::class, array_keys($this->metadata));
     }
 
     /**
-     * @throws ClassMetadataException
-     * @throws NullException
+     * @throws FactoryException
      */
     private function load(): void
     {
@@ -151,8 +147,7 @@ class MetadataFactory
 
     /**
      * @param string $className
-     * @throws ClassMetadataException
-     * @throws NullException
+     * @throws FactoryException
      */
     private function loadMetadata(string $className)
     {

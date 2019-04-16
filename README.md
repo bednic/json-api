@@ -94,7 +94,7 @@ $attributes = $metadata->getAttributes();
 // Best use it by DI Container, its necessary to right links creation
 $linkProvider = new \JSONAPI\LinkProvider('http://localhost/');
 
-// Encoder encode Object to Resource or ResourceIdentifier
+MetaEncoder
 $encoder = new \JSONAPI\Encoder($factory, $linkProvider);
 
 // Our object

@@ -13,10 +13,13 @@ use JSONAPI\Annotation\Relationship;
 use JSONAPI\Document\Fields;
 use JSONAPI\Document\Resource;
 use JSONAPI\Document\ResourceIdentifier;
-use JSONAPI\Exception\ClassMetadataException;
+use JSONAPI\Exception\EncoderException;
+use JSONAPI\Exception\FactoryException;
 use JSONAPI\Exception\NullException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use ReflectionClass;
+use ReflectionException;
 
 /**
  * Class Encoder
@@ -40,7 +43,7 @@ class Encoder
     private $object;
 
     /**
-     * @var \ReflectionClass
+     * @var ReflectionClass
      */
     private $ref;
 
@@ -54,50 +57,42 @@ class Encoder
      */
     private $fields = null;
 
-    private $linkProvider;
-
     /**
      * Encoder constructor.
      * @param MetadataFactory $metadataFactory
-     * @param LinkProvider    $linkProvider
      * @param LoggerInterface $logger
      */
-    public function __construct(MetadataFactory $metadataFactory, LinkProvider $linkProvider, LoggerInterface $logger = null)
+    public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
     {
         $this->metadataFactory = $metadataFactory;
-        $this->linkProvider = $linkProvider;
         $this->logger = $logger ? $logger : new NullLogger();
     }
 
-    /**
-     * @param $object
-     * @return Encoder
-     * @throws ClassMetadataException
-     * @throws NullException
-     */
+
     public function create($object): Encoder
     {
         return $this->__invoke($object);
     }
 
-    /**
-     * @param $object
-     * @return Encoder
-     * @throws ClassMetadataException
-     * @throws NullException
-     */
+
     public function __invoke($object): Encoder
     {
-        $that = new self($this->metadataFactory, $this->linkProvider, $this->logger);
-        // this is only necessary cause using doctrine proxy
+        $that = new self($this->metadataFactory, $this->logger);
+        // this is only necessary when using doctrine proxy
         $className = ClassUtils::getClass($object);
         $that->object = $object;
         $this->logger->debug("Init encoding of {$className}.");
         try {
-            $that->ref = new \ReflectionClass($className);
+            $that->ref = new ReflectionClass($className);
             $that->metadata = $this->metadataFactory->getMetadataByClass($className);
-        } catch (\ReflectionException $e) {
-            throw new NullException("Class {$className} doesn't exists");
+        } catch (ReflectionException $e) {
+            throw new EncoderException("Class {$className} doesn't exists",0, $e);
+        }
+        catch (FactoryException $e) {
+            // factory exception je vyhazovana jen pokud trida neexistuje, nebo annotace nejsou validni, je otazka,
+            // zda takove exception nejsou uz tak dost sebevypoidajici a nestaci tedy je poslat dal.
+            // Navic by bylo fajn udelat nejakou obecnou exception, ktera by se dala odchytavat v systemu za vsechny
+            throw new EncoderException("Class metadata not found or are not valid????l.");
         }
         return $that;
     }
@@ -105,7 +100,6 @@ class Encoder
     /**
      * @param array $filter
      * @return Encoder
-     * @throws ClassMetadataException
      * @throws NullException
      */
     public function withFields(array $filter = null): Encoder
@@ -129,7 +123,7 @@ class Encoder
                             $relationship->addResource($value ? $this($value)->encode() : null);
                         }
                         $relationship->setLinks(
-                            $this->linkProvider->createRelationshipsLinks(
+                            LinkProvider::createRelationshipsLinks(
                                 new ResourceIdentifier($this->getType(), $this->getId()), $name));
                         $value = $relationship;
                         $this->logger->debug("Field {$name} is relationship");
@@ -142,7 +136,7 @@ class Encoder
                     $this->fields->addField($name, $value);
                 }
             }
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             throw new NullException($e->getMessage(), $e->getCode(), $e);
         }
         return $this;
@@ -151,7 +145,7 @@ class Encoder
     /**
      * @return ResourceIdentifier | Resource
      */
-    public function encode()
+    public function encode(): ResourceIdentifier
     {
         $type = $this->getType();
         $id = $this->getId();
@@ -183,7 +177,7 @@ class Encoder
             } else {
                 return $this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
             }
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             return null;
         }
     }

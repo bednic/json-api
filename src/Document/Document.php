@@ -11,28 +11,30 @@ namespace JSONAPI\Document;
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\DocumentException;
 use JSONAPI\LinkProvider;
+use JsonSerializable;
 
 /**
  * Class Document
  * @package JSONAPI\Document
  */
-class Document implements \JsonSerializable
+class Document implements JsonSerializable
 {
     const MEDIA_TYPE = "application/vnd.api+json";
 
-    private $linkProvider;
+    const VERSION = "1.0";
 
-
+    /**
+     * @var Resource|Resource[]
+     */
     private $data;
 
     private $errors = null;
+
     /**
      * @var ArrayCollection
      */
     private $meta;
-    private $jsonapi = [
-        "version" => "1.0"
-    ];
+
     /**
      * @var ArrayCollection
      */
@@ -45,23 +47,36 @@ class Document implements \JsonSerializable
 
     /**
      * Document constructor.
-     * @param LinkProvider $linkProvider
      */
-    public function __construct(LinkProvider $linkProvider)
+    public function __construct()
     {
-        $this->linkProvider = $linkProvider;
         $this->links = new ArrayCollection();
         $this->meta = new ArrayCollection();
         $this->included = new ArrayCollection();
-        $this->addLink(...$linkProvider->createPrimaryDataLink());
     }
 
     /**
-     * @param \JSONAPI\Document\Resource | \JSONAPI\Document\Resource[] | null $data
+     * @param Resource | Resource[] $data
+     * @param array                 $includes
+     * @return Document
+     */
+    public static function create($data, array $includes)
+    {
+        $instance = new static();
+        $instance->setData($data);
+        $instance->setIncludes(new ArrayCollection($includes));
+        return $instance;
+
+    }
+
+    /**
+     * @param Resource | Resource[] $data
      */
     public function setData($data)
     {
         $this->data = $data;
+        [$key, $link] = LinkProvider::createPrimaryDataLink($data);
+        $this->addLink($key, $link);
     }
 
     /**
@@ -75,27 +90,27 @@ class Document implements \JsonSerializable
     /**
      * @param ArrayCollection $includes
      */
-    public function setIncludes(ArrayCollection $includes)
+    public function setIncludes(ArrayCollection $includes): void
     {
         $this->included = $includes;
     }
 
-    public function addLink($key, $link)
+    public function addLink(string $key, string $link): void
     {
         $this->links->set($key, $link);
     }
 
-    public function getLink($key)
+    public function getLink($key): string
     {
         return $this->links->get($key);
     }
 
-    public function addMeta($key, $value)
+    public function addMeta(string $key,string $value)
     {
         $this->meta->set($key, $value);
     }
 
-    public function addError($error)
+    public function addError(Error $error)
     {
         $this->errors[] = $error;
     }
@@ -111,9 +126,7 @@ class Document implements \JsonSerializable
     public function jsonSerialize()
     {
         $ret = [];
-        if ($this->jsonapi) {
-            $ret["jsonapi"] = $this->jsonapi;
-        }
+        $ret["jsonapi"] = ["version" => self::VERSION];
         if (!$this->meta->isEmpty()) {
             $ret["meta"] = $this->meta->toArray();
         }
@@ -134,5 +147,13 @@ class Document implements \JsonSerializable
             $ret["included"] = $this->included->toArray();
         }
         return $ret;
+    }
+
+    /**
+     * @return false|string
+     */
+    public function __toString()
+    {
+        return json_encode($this);
     }
 }

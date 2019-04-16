@@ -11,10 +11,19 @@ use PHPUnit\Framework\TestCase;
 
 class DocumentTest extends TestCase
 {
+    /**
+     * @var Document
+     */
+    protected $document;
+
+    protected function setUp()
+    {
+        $this->document = new Document();
+    }
 
     public function testAddLink()
     {
-
+        $this->document->addLink('key','link');
     }
 
     public function testSetData()

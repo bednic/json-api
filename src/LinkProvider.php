@@ -9,22 +9,23 @@
 namespace JSONAPI;
 
 
+use JSONAPI\Document\Resource;
 use JSONAPI\Document\ResourceIdentifier;
 
+/**
+ * Class LinkProvider
+ * @package JSONAPI
+ */
 class LinkProvider
 {
     const SELF = 'self';
     const RELATED = 'related';
 
-    private $url;
-
-    /**
-     * LinkProvider constructor.
-     * @param string $APIUrl
-     */
-    public function __construct(string $APIUrl)
+    private static function getUrl()
     {
-        $this->url = $APIUrl;
+        return getenv("API_ENV_URL") !== false ?
+            getenv("API_ENV_URL") :
+            "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
     }
 
     /**
@@ -32,11 +33,11 @@ class LinkProvider
      * @param string             $relationshipFieldName field name
      * @return array
      */
-    public function createRelationshipsLinks(ResourceIdentifier $resource, string $relationshipFieldName)
+    public static function createRelationshipsLinks(ResourceIdentifier $resource, string $relationshipFieldName)
     {
         return [
-            self::SELF => $this->url . $resource->getType() . '/' . $resource->getId() . '/relationships/' . $relationshipFieldName,
-            self::RELATED => $this->url . $resource->getType() . '/' . $resource->getId() . '/' . $relationshipFieldName
+            self::SELF => self::getUrl() . $resource->getType() . '/' . $resource->getId() . '/relationships/' . $relationshipFieldName,
+            self::RELATED => self::getUrl() . $resource->getType() . '/' . $resource->getId() . '/' . $relationshipFieldName
         ];
     }
 
@@ -44,21 +45,26 @@ class LinkProvider
      * @param ResourceIdentifier $resourceIdentifier
      * @return array
      */
-    public function createResourceLinks(ResourceIdentifier $resourceIdentifier)
+    public static function createResourceLinks(ResourceIdentifier $resourceIdentifier)
     {
         return [
-            self::SELF => $this->url . $resourceIdentifier->getType() . '/' . $resourceIdentifier->getId()
+            self::SELF => self::getUrl() . $resourceIdentifier->getType() . '/' . $resourceIdentifier->getId()
         ];
     }
 
     /**
+     * @param Resource | Resource[] $data
      * @return array
      */
-    public function createPrimaryDataLink()
+    public static function createPrimaryDataLink($data): array
     {
-        $uri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-        $parsed = parse_url($uri);
-        return [self::SELF, $this->url . substr($parsed["path"], 1) . (isset($parsed["query"])?"?".$parsed["query"]:"")];
+        $resource = null;
+        if (is_array($data) && !empty($data)) {
+            return [self::SELF => self::getUrl() . $data[0]->getType()];
+        } elseif ($data instanceof Resource) {
+            return self::createResourceLinks($resource);
+        }
+        return [];
     }
 
 }

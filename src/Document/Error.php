@@ -10,6 +10,8 @@
 namespace JSONAPI\Document;
 
 
+use Throwable;
+
 /**
  * Class Error
  * @package JSONAPI\Document
@@ -51,9 +53,9 @@ class Error implements \JsonSerializable
 
     /**
      * Error constructor.
-     * @param \Throwable $exception
+     * @param Throwable $exception
      */
-    public function __construct(\Throwable $exception)
+    public function __construct(Throwable $exception)
     {
         $this->setTitle(get_class($exception));
         $this->setCode($exception->getCode());
@@ -63,7 +65,71 @@ class Error implements \JsonSerializable
             "Line" => "{$exception->getFile()} ({$exception->getLine()})",
             "Pointer" => "/data"
         ]);
-        $this->setMeta($exception->getTraceAsString());
+        $this->setMeta($exception->getTrace());
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setId(string $id): void
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @param array $links
+     */
+    public function setLinks(array $links): void
+    {
+        $this->links = $links;
+    }
+
+    /**
+     * @param int $status
+     */
+    public function setStatus(int $status): void
+    {
+        $this->status = $status;
+    }
+
+    /**
+     * @param string $code
+     */
+    public function setCode(string $code): void
+    {
+        $this->code = $code;
+    }
+
+    /**
+     * @param string $title
+     */
+    public function setTitle(string $title): void
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * @param string $detail
+     */
+    public function setDetail(string $detail): void
+    {
+        $this->detail = $detail;
+    }
+
+    /**
+     * @param array $source
+     */
+    public function setSource(array $source): void
+    {
+        $this->source = $source;
+    }
+
+    /**
+     * @param array $meta
+     */
+    public function setMeta(array $meta): void
+    {
+        $this->meta = $meta;
     }
 
     /**
@@ -76,142 +142,14 @@ class Error implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'id' => $this->getId(),
-            'links' => $this->getLinks(),
-            'status' => $this->getStatus(),
-            'code' => $this->getCode(),
-            'title' => $this->getTitle(),
-            'detail' => $this->getDetail(),
-            'source' => $this->getSource(),
-            'meta' => $this->getMeta()
+            'id' => $this->id,
+            'links' => $this->links,
+            'status' => $this->status,
+            'code' => $this->code,
+            'title' => $this->title,
+            'detail' => $this->detail,
+            'source' => $this->source,
+            'meta' => $this->meta
         ];
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param mixed $id
-     */
-    public function setId($id): void
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return array
-     */
-    public function getLinks(): array
-    {
-        return $this->links;
-    }
-
-    /**
-     * @param array $links
-     */
-    public function setLinks(array $links): void
-    {
-        $this->links = $links;
-    }
-
-    /**
-     * @return int
-     */
-    public function getStatus(): int
-    {
-        return $this->status;
-    }
-
-    /**
-     * @param int $status
-     */
-    public function setStatus(int $status): void
-    {
-        $this->status = $status;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCode(): string
-    {
-        return $this->code;
-    }
-
-    /**
-     * @param string $code
-     */
-    public function setCode(string $code): void
-    {
-        $this->code = $code;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
-    /**
-     * @param mixed $title
-     */
-    public function setTitle($title): void
-    {
-        $this->title = $title;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getDetail()
-    {
-        return $this->detail;
-    }
-
-    /**
-     * @param mixed $detail
-     */
-    public function setDetail($detail): void
-    {
-        $this->detail = $detail;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getSource()
-    {
-        return $this->source;
-    }
-
-    /**
-     * @param mixed $source
-     */
-    public function setSource($source): void
-    {
-        $this->source = $source;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getMeta()
-    {
-        return $this->meta;
-    }
-
-    /**
-     * @param mixed $meta
-     */
-    public function setMeta($meta): void
-    {
-        $this->meta = $meta;
     }
 }

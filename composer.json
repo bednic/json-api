@@ -2,7 +2,9 @@
     "name": "bednic/json-api",
     "type": "library",
     "description": "JSON API implementation driven by annotations",
+    "homepage": "https://gitlab.com/bednic/json-api",
     "keywords": [
+        "php",
         "json",
         "api",
         "rest",
@@ -10,10 +12,7 @@
     ],
     "license": "MIT",
     "authors": [
-        {
-            "name": "Tomáš Benedikt",
-            "email": "tomas.benedikt@gmail.com"
-        }
+        {"name": "Tomáš Benedikt", "email": "tomas.benedikt@gmail.com"}
     ],
     "require": {
         "php": "^7.1",
@@ -22,8 +21,7 @@
         "doctrine/cache": "^1.8",
         "psr/log": "^1.1",
         "psr/http-server-middleware": "^1.0",
-        "doctrine/common": "^2.10",
-        "ext-json": "*"
+        "doctrine/common": "^2.10"
     },
     "require-dev": {
         "phpunit/phpunit": "^7.3"

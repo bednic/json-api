@@ -18,7 +18,7 @@ use JSONAPI\Annotation\Resource;
  * Class ClassMetadata
  * @package JSONAPI
  */
-class ClassMetadata
+final class ClassMetadata
 {
 
     /**

@@ -16,16 +16,19 @@ use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
 use JSONAPI\ClassMetadata;
-use JSONAPI\Exception\ClassMetadataException;
-use JSONAPI\Exception\NullException;
+use JSONAPI\Exception\DriverException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use ReflectionClass;
+use ReflectionException;
+use ReflectionMethod;
+use ReflectionProperty;
 
 /**
  * Class AnnotationDriver
  * @package JSONAPI\Driver
  */
-class AnnotationDriver implements IDriver
+class AnnotationDriver
 {
     /**
      * @var LoggerInterface
@@ -52,39 +55,38 @@ class AnnotationDriver implements IDriver
      * Returns metadata for provided class or null if class is not Resource
      * @param string $className
      * @return ClassMetadata|null
-     * @throws ClassMetadataException
-     * @throws NullException
+     * @throws DriverException
      */
     public function getClassMetadata(string $className): ?ClassMetadata
     {
         try {
-            $ref = new \ReflectionClass($className);
-        } catch (\ReflectionException $e) {
-            throw new NullException($e->getMessage(), $e->getCode(), $e);
-        }
-        /** @var Resource | null $resource */
-        if ($resource = $this->reader->getClassAnnotation($ref, Resource::class)) {
-            $this->logger->debug("Found resource {$resource->type}.");
-            $id = null;
-            $attributes = [];
-            $relationships = [];
-            $this->parseProperties($ref, $id, $attributes, $relationships);
-            $this->parseMethods($ref, $id, $attributes, $relationships);
-            $this->logger->info("Created ClassMetadata for <{$resource->type}>");
-            return new ClassMetadata($id, $resource, $attributes, $relationships);
+            $ref = new ReflectionClass($className);
+            /** @var Resource $resource */
+            if ($resource = $this->reader->getClassAnnotation($ref, Resource::class)) {
+                $this->logger->debug("Found resource {$resource->type}.");
+                $id = null;
+                $attributes = [];
+                $relationships = [];
+                $this->parseProperties($ref, $id, $attributes, $relationships);
+                $this->parseMethods($ref, $id, $attributes, $relationships);
+                $this->logger->info("Created ClassMetadata for <{$resource->type}>");
+                return new ClassMetadata($id, $resource, $attributes, $relationships);
+            }
+        } catch (ReflectionException $e) {
+            // class does not exist
         }
         return null;
     }
 
     /**
-     * @param \ReflectionClass $reflectionClass
+     * @param ReflectionClass  $reflectionClass
      * @param                  $id
      * @param                  $attributes
      * @param                  $relationships
      */
-    private function parseProperties(\ReflectionClass $reflectionClass, &$id, &$attributes, &$relationships): void
+    private function parseProperties(ReflectionClass $reflectionClass, &$id, &$attributes, &$relationships): void
     {
-        foreach ($reflectionClass->getProperties(\ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
+        foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
             if (!$id && ($id = $this->reader->getPropertyAnnotation($reflectionProperty, Id::class))) {
                 if (!$id->property) $id->property = $reflectionProperty->getName();
@@ -108,25 +110,25 @@ class AnnotationDriver implements IDriver
     }
 
     /**
-     * @param \ReflectionClass $reflectionClass
+     * @param ReflectionClass  $reflectionClass
      * @param                  $id
      * @param                  $attributes
      * @param                  $relationships
-     * @throws ClassMetadataException
+     * @throws DriverException
      */
-    private function parseMethods(\ReflectionClass $reflectionClass, &$id, &$attributes, &$relationships): void
+    private function parseMethods(ReflectionClass $reflectionClass, &$id, &$attributes, &$relationships): void
     {
-        foreach ($reflectionClass->getMethods(\ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
+        foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
                 if (!$id && ($id = $this->reader->getMethodAnnotation($reflectionMethod, Id::class))) {
                     if (!$reflectionMethod->hasReturnType())
-                        throw new ClassMetadataException('Id annotation on method MUST be getter.');
+                        throw new DriverException('Id annotation on method MUST be getter.');
                     if (!$id->getter) $id->getter = $reflectionMethod->getName();
                     $this->logger->debug("Found resource ID.");
                 }
                 /** @var Attribute $attribute */
                 if ($attribute = $this->reader->getMethodAnnotation($reflectionMethod, Attribute::class)) {
-                    if (!$reflectionMethod->hasReturnType()) throw new ClassMetadataException("Annotation 
+                    if (!$reflectionMethod->hasReturnType()) throw new DriverException("Annotation 
                     Attribute on method MUST be on getter. Method {$reflectionMethod->getName()} on 
                     resource {$reflectionClass->name} has not return type.");
                     if (!$attribute->getter) $attribute->getter = $reflectionMethod->getName();
@@ -144,9 +146,6 @@ class AnnotationDriver implements IDriver
                             $attribute->setter = 'set' . ucfirst($attribute->name);
                         } elseif ($reflectionClass->hasMethod('set' . ucfirst($attribute->property))) {
                             $attribute->setter = 'set' . ucfirst($attribute->property);
-                        } else {
-//                            probably not good, because sometimes we need readonly, so we just try to guess setter, but if not exists, just keep parsing
-//                            throw new ClassMetadataException("Setter for attribute {$attribute->name} is not defined");
                         }
                     }
                     $attributes[$attribute->name] = $attribute;
@@ -154,7 +153,7 @@ class AnnotationDriver implements IDriver
                 }
                 /** @var Relationship $relationship */
                 if ($relationship = $this->reader->getMethodAnnotation($reflectionMethod, Relationship::class)) {
-                    if (!$reflectionMethod->hasReturnType()) throw new ClassMetadataException("Annotation 
+                    if (!$reflectionMethod->hasReturnType()) throw new DriverException("Annotation 
                     Relationship on method MUST be on getter.Method {$reflectionMethod->getName()} on 
                     resource {$reflectionClass->name} has not return type.");
                     if (!$relationship->getter) $relationship->getter = $reflectionMethod->getName();
@@ -171,21 +170,16 @@ class AnnotationDriver implements IDriver
                             $relationship->setter = 'set' . ucfirst($relationship->name);
                         } elseif ($reflectionClass->hasMethod('set' . ucfirst($relationship->property))) {
                             $relationship->setter = 'set' . ucfirst($relationship->property);
-                        } else {
-//                            probably not good, because sometimes we need readonly, so we just try to guess setter, but if not exists, just keep parsing
-//                            throw new ClassMetadataException("Setter for relationship {$relationship->name} is not defined");
                         }
                     }
                     try {
                         if (
                             ($reflectionMethod->getReturnType()->isBuiltin() && $reflectionMethod->getReturnType()->getName() === 'array') ||
-                            ((new \ReflectionClass($reflectionMethod->getReturnType()->getName()))->implementsInterface(\Traversable::class))
+                            ((new ReflectionClass($reflectionMethod->getReturnType()->getName()))->implementsInterface(\Traversable::class))
                         ) {
                             $relationship->isCollection = true;
                         }
-                    } catch (\ReflectionException $ignored) {
-                        // ignored, this is just helper, it doesn't matter if we guess right this value
-                    }
+                    } catch (ReflectionException $ignored) {} //NOSONAR
                     $relationships[$relationship->name] = $relationship;
                     $this->logger->debug("Found resource relationship {$relationship->name}.");
                 }
