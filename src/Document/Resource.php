@@ -9,6 +9,7 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Exception\DocumentException;
 
 /**
  * Class Resource
@@ -69,11 +70,41 @@ class Resource extends ResourceIdentifier
     }
 
     /**
+     * @param string $name
+     * @return Attribute
+     * @throws DocumentException
+     */
+    public function getAttribute(string $name): Attribute
+    {
+        /** @var Attribute $attribute */
+        $attribute = $this->attributes->get($name);
+        if (!$attribute) {
+            throw new DocumentException("Resource attribute {$name} does not exist.");
+        }
+        return $attribute;
+    }
+
+    /**
      * @param Relationship $relationship
      */
     public function addRelationship(Relationship $relationship)
     {
         $this->relationships->set($relationship->getName(), $relationship);
+    }
+
+    /**
+     * @param string $name
+     * @return Relationship
+     * @throws DocumentException
+     */
+    public function getRelationship(string $name): Relationship
+    {
+        /** @var Relationship $relationship */
+        $relationship = $this->relationships->get($name);
+        if (!$relationship) {
+            throw new DocumentException("Resource relationship {$name} does not exist.");
+        }
+        return $relationship;
     }
 
     /**

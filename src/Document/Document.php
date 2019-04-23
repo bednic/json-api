@@ -24,10 +24,12 @@ class Document implements JsonSerializable
     const VERSION = "1.0";
 
     /**
-     * @var Resource|Resource[]
+     * \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]Resource|Resource[]
      */
     private $data;
-
+    /**
+     * @var Error[]
+     */
     private $errors = null;
 
     /**
@@ -56,25 +58,36 @@ class Document implements JsonSerializable
     }
 
     /**
-     * @param Resource | Resource[] $data
-     * @param array                 $includes
+     * @param Resource|Resource[] $data
+     * @param array               $includes
+     * @param array               $links
+     * @param array               $meta
      * @return Document
      */
-    public static function create($data, array $includes)
+    public static function create($data, array $includes = [], array $links = [], array $meta = [])
     {
         $instance = new static();
         $instance->setData($data);
         $instance->setIncludes(new ArrayCollection($includes));
+        $instance->meta = new ArrayCollection($meta);
+        $instance->links = new ArrayCollection($links);
         return $instance;
 
     }
 
     /**
-     * @param Resource | Resource[] $data
+     * @return \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[] $data
      */
     public function setData($data)
     {
-
         $this->data = $data;
         [$key, $link] = LinkProvider::createPrimaryDataLink($data);
         $this->addLink($key, $link);
@@ -96,21 +109,45 @@ class Document implements JsonSerializable
         $this->included = $includes;
     }
 
+    /**
+     * @param string $key
+     * @param string $link
+     */
     public function addLink(string $key, string $link): void
     {
         $this->links->set($key, $link);
     }
 
-    public function getLink($key): string
+    /**
+     * @param string $key
+     * @return string|null
+     */
+    public function getLink(string $key): ?string
     {
         return $this->links->get($key);
     }
 
-    public function addMeta(string $key,string $value)
+    /**
+     * @param string $key
+     * @param string $value
+     */
+    public function addMeta(string $key, string $value)
     {
         $this->meta->set($key, $value);
     }
 
+    /**
+     * @param string $key
+     * @return string|null
+     */
+    public function getMeta(string $key): ?string
+    {
+        return $this->meta->get($key);
+    }
+
+    /**
+     * @param Error $error
+     */
     public function addError(Error $error)
     {
         $this->errors[] = $error;

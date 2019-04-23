@@ -9,15 +9,15 @@
 namespace JSONAPI;
 
 use Doctrine\Common\Util\ClassUtils;
-use JSONAPI\Annotation\Relationship;
-use JSONAPI\Annotation\Attribute;
-use JSONAPI\Document\Fields;
-use JSONAPI\Document\Resource;
-use JSONAPI\Document\ResourceIdentifier;
+
+use JSONAPI\Document;
+use JSONAPI\Annotation;
 use JSONAPI\Exception\DriverException;
-use JSONAPI\Exception\EncoderException;
+use JSONAPI\Exception\EncoderException as EncoderExceptionAlias;
 use JSONAPI\Exception\FactoryException;
+use JSONAPI\Exception\UnsupportedMediaType;
 use JSONAPI\Filter\Filter;
+use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -68,12 +68,12 @@ class Encoder
     /**
      * @param                     $object
      * @param EncoderOptions|null $options
-     * @return ResourceIdentifier | Resource
+     * @return Document\ResourceIdentifier
      * @throws DriverException
-     * @throws EncoderException
+     * @throws EncoderExceptionAlias
      * @throws FactoryException
      */
-    public function encode($object, EncoderOptions $options = null): ResourceIdentifier
+    public function encode($object, EncoderOptions $options = null): Document\ResourceIdentifier
     {
 
         $options = $options ? $options : new EncoderOptions();
@@ -84,12 +84,12 @@ class Encoder
         try {
             $encoder->ref = new ReflectionClass($className);
         } catch (ReflectionException $e) {
-            throw new EncoderException("Class {$className} does not exist.");
+            throw new EncoderExceptionAlias("Class {$className} does not exist.");
         }
         $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
-        $resource = new ResourceIdentifier($encoder->getType(), $encoder->getId());
+        $resource = new Document\ResourceIdentifier($encoder->getType(), $encoder->getId());
         if ($options->isFullLinkage()) {
-            $resource = new Resource($resource);
+            $resource = new Document\Resource($resource);
             if ($options->getFilter()) {
                 $encoder->withFields($resource, $options->getFilter());
             }
@@ -98,25 +98,63 @@ class Encoder
 
     }
 
-    public function decode(array $data): Resource
+    /**
+     * @param RequestInterface $request
+     * @return Document\Document
+     * @throws EncoderExceptionAlias
+     * @throws UnsupportedMediaType
+     */
+    public function decode(RequestInterface $request): Document\Document
     {
-
-        if(!isset($data["type"]) || empty($data["type"])) {
-            throw new EncoderException("Resource type is not defined.");
-        }
-        $id = $data["id"]?$data["id"]:null;
-        $type = $data["type"];
-        $resourceIdentifier = new ResourceIdentifier($type, $data["id"]);
-        $className = $this->metadataFactory->getClassByType($type);
-        $metadata = $this->metadataFactory->getMetadataClassByType($type);
-        $object = new $className();
-        if(isset($data["attributes"]) && !empty($data["attributes"])){
-            foreach ($data["attributes"] as $name => $value){
-                if($attribute = $metadata->getAttribute($name)){
-                    $object->${$attribute->property} = $value;
+        $document = new Document\Document();
+        $body = (string) $request->getBody();
+        $meta = $request->getHeader('Content-Type');
+        if (in_array(Document\Document::MEDIA_TYPE, $meta)) {
+            $body = json_decode($body, true);
+            $data = null;
+            if (is_array($body['data'])) {
+                $data = [];
+                foreach ($body['data'] as $resourceDto) {
+                    $resource = new Document\Resource(new Document\ResourceIdentifier($resourceDto['type'], $resourceDto['id']));
+                    foreach ($resourceDto['attributes'] as $attribute => $value) {
+                        $resource->addAttribute(new Document\Attribute($attribute, $value));
+                    }
+                    foreach ($resourceDto['relationships'] as $prop => $value) {
+                        $relationship = new Document\Relationship($prop, is_array($value));
+                        if ($relationship->isCollection()) {
+                            foreach ($value as $item) {
+                                $relationship->addResource(new Document\ResourceIdentifier($item['type'], $item['id']));
+                            }
+                        } else {
+                            $relationship->addResource(new Document\ResourceIdentifier($value['type'], $value['id']));
+                        }
+                        $resource->addRelationship($relationship);
+                    }
+                    $data[] = $resource;
                 }
+                $document->setData($data);
+            } else {
+                $resource = new Document\Resource(new Document\ResourceIdentifier($body['data']['type'], $body['data']['id']));
+                foreach ($body['data']['attributes'] as $attribute => $value) {
+                    $resource->addAttribute(new Document\Attribute($attribute, $value));
+                }
+                foreach ($body['data']['relationships'] as $prop => $value) {
+                    $relationship = new Document\Relationship($prop, is_array($value));
+                    if ($relationship->isCollection()) {
+                        foreach ($value as $item) {
+                            $relationship->addResource(new Document\ResourceIdentifier($item['type'], $item['id']));
+                        }
+                    } else {
+                        $relationship->addResource(new Document\ResourceIdentifier($value['type'], $value['id']));
+                    }
+                    $resource->addRelationship($relationship);
+                }
+                $document->setData($resource);
             }
+        } else {
+            throw new UnsupportedMediaType();
         }
+        return $document;
     }
 
     /**
@@ -144,17 +182,17 @@ class Encoder
     }
 
     /**
-     * TODO: reduce complexity
-     * @param array|null $filter
+     * @param Document\Resource $resource
+     * @param Filter            $filter
      * @return Encoder
      * @throws DriverException
-     * @throws EncoderException
+     * @throws EncoderExceptionAlias
      * @throws FactoryException
      */
-    private function withFields(Resource $resource, Filter $filter)
+    private function withFields(Document\Resource $resource, Filter $filter)
     {
         foreach (array_merge($this->metadata->getAttributes(), $this->metadata->getRelationships()) as $name => $field) {
-            if ($filter && in_array($name, $filter) || !$filter) {
+            if ($filter && in_array($name, $filter->getFilter()) || !$filter) {
                 $value = null;
                 if ($field->getter != null) {
                     $value = call_user_func([$this->object, $field->getter]);
@@ -165,7 +203,7 @@ class Encoder
                         //NOSONAR
                     }
                 }
-                if ($field instanceof Relationship) {
+                if ($field instanceof Annotation\Relationship) {
                     $relationship = new Document\Relationship($field->isCollection);
                     if (is_iterable($value)) {
                         foreach ($value as $object) {
@@ -176,12 +214,12 @@ class Encoder
                     }
                     $relationship->setLinks(
                         LinkProvider::createRelationshipsLinks(
-                            new ResourceIdentifier($this->getType(), $this->getId()),
+                            new Document\ResourceIdentifier($this->getType(), $this->getId()),
                             $name
                         ));
                     $this->logger->debug("Adding relationship {$name}.");
                     $resource->addRelationship($relationship);
-                } elseif ($field instanceof Attribute) {
+                } elseif ($field instanceof Annotation\Attribute) {
                     if ($value instanceof \DateTime) {
                         // ISO 8601
                         $value = $value->format(DATE_ATOM);
@@ -189,7 +227,7 @@ class Encoder
                     $this->logger->debug("Adding attribute {$name}.");
                     $resource->addAttribute(new Document\Attribute($name, $value));
                 } else {
-                    throw new EncoderException("Field {$name} is not Attribute nor Relationship");
+                    throw new EncoderExceptionAlias("Field {$name} is not Attribute nor Relationship");
                 }
             }
         }

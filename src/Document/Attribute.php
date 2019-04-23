@@ -43,6 +43,14 @@ class Attribute implements \JsonSerializable
     }
 
     /**
+     * @return array|bool|float|int|string|null
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
      * Specify data which should be serialized to JSON
      * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,

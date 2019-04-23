@@ -18,7 +18,7 @@ class ResourceIdentifier implements \JsonSerializable
      */
     protected $type;
     /**
-     * @var mixed
+     * @var string|int|null
      */
     protected $id;
     /**
@@ -28,8 +28,8 @@ class ResourceIdentifier implements \JsonSerializable
 
     /**
      * ResourceIdentifier constructor.
-     * @param string $type
-     * @param mixed  $id
+     * @param string          $type
+     * @param string|int|null $id
      */
     public function __construct(string $type, $id)
     {
@@ -52,7 +52,7 @@ class ResourceIdentifier implements \JsonSerializable
     }
 
     /**
-     * @return mixed
+     * @return int|string|null
      */
     public function getId()
     {

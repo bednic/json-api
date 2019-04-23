@@ -57,11 +57,29 @@ class Relationship
         }
     }
 
+    /**
+     * @return string
+     */
     public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @return ArrayCollection|ResourceIdentifier|ResourceIdentifier[]
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isCollection(): bool
+    {
+        return $this->isCollection;
+    }
     /**
      * @param ResourceIdentifier|null $resourceIdentifier
      */
