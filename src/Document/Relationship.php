@@ -15,7 +15,7 @@ use JSONAPI\Exception\EncoderException;
  * Class Relationships
  * @package JSONAPI\Document
  */
-class Relationship
+class Relationship implements \JsonSerializable
 {
     /**
      * @var string

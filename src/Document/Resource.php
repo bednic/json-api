@@ -71,17 +71,12 @@ class Resource extends ResourceIdentifier
 
     /**
      * @param string $name
-     * @return Attribute
-     * @throws DocumentException
+     * @return Attribute|null
      */
-    public function getAttribute(string $name): Attribute
+    public function getAttribute(string $name): ?Attribute
     {
         /** @var Attribute $attribute */
-        $attribute = $this->attributes->get($name);
-        if (!$attribute) {
-            throw new DocumentException("Resource attribute {$name} does not exist.");
-        }
-        return $attribute;
+        return $this->attributes->get($name);
     }
 
     /**
@@ -94,17 +89,11 @@ class Resource extends ResourceIdentifier
 
     /**
      * @param string $name
-     * @return Relationship
-     * @throws DocumentException
+     * @return Relationship|null
      */
-    public function getRelationship(string $name): Relationship
+    public function getRelationship(string $name): ?Relationship
     {
-        /** @var Relationship $relationship */
-        $relationship = $this->relationships->get($name);
-        if (!$relationship) {
-            throw new DocumentException("Resource relationship {$name} does not exist.");
-        }
-        return $relationship;
+        return $this->relationships->get($name);
     }
 
     /**

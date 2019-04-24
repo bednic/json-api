@@ -16,7 +16,7 @@ use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\EncoderException as EncoderExceptionAlias;
 use JSONAPI\Exception\FactoryException;
 use JSONAPI\Exception\UnsupportedMediaType;
-use JSONAPI\Filter\Filter;
+use JSONAPI\Filter\Query;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -90,9 +90,8 @@ class Encoder
         $resource = new Document\ResourceIdentifier($encoder->getType(), $encoder->getId());
         if ($options->isFullLinkage()) {
             $resource = new Document\Resource($resource);
-            if ($options->getFilter()) {
-                $encoder->withFields($resource, $options->getFilter());
-            }
+            $encoder->withFields($resource, $options->getQuery()->getFilter());
+
         }
         return $resource;
 
@@ -107,26 +106,27 @@ class Encoder
     public function decode(RequestInterface $request): Document\Document
     {
         $document = new Document\Document();
-        $body = (string) $request->getBody();
+        $body = (string)$request->getBody();
         $meta = $request->getHeader('Content-Type');
         if (in_array(Document\Document::MEDIA_TYPE, $meta)) {
-            $body = json_decode($body, true);
-            $data = null;
-            if (is_array($body['data'])) {
+            $body = json_decode($body);
+            if (is_array($body->data)) {
                 $data = [];
-                foreach ($body['data'] as $resourceDto) {
-                    $resource = new Document\Resource(new Document\ResourceIdentifier($resourceDto['type'], $resourceDto['id']));
-                    foreach ($resourceDto['attributes'] as $attribute => $value) {
+                foreach ($body->data as $resourceDto) {
+                    $resource = new Document\Resource(new Document\ResourceIdentifier($resourceDto->type, $resourceDto->id));
+                    foreach ($resourceDto->attributes as $attribute => $value) {
                         $resource->addAttribute(new Document\Attribute($attribute, $value));
                     }
-                    foreach ($resourceDto['relationships'] as $prop => $value) {
+
+                    foreach ($resourceDto->relationships as $prop => $value) {
+                        $value = $value->data;
                         $relationship = new Document\Relationship($prop, is_array($value));
                         if ($relationship->isCollection()) {
                             foreach ($value as $item) {
-                                $relationship->addResource(new Document\ResourceIdentifier($item['type'], $item['id']));
+                                $relationship->addResource(new Document\ResourceIdentifier($item->type, $item->id));
                             }
                         } else {
-                            $relationship->addResource(new Document\ResourceIdentifier($value['type'], $value['id']));
+                            $relationship->addResource(new Document\ResourceIdentifier($value->type, $value->id));
                         }
                         $resource->addRelationship($relationship);
                     }
@@ -134,18 +134,19 @@ class Encoder
                 }
                 $document->setData($data);
             } else {
-                $resource = new Document\Resource(new Document\ResourceIdentifier($body['data']['type'], $body['data']['id']));
-                foreach ($body['data']['attributes'] as $attribute => $value) {
+                $resource = new Document\Resource(new Document\ResourceIdentifier($body->data->type, $body->data->id));
+                foreach ($body->data->attributes as $attribute => $value) {
                     $resource->addAttribute(new Document\Attribute($attribute, $value));
                 }
-                foreach ($body['data']['relationships'] as $prop => $value) {
+                foreach ($body->data->relationships as $prop => $value) {
+                    $value = $value->data;
                     $relationship = new Document\Relationship($prop, is_array($value));
                     if ($relationship->isCollection()) {
                         foreach ($value as $item) {
-                            $relationship->addResource(new Document\ResourceIdentifier($item['type'], $item['id']));
+                            $relationship->addResource(new Document\ResourceIdentifier($item->type, $item->id));
                         }
                     } else {
-                        $relationship->addResource(new Document\ResourceIdentifier($value['type'], $value['id']));
+                        $relationship->addResource(new Document\ResourceIdentifier($value->type, $value->id));
                     }
                     $resource->addRelationship($relationship);
                 }
@@ -183,16 +184,16 @@ class Encoder
 
     /**
      * @param Document\Resource $resource
-     * @param Filter            $filter
+     * @param array             $filter
      * @return Encoder
      * @throws DriverException
      * @throws EncoderExceptionAlias
      * @throws FactoryException
      */
-    private function withFields(Document\Resource $resource, Filter $filter)
+    private function withFields(Document\Resource $resource, ?array $filter)
     {
         foreach (array_merge($this->metadata->getAttributes(), $this->metadata->getRelationships()) as $name => $field) {
-            if ($filter && in_array($name, $filter->getFilter()) || !$filter) {
+            if (($filter && in_array($name, $filter)) || !$filter) {
                 $value = null;
                 if ($field->getter != null) {
                     $value = call_user_func([$this->object, $field->getter]);
@@ -204,8 +205,8 @@ class Encoder
                     }
                 }
                 if ($field instanceof Annotation\Relationship) {
-                    $relationship = new Document\Relationship($field->isCollection);
-                    if (is_iterable($value)) {
+                    $relationship = new Document\Relationship($field->name, $field->isCollection);
+                    if (is_iterable($value) && $field->isCollection) {
                         foreach ($value as $object) {
                             $relationship->addResource($this->encode($object));
                         }

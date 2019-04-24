@@ -21,13 +21,6 @@ class LinkProvider
     const SELF = 'self';
     const RELATED = 'related';
 
-    private static function getUrl()
-    {
-        return getenv("API_ENV_URL") !== false ?
-            getenv("API_ENV_URL") :
-            "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
-    }
-
     /**
      * @param ResourceIdentifier $resource owning resource
      * @param string             $relationshipFieldName field name
@@ -47,9 +40,7 @@ class LinkProvider
      */
     public static function createResourceLinks(ResourceIdentifier $resourceIdentifier)
     {
-        return [
-            self::SELF => self::getUrl() . $resourceIdentifier->getType() . '/' . $resourceIdentifier->getId()
-        ];
+        return [self::SELF, self::getUrl() . $resourceIdentifier->getType() . '/' . $resourceIdentifier->getId()];
     }
 
     /**
@@ -58,13 +49,19 @@ class LinkProvider
      */
     public static function createPrimaryDataLink($data): array
     {
-        $resource = null;
         if (is_array($data) && !empty($data)) {
-            return [self::SELF => self::getUrl() . $data[0]->getType()];
+            return [self::SELF, self::getUrl() . $data[0]->getType()];
         } elseif ($data instanceof Resource) {
-            return self::createResourceLinks($resource);
+            return self::createResourceLinks($data);
         }
         return [];
+    }
+
+    private static function getUrl()
+    {
+        return getenv("API_ENV_URL") !== false ?
+            getenv("API_ENV_URL") :
+            "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
     }
 
 }

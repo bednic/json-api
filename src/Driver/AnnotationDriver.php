@@ -125,12 +125,23 @@ class AnnotationDriver
                         throw new DriverException('Id annotation on method MUST be getter.');
                     if (!$id->getter) $id->getter = $reflectionMethod->getName();
                     $this->logger->debug("Found resource ID.");
+                    if (!$id->property || !$reflectionClass->hasProperty($id->property)) {
+                        $property = lcfirst(str_replace(['get', 'is'], '', $id->getter));
+                        $id->property = $reflectionClass->hasProperty($property) ? $property : null;
+                    }
                 }
                 /** @var Attribute $attribute */
                 if ($attribute = $this->reader->getMethodAnnotation($reflectionMethod, Attribute::class)) {
-                    if (!$reflectionMethod->hasReturnType()) throw new DriverException("Annotation 
+                    if (!$reflectionMethod->hasReturnType() ||
+                        (
+                            ($reflectionMethod->getReturnType()->isBuiltin() === true)
+                            && ($reflectionMethod->getReturnType()->getName() === 'void')
+                        )
+                    ) {
+                        throw new DriverException("Annotation 
                     Attribute on method MUST be on getter. Method {$reflectionMethod->getName()} on 
-                    resource {$reflectionClass->name} has not return type.");
+                    resource {$reflectionClass->name} return noting.");
+                    }
                     if (!$attribute->getter) $attribute->getter = $reflectionMethod->getName();
                     if (!$attribute->name) $attribute->name = lcfirst(str_replace(['get', 'is'], '',
                         $reflectionMethod->getName()));

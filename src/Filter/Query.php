@@ -9,10 +9,10 @@
 namespace JSONAPI\Filter;
 
 /**
- * Class Filter
+ * Class Query
  * @package JSONAPI
  */
-class Filter
+class Query
 {
 
     const EQUAL = "=";
@@ -25,10 +25,10 @@ class Filter
     const OFFSET = 'offset';
     const LIMIT = 'limit';
 
-    private $includes = [];
-    private $fields = [];
-    private $sort = [];
-    private $filter = [];
+    private $includes = null;
+    private $fields = null;
+    private $sort = null;
+    private $filter = null;
     private $pagination = [
         self::OFFSET => 0,
         self::LIMIT => 25
@@ -91,9 +91,9 @@ class Filter
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getFilter(): array
+    public function getFilter(): ?array
     {
         return $this->filter;
     }
@@ -103,6 +103,7 @@ class Filter
      */
     private function parseIncludes(string $query)
     {
+        $this->includes = [];
         $t = explode(",", $query);
         $dot2tree = function (&$arr, $path, $value, $separator = '.') {
             $keys = explode($separator, $path);
@@ -122,6 +123,7 @@ class Filter
      */
     private function parseFields(array $query)
     {
+        $this->fields = [];
         foreach ($query as $type => $fields) {
             $this->fields[$type] = explode(',', $fields);
         }
@@ -132,6 +134,7 @@ class Filter
      */
     private function parseSort(string $query)
     {
+        $this->sort = [];
         preg_match_all('/((?P<sort>-?)(?P<field>[a-zA-Z0-9]+))/', $query, $matches);
         foreach ($matches['field'] as $i => $field) {
             $this->sort[$field] = $matches['sort'][$i] ? "DESC" : "ASC";
@@ -156,6 +159,7 @@ class Filter
      */
     private function parseFilter(array $filters)
     {
+        $this->filter = [];
         foreach ($filters as $field => $values) {
             if (is_array($values)) {
                 foreach ($values as $value) {

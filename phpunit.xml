@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.3/phpunit.xsd"
-         bootstrap="vendor/autoload.php"
+         bootstrap="test/bootstrap.php"
          forceCoversAnnotation="false"
          beStrictAboutCoversAnnotation="true"
          beStrictAboutOutputDuringTests="true"
@@ -11,7 +11,10 @@
 >
     <testsuites>
         <testsuite name="default">
-            <directory>./test</directory>
+            <!--<directory>./test</directory>-->
+            <file>test/MetadataFactoryTest.php</file>
+            <file>test/ClassMetadataTest.php</file>
+            <file>test/EncoderTest.php</file>
         </testsuite>
     </testsuites>
     <logging>
@@ -25,10 +28,13 @@
     </logging>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src</directory>
+            <directory suffix=".php">src</directory>
             <exclude>
-                <directory>./test</directory>
+                <directory>test</directory>
             </exclude>
         </whitelist>
     </filter>
+    <php>
+        <env name="API_ENV_URL" value="http://unit.test.org/"/>
+    </php>
 </phpunit>

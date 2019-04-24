@@ -88,6 +88,7 @@ class Document implements JsonSerializable
      */
     public function setData($data)
     {
+
         $this->data = $data;
         [$key, $link] = LinkProvider::createPrimaryDataLink($data);
         $this->addLink($key, $link);

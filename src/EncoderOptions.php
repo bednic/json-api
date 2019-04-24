@@ -9,17 +9,17 @@
 namespace JSONAPI;
 
 
-use JSONAPI\Filter\Filter;
+use JSONAPI\Filter\Query;
 
 class EncoderOptions
 {
     private $fullLinkage = false;
-    private $filter = null;
+    private $query = null;
 
-    public function __construct(bool $fullLinkage = false, Filter $filter = null)
+    public function __construct(bool $fullLinkage = false, Query $query = null)
     {
         $this->fullLinkage = $fullLinkage;
-        $this->filter = $filter;
+        $this->query = $query ? $query : new Query();
     }
 
     /**
@@ -31,11 +31,11 @@ class EncoderOptions
     }
 
     /**
-     * @return Filter|null
+     * @return Query
      */
-    public function getFilter(): ?Filter
+    public function getQuery(): Query
     {
-        return $this->filter;
+        return $this->query;
     }
 
 }
