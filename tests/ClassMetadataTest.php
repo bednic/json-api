@@ -8,8 +8,6 @@
 
 namespace Test\JSONAPI;
 
-require_once __DIR__ . '/../src/Annotation/Annotations.php';
-
 use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;

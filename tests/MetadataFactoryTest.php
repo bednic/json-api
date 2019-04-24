@@ -8,8 +8,6 @@
 
 namespace Test\JSONAPI;
 
-require_once __DIR__ . '/../src/Annotation/Annotations.php';
-
 use JSONAPI\ClassMetadata;
 use JSONAPI\MetadataFactory;
 use PHPUnit\Framework\TestCase;

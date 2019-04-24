@@ -16,8 +16,6 @@ use JSONAPI\EncoderOptions;
 use JSONAPI\MetadataFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UriInterface;
 
 class EncoderTest extends TestCase
 {

@@ -37,7 +37,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Test\\JSONAPI\\": "test/"
+            "Test\\JSONAPI\\": "tests/"
         }
     },
     "archive": {
