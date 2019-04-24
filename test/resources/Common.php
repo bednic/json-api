@@ -9,6 +9,7 @@
 namespace Test\JSONAPI;
 
 use JSONAPI\Annotation as API;
+
 /**
  * Class Common
  * @package Test\JSONAPI

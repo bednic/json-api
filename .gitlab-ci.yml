@@ -16,6 +16,7 @@ build:
 test:
     stage: test
     script:
+        - composer dumpautoload
         - vendor/bin/phpunit
 
 pages:

@@ -8,11 +8,7 @@
 
 namespace JSONAPI;
 
-
-use JSONAPI\Annotation\Attribute;
-use JSONAPI\Annotation\Id;
-use JSONAPI\Annotation\Relationship;
-use JSONAPI\Annotation\Resource;
+use JSONAPI\Annotation;
 
 /**
  * Class ClassMetadata
@@ -22,7 +18,7 @@ final class ClassMetadata
 {
 
     /**
-     * @var Id
+     * @var Annotation\Id
      */
     private $id;
     /**
@@ -30,22 +26,22 @@ final class ClassMetadata
      */
     private $resource;
     /**
-     * @var Attribute[]
+     * @var Annotation\Attribute[]
      */
     private $attributes;
     /**
-     * @var Relationship[]
+     * @var Annotation\Relationship[]
      */
     private $relationships;
 
     /**
      * ClassMetadata constructor.
-     * @param Id       $id
-     * @param Resource $resource
+     * @param Annotation\Id       $id
+     * @param Annotation\Resource $resource
      * @param array    $attributes
      * @param array    $relationships
      */
-    public function __construct(Id $id, Resource $resource, array $attributes, array $relationships)
+    public function __construct(Annotation\Id $id, Annotation\Resource $resource, array $attributes, array $relationships)
     {
         $this->id = $id;
         $this->resource = $resource;
@@ -54,23 +50,23 @@ final class ClassMetadata
     }
 
     /**
-     * @return Id
+     * @return Annotation\Id
      */
-    public function getId(): Id
+    public function getId(): Annotation\Id
     {
         return $this->id;
     }
 
     /**
-     * @return Resource
+     * @return Annotation\Resource
      */
-    public function getResource(): Resource
+    public function getResource(): Annotation\Resource
     {
         return $this->resource;
     }
 
     /**
-     * @return Attribute[]
+     * @return Annotation\Attribute[]
      */
     public function getAttributes(): array
     {
@@ -79,9 +75,9 @@ final class ClassMetadata
 
     /**
      * @param string $name
-     * @return Attribute|null
+     * @return Annotation\Attribute|null
      */
-    public function getAttribute(string $name): ?Attribute
+    public function getAttribute(string $name): ?Annotation\Attribute
     {
         foreach ($this->attributes as $attribute) {
             if ($attribute->name == $name) {
@@ -92,7 +88,7 @@ final class ClassMetadata
     }
 
     /**
-     * @return Relationship[]
+     * @return Annotation\Relationship[]
      */
     public function getRelationships(): array
     {
@@ -101,9 +97,9 @@ final class ClassMetadata
 
     /**
      * @param string $name
-     * @return Relationship|null
+     * @return Annotation\Relationship|null
      */
-    public function getRelationship(string $name): ?Relationship
+    public function getRelationship(string $name): ?Annotation\Relationship
     {
         foreach ($this->relationships as $relationship) {
             if ($relationship->name == $name) {
