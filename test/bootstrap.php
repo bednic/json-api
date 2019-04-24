@@ -8,3 +8,4 @@
 
 require_once __DIR__.'/../vendor/autoload.php';
 require_once __DIR__.'/../src/Annotation/Annotations.php';
+require_once __DIR__.'/resources/Common.php';
