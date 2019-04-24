@@ -9,37 +9,17 @@
 namespace Test\JSONAPI;
 
 use JSONAPI\Annotation as API;
-
 /**
  * Class RelationExample
  * @package Test\JSONAPI
  * @API\Resource("resource-relation")
  */
-class RelationExample
+class RelationExample extends Common
 {
-    /**
-     * @var string
-     */
-    protected $id;
-
     /**
      * @var ObjectExample
      */
     private $object;
-
-    public function __construct(string $id = null)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @API\Id
-     * @return string
-     */
-    public function getId(): string
-    {
-        return $this->id;
-    }
 
     /**
      * @API\Relationship(target=ObjectExample::class)
