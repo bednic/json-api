@@ -15,8 +15,13 @@ use \JSONAPI\Annotation as API;
  * @package JSONAPI
  * @API\Resource("resource")
  */
-class ObjectExample extends Common
+class ObjectExample
 {
+    /**
+     * @var string
+     */
+    protected $id;
+
     /**
      * @API\Attribute
      * @var string
@@ -37,6 +42,20 @@ class ObjectExample extends Common
      * @var RelationExample[]
      */
     private $relations = [];
+
+    public function __construct(string $id = null)
+    {
+        $this->id = $id;
+    }
+
+    /**
+     * @API\Id
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
+    }
 
     /**
      * @API\Attribute
