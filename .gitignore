@@ -1,6 +1,8 @@
 vendor/
 .idea
+.scannerwork/
 *.iml
+.phpunit*
 tmp/
 cache/
 docs/

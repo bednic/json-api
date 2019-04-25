@@ -144,3 +144,8 @@ $response->sendJson($document);
     }
 }
 ```
+
+## Issues
+
+You can write [email](mailto://incoming+bednic-json-api-10827057-issue-@incoming.gitlab.com) or
+create issue in [gitlab](https://gitlab.com/bednic/json-api/issues)

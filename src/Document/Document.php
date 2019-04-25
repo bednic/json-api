@@ -58,7 +58,7 @@ class Document implements JsonSerializable
     }
 
     /**
-     * @param Resource|Resource[] $data
+     * @param \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[] $data
      * @param array               $includes
      * @param array               $links
      * @param array               $meta
