@@ -29,13 +29,19 @@
     "minimum-stability": "stable",
     "autoload": {
         "classmap": [
-            "src"
+            "src/"
+        ],
+        "files": [
+            "src/Annotation/Annotations.php"
         ],
         "psr-4": {
             "JSONAPI\\": "src/"
         }
     },
     "autoload-dev": {
+        "classmap": [
+            "tests/"
+        ],
         "psr-4": {
             "Test\\JSONAPI\\": "tests/"
         }
