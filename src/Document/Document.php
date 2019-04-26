@@ -26,11 +26,12 @@ class Document implements JsonSerializable
     /**
      * \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]Resource|Resource[]
      */
-    private $data;
+    private $data = [];
+
     /**
      * @var Error[]
      */
-    private $errors = null;
+    private $errors = [];
 
     /**
      * @var ArrayCollection
@@ -59,18 +60,18 @@ class Document implements JsonSerializable
 
     /**
      * @param \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[] $data
-     * @param array               $includes
-     * @param array               $links
-     * @param array               $meta
+     * @param array                                                   $includes
+     * @param array                                                   $links
+     * @param array                                                   $meta
      * @return Document
      */
     public static function create($data, array $includes = [], array $links = [], array $meta = [])
     {
         $instance = new static();
-        $instance->setData($data);
-        $instance->setIncludes(new ArrayCollection($includes));
         $instance->meta = new ArrayCollection($meta);
         $instance->links = new ArrayCollection($links);
+        $instance->setIncludes($includes);
+        $instance->setData($data);
         return $instance;
 
     }
@@ -88,10 +89,11 @@ class Document implements JsonSerializable
      */
     public function setData($data)
     {
-
-        $this->data = $data;
-        [$key, $link] = LinkProvider::createPrimaryDataLink($data);
-        $this->addLink($key, $link);
+        if (!empty($data)) {
+            $this->data = $data;
+            [$key, $link] = LinkProvider::createPrimaryDataLink($data);
+            $this->addLink($key, $link);
+        }
     }
 
     /**
@@ -103,11 +105,11 @@ class Document implements JsonSerializable
     }
 
     /**
-     * @param ArrayCollection $includes
+     * @param array $includes
      */
-    public function setIncludes(ArrayCollection $includes): void
+    public function setIncludes(array $includes): void
     {
-        $this->included = $includes;
+        $this->included = new ArrayCollection($includes);
     }
 
     /**
@@ -130,18 +132,18 @@ class Document implements JsonSerializable
 
     /**
      * @param string $key
-     * @param string $value
+     * @param mixed  $value
      */
-    public function addMeta(string $key, string $value)
+    public function addMeta(string $key, $value)
     {
         $this->meta->set($key, $value);
     }
 
     /**
      * @param string $key
-     * @return string|null
+     * @return mixed
      */
-    public function getMeta(string $key): ?string
+    public function getMeta(string $key)
     {
         return $this->meta->get($key);
     }
@@ -169,11 +171,11 @@ class Document implements JsonSerializable
         if (!$this->meta->isEmpty()) {
             $ret["meta"] = $this->meta->toArray();
         }
-        if ($this->data && $this->errors) {
+        if (!empty($this->data) && !empty($this->errors)) {
             throw new DocumentException("Non-valid document. Data AND Errors are set. Only Data XOR Errors are allowed");
         }
 
-        if ($this->errors) {
+        if (!empty($this->errors)) {
             $ret["errors"] = $this->errors;
         } else {
             $ret["data"] = $this->data;
@@ -191,8 +193,8 @@ class Document implements JsonSerializable
     /**
      * @return false|string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return json_encode($this);
+        return (string)json_encode($this);
     }
 }

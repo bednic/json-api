@@ -21,11 +21,6 @@ abstract class Common
      */
     protected $id;
 
-    public function __construct(string $id = null)
-    {
-        $this->id = $id;
-    }
-
     /**
      * @API\Id
      * @return string

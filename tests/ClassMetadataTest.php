@@ -28,7 +28,7 @@ class ClassMetadataTest extends TestCase
      */
     private static $metadata;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         $factory = new MetadataFactory(__DIR__ . '/resources/');
         self::$metadata = $factory->getMetadataByClass(ObjectExample::class);
@@ -53,7 +53,7 @@ class ClassMetadataTest extends TestCase
     public function testGetAttributes()
     {
         $attributes = self::$metadata->getAttributes();
-//        $this->assertIsArray($attributes);
+        $this->assertIsArray($attributes);
         $this->assertContainsOnlyInstancesOf(Attribute::class, $attributes);
     }
 
@@ -70,7 +70,7 @@ class ClassMetadataTest extends TestCase
     public function testGetRelationships()
     {
         $relationships = self::$metadata->getRelationships();
-//        $this->assertIsArray($relationships);
+        $this->assertIsArray($relationships);
         $this->assertContainsOnlyInstancesOf(Relationship::class, $relationships);
     }
 

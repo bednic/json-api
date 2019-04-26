@@ -68,7 +68,7 @@ class Encoder
     /**
      * @param                     $object
      * @param EncoderOptions|null $options
-     * @return Document\ResourceIdentifier
+     * @return Document\ResourceIdentifier|Document\Resource
      * @throws DriverException
      * @throws EncoderExceptionAlias
      * @throws FactoryException

@@ -65,7 +65,7 @@ class Error implements \JsonSerializable
             "Line" => "{$exception->getFile()} ({$exception->getLine()})",
             "Pointer" => "/data"
         ]);
-        $this->setMeta($exception->getTrace());
+        $this->setMeta(explode("\n",$exception->getTraceAsString()));
     }
 
     /**

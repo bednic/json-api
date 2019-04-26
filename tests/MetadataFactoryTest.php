@@ -9,6 +9,7 @@
 namespace Test\JSONAPI;
 
 use JSONAPI\ClassMetadata;
+use JSONAPI\Exception\FactoryException;
 use JSONAPI\MetadataFactory;
 use PHPUnit\Framework\TestCase;
 
@@ -26,20 +27,18 @@ class MetadataFactoryTest extends TestCase
         return $factory;
     }
 
-    /**
-     * @expectedException \JSONAPI\Exception\FactoryException
-     */
     public function testExceptionBadPath()
     {
+        $this->expectException(FactoryException::class);
         new MetadataFactory('');
     }
 
     /**
-     * @expectedException \JSONAPI\Exception\FactoryException
      * @depends test__construct
      */
     public function testExceptionClassIsNotResource(MetadataFactory $factory)
     {
+        $this->expectException(FactoryException::class);
         $factory->getMetadataByClass('NonExistingClass');
     }
 

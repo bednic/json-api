@@ -34,7 +34,7 @@
         "doctrine/common": "^2.10"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.3"
+        "phpunit/phpunit": "^8"
     },
     "minimum-stability": "stable",
     "autoload": {

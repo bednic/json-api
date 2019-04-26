@@ -28,16 +28,13 @@ class EncoderTest extends TestCase
 
     private static $instance;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
         self::$options = new EncoderOptions();
-        $relation = new RelationExample("relation-uuid");
-        $instance = new ObjectExample("uuid");
-        $instance->publicProperty = "public-value";
-        $instance->setPrivateProperty("private-value");
+        $relation = new RelationExample();
+        $instance = new ObjectExample();
         $instance->setRelations([$relation]);
-        $relation->setObject($instance);
         self::$instance = $instance;
     }
 

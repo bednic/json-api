@@ -17,6 +17,7 @@ use \JSONAPI\Annotation as API;
  */
 class ObjectExample extends Common
 {
+    protected $id = 'uuid';
     /**
      * @API\Attribute
      * @var string
@@ -26,7 +27,7 @@ class ObjectExample extends Common
     /**
      * @var string
      */
-    private $privateProperty;
+    private $privateProperty = 'private-value';
 
     /**
      * @var string
@@ -78,6 +79,9 @@ class ObjectExample extends Common
      */
     public function setRelations(array $relations): void
     {
+        foreach ($relations as $relation){
+            $relation->setObject($this);
+        }
         $this->relations = $relations;
     }
 

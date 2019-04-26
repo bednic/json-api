@@ -16,6 +16,7 @@ use JSONAPI\Annotation as API;
  */
 class RelationExample extends Common
 {
+    protected $id = 'relation-uuid';
     /**
      * @var ObjectExample
      */
