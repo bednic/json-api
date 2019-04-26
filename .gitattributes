@@ -5,3 +5,4 @@
 *.xml export-ignore
 phpDocumentor.phar export-ignore
 phpDocumentor.phar.pubkey export-ignore
+/composer.lock -merge

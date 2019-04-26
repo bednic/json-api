@@ -1,19 +1,29 @@
 {
     "name": "bednic/json-api",
     "type": "library",
-    "description": "JSON API implementation driven by annotations",
+    "description": "JSON API implementation, driven by annotations.",
     "homepage": "https://gitlab.com/bednic/json-api",
+    "support": {
+        "issues": "https://gitlab.com/bednic/json-api/issues",
+        "email": "incoming+bednic-json-api-10827057-issue-@incoming.gitlab.com",
+        "source": "https://gitlab.com/bednic/json-api/tree/master"
+    },
     "keywords": [
         "php",
         "json",
         "api",
         "rest",
-        "annotations"
+        "annotations",
+        "jsonapi",
+        "serialization"
     ],
     "license": "MIT",
     "authors": [
         {"name": "Tomáš Benedikt", "email": "tomas.benedikt@gmail.com"}
     ],
+    "config": {
+        "sort-packages": true
+    },
     "require": {
         "php": "^7.1",
         "ext-json": "*",
@@ -53,8 +63,7 @@
             "/vendor",
             ".*",
             "*.xml",
-            "phpDocumentor.phar",
-            "phpDocumentor.phar.pubkey"
+            "composer.lock"
         ]
     }
 }

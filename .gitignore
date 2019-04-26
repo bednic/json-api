@@ -7,3 +7,4 @@ tmp/
 cache/
 docs/
 build/
+composer.lock
