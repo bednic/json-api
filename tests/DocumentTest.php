@@ -5,6 +5,8 @@ namespace Test\JSONAPI;
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
+use JSONAPI\Document\Link;
+use JSONAPI\Document\Meta;
 use JSONAPI\Document\Resource;
 use JSONAPI\Encoder;
 use JSONAPI\EncoderOptions;
@@ -12,35 +14,50 @@ use JSONAPI\Exception\DocumentException;
 use JSONAPI\LinkProvider;
 use JSONAPI\MetadataFactory;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\RequestInterface;
 
 class DocumentTest extends TestCase
 {
-    /**
-     * @var Document
-     */
-    private $document;
-
-    public function testCreate(): Document
+    
+    public function test__construct()
     {
-        $object = new ObjectExample();
-        $relation = new RelationExample();
-        $object->setRelations([$relation]);
-        $encoder = new Encoder(new MetadataFactory(__DIR__ . '/resources'));
-        $data = $encoder->encode($object, new EncoderOptions(true));
-        $includes = [$encoder->encode($relation, new EncoderOptions(true))];
-        $links = ['own' => 'http://my-own.link.com'];
-        $meta = [
-            'count' => 1
-        ];
-        $document = Document::create($data, $includes, $links, $meta);
+        $document = new Document(
+            new MetadataFactory(__DIR__.'/resources')
+        );
         $this->assertInstanceOf(Document::class, $document);
-
-
         return $document;
     }
 
     /**
-     * @depends testCreate
+     * @param Document $document
+     * @depends test__construct
+     * @return Document
+     */
+    public function testAddMeta(Document $document)
+    {
+        $document->addMeta(new Meta('count',1));
+        $this->expectNotToPerformAssertions();
+        return $document;
+    }
+
+    /**
+     * @param Document $document
+     * @depends testAddMeta
+     * @return Document
+     */
+    public function testSetData(Document $document)
+    {
+        $resource = new ObjectExample();
+        $relation = new RelationExample();
+        $resource->setRelations([$relation]);
+        $document->setData($resource);
+        print json_encode($document);
+        $this->expectOutputRegex('/^((?!\"errors\")(\s|.))*$/');
+        $this->expectOutputRegex('/\"data\"/');
+        return $document;
+    }
+    /**
+     * @depends testSetData
      */
     public function testGetData(Document $document)
     {
@@ -48,15 +65,15 @@ class DocumentTest extends TestCase
     }
 
     /**
-     * @depends testCreate
+     * @depends testSetData
      */
     public function testJsonSerialize(Document $document)
     {
-        $this->assertEquals(file_get_contents(__DIR__ . '/resources/response.json'), json_encode($document));
+        $this->assertEquals(trim(file_get_contents(__DIR__ . '/resources/response.json')), json_encode($document));
     }
 
     /**
-     * @depends testCreate
+     * @depends testSetData
      */
     public function test__toString(Document $document)
     {
@@ -64,76 +81,48 @@ class DocumentTest extends TestCase
     }
 
     /**
-     * @depends testCreate
+     * @param Document $document
+     * @depends test__construct
      */
-    public function testGetLink(Document $document)
+    public function testAddLink(Document $document)
     {
-        $this->assertNotEmpty($document->getLink(LinkProvider::SELF));
-        $this->assertEquals("http://my-own.link.com", $document->getLink('own'));
+        $document->addLink(new Link('own', 'http://my-own.link.com'));
+        $this->expectNotToPerformAssertions();
     }
 
     /**
-     * @depends testCreate
+     * @param Document $document
+     * @depends test__construct
      */
-    public function testGetMeta(Document $document)
-    {
-        $this->assertEquals(1, $document->getMeta('count'));
-    }
-
-    /**
-     * @depends testCreate
-     */
-    public function testGetIncludes(Document $document)
-    {
-        $this->assertInstanceOf(ArrayCollection::class, $document->getIncludes());
-        $this->assertTrue($document->getIncludes()->count() > 0);
-    }
-
-    protected function setUp(): void
-    {
-        $this->document = new Document();
-    }
-
-    public function test__construct()
-    {
-        $document = new Document();
-        $this->assertInstanceOf(Document::class, $document);
-        return $document;
-    }
-
-    public function testAddLink()
-    {
-        $this->document->addLink('own', 'http://my-own.link.com');
-        $this->assertEquals('http://my-own.link.com', $this->document->getLink('own'));
-    }
-
-
-    public function testAddError()
+    public function testAddError(Document $document)
     {
         try {
             throw new DocumentException("Test exception");
         } catch (DocumentException $exception) {
-            $error = new Error($exception);
-            $this->document->addError($error);
-            print json_encode($this->document);
+            $error = Error::fromException($exception);
+            $document->addError($error);
+            print json_encode($document);
             $this->expectOutputRegex('/^((?!\"data\")(\s|.))*$/');
             $this->expectOutputRegex('/\"errors\"/');
         }
     }
 
-    public function testSetData()
+    public function testCreateFromRequest()
     {
-        $data = [];
-        $this->document->setData($data);
-        print json_encode($this->document);
-        $this->expectOutputRegex('/^((?!\"errors\")(\s|.))*$/');
-        $this->expectOutputRegex('/\"data\"/');
+        /** @var RequestInterface $request */
+        $request = $this->createMock(RequestInterface::class);
+        $request->method('getBody')
+            ->willReturn(trim(file_get_contents(__DIR__.'/resources/request.json')));
+        $request->method('getHeader')
+            ->with('Content-Type')
+            ->willReturn([Document::MEDIA_TYPE]);
+
+        $document = Document::createFromRequest($request,new MetadataFactory(__DIR__.'/resources'));
+        $this->assertInstanceOf(Document::class,$document);
+        $this->assertInstanceOf(Resource::class, $document->getData());
+
     }
 
 
-    public function testAddMeta()
-    {
-        $this->document->addMeta('author', 'me');
-        $this->assertEquals('me', $this->document->getMeta('author'));
-    }
 }
+

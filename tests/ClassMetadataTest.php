@@ -52,7 +52,7 @@ class ClassMetadataTest extends TestCase
 
     public function testGetAttributes()
     {
-        $attributes = self::$metadata->getAttributes();
+        $attributes = self::$metadata->getAttributes()->toArray();
         $this->assertIsArray($attributes);
         $this->assertContainsOnlyInstancesOf(Attribute::class, $attributes);
     }
@@ -69,7 +69,7 @@ class ClassMetadataTest extends TestCase
 
     public function testGetRelationships()
     {
-        $relationships = self::$metadata->getRelationships();
+        $relationships = self::$metadata->getRelationships()->toArray();
         $this->assertIsArray($relationships);
         $this->assertContainsOnlyInstancesOf(Relationship::class, $relationships);
     }

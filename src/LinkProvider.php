@@ -11,6 +11,7 @@ namespace JSONAPI;
 
 use JSONAPI\Document\Resource;
 use JSONAPI\Document\ResourceIdentifier;
+use JSONAPI\Filter\URLFactory;
 
 /**
  * Class LinkProvider
@@ -23,7 +24,7 @@ class LinkProvider
 
     /**
      * @param ResourceIdentifier $resource owning resource
-     * @param string             $relationshipFieldName field name
+     * @param string $relationshipFieldName field name
      * @return array
      */
     public static function createRelationshipsLinks(ResourceIdentifier $resource, string $relationshipFieldName)
@@ -44,24 +45,18 @@ class LinkProvider
     }
 
     /**
-     * @param Resource | Resource[] $data
      * @return array
      */
-    public static function createPrimaryDataLink($data): array
+    public static function createPrimaryDataLink(): array
     {
-        if (is_array($data) && !empty($data)) {
-            return [self::SELF, self::getUrl() . $data[0]->getType()];
-        } elseif ($data instanceof Resource) {
-            return self::createResourceLinks($data);
-        }
-        return [];
+        $url = URLFactory::create();
+        return [self::SELF, self::getUrl() . (string) $url->endpoint];
     }
 
-    private static function getUrl()
+    public static function getUrl()
     {
         return getenv("API_ENV_URL") !== false ?
-            getenv("API_ENV_URL") :
-            "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
+            getenv("API_ENV_URL") : "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
     }
 
 }

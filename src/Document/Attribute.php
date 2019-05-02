@@ -9,56 +9,26 @@
 namespace JSONAPI\Document;
 
 
-use JSONAPI\Exception\EncoderException;
+use JSONAPI\Exception\DocumentException;
 
-class Attribute implements \JsonSerializable
+class Attribute extends KVStore
 {
-    private $name;
-    private $value;
-
     /**
      * Attribute constructor.
-     * @param string                                             $name
+     *
+     * @param string                                             $key
      * @param boolean | integer | double | string | array | null $value
-     * @throws EncoderException
+     * @throws DocumentException
      */
-    public function __construct(string $name, $value)
+    public function __construct(string $key, $value)
     {
         if (!in_array(gettype($value), ["boolean", "integer", "double", "string", "array", "NULL"])) {
-            throw new EncoderException("Attribute value type is not supported");
+            throw DocumentException::for(DocumentException::DOCUMENT_FORBIDDEN_VALUE_TYPE);
         }
-        if (!preg_match("/[a-zA-Z0-9-_]/", $name)) {
-            throw new EncoderException("Attribute name character violation.");
+        if (!preg_match("/[a-zA-Z0-9-_]/", $key)) {
+            throw DocumentException::for(DocumentException::DOCUMENT_FORBIDDEN_CHARACTER);
         }
-        $this->name = $name;
-        $this->value = $value;
+        parent::__construct($key, $value);
     }
 
-    /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @return array|bool|float|int|string|null
-     */
-    public function getValue()
-    {
-        return $this->value;
-    }
-
-    /**
-     * Specify data which should be serialized to JSON
-     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
-     */
-    public function jsonSerialize()
-    {
-        return $this->value;
-    }
 }

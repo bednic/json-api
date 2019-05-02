@@ -1,0 +1,1 @@
+{"type":"resource","id":"uuid","attributes":{"publicProperty":"public-value","privateProperty":"private-value"},"relationships":{"relations":{"data":[{"type":"resource-relation","id":"relation-uuid"}],"links":{"self":"http:\/\/unit.test.org\/resource\/uuid\/relationships\/relations","related":"http:\/\/unit.test.org\/resource\/uuid\/relations"}}}}

@@ -9,10 +9,11 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use JSONAPI\Exception\EncoderException;
+use JSONAPI\Exception\DocumentException;
 
 /**
  * Class Relationships
+ *
  * @package JSONAPI\Document
  */
 class Relationship implements \JsonSerializable
@@ -41,14 +42,15 @@ class Relationship implements \JsonSerializable
 
     /**
      * Relationship constructor.
+     *
      * @param string $name
      * @param bool   $isCollection
-     * @throws EncoderException
+     * @throws DocumentException
      */
     public function __construct(string $name, $isCollection = true)
     {
         if (!preg_match("/[a-zA-Z0-9-_]/", $name)) {
-            throw new EncoderException("Attribute name character violation.");
+            throw DocumentException::for(DocumentException::DOCUMENT_FORBIDDEN_CHARACTER);
         }
         $this->name = $name;
         $this->isCollection = $isCollection;
@@ -80,10 +82,11 @@ class Relationship implements \JsonSerializable
     {
         return $this->isCollection;
     }
+
     /**
-     * @param ResourceIdentifier|null $resourceIdentifier
+     * @param ResourceIdentifier $resourceIdentifier
      */
-    public function addResource(?ResourceIdentifier $resourceIdentifier)
+    public function addResource(ResourceIdentifier $resourceIdentifier)
     {
         if ($this->isCollection && !$this->data->contains($resourceIdentifier)) {
             $this->data->add($resourceIdentifier);

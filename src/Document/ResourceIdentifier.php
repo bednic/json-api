@@ -10,6 +10,11 @@ namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 
+/**
+ * Class ResourceIdentifier
+ *
+ * @package JSONAPI\Document
+ */
 class ResourceIdentifier implements \JsonSerializable
 {
 
@@ -17,10 +22,12 @@ class ResourceIdentifier implements \JsonSerializable
      * @var string
      */
     protected $type;
+
     /**
      * @var string|int|null
      */
     protected $id;
+
     /**
      * @var ArrayCollection
      */
@@ -28,6 +35,7 @@ class ResourceIdentifier implements \JsonSerializable
 
     /**
      * ResourceIdentifier constructor.
+     *
      * @param string          $type
      * @param string|int|null $id
      */
@@ -38,9 +46,21 @@ class ResourceIdentifier implements \JsonSerializable
         $this->meta = new ArrayCollection();
     }
 
-    public function addMeta($key, $value)
+    /**
+     * @param Meta $meta
+     */
+    public function addMeta(Meta $meta)
     {
-        $this->meta[$key] = $value;
+        $this->meta->set($meta->getKey(), $meta->getValue());
+    }
+
+    /**
+     * @param string $key
+     * @return mixed|null
+     */
+    public function getMeta(string $key)
+    {
+        return $this->meta->get($key);
     }
 
     /**
@@ -59,10 +79,10 @@ class ResourceIdentifier implements \JsonSerializable
         return $this->id;
     }
 
-
     /**
      * Specify data which should be serialized to JSON
-     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     *
+     * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0

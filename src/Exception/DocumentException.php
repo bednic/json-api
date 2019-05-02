@@ -14,5 +14,11 @@ namespace JSONAPI\Exception;
  */
 class DocumentException extends JsonApiException
 {
-
+    public static function for(int $code,array $args = []): DocumentException
+    {
+        if (!isset(self::$messages[$code])) {
+            $code = self::DOCUMENT_UNKNOWN;
+        }
+        return parent::for($code, $args);
+    }
 }

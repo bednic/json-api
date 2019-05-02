@@ -8,6 +8,7 @@
 
 namespace JSONAPI;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Annotation;
 
 /**
@@ -38,10 +39,10 @@ final class ClassMetadata
      * ClassMetadata constructor.
      * @param Annotation\Id       $id
      * @param Annotation\Resource $resource
-     * @param array    $attributes
-     * @param array    $relationships
+     * @param ArrayCollection     $attributes
+     * @param ArrayCollection     $relationships
      */
-    public function __construct(Annotation\Id $id, Annotation\Resource $resource, array $attributes, array $relationships)
+    public function __construct(Annotation\Id $id, Annotation\Resource $resource, ArrayCollection $attributes, ArrayCollection $relationships)
     {
         $this->id = $id;
         $this->resource = $resource;
@@ -66,9 +67,9 @@ final class ClassMetadata
     }
 
     /**
-     * @return Annotation\Attribute[]
+     * @return Annotation\Attribute[]|ArrayCollection
      */
-    public function getAttributes(): array
+    public function getAttributes(): ArrayCollection
     {
         return $this->attributes;
     }
@@ -79,18 +80,13 @@ final class ClassMetadata
      */
     public function getAttribute(string $name): ?Annotation\Attribute
     {
-        foreach ($this->attributes as $attribute) {
-            if ($attribute->name == $name) {
-                return $attribute;
-            }
-        }
-        return null;
+       return $this->attributes->get($name);
     }
 
     /**
-     * @return Annotation\Relationship[]
+     * @return Annotation\Relationship[]|ArrayCollection
      */
-    public function getRelationships(): array
+    public function getRelationships(): ArrayCollection
     {
         return $this->relationships;
     }
@@ -101,12 +97,7 @@ final class ClassMetadata
      */
     public function getRelationship(string $name): ?Annotation\Relationship
     {
-        foreach ($this->relationships as $relationship) {
-            if ($relationship->name == $name) {
-                return $relationship;
-            }
-        }
-        return null;
+        return $this->relationships->get($name);
     }
 
     /**
@@ -115,7 +106,7 @@ final class ClassMetadata
      */
     public function isRelationship(string $fieldName): bool
     {
-        return array_key_exists($fieldName, $this->relationships);
+        return $this->relationships->containsKey($fieldName);
     }
 
     /**
@@ -124,6 +115,6 @@ final class ClassMetadata
      */
     public function isAttribute(string $fieldName): bool
     {
-        return array_key_exists($fieldName, $this->attributes);
+        return $this->attributes->containsKey($fieldName);
     }
 }
