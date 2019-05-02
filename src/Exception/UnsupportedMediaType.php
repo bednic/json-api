@@ -11,6 +11,11 @@ namespace JSONAPI\Exception;
 
 class UnsupportedMediaType extends JsonApiException
 {
-    protected $code = 415;
+
     protected $message = "Unsupported Media Type";
+
+    public function getStatus(): int
+    {
+        return 415;
+    }
 }

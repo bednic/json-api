@@ -9,12 +9,25 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Encoder;
 use JSONAPI\Exception\DocumentException;
+use JSONAPI\Exception\DriverException;
+use JSONAPI\Exception\EncoderException;
+use JSONAPI\Exception\FactoryException;
+use JSONAPI\Exception\JsonApiException;
+use JSONAPI\Exception\UnsupportedMediaType;
+use JSONAPI\Filter\URL;
+use JSONAPI\Filter\URLFactory;
 use JSONAPI\LinkProvider;
+use JSONAPI\MetadataFactory;
 use JsonSerializable;
+use Psr\Http\Message\RequestInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class Document
+ *
  * @package JSONAPI\Document
  */
 class Document implements JsonSerializable
@@ -22,24 +35,40 @@ class Document implements JsonSerializable
     const MEDIA_TYPE = "application/vnd.api+json";
 
     const VERSION = "1.0";
-
     /**
-     * \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]Resource|Resource[]
+     * @var MetadataFactory
      */
-    private $data = [];
-
+    private $factory;
     /**
-     * @var Error[]
+     * @var Encoder
      */
-    private $errors = [];
+    private $encoder;
+    /**
+     * @var URL
+     */
+    private $url;
+    /**
+     * @var LoggerInterface
+     */
+    private $logger;
 
     /**
-     * @var ArrayCollection
+     * @var \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]
+     */
+    private $data;
+
+    /**
+     * @var Error[]|ArrayCollection
+     */
+    private $errors;
+
+    /**
+     * @var Meta[]|ArrayCollection
      */
     private $meta;
 
     /**
-     * @var ArrayCollection
+     * @var Link[]|ArrayCollection
      */
     private $links;
 
@@ -49,35 +78,102 @@ class Document implements JsonSerializable
     private $included;
 
     /**
-     * Document constructor.
+     * @var array
      */
-    public function __construct()
+    private $ids;
+
+    private $isError = false;
+
+    /**
+     * Document constructor.
+     *
+     * @param MetadataFactory      $metadataFactory
+     * @param LoggerInterface|null $logger
+     */
+    public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
     {
+        $this->factory = $metadataFactory;
+        $this->logger = $logger ?? new NullLogger();
+        $this->encoder = new Encoder($metadataFactory, $this->logger);
+        $this->url = URLFactory::create();
         $this->links = new ArrayCollection();
         $this->meta = new ArrayCollection();
         $this->included = new ArrayCollection();
     }
 
     /**
-     * @param \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[] $data
-     * @param array                                                   $includes
-     * @param array                                                   $links
-     * @param array                                                   $meta
+     * @param RequestInterface $request
+     * @param MetadataFactory  $factory
      * @return Document
+     * @throws DocumentException
+     * @throws UnsupportedMediaType
      */
-    public static function create($data, array $includes = [], array $links = [], array $meta = [])
+    public static function createFromRequest(RequestInterface $request, MetadataFactory $factory): Document
     {
-        $instance = new static();
-        $instance->meta = new ArrayCollection($meta);
-        $instance->links = new ArrayCollection($links);
-        $instance->setIncludes($includes);
-        $instance->setData($data);
-        return $instance;
+        $url = URLFactory::create();
 
+        $document = new static($factory);
+        $body = (string)$request->getBody();
+        $meta = $request->getHeader('Content-Type');
+        if (in_array(Document::MEDIA_TYPE, $meta)) {
+            $body = json_decode($body);
+            if (is_array($body->data)) {
+                $data = [];
+                foreach ($body->data as $resourceDto) {
+                    if ($resourceDto->type !== $url->endpoint->getPrimaryDataType()) {
+                        throw DocumentException::for(DocumentException::DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH);
+                    }
+
+                    $resource = new Resource(new ResourceIdentifier($resourceDto->type, $resourceDto->id));
+                    foreach ($resourceDto->attributes as $attribute => $value) {
+                        $resource->addAttribute(new Attribute($attribute, $value));
+                    }
+
+                    foreach ($resourceDto->relationships as $prop => $value) {
+                        $value = $value->data;
+                        $relationship = new Relationship($prop, is_array($value));
+                        if ($relationship->isCollection()) {
+                            foreach ($value as $item) {
+                                $relationship->addResource(new ResourceIdentifier($item->type, $item->id));
+                            }
+                        } else {
+                            $relationship->addResource(new ResourceIdentifier($value->type, $value->id));
+                        }
+                        $resource->addRelationship($relationship);
+                    }
+                    $data[] = $resource;
+                }
+                $document->data = $data;
+            } else {
+                if ($body->data->type !== $url->endpoint->getPrimaryDataType()) {
+                    throw DocumentException::for(DocumentException::DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH);
+                }
+                $resource = new Resource(new ResourceIdentifier($body->data->type, $body->data->id));
+                foreach ($body->data->attributes as $attribute => $value) {
+                    $resource->addAttribute(new Attribute($attribute, $value));
+                }
+                foreach ($body->data->relationships as $prop => $value) {
+                    $value = $value->data;
+                    $relationship = new Relationship($prop, is_array($value));
+                    if ($relationship->isCollection()) {
+                        foreach ($value as $item) {
+                            $relationship->addResource(new ResourceIdentifier($item->type, $item->id));
+                        }
+                    } else {
+                        $relationship->addResource(new ResourceIdentifier($value->type, $value->id));
+                    }
+                    $resource->addRelationship($relationship);
+                }
+                $document->data = $resource;
+            }
+        } else {
+            throw new UnsupportedMediaType();
+        }
+        return $document;
     }
 
     /**
-     * @return \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]
+     * @return \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]|null
      */
     public function getData()
     {
@@ -85,67 +181,136 @@ class Document implements JsonSerializable
     }
 
     /**
-     * @param \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[] $data
+     * @param $data
+     * @throws DocumentException
      */
-    public function setData($data)
+    public function setData($data): void
     {
-        if (!empty($data)) {
-            $this->data = $data;
-            [$key, $link] = LinkProvider::createPrimaryDataLink($data);
-            $this->addLink($key, $link);
+        if ($this->isError) {
+            throw DocumentException::for(DocumentException::DOCUMENT_HAS_DATA_AND_ERRORS);
+        }
+        try {
+            $primaryDataType = $this->url->endpoint->getPrimaryDataType();
+            if ($this->url->endpoint->isCollection()) {
+                $this->data = [];
+            } else {
+                $this->data = null;
+            }
+            $metadata = $this->factory->getMetadataClassByType($primaryDataType);
+            if (!empty($data)) {
+                if (is_array($data)) {
+
+                    foreach ($data as $obj) {
+                        $resource = $this->encoder->encode($obj);
+                        if ($resource->getType() !== $metadata->getResource()->type) {
+                            throw DocumentException::for(DocumentException::DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH);
+                        }
+
+                        $id = $this->getId($resource);
+                        if ($this->isUnique($id)) {
+                            $this->data[] = $resource;
+                            $this->ids[$id] = true;
+                            $this->setIncludes($this->url->getIncludes(), $obj);
+                        }
+                    }
+                } else {
+                    $resource = $this->encoder->encode($data);
+                    if ($resource->getType() !== $metadata->getResource()->type) {
+                        throw DocumentException::for(DocumentException::DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH);
+                    }
+                    $id = $this->getId($resource);
+                    $this->ids[$id] = true;
+                    $this->data = $resource;
+                    $this->setIncludes($this->url->getIncludes(), $data);
+                }
+
+            }
+
+            $link = new Link(...LinkProvider::createPrimaryDataLink());
+            $this->addLink($link);
+        } catch (JsonApiException $exception) {
+            $this->addError(Error::fromException($exception));
         }
     }
 
     /**
-     * @return ArrayCollection
+     * @param $id
+     * @return bool
      */
-    public function getIncludes()
+    private function isUnique($id): bool
     {
-        return $this->included;
+        return !isset($this->ids[$id]);
     }
 
     /**
-     * @param array $includes
+     * @param \JSONAPI\Document\Resource $resource
+     * @return string
      */
-    public function setIncludes(array $includes): void
+    private function getId(\JSONAPI\Document\Resource $resource): string
     {
-        $this->included = new ArrayCollection($includes);
+        return $resource->getType() . $resource->getId();
     }
 
     /**
-     * @param string $key
-     * @param string $link
+     * @param $includes
+     * @param $object
+     * @throws DocumentException
+     * @throws DriverException
+     * @throws EncoderException
+     * @throws FactoryException
      */
-    public function addLink(string $key, string $link): void
+    private function setIncludes($includes, $object)
     {
-        $this->links->set($key, $link);
+        $metadata = $this->factory->getMetadataByClass(get_class($object));
+
+        foreach ($includes as $include => $sub) {
+            $relationship = $metadata->getRelationship($include);
+
+            if ($relationship && $relationship->getter) {
+                $data = call_user_func([$object, $relationship->getter]);
+                if ($relationship->isCollection) {
+                    foreach ($data as $item) {
+                        $relation = $this->encoder->encode($item);
+                        $id = $this->getId($relation);
+                        if ($this->isUnique($id)) {
+                            $this->included->add($relation);
+                            $this->ids[$id] = true;
+                            if ($sub) {
+                                $this->setIncludes($sub, $item);
+                            }
+                        }
+
+                    }
+                } else {
+                    $relation = $this->encoder->encode($data);
+                    $id = $this->getId($relation);
+                    if ($this->isUnique($id)) {
+                        $this->included->add($relation);
+                        $this->ids[$id] = true;
+                        if ($sub) {
+                            $this->setIncludes($sub, $data);
+                        }
+                    }
+                }
+            }
+
+        }
     }
 
     /**
-     * @param string $key
-     * @return string|null
+     * @param Link $link
      */
-    public function getLink(string $key): ?string
+    public function addLink(Link $link): void
     {
-        return $this->links->get($key);
+        $this->links->set($link->getKey(), $link->getValue());
     }
 
     /**
-     * @param string $key
-     * @param mixed  $value
+     * @param Meta $meta
      */
-    public function addMeta(string $key, $value)
+    public function addMeta(Meta $meta)
     {
-        $this->meta->set($key, $value);
-    }
-
-    /**
-     * @param string $key
-     * @return mixed
-     */
-    public function getMeta(string $key)
-    {
-        return $this->meta->get($key);
+        $this->meta->set($meta->getKey(), $meta->getValue());
     }
 
     /**
@@ -153,12 +318,14 @@ class Document implements JsonSerializable
      */
     public function addError(Error $error)
     {
+        $this->isError = true;
         $this->errors[] = $error;
     }
 
     /**
      * Specify data which should be serialized to JSON
-     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     *
+     * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @throws DocumentException
@@ -171,11 +338,8 @@ class Document implements JsonSerializable
         if (!$this->meta->isEmpty()) {
             $ret["meta"] = $this->meta->toArray();
         }
-        if (!empty($this->data) && !empty($this->errors)) {
-            throw new DocumentException("Non-valid document. Data AND Errors are set. Only Data XOR Errors are allowed");
-        }
 
-        if (!empty($this->errors)) {
+        if ($this->isError) {
             $ret["errors"] = $this->errors;
         } else {
             $ret["data"] = $this->data;

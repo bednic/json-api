@@ -8,11 +8,15 @@
 
 namespace JSONAPI\Filter;
 
+use JSONAPI\LinkProvider;
+use Psr\Http\Message\StreamInterface;
+
 /**
- * Class Query
+ * Class URL
+ *
  * @package JSONAPI
  */
-class Query
+class URL
 {
 
     const EQUAL = "=";
@@ -34,8 +38,19 @@ class Query
         self::LIMIT => 25
     ];
 
+    /**
+     * @var Endpoint
+     */
+    public $endpoint;
+
+    /**
+     * URL constructor.
+     */
     public function __construct()
     {
+
+        $this->endpoint = $this->parseEndpoint();
+
         if (isset($_GET['include'])) {
             $this->parseIncludes($_GET['include']);
         }
@@ -155,6 +170,8 @@ class Query
     }
 
     /**
+     * It's custom idea, I can't guarantee that this will satisfy all needs
+     *
      * @param array $filters
      */
     private function parseFilter(array $filters)
@@ -220,5 +237,24 @@ class Query
         } else {
             return (string)$value;
         }
+    }
+
+
+    /**
+     * @return Endpoint
+     */
+    private function parseEndpoint(): Endpoint
+    {
+        $baseUrl = LinkProvider::getUrl();
+        $uri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
+        $path = str_replace($baseUrl, '/', $uri);
+        $pattern = '/^\/(?P<resource>[a-z-_]+)(\/(?P<id>[a-z0-9-_]+))?((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?$/';
+        preg_match($pattern, $path, $matches);
+        return new Endpoint(
+            $matches['resource'],
+            isset($matches['id']) ? $matches['id'] : null,
+            isset($matches['relationship']) ? $matches['relationship'] : null,
+            isset($matches['related']) ? $matches['related'] : null
+        );
     }
 }

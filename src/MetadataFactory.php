@@ -15,7 +15,6 @@ use Doctrine\Common\Util\ClassUtils;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\FactoryException;
-use JSONAPI\Exception\JsonApiException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -58,7 +57,7 @@ class MetadataFactory
     public function __construct(string $pathToObjects, Cache $cache = null, LoggerInterface $logger = null)
     {
         if (!is_dir($pathToObjects)) {
-            throw new FactoryException("Path to object is not directory.", JsonApiException::CODE_PATH_IS_NOT_VALID);
+            throw new FactoryException("Path to object is not directory.", FactoryException::FACTORY_PATH_IS_NOT_VALID);
         }
         $this->driver = new AnnotationDriver($logger);
         $this->path = $pathToObjects;
@@ -83,7 +82,7 @@ class MetadataFactory
             return $classMetadata;
         } else {
             throw new FactoryException("Metadata for class {$className} does not exists.",
-                JsonApiException::CODE_CLASS_IS_NOT_RESOURCE);
+                FactoryException::FACTORY_CLASS_IS_NOT_RESOURCE);
         }
     }
 
@@ -126,7 +125,7 @@ class MetadataFactory
             /** @var $it \RecursiveDirectoryIterator */
             if (!$it->isDot()) {
                 $file = $it->key();
-                if (is_file($file) && (pathinfo($file)["extension"] === "php")) {
+                if (is_file($file) && (isset(pathinfo($file)["extension"]) && pathinfo($file)["extension"] === "php")) {
                     require_once $file;
                 }
 
@@ -141,7 +140,6 @@ class MetadataFactory
             catch (FactoryException $e) {
                 // class is not resource
             }
-
         }
         $this->cache->save(self::class, array_keys($this->metadata));
     }

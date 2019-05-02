@@ -11,12 +11,14 @@ namespace JSONAPI\Driver;
 
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
 use JSONAPI\ClassMetadata;
 use JSONAPI\Exception\DriverException;
+use JSONAPI\Exception\JsonApiException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -65,8 +67,8 @@ class AnnotationDriver
             if ($resource = $this->reader->getClassAnnotation($ref, Resource::class)) {
                 $this->logger->debug("Found resource {$resource->type}.");
                 $id = null;
-                $attributes = [];
-                $relationships = [];
+                $attributes = new ArrayCollection();
+                $relationships = new ArrayCollection();
                 $this->parseProperties($ref, $id, $attributes, $relationships);
                 $this->parseMethods($ref, $id, $attributes, $relationships);
                 $this->logger->info("Created ClassMetadata for <{$resource->type}>");
@@ -79,51 +81,67 @@ class AnnotationDriver
     }
 
     /**
-     * @param ReflectionClass  $reflectionClass
+     * @param ReflectionClass $reflectionClass
      * @param                  $id
      * @param                  $attributes
      * @param                  $relationships
      */
-    private function parseProperties(ReflectionClass $reflectionClass, &$id, &$attributes, &$relationships): void
+    private function parseProperties(ReflectionClass $reflectionClass, &$id, ArrayCollection &$attributes, ArrayCollection &$relationships): void
     {
         foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
             if (!$id && ($id = $this->reader->getPropertyAnnotation($reflectionProperty, Id::class))) {
-                if (!$id->property) $id->property = $reflectionProperty->getName();
+                if (!$id->property) {
+                    $id->property = $reflectionProperty->getName();
+                }
                 $this->logger->debug("Found resource ID.");
             }
             /** @var Attribute | null $attribute */
             if ($attribute = $this->reader->getPropertyAnnotation($reflectionProperty, Attribute::class)) {
-                if (!$attribute->name) $attribute->name = $reflectionProperty->getName();
-                if (!$attribute->property) $attribute->property = $reflectionProperty->getName();
-                $attributes[$attribute->name] = $attribute;
+                if (!$attribute->name) {
+                    $attribute->name = $reflectionProperty->getName();
+                }
+                if (!$attribute->property) {
+                    $attribute->property = $reflectionProperty->getName();
+                }
+                $attributes->set($attribute->name, $attribute);
                 $this->logger->debug("Found resource attribute {$attribute->name}.");
             }
             /** @var Relationship | null $relationship */
             if ($relationship = $this->reader->getPropertyAnnotation($reflectionProperty, Relationship::class)) {
-                if (!$relationship->name) $relationship->name = $reflectionProperty->getName();
-                if (!$relationship->property) $relationship->property = $reflectionProperty->getName();
-                $relationships[$relationship->name] = $relationship;
+                if (!$relationship->name) {
+                    $relationship->name = $reflectionProperty->getName();
+                }
+                if (!$relationship->property) {
+                    $relationship->property = $reflectionProperty->getName();
+                }
+                $relationships->set($relationship->name, $relationship);
                 $this->logger->debug("Found resource relationship {$relationship->name}.");
             }
         }
     }
 
     /**
-     * @param ReflectionClass  $reflectionClass
+     * @param ReflectionClass $reflectionClass
      * @param                  $id
-     * @param                  $attributes
-     * @param                  $relationships
+     * @param ArrayCollection $attributes
+     * @param ArrayCollection $relationships
      * @throws DriverException
      */
-    private function parseMethods(ReflectionClass $reflectionClass, &$id, &$attributes, &$relationships): void
+    private function parseMethods(ReflectionClass $reflectionClass, &$id, ArrayCollection &$attributes, ArrayCollection &$relationships): void
     {
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
                 if (!$id && ($id = $this->reader->getMethodAnnotation($reflectionMethod, Id::class))) {
-                    if (!$reflectionMethod->hasReturnType())
-                        throw new DriverException('Id annotation on method MUST be getter.');
-                    if (!$id->getter) $id->getter = $reflectionMethod->getName();
+                    if (!$reflectionMethod->hasReturnType()) {
+                        throw DriverException::for(
+                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER,
+                            [Id::class, $reflectionMethod->getName(), $reflectionClass->name]
+                        );
+                    }
+                    if (!$id->getter) {
+                        $id->getter = $reflectionMethod->getName();
+                    }
                     $this->logger->debug("Found resource ID.");
                     if (!$id->property || !$reflectionClass->hasProperty($id->property)) {
                         $property = lcfirst(str_replace(['get', 'is'], '', $id->getter));
@@ -132,19 +150,33 @@ class AnnotationDriver
                 }
                 /** @var Attribute $attribute */
                 if ($attribute = $this->reader->getMethodAnnotation($reflectionMethod, Attribute::class)) {
-                    if (!$reflectionMethod->hasReturnType() ||
+                    if (
+                        (!$attribute->getter && !$reflectionMethod->hasReturnType())
+                        ||
                         (
+                            /* void */
                             ($reflectionMethod->getReturnType()->isBuiltin() === true)
                             && ($reflectionMethod->getReturnType()->getName() === 'void')
                         )
+                        ||
+                        (
+                            /* fluent setters */
+                            ($reflectionMethod->getReturnType()->isBuiltin() === false)
+                            && ($reflectionMethod->getReturnType()->getName() === $reflectionClass->name)
+                        )
                     ) {
-                        throw new DriverException("Annotation 
-                    Attribute on method MUST be on getter. Method {$reflectionMethod->getName()} on 
-                    resource {$reflectionClass->name} return noting.");
+                        throw DriverException::for(
+                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER,
+                            [Attribute::class, $reflectionMethod->getName(), $reflectionClass->name]
+                        );
                     }
-                    if (!$attribute->getter) $attribute->getter = $reflectionMethod->getName();
-                    if (!$attribute->name) $attribute->name = lcfirst(str_replace(['get', 'is'], '',
-                        $reflectionMethod->getName()));
+                    if (!$attribute->getter) {
+                        $attribute->getter = $reflectionMethod->getName();
+                    }
+                    if (!$attribute->name) {
+                        $attribute->name = lcfirst(str_replace(['get', 'is'], '',
+                            $reflectionMethod->getName()));
+                    }
                     if (!$attribute->property || !$reflectionClass->hasProperty($attribute->property)) {
                         $property = lcfirst(str_replace(['get', 'is'], '', $attribute->getter));
                         $attribute->property = $reflectionClass->hasProperty($property) ? $property : null;
@@ -159,17 +191,23 @@ class AnnotationDriver
                             $attribute->setter = 'set' . ucfirst($attribute->property);
                         }
                     }
-                    $attributes[$attribute->name] = $attribute;
+                    $attributes->set($attribute->name, $attribute);
                     $this->logger->debug("Found resource attribute {$attribute->name}.");
                 }
                 /** @var Relationship $relationship */
                 if ($relationship = $this->reader->getMethodAnnotation($reflectionMethod, Relationship::class)) {
-                    if (!$reflectionMethod->hasReturnType()) throw new DriverException("Annotation 
-                    Relationship on method MUST be on getter.Method {$reflectionMethod->getName()} on 
-                    resource {$reflectionClass->name} has not return type.");
-                    if (!$relationship->getter) $relationship->getter = $reflectionMethod->getName();
-                    if (!$relationship->name) $relationship->name = lcfirst(str_replace(['get'], '',
-                        $reflectionMethod->getName()));
+                    if (!$reflectionMethod->hasReturnType()) {
+                        throw DriverException::for(
+                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER,
+                            [Relationship::class, $reflectionMethod->getName(), $reflectionClass->name]
+                        );
+                    }
+                    if (!$relationship->getter) {
+                        $relationship->getter = $reflectionMethod->getName();
+                    }
+                    if (!$relationship->name) {
+                        $relationship->name = lcfirst(str_replace(['get'], '', $reflectionMethod->getName()));
+                    }
                     if (!$relationship->property || !$reflectionClass->hasProperty($relationship->property)) {
                         $property = lcfirst(str_replace(['get'], '', $relationship->getter));
                         $relationship->property = $reflectionClass->hasProperty($property) ? $property : null;
@@ -190,8 +228,10 @@ class AnnotationDriver
                         ) {
                             $relationship->isCollection = true;
                         }
-                    } catch (ReflectionException $ignored) {} //NOSONAR
-                    $relationships[$relationship->name] = $relationship;
+                    } catch (ReflectionException $ignored) {
+                        //NOSONAR
+                    }
+                    $relationships->set($relationship->name, $relationship);
                     $this->logger->debug("Found resource relationship {$relationship->name}.");
                 }
             }

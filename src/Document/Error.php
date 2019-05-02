@@ -10,10 +10,11 @@
 namespace JSONAPI\Document;
 
 
-use Throwable;
+use JSONAPI\Exception\JsonApiException;
 
 /**
  * Class Error
+ *
  * @package JSONAPI\Document
  */
 class Error implements \JsonSerializable
@@ -52,20 +53,21 @@ class Error implements \JsonSerializable
     private $meta;
 
     /**
-     * Error constructor.
-     * @param Throwable $exception
+     * @param JsonApiException $exception
+     * @return Error
      */
-    public function __construct(Throwable $exception)
+    public static function fromException(JsonApiException $exception)
     {
-        $this->setTitle(get_class($exception));
-        $this->setCode($exception->getCode());
-        $this->setStatus(500);
-        $this->setDetail($exception->getMessage());
-        $this->setSource([
-            "Line" => "{$exception->getFile()} ({$exception->getLine()})",
-            "Pointer" => "/data"
+        $self = new static();
+        $self->setTitle(get_class($exception));
+        $self->setCode($exception->getCode());
+        $self->setStatus(500);
+        $self->setDetail($exception->getMessage());
+        $self->setSource([
+            "Line" => "{$exception->getFile()} ({$exception->getLine()})"
         ]);
-        $this->setMeta(explode("\n",$exception->getTraceAsString()));
+        $self->setMeta(explode("\n", $exception->getTraceAsString()));
+        return $self;
     }
 
     /**
@@ -134,7 +136,8 @@ class Error implements \JsonSerializable
 
     /**
      * Specify data which should be serialized to JSON
-     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     *
+     * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0

@@ -8,16 +8,16 @@
 
 namespace JSONAPI;
 
+use DateTime;
 use Doctrine\Common\Util\ClassUtils;
 
 use JSONAPI\Document;
 use JSONAPI\Annotation;
 use JSONAPI\Exception\DriverException;
-use JSONAPI\Exception\EncoderException as EncoderExceptionAlias;
+use JSONAPI\Exception\EncoderException;
 use JSONAPI\Exception\FactoryException;
-use JSONAPI\Exception\UnsupportedMediaType;
-use JSONAPI\Filter\Query;
-use Psr\Http\Message\RequestInterface;
+use JSONAPI\Filter\URL;
+use JSONAPI\Filter\URLFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -25,6 +25,7 @@ use ReflectionException;
 
 /**
  * Class Encoder
+ *
  * @package JSONAPI
  */
 class Encoder
@@ -55,113 +56,43 @@ class Encoder
     private $metadata = null;
 
     /**
+     * @var URL
+     */
+    private $query;
+
+    /**
      * Encoder constructor.
+     *
      * @param MetadataFactory $metadataFactory
      * @param LoggerInterface $logger
      */
     public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
     {
         $this->metadataFactory = $metadataFactory;
-        $this->logger = $logger ? $logger : new NullLogger();
+        $this->logger = $logger ?? new NullLogger();
+        $this->query = URLFactory::create();
     }
 
     /**
-     * @param                     $object
-     * @param EncoderOptions|null $options
-     * @return Document\ResourceIdentifier|Document\Resource
+     * @param object $object
+     * @return Document\Resource
      * @throws DriverException
-     * @throws EncoderExceptionAlias
+     * @throws EncoderException
+     * @throws Exception\DocumentException
      * @throws FactoryException
      */
-    public function encode($object, EncoderOptions $options = null): Document\ResourceIdentifier
+    public function encode($object): Document\Resource
     {
-
-        $options = $options ? $options : new EncoderOptions();
-        $className = ClassUtils::getClass($object);
-        $this->logger->debug("Init encoding of {$className}.");
-        $encoder = clone $this;
-        $encoder->object = $object;
-        try {
-            $encoder->ref = new ReflectionClass($className);
-        } catch (ReflectionException $e) {
-            throw new EncoderExceptionAlias("Class {$className} does not exist.");
-        }
-        $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
-        $resource = new Document\ResourceIdentifier($encoder->getType(), $encoder->getId());
-        if ($options->isFullLinkage()) {
-            $resource = new Document\Resource($resource);
-            $encoder->withFields($resource, $options->getQuery()->getFilter());
-
-        }
+        $encoder = $this->for($object);
+        $resource = new Document\Resource($encoder->getIdentifier());
+        $encoder->setFields($resource);
         return $resource;
-
-    }
-
-    /**
-     * @param RequestInterface $request
-     * @return Document\Document
-     * @throws EncoderExceptionAlias
-     * @throws UnsupportedMediaType
-     */
-    public function decode(RequestInterface $request): Document\Document
-    {
-        $document = new Document\Document();
-        $body = (string)$request->getBody();
-        $meta = $request->getHeader('Content-Type');
-        if (in_array(Document\Document::MEDIA_TYPE, $meta)) {
-            $body = json_decode($body);
-            if (is_array($body->data)) {
-                $data = [];
-                foreach ($body->data as $resourceDto) {
-                    $resource = new Document\Resource(new Document\ResourceIdentifier($resourceDto->type, $resourceDto->id));
-                    foreach ($resourceDto->attributes as $attribute => $value) {
-                        $resource->addAttribute(new Document\Attribute($attribute, $value));
-                    }
-
-                    foreach ($resourceDto->relationships as $prop => $value) {
-                        $value = $value->data;
-                        $relationship = new Document\Relationship($prop, is_array($value));
-                        if ($relationship->isCollection()) {
-                            foreach ($value as $item) {
-                                $relationship->addResource(new Document\ResourceIdentifier($item->type, $item->id));
-                            }
-                        } else {
-                            $relationship->addResource(new Document\ResourceIdentifier($value->type, $value->id));
-                        }
-                        $resource->addRelationship($relationship);
-                    }
-                    $data[] = $resource;
-                }
-                $document->setData($data);
-            } else {
-                $resource = new Document\Resource(new Document\ResourceIdentifier($body->data->type, $body->data->id));
-                foreach ($body->data->attributes as $attribute => $value) {
-                    $resource->addAttribute(new Document\Attribute($attribute, $value));
-                }
-                foreach ($body->data->relationships as $prop => $value) {
-                    $value = $value->data;
-                    $relationship = new Document\Relationship($prop, is_array($value));
-                    if ($relationship->isCollection()) {
-                        foreach ($value as $item) {
-                            $relationship->addResource(new Document\ResourceIdentifier($item->type, $item->id));
-                        }
-                    } else {
-                        $relationship->addResource(new Document\ResourceIdentifier($value->type, $value->id));
-                    }
-                    $resource->addRelationship($relationship);
-                }
-                $document->setData($resource);
-            }
-        } else {
-            throw new UnsupportedMediaType();
-        }
-        return $document;
     }
 
     /**
      * @return string
      */
-    public function getType(): string
+    private function getType(): string
     {
         return $this->metadata->getResource()->type;
     }
@@ -169,7 +100,7 @@ class Encoder
     /**
      * @return string|int|null
      */
-    public function getId()
+    private function getId()
     {
         try {
             if ($this->metadata->getId()->getter != null) {
@@ -184,16 +115,16 @@ class Encoder
 
     /**
      * @param Document\Resource $resource
-     * @param array             $filter
-     * @return Encoder
      * @throws DriverException
-     * @throws EncoderExceptionAlias
+     * @throws EncoderException
+     * @throws Exception\DocumentException
      * @throws FactoryException
      */
-    private function withFields(Document\Resource $resource, ?array $filter)
+    private function setFields(Document\Resource $resource): void
     {
-        foreach (array_merge($this->metadata->getAttributes(), $this->metadata->getRelationships()) as $name => $field) {
-            if (($filter && in_array($name, $filter)) || !$filter) {
+        $fields = $this->query->getFieldsFor($resource->getType());
+        foreach (array_merge($this->metadata->getAttributes()->toArray(), $this->metadata->getRelationships()->toArray()) as $name => $field) {
+            if (($fields && in_array($name, $fields)) || !$fields) {
                 $value = null;
                 if ($field->getter != null) {
                     $value = call_user_func([$this->object, $field->getter]);
@@ -208,31 +139,60 @@ class Encoder
                     $relationship = new Document\Relationship($field->name, $field->isCollection);
                     if (is_iterable($value) && $field->isCollection) {
                         foreach ($value as $object) {
-                            $relationship->addResource($this->encode($object));
+                            $relationship->addResource($this->for($object)->getIdentifier());
                         }
-                    } else {
-                        $relationship->addResource($value ? $this->encode($value) : null);
+                    } elseif ($value) {
+                        $relationship->addResource($this->for($value)->getIdentifier());
                     }
                     $relationship->setLinks(
                         LinkProvider::createRelationshipsLinks(
-                            new Document\ResourceIdentifier($this->getType(), $this->getId()),
+                            $this->getIdentifier(),
                             $name
                         ));
                     $this->logger->debug("Adding relationship {$name}.");
                     $resource->addRelationship($relationship);
                 } elseif ($field instanceof Annotation\Attribute) {
-                    if ($value instanceof \DateTime) {
+                    if ($value instanceof DateTime) {
                         // ISO 8601
                         $value = $value->format(DATE_ATOM);
                     }
                     $this->logger->debug("Adding attribute {$name}.");
                     $resource->addAttribute(new Document\Attribute($name, $value));
                 } else {
-                    throw new EncoderExceptionAlias("Field {$name} is not Attribute nor Relationship");
+                    throw EncoderException::for(EncoderException::ENCODER_INVALID_FIELD, [$name]);
                 }
             }
         }
-        return $this;
     }
 
+    /**
+     * @return Document\ResourceIdentifier
+     */
+    private function getIdentifier(): Document\ResourceIdentifier
+    {
+        return new Document\ResourceIdentifier($this->getType(), $this->getId());
+    }
+
+    /**
+     * @param $object
+     * @return Encoder
+     * @throws DriverException
+     * @throws EncoderException
+     * @throws FactoryException
+     */
+    private function for($object): Encoder
+    {
+        $className = ClassUtils::getClass($object);
+        $this->logger->debug("Init encoding of {$className}.");
+        $encoder = clone $this;
+        $encoder->object = $object;
+
+        try {
+            $encoder->ref = new ReflectionClass($className);
+        } catch (ReflectionException $e) {
+            throw EncoderException::for(EncoderException::ENCODER_CLASS_NOT_EXIST, [$className]);
+        }
+        $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
+        return $encoder;
+    }
 }

@@ -31,7 +31,6 @@ class EncoderTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
-        self::$options = new EncoderOptions();
         $relation = new RelationExample();
         $instance = new ObjectExample();
         $instance->setRelations([$relation]);
@@ -43,32 +42,6 @@ class EncoderTest extends TestCase
         $encoder = new Encoder(self::$factory);
         $this->assertInstanceOf(Encoder::class, $encoder);
         return $encoder;
-    }
-
-    /**
-     * @depends test__construct
-     */
-    public function testDecode(Encoder $encoder)
-    {
-        $request = $this->createMock(RequestInterface::class);
-        $request->method('getBody')
-            ->willReturn(file_get_contents(__DIR__ . '/resources/request.json'));
-        $request->method('getHeader')
-            ->willReturn([Document::MEDIA_TYPE]);
-
-        $document = $encoder->decode($request);
-        $this->assertInstanceOf(Document::class, $document);
-        $this->assertInstanceOf(Resource::class, $document->getData());
-        $resource = $document->getData();
-        $this->assertEquals('resource', $resource->getType());
-        $this->assertEquals('uuid', $resource->getId());
-        $this->assertEquals('public-value',
-            $resource->getAttribute('publicProperty')->getValue());
-        $this->assertEquals('private-value',
-            $resource->getAttribute('privateProperty')->getValue());
-        $this->assertEquals('relation-uuid',
-            $resource->getRelationship('relations')->getData()->first()->getId()
-        );
     }
 
     /**
@@ -86,13 +59,13 @@ class EncoderTest extends TestCase
     public function testEncode(Encoder $encoder)
     {
         /** @var Resource $resource */
-        $resource = $encoder->encode(self::$instance, new EncoderOptions(true));
+        $resource = $encoder->encode(self::$instance);
         $this->assertInstanceOf(Resource::class, $resource);
 
         /** @var Relationship $relation */
         $relation = $resource->getRelationship('relations');
         $this->assertInstanceOf(Relationship::class, $relation);
-        $this->assertEquals('{"type":"resource","id":"uuid","attributes":{"publicProperty":"public-value","privateProperty":"private-value","readOnlyProperty":"read-only-value"},"relationships":{"relations":{"data":[{"type":"resource-relation","id":"relation-uuid"}],"links":{"self":"http:\/\/unit.test.org\/resource\/uuid\/relationships\/relations","related":"http:\/\/unit.test.org\/resource\/uuid\/relations"}}}}',
+        $this->assertEquals(trim(file_get_contents(__DIR__.'/resources/resource.json')),
             json_encode($resource));
 
     }

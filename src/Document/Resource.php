@@ -13,6 +13,7 @@ use JSONAPI\Exception\DocumentException;
 
 /**
  * Class Resource
+ *
  * @package JSONAPI\Document
  */
 class Resource extends ResourceIdentifier
@@ -38,44 +39,21 @@ class Resource extends ResourceIdentifier
     }
 
     /**
-     * @return string
-     */
-    public function getType(): string
-    {
-        return $this->type;
-    }
-
-    /**
-     * @return int|string
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getMeta(): ArrayCollection
-    {
-        return $this->meta;
-    }
-
-    /**
      * @param Attribute $attribute
      */
     public function addAttribute(Attribute $attribute)
     {
-        $this->attributes->set($attribute->getName(), $attribute);
+        $this->attributes->set($attribute->getKey(), $attribute->getValue());
     }
 
     /**
+     * Function return attribute value by attribute name
+     *
      * @param string $name
-     * @return Attribute|null
+     * @return mixed|null
      */
-    public function getAttribute(string $name): ?Attribute
+    public function getAttribute(string $name)
     {
-        /** @var Attribute $attribute */
         return $this->attributes->get($name);
     }
 
@@ -98,7 +76,8 @@ class Resource extends ResourceIdentifier
 
     /**
      * Specify data which should be serialized to JSON
-     * @link https://php.net/manual/en/jsonserializable.jsonserialize.php
+     *
+     * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0

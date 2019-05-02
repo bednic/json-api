@@ -9,12 +9,12 @@
 namespace JSONAPI\Filter;
 /**
  * Class Condition
- * @package JSONAPI\Query
+ * @package JSONAPI\URL
  */
 class Condition
 {
 
-    public $operand = Query::EQUAL;
+    public $operand = URL::EQUAL;
     public $value;
 
     /**
@@ -22,7 +22,7 @@ class Condition
      * @param        $value
      * @param string $operand
      */
-    public function __construct($value, $operand = Query::EQUAL)
+    public function __construct($value, $operand = URL::EQUAL)
     {
         $this->value = $value;
         $this->operand = $operand;
