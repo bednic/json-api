@@ -61,7 +61,7 @@ class Error implements \JsonSerializable
         $self = new static();
         $self->setTitle(get_class($exception));
         $self->setCode($exception->getCode());
-        $self->setStatus(500);
+        $self->setStatus($exception->getStatus());
         $self->setDetail($exception->getMessage());
         $self->setSource([
             "Line" => "{$exception->getFile()} ({$exception->getLine()})"

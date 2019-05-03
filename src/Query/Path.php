@@ -1,14 +1,14 @@
 <?php
 
 
-namespace JSONAPI\Filter;
+namespace JSONAPI\Query;
 
 /**
- * Class Endpoint
+ * Class Path
  *
- * @package JSONAPI\Filter
+ * @package JSONAPI\Query
  */
-class Endpoint
+class Path
 {
     /**
      * @var string
@@ -31,7 +31,7 @@ class Endpoint
     private $relation;
 
     /**
-     * Endpoint constructor.
+     * Path constructor.
      *
      * @param string          $resource
      * @param int|string|null $id

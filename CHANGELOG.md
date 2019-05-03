@@ -7,6 +7,51 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+* Document::createFromRequest to handle incoming data
+* Path, helper object which can determine what is primary data type
+* class QueryFactory, use it for getting instance of Query
+* class Meta
+* class Link
+
+### Changed
+* Document::setData() now accept object/objects instead of Resource|Resource[]
+* class Filter is now class Query and contains Query::path, instance of Path
+* Document::setMeta(Meta $meta) function signature now accept Meta object
+* Document::setLink(Link $link) function signature now accept Link object
+* class LinkProvider is now member of \JSONAPI\Query namespace
+* Error::fromException(JsonApiException $exception) replace __constructor(\Throwable) and accept only JsonApiException class
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+* Document::create()
+* Document::getIncludes()
+* Document::setIncludes()
+* Document::getLink()
+* Document::getMeta()
+* class SlimJsonApiMiddleware, future version of slim no longer supports this signature of middleware.
+
+### Security
+
+## [1.0.1]
+
+### Added
+
+### Changed
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+
+### Security
+
+## [1.0.0]
+
+### Added
 
 ### Changed
 
@@ -19,4 +64,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/tree/master
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/1.0.1...master
+[1.0.1]: https://gitlab.com/bednic/json-api/compare/1.0.0...1.0.1
+[1.0.0]: https://gitlab.com/bednic/json-api/compare/1.0.0...1.0.0

@@ -2,8 +2,8 @@
 
 namespace Test\JSONAPI;
 
-use JSONAPI\Filter\Condition;
-use JSONAPI\Filter\URL;
+use JSONAPI\Query\Condition;
+use JSONAPI\Query\Query;
 use PHPUnit\Framework\TestCase;
 use function Sodium\crypto_box_publickey_from_secretkey;
 
@@ -12,15 +12,15 @@ class URLTest extends TestCase
 
     public function test__construct()
     {
-        $url = new URL();
-        $this->assertInstanceOf(URL::class, $url);
+        $url = new Query();
+        $this->assertInstanceOf(Query::class, $url);
         return $url;
     }
 
     /**
      * @depends test__construct
      */
-    public function testGetIncludes(URL $url)
+    public function testGetIncludes(Query $url)
     {
         $includes = $url->getIncludes();
         $this->assertIsArray($includes);
@@ -28,10 +28,10 @@ class URLTest extends TestCase
     }
 
     /**
-     * @param URL $url
+     * @param Query $url
      * @depends test__construct
      */
-    public function testGetFieldsFor(URL $url)
+    public function testGetFieldsFor(Query $url)
     {
         $fields = $url->getFieldsFor('resource');
         $this->assertIsArray($fields);
@@ -41,10 +41,10 @@ class URLTest extends TestCase
     }
 
     /**
-     * @param URL $url
+     * @param Query $url
      * @depends test__construct
      */
-    public function testGetSort(URL $url)
+    public function testGetSort(Query $url)
     {
         $sort = $url->getSort();
         $this->assertArrayHasKey('publicProperty', $sort);
@@ -54,17 +54,17 @@ class URLTest extends TestCase
     }
 
     /**
-     * @param URL $url
+     * @param Query $url
      * @depends test__construct
      */
-    public function testGetFilter(URL $url)
+    public function testGetFilter(Query $url)
     {
         $filter = $url->getFilter();
         $this->assertArrayHasKey('publicProperty', $filter);
         /** @var Condition $condition */
         foreach ($filter['publicProperty'] as $condition) {
-            $this->assertContains($condition->operand, [URL::EQUAL, URL::NOT_EQUAL, URL::GREATER_THEN, URL::LOWER_THEN, URL::LIKE, URL::IN]);
-            if ($condition->operand === URL::IN) {
+            $this->assertContains($condition->operand, [Query::EQUAL, Query::NOT_EQUAL, Query::GREATER_THEN, Query::LOWER_THEN, Query::LIKE, Query::IN]);
+            if ($condition->operand === Query::IN) {
                 $this->assertIsArray($condition->value);
             }
         }
@@ -72,16 +72,16 @@ class URLTest extends TestCase
     }
 
     /**
-     * @param URL $url
+     * @param Query $url
      * @depends test__construct
      */
-    public function testGetPagination(URL $url)
+    public function testGetPagination(Query $url)
     {
         $pagination = $url->getPagination();
         $this->assertIsArray($pagination);
-        $this->assertArrayHasKey(URL::OFFSET, $pagination);
-        $this->assertArrayHasKey(URL::LIMIT, $pagination);
-        $this->assertEquals(10, $pagination[URL::OFFSET]);
-        $this->assertEquals(20, $pagination[URL::LIMIT]);
+        $this->assertArrayHasKey(Query::OFFSET, $pagination);
+        $this->assertArrayHasKey(Query::LIMIT, $pagination);
+        $this->assertEquals(10, $pagination[Query::OFFSET]);
+        $this->assertEquals(20, $pagination[Query::LIMIT]);
     }
 }

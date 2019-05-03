@@ -6,7 +6,7 @@
  * Time: 14:57
  */
 
-namespace JSONAPI;
+namespace JSONAPI\Metadata;
 
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Cache\ArrayCache;
@@ -47,6 +47,7 @@ class MetadataFactory
 
     /**
      * MetadataFactory constructor.
+     *
      * @param string               $pathToObjects
      * @param Cache|null           $cache
      * @param LoggerInterface|null $logger
@@ -57,12 +58,13 @@ class MetadataFactory
     public function __construct(string $pathToObjects, Cache $cache = null, LoggerInterface $logger = null)
     {
         if (!is_dir($pathToObjects)) {
-            throw new FactoryException("Path to object is not directory.", FactoryException::FACTORY_PATH_IS_NOT_VALID);
+            throw new FactoryException("Path to object is not directory.",
+                FactoryException::FACTORY_PATH_IS_NOT_VALID);
         }
         $this->driver = new AnnotationDriver($logger);
         $this->path = $pathToObjects;
-        $this->cache = $cache ?: new ArrayCache();
-        $this->logger = $logger ?: new NullLogger();
+        $this->cache = $cache ?? new ArrayCache();
+        $this->logger = $logger ?? new NullLogger();
         $this->load();
     }
 
@@ -134,10 +136,9 @@ class MetadataFactory
         }
 
         foreach (get_declared_classes() as $className) {
-            try{
+            try {
                 $this->loadMetadata($className);
-            }
-            catch (FactoryException $e) {
+            } catch (FactoryException $e) {
                 // class is not resource
             }
         }

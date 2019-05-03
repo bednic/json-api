@@ -10,6 +10,7 @@ namespace JSONAPI\Annotation;
 
 /**
  * Class Attribute
+ *
  * @package JSONAPI\Annotation
  * @Annotation
  * @Target({"METHOD", "PROPERTY"})

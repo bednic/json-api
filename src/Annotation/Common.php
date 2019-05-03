@@ -10,6 +10,7 @@ namespace JSONAPI\Annotation;
 
 /**
  * Class Common
+ *
  * @package JSONAPI\Annotation
  */
 class Common

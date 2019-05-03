@@ -6,15 +6,13 @@
  * Time: 0:22
  */
 
-namespace JSONAPI;
+namespace JSONAPI\Query;
 
-
-use JSONAPI\Document\Resource;
 use JSONAPI\Document\ResourceIdentifier;
-use JSONAPI\Filter\URLFactory;
 
 /**
  * Class LinkProvider
+ *
  * @package JSONAPI
  */
 class LinkProvider
@@ -23,8 +21,8 @@ class LinkProvider
     const RELATED = 'related';
 
     /**
-     * @param ResourceIdentifier $resource owning resource
-     * @param string $relationshipFieldName field name
+     * @param ResourceIdentifier $resource              owning resource
+     * @param string             $relationshipFieldName field name
      * @return array
      */
     public static function createRelationshipsLinks(ResourceIdentifier $resource, string $relationshipFieldName)
@@ -49,8 +47,8 @@ class LinkProvider
      */
     public static function createPrimaryDataLink(): array
     {
-        $url = URLFactory::create();
-        return [self::SELF, self::getUrl() . (string) $url->endpoint];
+        $url = QueryFactory::create();
+        return [self::SELF, self::getUrl() . (string)$url->path];
     }
 
     public static function getUrl()

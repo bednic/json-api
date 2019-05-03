@@ -6,23 +6,25 @@
  * Time: 16:01
  */
 
-namespace JSONAPI\Filter;
+namespace JSONAPI\Query;
 /**
  * Class Condition
- * @package JSONAPI\URL
+ *
+ * @package JSONAPI\Query
  */
 class Condition
 {
 
-    public $operand = URL::EQUAL;
+    public $operand = Query::EQUAL;
     public $value;
 
     /**
      * Condition constructor.
+     *
      * @param        $value
      * @param string $operand
      */
-    public function __construct($value, $operand = URL::EQUAL)
+    public function __construct($value, $operand = Query::EQUAL)
     {
         $this->value = $value;
         $this->operand = $operand;

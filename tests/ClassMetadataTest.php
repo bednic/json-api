@@ -8,16 +8,18 @@
 
 namespace Test\JSONAPI;
 
+
 use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
-use JSONAPI\ClassMetadata;
-use JSONAPI\MetadataFactory;
+use JSONAPI\Metadata\ClassMetadata;
+use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
 
 /**
  * Class ClassMetadataTest
+ *
  * @package Test\JSONAPI
  */
 class ClassMetadataTest extends TestCase

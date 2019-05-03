@@ -16,9 +16,8 @@ use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
-use JSONAPI\ClassMetadata;
 use JSONAPI\Exception\DriverException;
-use JSONAPI\Exception\JsonApiException;
+use JSONAPI\Metadata\ClassMetadata;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -28,6 +27,7 @@ use ReflectionProperty;
 
 /**
  * Class AnnotationDriver
+ *
  * @package JSONAPI\Driver
  */
 class AnnotationDriver
@@ -44,6 +44,7 @@ class AnnotationDriver
 
     /**
      * AnnotationDriver constructor.
+     *
      * @param LoggerInterface|null $logger
      * @throws AnnotationException
      */
@@ -55,6 +56,7 @@ class AnnotationDriver
 
     /**
      * Returns metadata for provided class or null if class is not Resource
+     *
      * @param string $className
      * @return ClassMetadata|null
      * @throws DriverException
@@ -81,7 +83,7 @@ class AnnotationDriver
     }
 
     /**
-     * @param ReflectionClass $reflectionClass
+     * @param ReflectionClass  $reflectionClass
      * @param                  $id
      * @param                  $attributes
      * @param                  $relationships
@@ -122,10 +124,10 @@ class AnnotationDriver
     }
 
     /**
-     * @param ReflectionClass $reflectionClass
+     * @param ReflectionClass  $reflectionClass
      * @param                  $id
-     * @param ArrayCollection $attributes
-     * @param ArrayCollection $relationships
+     * @param ArrayCollection  $attributes
+     * @param ArrayCollection  $relationships
      * @throws DriverException
      */
     private function parseMethods(ReflectionClass $reflectionClass, &$id, ArrayCollection &$attributes, ArrayCollection &$relationships): void
@@ -133,10 +135,12 @@ class AnnotationDriver
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
                 if (!$id && ($id = $this->reader->getMethodAnnotation($reflectionMethod, Id::class))) {
-                    if (!$reflectionMethod->hasReturnType()) {
-                        throw DriverException::for(
-                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER,
-                            [Id::class, $reflectionMethod->getName(), $reflectionClass->name]
+                    if (!$id->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
+                        throw  new DriverException(
+                            "Annotation " . (Id::class) . " on method MUST be on getter. 
+                            Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
+                            doesn't seems like getter.",
+                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER
                         );
                     }
                     if (!$id->getter) {
@@ -150,24 +154,12 @@ class AnnotationDriver
                 }
                 /** @var Attribute $attribute */
                 if ($attribute = $this->reader->getMethodAnnotation($reflectionMethod, Attribute::class)) {
-                    if (
-                        (!$attribute->getter && !$reflectionMethod->hasReturnType())
-                        ||
-                        (
-                            /* void */
-                            ($reflectionMethod->getReturnType()->isBuiltin() === true)
-                            && ($reflectionMethod->getReturnType()->getName() === 'void')
-                        )
-                        ||
-                        (
-                            /* fluent setters */
-                            ($reflectionMethod->getReturnType()->isBuiltin() === false)
-                            && ($reflectionMethod->getReturnType()->getName() === $reflectionClass->name)
-                        )
-                    ) {
-                        throw DriverException::for(
-                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER,
-                            [Attribute::class, $reflectionMethod->getName(), $reflectionClass->name]
+                    if (!$attribute->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
+                        throw  new DriverException(
+                            "Annotation " . (Attribute::class) . " on method MUST be on getter. 
+                            Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
+                            doesn't seems like getter.",
+                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER
                         );
                     }
                     if (!$attribute->getter) {
@@ -196,10 +188,12 @@ class AnnotationDriver
                 }
                 /** @var Relationship $relationship */
                 if ($relationship = $this->reader->getMethodAnnotation($reflectionMethod, Relationship::class)) {
-                    if (!$reflectionMethod->hasReturnType()) {
-                        throw DriverException::for(
-                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER,
-                            [Relationship::class, $reflectionMethod->getName(), $reflectionClass->name]
+                    if (!$relationship->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
+                        throw  new DriverException(
+                            "Annotation " . (Relationship::class) . " on method MUST be on getter. 
+                            Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
+                            doesn't seems like getter.",
+                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER
                         );
                     }
                     if (!$relationship->getter) {
@@ -236,5 +230,27 @@ class AnnotationDriver
                 }
             }
         }
+    }
+
+    /**
+     * This method try determine, if method on class is getter.
+     *
+     * @param ReflectionMethod $reflectionMethod
+     * @param ReflectionClass  $reflectionClass
+     * @return bool
+     */
+    private function isGetter(ReflectionMethod $reflectionMethod, ReflectionClass $reflectionClass): bool
+    {
+        return !(
+            (!$reflectionMethod->hasReturnType()) ||
+            (
+                ($reflectionMethod->getReturnType()->isBuiltin() === true) &&
+                ($reflectionMethod->getReturnType()->getName() === 'void')
+            ) ||
+            (
+                ($reflectionMethod->getReturnType()->isBuiltin() === false) &&
+                ($reflectionMethod->getReturnType()->getName() === $reflectionClass->name)
+            )
+        );
     }
 }

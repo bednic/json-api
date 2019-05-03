@@ -6,18 +6,20 @@
  * Time: 14:33
  */
 
-namespace JSONAPI;
+namespace JSONAPI\Metadata;
 
 use DateTime;
 use Doctrine\Common\Util\ClassUtils;
 
 use JSONAPI\Document;
 use JSONAPI\Annotation;
+use JSONAPI\Exception\DocumentException;
 use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\EncoderException;
 use JSONAPI\Exception\FactoryException;
-use JSONAPI\Filter\URL;
-use JSONAPI\Filter\URLFactory;
+use JSONAPI\Query\LinkProvider;
+use JSONAPI\Query\Query;
+use JSONAPI\Query\QueryFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -56,7 +58,7 @@ class Encoder
     private $metadata = null;
 
     /**
-     * @var URL
+     * @var Query
      */
     private $query;
 
@@ -70,15 +72,15 @@ class Encoder
     {
         $this->metadataFactory = $metadataFactory;
         $this->logger = $logger ?? new NullLogger();
-        $this->query = URLFactory::create();
+        $this->query = QueryFactory::create();
     }
 
     /**
-     * @param object $object
+     * @param $object
      * @return Document\Resource
+     * @throws DocumentException
      * @throws DriverException
      * @throws EncoderException
-     * @throws Exception\DocumentException
      * @throws FactoryException
      */
     public function encode($object): Document\Resource
@@ -115,9 +117,9 @@ class Encoder
 
     /**
      * @param Document\Resource $resource
+     * @throws DocumentException
      * @throws DriverException
      * @throws EncoderException
-     * @throws Exception\DocumentException
      * @throws FactoryException
      */
     private function setFields(Document\Resource $resource): void
@@ -159,7 +161,8 @@ class Encoder
                     $this->logger->debug("Adding attribute {$name}.");
                     $resource->addAttribute(new Document\Attribute($name, $value));
                 } else {
-                    throw EncoderException::for(EncoderException::ENCODER_INVALID_FIELD, [$name]);
+                    throw new EncoderException("Field {$name} is not Attribute nor Relationship",
+                        EncoderException::ENCODER_INVALID_FIELD);
                 }
             }
         }
@@ -190,7 +193,8 @@ class Encoder
         try {
             $encoder->ref = new ReflectionClass($className);
         } catch (ReflectionException $e) {
-            throw EncoderException::for(EncoderException::ENCODER_CLASS_NOT_EXIST, [$className]);
+            throw new EncoderException("Class {$className} does not exist.",
+                EncoderException::ENCODER_CLASS_NOT_EXIST);
         }
         $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
         return $encoder;

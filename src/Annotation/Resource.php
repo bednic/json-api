@@ -10,6 +10,7 @@ namespace JSONAPI\Annotation;
 
 /**
  * Class Resource
+ *
  * @package JSONAPI\Annotation
  * @Annotation
  * @Target({"CLASS"})

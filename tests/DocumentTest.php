@@ -2,17 +2,14 @@
 
 namespace Test\JSONAPI;
 
-use Doctrine\Common\Collections\ArrayCollection;
+
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
 use JSONAPI\Document\Resource;
-use JSONAPI\Encoder;
-use JSONAPI\EncoderOptions;
 use JSONAPI\Exception\DocumentException;
-use JSONAPI\LinkProvider;
-use JSONAPI\MetadataFactory;
+use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 

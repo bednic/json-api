@@ -6,17 +6,14 @@
  * Time: 13:19
  */
 
-namespace JSONAPI\Filter;
-
-use JSONAPI\LinkProvider;
-use Psr\Http\Message\StreamInterface;
+namespace JSONAPI\Query;
 
 /**
- * Class URL
+ * Class Query
  *
  * @package JSONAPI
  */
-class URL
+class Query
 {
 
     const EQUAL = "=";
@@ -39,17 +36,17 @@ class URL
     ];
 
     /**
-     * @var Endpoint
+     * @var Path
      */
-    public $endpoint;
+    public $path;
 
     /**
-     * URL constructor.
+     * Query constructor.
      */
     public function __construct()
     {
 
-        $this->endpoint = $this->parseEndpoint();
+        $this->path = $this->parsePath();
 
         if (isset($_GET['include'])) {
             $this->parseIncludes($_GET['include']);
@@ -241,16 +238,16 @@ class URL
 
 
     /**
-     * @return Endpoint
+     * @return Path
      */
-    private function parseEndpoint(): Endpoint
+    private function parsePath(): Path
     {
         $baseUrl = LinkProvider::getUrl();
         $uri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         $path = str_replace($baseUrl, '/', $uri);
         $pattern = '/^\/(?P<resource>[a-z-_]+)(\/(?P<id>[a-z0-9-_]+))?((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?$/';
         preg_match($pattern, $path, $matches);
-        return new Endpoint(
+        return new Path(
             $matches['resource'],
             isset($matches['id']) ? $matches['id'] : null,
             isset($matches['relationship']) ? $matches['relationship'] : null,

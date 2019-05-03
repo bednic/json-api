@@ -8,9 +8,9 @@
 
 namespace Test\JSONAPI;
 
-use JSONAPI\ClassMetadata;
 use JSONAPI\Exception\FactoryException;
-use JSONAPI\MetadataFactory;
+use JSONAPI\Metadata\ClassMetadata;
+use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
 
 /**

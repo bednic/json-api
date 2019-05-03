@@ -20,6 +20,17 @@ This library only provides data and wrappers to create valid JSON API document. 
 
 use \JSONAPI\Annotation as API;
 
+class AttributeOption {
+    /**
+    * @var Attribute 
+    */
+    private $attribute;
+    
+    public function setAttribute(Attribute $attribute){
+        $this->attribute = $attribute;        
+    }
+}
+
 /**
  * Class Attribute
  * @package IND\Model\Entity
@@ -33,9 +44,10 @@ class Attribute
     private $label;
     
     /**
-    * @var \AttributeOption
+    * @var AttributeOption[]
     */
     private $options;
+    
     /**
      * @API\Attribute
      * @return string
@@ -54,7 +66,7 @@ class Attribute
     }
     /**
      * @API\Relationship(target=\AttributeOption::class)
-     * @return \AttributeOption[]
+     * @return AttributeOption[]
      */
     public function getOptions(): array
     {
@@ -62,7 +74,7 @@ class Attribute
     }
 
     /**
-     * @param \AttributeOption[] $options
+     * @param AttributeOption[] $options
      */
     public function setOptions(array $options)
     {
@@ -81,42 +93,22 @@ class Attribute
 
 // Create factory, best way is to do it through DI Container
 
-$factory = new \JSONAPI\MetadataFactory('/path/to/your/resources');
+$factory = new \JSONAPI\Metadata\MetadataFactory('/path/to/your/resources');
 
-// Getting metadata
-$metadata = $factory->getMetadataByClass(\Attribute::class);
+// Your object which you want to serialize
+$attribute = new Attribute();
 
-// Bellow you can see, you have access to all necessary data
-$resourceType = $metadata->getResource()->type;
-$relationships = $metadata->getRelationships();
-$attributes = $metadata->getAttributes();
+// Make Document instance
+$document = new \JSONAPI\Document\Document($factory);
 
-// Best use it by DI Container, its necessary to right links creation
-$linkProvider = new \JSONAPI\LinkProvider('http://localhost/');
+// Set your data
+$document->setData($attribute);
 
-MetaEncoder
-$encoder = new \JSONAPI\Encoder($factory, $linkProvider);
-
-// Our object
-$attribute = new \Attribute();
-
-$resourceIdentifier = $encoder($attribute)->encode();
-// OR
-$resourceIdentifier = $encoder->create($attribute)->encode();
-
-$resource = $encoder->create($attribute)->withFields()->encode();
-// OR
-$resource = $encoder($attribute)->withFields()->encode();
-
-// At the end we create Document
-$document = new \JSONAPI\Document\Document($linkProvider);
-// Setup resource data
-$document->setData($resource);
 // Your HTTP Response 
 $response->sendJson($document);
-
 ```
- > Response 
+
+> Response 
  
  ```json
 {
@@ -143,6 +135,19 @@ $response->sendJson($document);
         "self": "http://localhost/attributes/4501"
     }
 }
+```
+
+> To handle request data, you can use Document::createFromRequest to retrieve data, 
+like Resources, then handle them in your model.
+
+```php
+<?php
+/** @var \JSONAPI\Document\Document $document */
+$document = \JSONAPI\Document\Document::createFromRequest(\Psr\Http\Message\RequestInterface $request);
+
+/** @var \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[] $resource */
+$resource = $document->getData();
+
 ```
 
 ## Issues

@@ -8,14 +8,12 @@
 
 namespace Test\JSONAPI;
 
-use JSONAPI\Document\Document;
+
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\Resource;
-use JSONAPI\Encoder;
-use JSONAPI\EncoderOptions;
-use JSONAPI\MetadataFactory;
+use JSONAPI\Metadata\Encoder;
+use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 
 class EncoderTest extends TestCase
 {

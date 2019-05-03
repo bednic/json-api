@@ -4,14 +4,9 @@
 namespace JSONAPI\Exception;
 
 
-
 class EncoderException extends JsonApiException
 {
-    public static function for(int $code, array $args = []): EncoderException
-    {
-        if (!isset(self::$messages[$code])) {
-            $code = self::ENCODER_UNKNOWN;
-        }
-        return parent::for($code, $args);
-    }
+    const ENCODER_UNKNOWN = 40;
+    const ENCODER_INVALID_FIELD = 43;
+    const ENCODER_CLASS_NOT_EXIST = 44;
 }

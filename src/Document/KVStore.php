@@ -4,7 +4,7 @@
 namespace JSONAPI\Document;
 
 
-abstract class KVStore implements \JsonSerializable
+abstract class KVStore
 {
     /**
      * @var string
@@ -42,13 +42,4 @@ abstract class KVStore implements \JsonSerializable
     {
         return $this->value;
     }
-
-    /**
-     * @inheritDoc
-     */
-    public function jsonSerialize()
-    {
-        return $this->getValue();
-    }
-
 }

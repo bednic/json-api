@@ -6,13 +6,14 @@
  * Time: 13:03
  */
 
-namespace JSONAPI;
+namespace JSONAPI\Metadata;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Annotation;
 
 /**
  * Class ClassMetadata
+ *
  * @package JSONAPI
  */
 final class ClassMetadata
@@ -37,6 +38,7 @@ final class ClassMetadata
 
     /**
      * ClassMetadata constructor.
+     *
      * @param Annotation\Id       $id
      * @param Annotation\Resource $resource
      * @param ArrayCollection     $attributes
@@ -80,7 +82,7 @@ final class ClassMetadata
      */
     public function getAttribute(string $name): ?Annotation\Attribute
     {
-       return $this->attributes->get($name);
+        return $this->attributes->get($name);
     }
 
     /**
