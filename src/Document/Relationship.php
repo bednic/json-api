@@ -51,7 +51,7 @@ class Relationship implements \JsonSerializable
     {
         if (!preg_match("/[a-zA-Z0-9-_]/", $name)) {
             throw new DocumentException("Attribute name character violation.",
-                DocumentException::DOCUMENT_FORBIDDEN_CHARACTER);
+                DocumentException::FORBIDDEN_CHARACTER);
         }
         $this->name = $name;
         $this->isCollection = $isCollection;

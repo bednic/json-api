@@ -26,7 +26,7 @@ class Link extends KVStore
     {
         if (!filter_var($uri, FILTER_VALIDATE_URL)) {
             throw new DocumentException("Attribute value type is not supported",
-                DocumentException::DOCUMENT_FORBIDDEN_VALUE_TYPE);
+                DocumentException::FORBIDDEN_VALUE_TYPE);
         }
         parent::__construct($key, $uri);
         $this->metas = $metas;

@@ -15,9 +15,9 @@ namespace JSONAPI\Exception;
  */
 class DocumentException extends JsonApiException
 {
-    const DOCUMENT_UNKNOWN = 30;
-    const DOCUMENT_HAS_DATA_AND_ERRORS = 31;
-    const DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH = 32;
-    const DOCUMENT_FORBIDDEN_VALUE_TYPE = 33;
-    const DOCUMENT_FORBIDDEN_CHARACTER = 34;
+    const UNKNOWN = 30;
+    const HAS_DATA_AND_ERRORS = 31;
+    const PRIMARY_DATA_TYPE_MISMATCH = 32;
+    const FORBIDDEN_VALUE_TYPE = 33;
+    const FORBIDDEN_CHARACTER = 34;
 }

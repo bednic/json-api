@@ -162,7 +162,7 @@ class Encoder
                     $resource->addAttribute(new Document\Attribute($name, $value));
                 } else {
                     throw new EncoderException("Field {$name} is not Attribute nor Relationship",
-                        EncoderException::ENCODER_INVALID_FIELD);
+                        EncoderException::INVALID_FIELD);
                 }
             }
         }
@@ -194,7 +194,7 @@ class Encoder
             $encoder->ref = new ReflectionClass($className);
         } catch (ReflectionException $e) {
             throw new EncoderException("Class {$className} does not exist.",
-                EncoderException::ENCODER_CLASS_NOT_EXIST);
+                EncoderException::CLASS_NOT_EXIST);
         }
         $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
         return $encoder;

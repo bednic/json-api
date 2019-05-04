@@ -13,7 +13,7 @@ This library only provides data and wrappers to create valid JSON API document. 
 
 ## Usage
 
-> First we create some object and use annotations to define attributes
+> First we create some object and use annotations to define attributes and relationships
 
 ```php
 <?php
@@ -86,7 +86,7 @@ class Attribute
 }
 ``` 
 
-> Then we need tu setup few things. Most of then belongs to DI Container
+> Then we need setup few things
 
 ```php
 <?php

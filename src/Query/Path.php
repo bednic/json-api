@@ -3,6 +3,8 @@
 
 namespace JSONAPI\Query;
 
+use JSONAPI\Exception\QueryException;
+
 /**
  * Class Path
  *
@@ -37,9 +39,13 @@ class Path
      * @param int|string|null $id
      * @param string|null     $relationship
      * @param string|null     $relation
+     * @throws QueryException
      */
     public function __construct(string $resource, $id = null, ?string $relationship = null, ?string $relation = null)
     {
+        if ($relationship && $relation) {
+            throw new QueryException("Relationship and Relation cannot coexists.", QueryException::PARSE_ERROR);
+        }
         $this->resource = $resource;
         $this->id = $id;
         $this->relationship = $relationship;
@@ -49,7 +55,7 @@ class Path
     /**
      * @return string
      */
-    public function getResourceType(): string
+    public function getResource(): string
     {
         return $this->resource;
     }
@@ -65,17 +71,9 @@ class Path
     /**
      * @return string|null
      */
-    public function getRelationshipType(): ?string
+    public function getRelationshipName(): ?string
     {
         return $this->relationship;
-    }
-
-    /**
-     * @return string|null
-     */
-    public function getRelationType(): ?string
-    {
-        return $this->relation;
     }
 
     /**
@@ -89,25 +87,11 @@ class Path
     /**
      * @return string
      */
-    public function getPrimaryDataType(): string
-    {
-        if ($this->relation) {
-            return $this->getRelationType();
-        } elseif ($this->relationship) {
-            return $this->getRelationshipType();
-        } else {
-            return $this->getResourceType();
-        }
-    }
-
-    /**
-     * @return string
-     */
     public function __toString()
     {
-        return '/' . $this->resource
-            . ($this->getId() ? '/' . $this->getId() : '')
-            . ($this->getRelationshipType() ? '/' . $this->getRelationshipType() : '')
-            . ($this->getRelationType() ? '/' . $this->getRelationType() : '');
+        return $this->resource
+            . ($this->id ? '/' . $this->getId() : '')
+            . ($this->relationship ? '/relationship/' . $this->getRelationshipName() : '')
+            . ($this->relation ? '/' . $this->getRelationshipName() : '');
     }
 }

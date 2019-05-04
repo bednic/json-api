@@ -24,11 +24,11 @@ class Attribute extends KVStore
     {
         if (!in_array(gettype($value), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
             throw new DocumentException("Attribute value type is not supported",
-                DocumentException::DOCUMENT_FORBIDDEN_VALUE_TYPE);
+                DocumentException::FORBIDDEN_VALUE_TYPE);
         }
         if (!preg_match("/[a-zA-Z0-9-_]/", $key)) {
             throw new DocumentException("Attribute name character violation.",
-                DocumentException::DOCUMENT_FORBIDDEN_CHARACTER);
+                DocumentException::FORBIDDEN_CHARACTER);
         }
         parent::__construct($key, $value);
     }

@@ -10,8 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Document::createFromRequest to handle incoming data
 * Path, helper object which can determine what is primary data type
 * class QueryFactory, use it for getting instance of Query
-* class Meta
-* class Link
+* class Meta, meta wrapper
+* class Link, link wrapper
+* QueryException
 
 ### Changed
 * Document::setData() now accept object/objects instead of Resource|Resource[]
@@ -20,10 +21,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Document::setLink(Link $link) function signature now accept Link object
 * class LinkProvider is now member of \JSONAPI\Query namespace
 * Error::fromException(JsonApiException $exception) replace __constructor(\Throwable) and accept only JsonApiException class
+* ::getPrimaryDataType() moved from Query\Path to Document
+* Annotation Common::setter now accept only string, cause boolean is not necessary. 
+  If you want disable setter, just use empty string
+* Path::__construct() now throw exception if you set relationships and related at same time.
 
 ### Deprecated 
 
 ### Fixed
+* LinkProvider::createPrimaryDataLink(), returns bad uri, when new resource was created
+* Path::__toString(), return bad link, when relationships is as primary data
 
 ### Removed 
 * Document::create()

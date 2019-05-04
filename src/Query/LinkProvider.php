@@ -37,17 +37,12 @@ class LinkProvider
      * @param ResourceIdentifier $resourceIdentifier
      * @return array
      */
-    public static function createResourceLinks(ResourceIdentifier $resourceIdentifier)
-    {
-        return [self::SELF, self::getUrl() . $resourceIdentifier->getType() . '/' . $resourceIdentifier->getId()];
-    }
-
-    /**
-     * @return array
-     */
-    public static function createPrimaryDataLink(): array
+    public static function createPrimaryDataLink(ResourceIdentifier $resourceIdentifier = null): array
     {
         $url = QueryFactory::create();
+        if ($resourceIdentifier && (!$url->path->getRelationshipName())) {
+            return [self::SELF, self::getUrl() . $resourceIdentifier->getType() . '/' . $resourceIdentifier->getId()];
+        }
         return [self::SELF, self::getUrl() . (string)$url->path];
     }
 

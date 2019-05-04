@@ -21,6 +21,7 @@ use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
 use JSONAPI\Query\QueryFactory;
 use JsonSerializable;
+use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -113,7 +114,6 @@ class Document implements JsonSerializable
      */
     public static function createFromRequest(RequestInterface $request, MetadataFactory $factory): Document
     {
-        $url = QueryFactory::create();
         $document = new static($factory);
         $body = (string)$request->getBody();
         $meta = $request->getHeader('Content-Type');
@@ -122,9 +122,9 @@ class Document implements JsonSerializable
             if (is_array($body->data)) {
                 $data = [];
                 foreach ($body->data as $resourceDto) {
-                    if ($resourceDto->type !== $url->path->getPrimaryDataType()) {
+                    if ($resourceDto->type !== $document->getPrimaryDataType()) {
                         throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                            DocumentException::DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH);
+                            DocumentException::PRIMARY_DATA_TYPE_MISMATCH);
                     }
 
                     $resource = new Resource(new ResourceIdentifier($resourceDto->type, $resourceDto->id));
@@ -148,15 +148,15 @@ class Document implements JsonSerializable
                 }
                 $document->data = $data;
             } else {
-                if ($body->data->type !== $url->path->getPrimaryDataType()) {
+                if ($body->data->type !== $document->getPrimaryDataType()) {
                     throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                        DocumentException::DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH);
+                        DocumentException::PRIMARY_DATA_TYPE_MISMATCH);
                 }
-                $resource = new Resource(new ResourceIdentifier($body->data->type, $body->data->id));
+                $resource = new Resource(new ResourceIdentifier($body->data->type, @$body->data->id));
                 foreach ($body->data->attributes as $attribute => $value) {
                     $resource->addAttribute(new Attribute($attribute, $value));
                 }
-                foreach ($body->data->relationships as $prop => $value) {
+                foreach (@$body->data->relationships ?? [] as $prop => $value) {
                     $value = $value->data;
                     $relationship = new Relationship($prop, is_array($value));
                     if ($relationship->isCollection()) {
@@ -193,24 +193,24 @@ class Document implements JsonSerializable
         if ($this->isError) {
             throw new DocumentException(
                 "Non-valid document. Data AND Errors are set. Only Data XOR Errors are allowed",
-                DocumentException::DOCUMENT_HAS_DATA_AND_ERRORS);
+                DocumentException::HAS_DATA_AND_ERRORS);
         }
         try {
-            $primaryDataType = $this->url->path->getPrimaryDataType();
+            $primaryDataType = $this->getPrimaryDataType();
             if ($this->url->path->isCollection()) {
                 $this->data = [];
             } else {
                 $this->data = null;
             }
             $metadata = $this->factory->getMetadataClassByType($primaryDataType);
+            $link = new Link(...LinkProvider::createPrimaryDataLink());
             if (!empty($data)) {
                 if (is_array($data)) {
-
                     foreach ($data as $obj) {
                         $resource = $this->encoder->encode($obj);
                         if ($resource->getType() !== $metadata->getResource()->type) {
                             throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                                DocumentException::DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH);
+                                DocumentException::PRIMARY_DATA_TYPE_MISMATCH);
                         }
 
                         $id = $this->getId($resource);
@@ -224,17 +224,16 @@ class Document implements JsonSerializable
                     $resource = $this->encoder->encode($data);
                     if ($resource->getType() !== $metadata->getResource()->type) {
                         throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                            DocumentException::DOCUMENT_PRIMARY_DATA_TYPE_MISMATCH);
+                            DocumentException::PRIMARY_DATA_TYPE_MISMATCH);
                     }
                     $id = $this->getId($resource);
                     $this->ids[$id] = true;
                     $this->data = $resource;
                     $this->setIncludes($this->url->getIncludes(), $data);
+                    $link = new Link(...LinkProvider::createPrimaryDataLink($resource));
                 }
 
             }
-
-            $link = new Link(...LinkProvider::createPrimaryDataLink());
             $this->addLink($link);
         } catch (JsonApiException $exception) {
             $this->addError(Error::fromException($exception));
@@ -270,8 +269,7 @@ class Document implements JsonSerializable
     private function setIncludes($includes, $object)
     {
         $metadata = $this->factory->getMetadataByClass(get_class($object));
-
-        foreach ($includes as $include => $sub) {
+        foreach ($includes ?? [] as $include => $sub) {
             $relationship = $metadata->getRelationship($include);
 
             if ($relationship && $relationship->getter) {
@@ -287,7 +285,6 @@ class Document implements JsonSerializable
                                 $this->setIncludes($sub, $item);
                             }
                         }
-
                     }
                 } else {
                     $relation = $this->encoder->encode($data);
@@ -331,12 +328,25 @@ class Document implements JsonSerializable
     }
 
     /**
+     * @return string
+     * @throws DriverException
+     * @throws FactoryException
+     */
+    private function getPrimaryDataType(): string
+    {
+        $resource = $this->factory->getMetadataClassByType($this->url->path->getResource());
+        if($name = $this->url->path->getRelationshipName()){
+            return $this->factory->getMetadataByClass($resource->getRelationship($name)->target)->getResource()->type;
+        }
+        return $resource->getResource()->type;
+    }
+
+    /**
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
      * @return mixed data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
-     * @throws DocumentException
      * @since 5.4.0
      */
     public function jsonSerialize()

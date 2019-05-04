@@ -98,7 +98,7 @@ class ClassMetadataTest extends TestCase
         $this->assertEquals('setPrivateProperty', $attribute->setter);
 
         $readOnly = self::$metadata->getAttribute('readOnlyProperty');
-        $this->assertFalse($readOnly->setter,"Readonly property should have ::setter to FALSE");
+        $this->assertEquals("", $readOnly->setter, "Readonly property should have ::setter to FALSE");
 
         $nullable = self::$metadata->getAttribute('nonExisting');
         $this->assertNull($nullable);

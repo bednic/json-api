@@ -59,7 +59,7 @@ class MetadataFactory
     {
         if (!is_dir($pathToObjects)) {
             throw new FactoryException("Path to object is not directory.",
-                FactoryException::FACTORY_PATH_IS_NOT_VALID);
+                FactoryException::PATH_IS_NOT_VALID);
         }
         $this->driver = new AnnotationDriver($logger);
         $this->path = $pathToObjects;
@@ -84,7 +84,7 @@ class MetadataFactory
             return $classMetadata;
         } else {
             throw new FactoryException("Metadata for class {$className} does not exists.",
-                FactoryException::FACTORY_CLASS_IS_NOT_RESOURCE);
+                FactoryException::CLASS_IS_NOT_RESOURCE);
         }
     }
 

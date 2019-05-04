@@ -140,7 +140,7 @@ class AnnotationDriver
                             "Annotation " . (Id::class) . " on method MUST be on getter. 
                             Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
                             doesn't seems like getter.",
-                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER
+                            DriverException::ANNOTATION_NOT_ON_GETTER
                         );
                     }
                     if (!$id->getter) {
@@ -159,7 +159,7 @@ class AnnotationDriver
                             "Annotation " . (Attribute::class) . " on method MUST be on getter. 
                             Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
                             doesn't seems like getter.",
-                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER
+                            DriverException::ANNOTATION_NOT_ON_GETTER
                         );
                     }
                     if (!$attribute->getter) {
@@ -193,7 +193,7 @@ class AnnotationDriver
                             "Annotation " . (Relationship::class) . " on method MUST be on getter. 
                             Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
                             doesn't seems like getter.",
-                            DriverException::DRIVER_ANNOTATION_NOT_ON_GETTER
+                            DriverException::ANNOTATION_NOT_ON_GETTER
                         );
                     }
                     if (!$relationship->getter) {

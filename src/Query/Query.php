@@ -8,6 +8,8 @@
 
 namespace JSONAPI\Query;
 
+use JSONAPI\Exception\QueryException;
+
 /**
  * Class Query
  *
@@ -26,10 +28,25 @@ class Query
     const OFFSET = 'offset';
     const LIMIT = 'limit';
 
+    /**
+     * @var array|null
+     */
     private $includes = null;
+    /**
+     * @var array|null
+     */
     private $fields = null;
+    /**
+     * @var array|null
+     */
     private $sort = null;
+    /**
+     * @var array|null
+     */
     private $filter = null;
+    /**
+     * @var array
+     */
     private $pagination = [
         self::OFFSET => 0,
         self::LIMIT => 25
@@ -42,6 +59,8 @@ class Query
 
     /**
      * Query constructor.
+     *
+     * @throws QueryException
      */
     public function __construct()
     {
@@ -65,14 +84,12 @@ class Query
         if (isset($_GET['filter'])) {
             $this->parseFilter($_GET['filter']);
         }
-
-
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getIncludes(): array
+    public function getIncludes(): ?array
     {
         return $this->includes;
     }
@@ -87,17 +104,17 @@ class Query
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getSort(): array
+    public function getSort(): ?array
     {
         return $this->sort;
     }
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getPagination(): array
+    public function getPagination(): ?array
     {
         return $this->pagination;
     }
@@ -239,19 +256,23 @@ class Query
 
     /**
      * @return Path
+     * @throws QueryException
      */
     private function parsePath(): Path
     {
         $baseUrl = LinkProvider::getUrl();
         $uri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-        $path = str_replace($baseUrl, '/', $uri);
+        $query = str_replace($baseUrl, '/', $uri);
         $pattern = '/^\/(?P<resource>[a-z-_]+)(\/(?P<id>[a-z0-9-_]+))?((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?$/';
-        preg_match($pattern, $path, $matches);
-        return new Path(
-            $matches['resource'],
-            isset($matches['id']) ? $matches['id'] : null,
-            isset($matches['relationship']) ? $matches['relationship'] : null,
-            isset($matches['related']) ? $matches['related'] : null
-        );
+        if (preg_match($pattern, $query, $matches)) {
+            return new Path(
+                $matches['resource'],
+                isset($matches['id']) ? $matches['id'] : null,
+                isset($matches['relationship']) ? $matches['relationship'] : null,
+                isset($matches['related']) ? $matches['related'] : null
+            );
+        } else {
+            throw new QueryException("Invalid URL", QueryException::INVALID_URL);
+        }
     }
 }
