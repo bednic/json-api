@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+
+### Security
+
+## [2.0.0]
+
+### Added
 * Document::createFromRequest to handle incoming data
 * Path, helper object which can determine what is primary data type
 * class QueryFactory, use it for getting instance of Query
@@ -42,35 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
-## [1.0.1]
-
-### Added
-
-### Changed
-
-### Deprecated 
-
-### Fixed
-
-### Removed 
-
-### Security
-
-## [1.0.0]
-
-### Added
-
-### Changed
-
-### Deprecated 
-
-### Fixed
-
-### Removed 
-
-### Security
-
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/1.0.1...master
-[1.0.1]: https://gitlab.com/bednic/json-api/compare/1.0.0...1.0.1
-[1.0.0]: https://gitlab.com/bednic/json-api/compare/1.0.0...1.0.0
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.x
+[2.0.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.0.0
