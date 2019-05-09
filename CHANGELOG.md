@@ -7,12 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+* LinkProvider::createRelatedLink() create related resource link
+* LinkProvider::createSelfLink() create self link 
 
 ### Changed
+* DocumentException::PRIMARY_DATA_TYPE_MISMATCH to ::RESOURCE_TYPE_MISMATCH
+* DocumentException::FORBIDDEN_VALUE_TYPE to ::FORBIDDEN_DATA_TYPE
 
 ### Deprecated 
 
 ### Fixed
+* Query ignores URL with query part
+* Fixed some linkage mistakes
 
 ### Removed 
 

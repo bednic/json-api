@@ -7,7 +7,7 @@
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true"
-         cacheResult="false"
+         cacheResult="true"
 >
     <testsuites>
         <testsuite name="default">

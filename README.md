@@ -20,6 +20,10 @@ This library only provides data and wrappers to create valid JSON API document. 
 
 use \JSONAPI\Annotation as API;
 
+/**
+ * Class AttributeOption
+ * @Resource("attribute-options")
+ */
 class AttributeOption {
     /**
     * @var Attribute 
@@ -34,7 +38,7 @@ class AttributeOption {
 /**
  * Class Attribute
  * @package IND\Model\Entity
- * @API\Resource("attributes")
+ * @Resource("attributes")
  */
 class Attribute
 {
@@ -123,7 +127,12 @@ $response->sendJson($document);
         },
         "relationships": {
             "options": {
-                "data": [],
+                "data": [
+                    {
+                        "type": "attribute-options",
+                        "id": 156
+                    }
+                ],
                 "links": {
                     "self": "http://localhost/attributes/4501/relationships/options",
                     "related": "http://localhost/attributes/4501/options"

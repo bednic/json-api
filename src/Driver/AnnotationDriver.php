@@ -55,7 +55,7 @@ class AnnotationDriver
     }
 
     /**
-     * Returns metadata for provided class or null if class is not Resource
+     * Returns metadata for provided class or null if class is not ResourceObject
      *
      * @param string $className
      * @return ClassMetadata|null

@@ -8,68 +8,39 @@
 
 namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\DocumentException;
+use JSONAPI\Utils\LinksImpl;
+use JSONAPI\Utils\MetaImpl;
+use JsonSerializable;
 
 /**
  * Class Relationships
  *
  * @package JSONAPI\Document
  */
-class Relationship implements \JsonSerializable
+class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
 {
-    /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @var bool
-     */
-    private $isCollection = true;
-    /**
-     * @var ResourceIdentifier|ResourceIdentifier[]|ArrayCollection
-     */
-    private $data;
-    /**
-     * @var array|null
-     */
-    private $links;
-    /**
-     * @var array|null
-     */
-    private $meta;
+    use LinksImpl;
+    use MetaImpl;
 
     /**
      * Relationship constructor.
      *
-     * @param string $name
-     * @param bool   $isCollection
+     * @param string                                              $key
+     * @param ResourceObjectIdentifier|ResourceObjectIdentifier[] $data
+     * @param Link[]                                              $links
+     * @param Meta                                                $meta
      * @throws DocumentException
      */
-    public function __construct(string $name, $isCollection = true)
+    public function __construct(string $key, $data, array $links = [], Meta $meta = null)
     {
-        if (!preg_match("/[a-zA-Z0-9-_]/", $name)) {
-            throw new DocumentException("Attribute name character violation.",
-                DocumentException::FORBIDDEN_CHARACTER);
-        }
-        $this->name = $name;
-        $this->isCollection = $isCollection;
-        if ($this->isCollection) {
-            $this->data = new ArrayCollection();
-        }
+        parent::__construct($key, $data);
+        $this->links = $links;
+        $this->setMeta($meta ?? new Meta());
     }
 
     /**
-     * @return string
-     */
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    /**
-     * @return ArrayCollection|ResourceIdentifier|ResourceIdentifier[]
+     * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      */
     public function getData()
     {
@@ -79,29 +50,9 @@ class Relationship implements \JsonSerializable
     /**
      * @return bool
      */
-    public function isCollection(): bool
+    public function isCollection()
     {
-        return $this->isCollection;
-    }
-
-    /**
-     * @param ResourceIdentifier $resourceIdentifier
-     */
-    public function addResource(ResourceIdentifier $resourceIdentifier)
-    {
-        if ($this->isCollection && !$this->data->contains($resourceIdentifier)) {
-            $this->data->add($resourceIdentifier);
-        } else {
-            $this->data = $resourceIdentifier;
-        }
-    }
-
-    /**
-     * @param array $links
-     */
-    public function setLinks(array $links)
-    {
-        $this->links = $links;
+        return is_array($this->data);
     }
 
     /**
@@ -109,17 +60,9 @@ class Relationship implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        $ret = [
-            'data' => $this->isCollection ? $this->data->toArray() : $this->data
+        return [
+            'data' => $this->data,
+            'links' => $this->links
         ];
-        if ($this->links) {
-            $ret['links'] = $this->links;
-        }
-        if ($this->meta) {
-            $ret['meta'] = $this->meta;
-        }
-        return $ret;
     }
-
-
 }

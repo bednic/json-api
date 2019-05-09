@@ -33,15 +33,21 @@ class Path
     private $relation;
 
     /**
+     * @var string
+     */
+    private $query;
+
+    /**
      * Path constructor.
      *
      * @param string          $resource
      * @param int|string|null $id
      * @param string|null     $relationship
      * @param string|null     $relation
+     * @param string|null     $query
      * @throws QueryException
      */
-    public function __construct(string $resource, $id = null, ?string $relationship = null, ?string $relation = null)
+    public function __construct(string $resource, $id = null, ?string $relationship = null, ?string $relation = null, ?string $query = null)
     {
         if ($relationship && $relation) {
             throw new QueryException("Relationship and Relation cannot coexists.", QueryException::PARSE_ERROR);
@@ -50,6 +56,7 @@ class Path
         $this->id = $id;
         $this->relationship = $relationship;
         $this->relation = $relation;
+        $this->query = $query;
     }
 
     /**
@@ -73,15 +80,13 @@ class Path
      */
     public function getRelationshipName(): ?string
     {
-        return $this->relationship;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isCollection(): bool
-    {
-        return empty($this->id);
+        if ($this->relation) {
+            return $this->relation;
+        } elseif ($this->relationship) {
+            return $this->relationship;
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -92,6 +97,7 @@ class Path
         return $this->resource
             . ($this->id ? '/' . $this->getId() : '')
             . ($this->relationship ? '/relationship/' . $this->getRelationshipName() : '')
-            . ($this->relation ? '/' . $this->getRelationshipName() : '');
+            . ($this->relation ? '/' . $this->getRelationshipName() : '')
+            . ($this->query ? $this->query : '');
     }
 }

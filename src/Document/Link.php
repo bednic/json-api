@@ -3,44 +3,56 @@
 
 namespace JSONAPI\Document;
 
-
-use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\DocumentException;
+use JSONAPI\Utils\MetaImpl;
 
-class Link extends KVStore
+/**
+ * Class Link
+ *
+ * @package JSONAPI\Document
+ */
+class Link extends Field implements HasMeta
 {
-    /**
-     * @var Meta[]|ArrayCollection
-     */
-    private $metas;
+    use MetaImpl;
 
     /**
      * Link constructor.
      *
-     * @param string                $key
-     * @param string                $uri
-     * @param ArrayCollection<Meta> $metas
+     * @param string    $key
+     * @param string    $uri
+     * @param Meta|null $meta
      * @throws DocumentException
      */
-    public function __construct(string $key, string $uri, ArrayCollection $metas = null)
+    public function __construct(string $key, string $uri, Meta $meta = null)
     {
-        if (!filter_var($uri, FILTER_VALIDATE_URL)) {
-            throw new DocumentException("Attribute value type is not supported",
-                DocumentException::FORBIDDEN_VALUE_TYPE);
-        }
         parent::__construct($key, $uri);
-        $this->metas = $metas;
+        if ($meta) {
+            $this->setMeta($meta);
+        }
     }
 
-    public function getValue()
+    /**
+     * @param $data
+     * @throws DocumentException
+     */
+    public function setData($data)
     {
-        if ($this->metas) {
+        if (!filter_var($data, FILTER_VALIDATE_URL)) {
+            throw new DocumentException("Data type is not supported",
+                DocumentException::FORBIDDEN_DATA_TYPE);
+        }
+        parent::setData($data);
+    }
+
+    public function getData()
+    {
+        if ($this->meta) {
             return [
-                'href' => parent::getValue(),
-                'meta' => $this->metas->toArray()
+                'href' => parent::getData(),
+                'meta' => $this->meta
             ];
         } else {
-            return parent::getValue();
+            return parent::getData();
         }
     }
 }

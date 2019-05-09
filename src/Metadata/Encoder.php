@@ -13,6 +13,9 @@ use Doctrine\Common\Util\ClassUtils;
 
 use JSONAPI\Document;
 use JSONAPI\Annotation;
+use JSONAPI\Document\ResourceData;
+use JSONAPI\Document\ResourceObjectIdentifier;
+use JSONAPI\Document\ResourceObject;
 use JSONAPI\Exception\DocumentException;
 use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\EncoderException;
@@ -77,17 +80,18 @@ class Encoder
 
     /**
      * @param $object
-     * @return Document\Resource
+     * @return ResourceObject
      * @throws DocumentException
      * @throws DriverException
      * @throws EncoderException
      * @throws FactoryException
      */
-    public function encode($object): Document\Resource
+    public function encode($object): ResourceObject
     {
         $encoder = $this->for($object);
-        $resource = new Document\Resource($encoder->getIdentifier());
+        $resource = new ResourceObject($encoder->getIdentifier());
         $encoder->setFields($resource);
+        $resource->addLink(LinkProvider::createSelfLink($resource));
         return $resource;
     }
 
@@ -116,15 +120,15 @@ class Encoder
     }
 
     /**
-     * @param Document\Resource $resource
+     * @param Document\ResourceObject $resourceObject
      * @throws DocumentException
      * @throws DriverException
      * @throws EncoderException
      * @throws FactoryException
      */
-    private function setFields(Document\Resource $resource): void
+    private function setFields(Document\ResourceObject $resourceObject): void
     {
-        $fields = $this->query->getFieldsFor($resource->getType());
+        $fields = $this->query->getFieldsFor($resourceObject->getType());
         foreach (array_merge($this->metadata->getAttributes()->toArray(), $this->metadata->getRelationships()->toArray()) as $name => $field) {
             if (($fields && in_array($name, $fields)) || !$fields) {
                 $value = null;
@@ -138,28 +142,28 @@ class Encoder
                     }
                 }
                 if ($field instanceof Annotation\Relationship) {
-                    $relationship = new Document\Relationship($field->name, $field->isCollection);
-                    if (is_iterable($value) && $field->isCollection) {
+                    $data = null;
+                    if ($field->isCollection) {
+                        $data = [];
                         foreach ($value as $object) {
-                            $relationship->addResource($this->for($object)->getIdentifier());
+                            $data[] = $this->for($object)->getIdentifier();
                         }
                     } elseif ($value) {
-                        $relationship->addResource($this->for($value)->getIdentifier());
+                        $data = $this->for($value)->getIdentifier();
                     }
-                    $relationship->setLinks(
-                        LinkProvider::createRelationshipsLinks(
-                            $this->getIdentifier(),
-                            $name
-                        ));
+
+                    $relationship = new Document\Relationship($field->name, $data);
+                    $relationship->addLink(LinkProvider::createSelfLink($resourceObject, $relationship));
+                    $relationship->addLink(LinkProvider::createRelatedLink($resourceObject, $relationship));
+                    $resourceObject->addRelationship($relationship);
                     $this->logger->debug("Adding relationship {$name}.");
-                    $resource->addRelationship($relationship);
                 } elseif ($field instanceof Annotation\Attribute) {
                     if ($value instanceof DateTime) {
                         // ISO 8601
                         $value = $value->format(DATE_ATOM);
                     }
                     $this->logger->debug("Adding attribute {$name}.");
-                    $resource->addAttribute(new Document\Attribute($name, $value));
+                    $resourceObject->addAttribute(new Document\Attribute($name, $value));
                 } else {
                     throw new EncoderException("Field {$name} is not Attribute nor Relationship",
                         EncoderException::INVALID_FIELD);
@@ -169,11 +173,11 @@ class Encoder
     }
 
     /**
-     * @return Document\ResourceIdentifier
+     * @return ResourceObjectIdentifier
      */
-    private function getIdentifier(): Document\ResourceIdentifier
+    private function getIdentifier(): ResourceObjectIdentifier
     {
-        return new Document\ResourceIdentifier($this->getType(), $this->getId());
+        return new ResourceObjectIdentifier($this->getType(), $this->getId());
     }
 
     /**

@@ -10,7 +10,7 @@ namespace Test\JSONAPI;
 
 
 use JSONAPI\Document\Relationship;
-use JSONAPI\Document\Resource;
+use JSONAPI\Document\ResourceObject;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
@@ -56,9 +56,9 @@ class EncoderTest extends TestCase
      */
     public function testEncode(Encoder $encoder)
     {
-        /** @var Resource $resource */
+        /** @var ResourceObject $resource */
         $resource = $encoder->encode(self::$instance);
-        $this->assertInstanceOf(Resource::class, $resource);
+        $this->assertInstanceOf(ResourceObject::class, $resource);
 
         /** @var Relationship $relation */
         $relation = $resource->getRelationship('relations');

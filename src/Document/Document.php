@@ -20,8 +20,9 @@ use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
 use JSONAPI\Query\QueryFactory;
+use JSONAPI\Utils\LinksImpl;
+use JSONAPI\Utils\MetaImpl;
 use JsonSerializable;
-use phpDocumentor\Reflection\DocBlock\Tags\Return_;
 use Psr\Http\Message\RequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -31,57 +32,55 @@ use Psr\Log\NullLogger;
  *
  * @package JSONAPI\Document
  */
-class Document implements JsonSerializable
+class Document implements JsonSerializable, HasLinks, HasMeta
 {
     const MEDIA_TYPE = "application/vnd.api+json";
-
     const VERSION = "1.0";
+
+    use LinksImpl;
+    use MetaImpl;
+
     /**
      * @var MetadataFactory
      */
     private $factory;
+
     /**
      * @var Encoder
      */
     private $encoder;
+
     /**
      * @var Query
      */
     private $url;
+
     /**
      * @var LoggerInterface
      */
     private $logger;
 
     /**
-     * @var \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]
+     * @var Error[]
+     */
+    private $errors = [];
+
+    /**
+     * @var ResourceObject|ResourceObject[]
      */
     private $data;
 
     /**
-     * @var Error[]|ArrayCollection
+     * @var ResourceObject[]
      */
-    private $errors;
+    private $included = [];
 
     /**
-     * @var Meta[]|ArrayCollection
-     */
-    private $meta;
-
-    /**
-     * @var Link[]|ArrayCollection
-     */
-    private $links;
-
-    /**
-     * @var ArrayCollection
-     */
-    private $included;
-
-    /**
+     * Helper array
+     *
      * @var array
      */
-    private $ids;
+    private $ids = [];
 
     /**
      * @var bool
@@ -100,9 +99,6 @@ class Document implements JsonSerializable
         $this->logger = $logger ?? new NullLogger();
         $this->encoder = new Encoder($metadataFactory, $this->logger);
         $this->url = QueryFactory::create();
-        $this->links = new ArrayCollection();
-        $this->meta = new ArrayCollection();
-        $this->included = new ArrayCollection();
     }
 
     /**
@@ -120,55 +116,57 @@ class Document implements JsonSerializable
         if (in_array(Document::MEDIA_TYPE, $meta)) {
             $body = json_decode($body);
             if (is_array($body->data)) {
-                $data = [];
+                $document->data = [];
                 foreach ($body->data as $resourceDto) {
                     if ($resourceDto->type !== $document->getPrimaryDataType()) {
                         throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                            DocumentException::PRIMARY_DATA_TYPE_MISMATCH);
+                            DocumentException::RESOURCE_TYPE_MISMATCH);
                     }
 
-                    $resource = new Resource(new ResourceIdentifier($resourceDto->type, $resourceDto->id));
+                    $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
                     foreach ($resourceDto->attributes as $attribute => $value) {
-                        $resource->addAttribute(new Attribute($attribute, $value));
+                        $object->addAttribute(new Attribute($attribute, $value));
                     }
 
-                    foreach ($resourceDto->relationships as $prop => $value) {
+                    foreach (@$resourceDto->relationships ?? [] as $prop => $value) {
                         $value = $value->data;
-                        $relationship = new Relationship($prop, is_array($value));
-                        if ($relationship->isCollection()) {
+                        if (is_array($value)) {
+                            $data = [];
                             foreach ($value as $item) {
-                                $relationship->addResource(new ResourceIdentifier($item->type, $item->id));
+                                $data[] = new ResourceObjectIdentifier($item->type, $item->id);
                             }
                         } else {
-                            $relationship->addResource(new ResourceIdentifier($value->type, $value->id));
+                            $data = new ResourceObjectIdentifier($value->type, $value->id);
                         }
-                        $resource->addRelationship($relationship);
+                        $relationship = new Relationship($prop, $data);
+                        $object->addRelationship($relationship);
                     }
-                    $data[] = $resource;
+                    $document->data[] = $object;
                 }
-                $document->data = $data;
             } else {
+                $document->data = null;
                 if ($body->data->type !== $document->getPrimaryDataType()) {
                     throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                        DocumentException::PRIMARY_DATA_TYPE_MISMATCH);
+                        DocumentException::RESOURCE_TYPE_MISMATCH);
                 }
-                $resource = new Resource(new ResourceIdentifier($body->data->type, @$body->data->id));
+                $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
                 foreach ($body->data->attributes as $attribute => $value) {
-                    $resource->addAttribute(new Attribute($attribute, $value));
+                    $object->addAttribute(new Attribute($attribute, $value));
                 }
                 foreach (@$body->data->relationships ?? [] as $prop => $value) {
                     $value = $value->data;
-                    $relationship = new Relationship($prop, is_array($value));
-                    if ($relationship->isCollection()) {
+                    if (is_array($value)) {
+                        $data = [];
                         foreach ($value as $item) {
-                            $relationship->addResource(new ResourceIdentifier($item->type, $item->id));
+                            $data[] = new ResourceObjectIdentifier($item->type, $item->id);
                         }
                     } else {
-                        $relationship->addResource(new ResourceIdentifier($value->type, $value->id));
+                        $data = new ResourceObjectIdentifier($value->type, $value->id);
                     }
-                    $resource->addRelationship($relationship);
+                    $relationship = new Relationship($prop, $data);
+                    $object->addRelationship($relationship);
                 }
-                $document->data = $resource;
+                $document->data = $object;
             }
         } else {
             throw new UnsupportedMediaType();
@@ -177,7 +175,16 @@ class Document implements JsonSerializable
     }
 
     /**
-     * @return \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[]|null
+     * @param Error $error
+     */
+    public function addError(Error $error)
+    {
+        $this->isError = true;
+        $this->errors[] = $error;
+    }
+
+    /**
+     * @return ResourceObject|ResourceObject[]
      */
     public function getData()
     {
@@ -185,7 +192,7 @@ class Document implements JsonSerializable
     }
 
     /**
-     * @param $data
+     * @param object|object[] $data
      * @throws DocumentException
      */
     public function setData($data): void
@@ -197,26 +204,21 @@ class Document implements JsonSerializable
         }
         try {
             $primaryDataType = $this->getPrimaryDataType();
-            if ($this->url->path->isCollection()) {
-                $this->data = [];
-            } else {
-                $this->data = null;
-            }
             $metadata = $this->factory->getMetadataClassByType($primaryDataType);
-            $link = new Link(...LinkProvider::createPrimaryDataLink());
+            $this->addLink(LinkProvider::createPrimaryDataLink());
             if (!empty($data)) {
                 if (is_array($data)) {
                     foreach ($data as $obj) {
                         $resource = $this->encoder->encode($obj);
                         if ($resource->getType() !== $metadata->getResource()->type) {
                             throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                                DocumentException::PRIMARY_DATA_TYPE_MISMATCH);
+                                DocumentException::RESOURCE_TYPE_MISMATCH);
                         }
 
                         $id = $this->getId($resource);
                         if ($this->isUnique($id)) {
-                            $this->data[] = $resource;
                             $this->ids[$id] = true;
+                            $this->data[] = $resource;
                             $this->setIncludes($this->url->getIncludes(), $obj);
                         }
                     }
@@ -224,17 +226,15 @@ class Document implements JsonSerializable
                     $resource = $this->encoder->encode($data);
                     if ($resource->getType() !== $metadata->getResource()->type) {
                         throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                            DocumentException::PRIMARY_DATA_TYPE_MISMATCH);
+                            DocumentException::RESOURCE_TYPE_MISMATCH);
                     }
                     $id = $this->getId($resource);
                     $this->ids[$id] = true;
                     $this->data = $resource;
                     $this->setIncludes($this->url->getIncludes(), $data);
-                    $link = new Link(...LinkProvider::createPrimaryDataLink($resource));
                 }
-
             }
-            $this->addLink($link);
+
         } catch (JsonApiException $exception) {
             $this->addError(Error::fromException($exception));
         }
@@ -250,10 +250,10 @@ class Document implements JsonSerializable
     }
 
     /**
-     * @param \JSONAPI\Document\Resource $resource
+     * @param \JSONAPI\Document\ResourceObject $resource
      * @return string
      */
-    private function getId(\JSONAPI\Document\Resource $resource): string
+    private function getId(\JSONAPI\Document\ResourceObject $resource): string
     {
         return $resource->getType() . $resource->getId();
     }
@@ -279,7 +279,7 @@ class Document implements JsonSerializable
                         $relation = $this->encoder->encode($item);
                         $id = $this->getId($relation);
                         if ($this->isUnique($id)) {
-                            $this->included->add($relation);
+                            $this->included[] = $relation;
                             $this->ids[$id] = true;
                             if ($sub) {
                                 $this->setIncludes($sub, $item);
@@ -290,7 +290,7 @@ class Document implements JsonSerializable
                     $relation = $this->encoder->encode($data);
                     $id = $this->getId($relation);
                     if ($this->isUnique($id)) {
-                        $this->included->add($relation);
+                        $this->included[] = $relation;
                         $this->ids[$id] = true;
                         if ($sub) {
                             $this->setIncludes($sub, $data);
@@ -302,30 +302,6 @@ class Document implements JsonSerializable
         }
     }
 
-    /**
-     * @param Link $link
-     */
-    public function addLink(Link $link): void
-    {
-        $this->links->set($link->getKey(), $link->getValue());
-    }
-
-    /**
-     * @param Meta $meta
-     */
-    public function addMeta(Meta $meta)
-    {
-        $this->meta->set($meta->getKey(), $meta->getValue());
-    }
-
-    /**
-     * @param Error $error
-     */
-    public function addError(Error $error)
-    {
-        $this->isError = true;
-        $this->errors[] = $error;
-    }
 
     /**
      * @return string
@@ -334,11 +310,11 @@ class Document implements JsonSerializable
      */
     private function getPrimaryDataType(): string
     {
-        $resource = $this->factory->getMetadataClassByType($this->url->path->getResource());
-        if($name = $this->url->path->getRelationshipName()){
-            return $this->factory->getMetadataByClass($resource->getRelationship($name)->target)->getResource()->type;
+        $metadata = $this->factory->getMetadataClassByType($this->url->path->getResource());
+        if ($name = $this->url->path->getRelationshipName()) {
+            return $this->factory->getMetadataByClass($metadata->getRelationship($name)->target)->getResource()->type;
         }
-        return $resource->getResource()->type;
+        return $metadata->getResource()->type;
     }
 
     /**
@@ -351,23 +327,20 @@ class Document implements JsonSerializable
      */
     public function jsonSerialize()
     {
-        $ret = [];
         $ret["jsonapi"] = ["version" => self::VERSION];
-        if (!$this->meta->isEmpty()) {
-            $ret["meta"] = $this->meta->toArray();
-        }
-
         if ($this->isError) {
             $ret["errors"] = $this->errors;
         } else {
-            $ret["data"] = $this->data;
+            $ret['data'] = $this->data;
         }
-
-        if (!$this->links->isEmpty()) {
-            $ret["links"] = $this->links->toArray();
+        if (count($this->included)) {
+            $ret["included"] = $this->included;
         }
-        if (!$this->included->isEmpty()) {
-            $ret["included"] = $this->included->toArray();
+        if ($this->links) {
+            $ret["links"] = $this->links;
+        }
+        if ($this->meta) {
+            $ret["meta"] = $this->meta;
         }
         return $ret;
     }

@@ -18,6 +18,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 
 /**
  * Class PsrJsonApiMiddleware
+ *
  * @package JSONAPI\Middleware
  */
 class PsrJsonApiMiddleware implements MiddlewareInterface
@@ -28,6 +29,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * Processes an incoming server request in order to produce a response.
      * If unable to produce the response itself, it may delegate to the provided
      * request handler to do so.
+     *
      * @param ServerRequestInterface  $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface

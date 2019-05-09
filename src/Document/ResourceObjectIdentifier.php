@@ -8,15 +8,18 @@
 
 namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Utils\MetaImpl;
+use JsonSerializable;
 
 /**
- * Class ResourceIdentifier
+ * Class ResourceObjectIdentifier
  *
  * @package JSONAPI\Document
  */
-class ResourceIdentifier implements \JsonSerializable
+class ResourceObjectIdentifier implements JsonSerializable, HasMeta
 {
+
+    use MetaImpl;
 
     /**
      * @var string
@@ -28,13 +31,10 @@ class ResourceIdentifier implements \JsonSerializable
      */
     protected $id;
 
-    /**
-     * @var ArrayCollection
-     */
     protected $meta;
 
     /**
-     * ResourceIdentifier constructor.
+     * ResourceObjectIdentifier constructor.
      *
      * @param string          $type
      * @param string|int|null $id
@@ -43,32 +43,6 @@ class ResourceIdentifier implements \JsonSerializable
     {
         $this->type = $type;
         $this->id = $id;
-        $this->meta = new ArrayCollection();
-    }
-
-    /**
-     * @param Meta $meta
-     */
-    public function addMeta(Meta $meta)
-    {
-        $this->meta->set($meta->getKey(), $meta->getValue());
-    }
-
-    /**
-     * @param string $key
-     * @return mixed|null
-     */
-    public function getMeta(string $key)
-    {
-        return $this->meta->get($key);
-    }
-
-    /**
-     * @return string
-     */
-    public function getType(): string
-    {
-        return $this->type;
     }
 
     /**
@@ -80,6 +54,15 @@ class ResourceIdentifier implements \JsonSerializable
     }
 
     /**
+     * @return string
+     */
+    public function getType(): string
+    {
+        return $this->type;
+    }
+
+
+    /**
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -89,12 +72,9 @@ class ResourceIdentifier implements \JsonSerializable
      */
     public function jsonSerialize()
     {
-        $ret = [
-            'type' => $this->type,
-            'id' => $this->id
-        ];
-        if (!$this->meta->isEmpty()) {
-            $ret['meta'] = $this->meta->toArray();
+        $ret = ['type' => $this->type, 'id' => $this->id];
+        if ($this->meta) {
+            $ret['meta'] = $this->meta;
         }
         return $ret;
     }

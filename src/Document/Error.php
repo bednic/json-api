@@ -10,23 +10,25 @@
 namespace JSONAPI\Document;
 
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\JsonApiException;
+use JSONAPI\Utils\LinksImpl;
+use JSONAPI\Utils\MetaImpl;
 
 /**
  * Class Error
  *
  * @package JSONAPI\Document
  */
-class Error implements \JsonSerializable
+class Error implements \JsonSerializable, HasLinks, HasMeta
 {
+    use LinksImpl;
+    use MetaImpl;
+
     /**
      * @var string
      */
     private $id;
-    /**
-     * @var array
-     */
-    private $links = [];
     /**
      * @var int
      */
@@ -47,10 +49,6 @@ class Error implements \JsonSerializable
      * @var array
      */
     private $source = [];
-    /**
-     * @var array
-     */
-    private $meta;
 
     /**
      * @param JsonApiException $exception
@@ -66,7 +64,7 @@ class Error implements \JsonSerializable
         $self->setSource([
             "Line" => "{$exception->getFile()} ({$exception->getLine()})"
         ]);
-        $self->setMeta(explode("\n", $exception->getTraceAsString()));
+        $self->setMeta(new Meta(["trace", explode("\n", $exception->getTraceAsString())]));
         return $self;
     }
 
@@ -78,13 +76,6 @@ class Error implements \JsonSerializable
         $this->id = $id;
     }
 
-    /**
-     * @param array $links
-     */
-    public function setLinks(array $links): void
-    {
-        $this->links = $links;
-    }
 
     /**
      * @param int $status
@@ -127,14 +118,6 @@ class Error implements \JsonSerializable
     }
 
     /**
-     * @param array $meta
-     */
-    public function setMeta(array $meta): void
-    {
-        $this->meta = $meta;
-    }
-
-    /**
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -147,12 +130,12 @@ class Error implements \JsonSerializable
         return [
             'id' => $this->id,
             'links' => $this->links,
+            'meta' => $this->meta,
             'status' => $this->status,
             'code' => $this->code,
             'title' => $this->title,
             'detail' => $this->detail,
-            'source' => $this->source,
-            'meta' => $this->meta
+            'source' => $this->source
         ];
     }
 }

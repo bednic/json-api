@@ -7,7 +7,7 @@ use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
-use JSONAPI\Document\Resource;
+use JSONAPI\Document\ResourceObject;
 use JSONAPI\Exception\DocumentException;
 use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
@@ -15,11 +15,11 @@ use Psr\Http\Message\RequestInterface;
 
 class DocumentTest extends TestCase
 {
-    
+
     public function test__construct()
     {
         $document = new Document(
-            new MetadataFactory(__DIR__.'/resources')
+            new MetadataFactory(__DIR__ . '/resources')
         );
         $this->assertInstanceOf(Document::class, $document);
         return $document;
@@ -32,15 +32,16 @@ class DocumentTest extends TestCase
      */
     public function testAddMeta(Document $document)
     {
-        $document->addMeta(new Meta('count',1));
+        $document->setMeta(new Meta(['count' => 1]));
         $this->expectNotToPerformAssertions();
         return $document;
     }
 
     /**
      * @param Document $document
-     * @depends testAddMeta
      * @return Document
+     * @throws DocumentException
+     * @depends testAddMeta
      */
     public function testSetData(Document $document)
     {
@@ -53,12 +54,13 @@ class DocumentTest extends TestCase
         $this->expectOutputRegex('/\"data\"/');
         return $document;
     }
+
     /**
      * @depends testSetData
      */
     public function testGetData(Document $document)
     {
-        $this->assertInstanceOf(Resource::class, $document->getData());
+        $this->assertInstanceOf(ResourceObject::class, $document->getData());
     }
 
     /**
@@ -104,19 +106,26 @@ class DocumentTest extends TestCase
         }
     }
 
+    /**
+     * @throws DocumentException
+     * @throws \Doctrine\Common\Annotations\AnnotationException
+     * @throws \JSONAPI\Exception\DriverException
+     * @throws \JSONAPI\Exception\FactoryException
+     * @throws \JSONAPI\Exception\UnsupportedMediaType
+     */
     public function testCreateFromRequest()
     {
         /** @var RequestInterface $request */
         $request = $this->createMock(RequestInterface::class);
         $request->method('getBody')
-            ->willReturn(trim(file_get_contents(__DIR__.'/resources/request.json')));
+            ->willReturn(trim(file_get_contents(__DIR__ . '/resources/request.json')));
         $request->method('getHeader')
             ->with('Content-Type')
             ->willReturn([Document::MEDIA_TYPE]);
 
-        $document = Document::createFromRequest($request,new MetadataFactory(__DIR__.'/resources'));
-        $this->assertInstanceOf(Document::class,$document);
-        $this->assertInstanceOf(Resource::class, $document->getData());
+        $document = Document::createFromRequest($request, new MetadataFactory(__DIR__ . '/resources'));
+        $this->assertInstanceOf(Document::class, $document);
+        $this->assertInstanceOf(ResourceObject::class, $document->getData());
 
     }
 

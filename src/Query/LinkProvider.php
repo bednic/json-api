@@ -8,7 +8,11 @@
 
 namespace JSONAPI\Query;
 
-use JSONAPI\Document\ResourceIdentifier;
+use JSONAPI\Document\Link;
+use JSONAPI\Document\Relationship;
+use JSONAPI\Document\ResourceObject;
+use JSONAPI\Document\ResourceObjectIdentifier;
+use JSONAPI\Exception\DocumentException;
 
 /**
  * Class LinkProvider
@@ -19,37 +23,61 @@ class LinkProvider
 {
     const SELF = 'self';
     const RELATED = 'related';
+    const FIRST = 'first';
+    const LAST = 'last';
+    const NEXT = 'next';
+    const PREV = 'prev';
 
     /**
-     * @param ResourceIdentifier $resource              owning resource
-     * @param string             $relationshipFieldName field name
-     * @return array
+     * @return string
      */
-    public static function createRelationshipsLinks(ResourceIdentifier $resource, string $relationshipFieldName)
-    {
-        return [
-            self::SELF => self::getUrl() . $resource->getType() . '/' . $resource->getId() . '/relationships/' . $relationshipFieldName,
-            self::RELATED => self::getUrl() . $resource->getType() . '/' . $resource->getId() . '/' . $relationshipFieldName
-        ];
-    }
-
-    /**
-     * @param ResourceIdentifier $resourceIdentifier
-     * @return array
-     */
-    public static function createPrimaryDataLink(ResourceIdentifier $resourceIdentifier = null): array
-    {
-        $url = QueryFactory::create();
-        if ($resourceIdentifier && (!$url->path->getRelationshipName())) {
-            return [self::SELF, self::getUrl() . $resourceIdentifier->getType() . '/' . $resourceIdentifier->getId()];
-        }
-        return [self::SELF, self::getUrl() . (string)$url->path];
-    }
-
-    public static function getUrl()
+    public static function getUrl(): string
     {
         return getenv("API_ENV_URL") !== false ?
-            getenv("API_ENV_URL") : "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
+            (string)getenv("API_ENV_URL") : "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
     }
+
+    /**
+     * @return Link
+     * @throws DocumentException
+     */
+    public static function createPrimaryDataLink(): Link
+    {
+        $url = QueryFactory::create();
+        return new Link(self::SELF, self::getUrl() . (string)$url->path);
+    }
+
+    /**
+     * @param ResourceObjectIdentifier $resource
+     * @param Relationship|null        $relationship
+     * @return Link
+     * @throws DocumentException
+     */
+    public static function createSelfLink(ResourceObjectIdentifier $resource, Relationship $relationship = null): Link
+    {
+        $url = self::getUrl() . $resource->getType() . '/' . $resource->getId();
+        if ($relationship) {
+            $url .= '/relationships/' . $relationship->getKey();
+        }
+        return new Link(self::SELF, $url);
+    }
+
+    /**
+     * @param ResourceObjectIdentifier $resource
+     * @param Relationship             $relationship
+     * @return Link
+     * @throws DocumentException
+     */
+    public static function createRelatedLink(ResourceObjectIdentifier $resource, Relationship $relationship): Link
+    {
+        $url = self::getUrl() . $resource->getType() . '/' . $resource->getId() . '/' . $relationship->getKey();
+        return new Link(self::RELATED, $url);
+    }
+
+
+//    public static function createPaginationLinks()
+//    {
+//
+//    }
 
 }
