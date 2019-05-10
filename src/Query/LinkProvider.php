@@ -33,8 +33,8 @@ class LinkProvider
      */
     public static function getUrl(): string
     {
-        return getenv("API_ENV_URL") !== false ?
-            (string)getenv("API_ENV_URL") : "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
+        return getenv("JSON_API_URL") !== false ?
+            (string)getenv("JSON_API_URL") : "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
     }
 
     /**
