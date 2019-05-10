@@ -109,9 +109,9 @@ class MetadataFactory
     }
 
     /**
-     * @return array
+     * @return ClassMetadata[]
      */
-    public function getAllMetadata()
+    public function getAllMetadata(): array
     {
         return $this->metadata;
     }
