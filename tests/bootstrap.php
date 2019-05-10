@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-putenv("API_ENV_URL=http://unit.test.org/");
+putenv("JSON_API_URL=http://unit.test.org/");
 
 $_SERVER["REQUEST_URI"] = "/resource/uuid";
 $_SERVER["HTTP_HOST"] = "unit.test.org";
