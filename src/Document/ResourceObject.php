@@ -9,9 +9,7 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use JSONAPI\Exception\DocumentException;
 use JSONAPI\Utils\LinksImpl;
-use JSONAPI\Utils\MetaImpl;
 
 /**
  * Class ResourceObject
@@ -59,7 +57,6 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
             return $this->fields->get($key);
         }
         return null;
-
     }
 
     /**

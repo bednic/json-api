@@ -18,6 +18,11 @@ use JSONAPI\Exception\FactoryException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class MetadataFactory
+ *
+ * @package JSONAPI\Metadata
+ */
 class MetadataFactory
 {
     /**
@@ -58,8 +63,10 @@ class MetadataFactory
     public function __construct(string $pathToObjects, Cache $cache = null, LoggerInterface $logger = null)
     {
         if (!is_dir($pathToObjects)) {
-            throw new FactoryException("Path to object is not directory.",
-                FactoryException::PATH_IS_NOT_VALID);
+            throw new FactoryException(
+                "Path to object is not directory.",
+                FactoryException::PATH_IS_NOT_VALID
+            );
         }
         $this->driver = new AnnotationDriver($logger);
         $this->path = $pathToObjects;
@@ -83,8 +90,10 @@ class MetadataFactory
             $this->cache->save($className, $classMetadata);
             return $classMetadata;
         } else {
-            throw new FactoryException("Metadata for class {$className} does not exists.",
-                FactoryException::CLASS_IS_NOT_RESOURCE);
+            throw new FactoryException(
+                "Metadata for class {$className} does not exists.",
+                FactoryException::CLASS_IS_NOT_RESOURCE
+            );
         }
     }
 
@@ -130,7 +139,6 @@ class MetadataFactory
                 if (is_file($file) && (isset(pathinfo($file)["extension"]) && pathinfo($file)["extension"] === "php")) {
                     require_once $file;
                 }
-
             }
             $it->next();
         }

@@ -5,6 +5,11 @@ namespace JSONAPI\Utils;
 
 use JSONAPI\Document\Link;
 
+/**
+ * Trait LinksImpl
+ *
+ * @package JSONAPI\Utils
+ */
 trait LinksImpl
 {
 

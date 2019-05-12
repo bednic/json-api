@@ -3,6 +3,11 @@
 
 namespace JSONAPI\Document;
 
+/**
+ * Interface HasLinks
+ *
+ * @package JSONAPI\Document
+ */
 interface HasLinks
 {
     /**

@@ -9,6 +9,7 @@
 namespace Test\JSONAPI;
 
 use JSONAPI\Annotation as API;
+
 /**
  * Class RelationExample
  * @package Test\JSONAPI
@@ -38,6 +39,4 @@ class RelationExample extends Common
     {
         $this->object = $object;
     }
-
-
 }

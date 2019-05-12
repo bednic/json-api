@@ -9,8 +9,6 @@
 
 namespace JSONAPI\Document;
 
-
-use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\Utils\LinksImpl;
 use JSONAPI\Utils\MetaImpl;

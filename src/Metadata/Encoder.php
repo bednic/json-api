@@ -13,7 +13,6 @@ use Doctrine\Common\Util\ClassUtils;
 
 use JSONAPI\Document;
 use JSONAPI\Annotation;
-use JSONAPI\Document\ResourceData;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Exception\DocumentException;
@@ -165,8 +164,10 @@ class Encoder
                     $this->logger->debug("Adding attribute {$name}.");
                     $resourceObject->addAttribute(new Document\Attribute($name, $value));
                 } else {
-                    throw new EncoderException("Field {$name} is not Attribute nor Relationship",
-                        EncoderException::INVALID_FIELD);
+                    throw new EncoderException(
+                        "Field {$name} is not Attribute nor Relationship",
+                        EncoderException::INVALID_FIELD
+                    );
                 }
             }
         }
@@ -197,8 +198,10 @@ class Encoder
         try {
             $encoder->ref = new ReflectionClass($className);
         } catch (ReflectionException $e) {
-            throw new EncoderException("Class {$className} does not exist.",
-                EncoderException::CLASS_NOT_EXIST);
+            throw new EncoderException(
+                "Class {$className} does not exist.",
+                EncoderException::CLASS_NOT_EXIST
+            );
         }
         $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
         return $encoder;

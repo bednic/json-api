@@ -79,10 +79,9 @@ class ObjectExample extends Common
      */
     public function setRelations(array $relations): void
     {
-        foreach ($relations as $relation){
+        foreach ($relations as $relation) {
             $relation->setObject($this);
         }
         $this->relations = $relations;
     }
-
 }

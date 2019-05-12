@@ -3,7 +3,6 @@
 
 namespace JSONAPI\Document;
 
-
 use JSONAPI\Exception\DocumentException;
 use JsonSerializable;
 
@@ -51,8 +50,10 @@ abstract class Field implements JsonSerializable
     public function setKey(string $key)
     {
         if (!preg_match("/[a-zA-Z0-9-_]/", $key)) {
-            throw new DocumentException("Attribute name character violation.",
-                DocumentException::FORBIDDEN_CHARACTER);
+            throw new DocumentException(
+                "Attribute name character violation.",
+                DocumentException::FORBIDDEN_CHARACTER
+            );
         }
         $this->key = $key;
     }
@@ -72,8 +73,10 @@ abstract class Field implements JsonSerializable
     public function setData($data)
     {
         if (!in_array(gettype($data), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
-            throw new DocumentException("Attribute value type is not supported",
-                DocumentException::FORBIDDEN_DATA_TYPE);
+            throw new DocumentException(
+                "Attribute value type is not supported",
+                DocumentException::FORBIDDEN_DATA_TYPE
+            );
         }
         $this->data = $data;
     }

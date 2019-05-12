@@ -2,7 +2,6 @@
 
 namespace Test\JSONAPI;
 
-
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
 use JSONAPI\Document\Link;
@@ -126,9 +125,5 @@ class DocumentTest extends TestCase
         $document = Document::createFromRequest($request, new MetadataFactory(__DIR__ . '/resources'));
         $this->assertInstanceOf(Document::class, $document);
         $this->assertInstanceOf(ResourceObject::class, $document->getData());
-
     }
-
-
 }
-

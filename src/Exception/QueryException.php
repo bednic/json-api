@@ -3,7 +3,11 @@
 
 namespace JSONAPI\Exception;
 
-
+/**
+ * Class QueryException
+ *
+ * @package JSONAPI\Exception
+ */
 class QueryException extends JsonApiException
 {
     const UNKNOWN = 50;

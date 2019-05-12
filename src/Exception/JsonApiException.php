@@ -8,7 +8,11 @@
 
 namespace JSONAPI\Exception;
 
-
+/**
+ * Class JsonApiException
+ *
+ * @package JSONAPI\Exception
+ */
 abstract class JsonApiException extends \Exception
 {
     /**

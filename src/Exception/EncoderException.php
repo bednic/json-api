@@ -3,7 +3,11 @@
 
 namespace JSONAPI\Exception;
 
-
+/**
+ * Class EncoderException
+ *
+ * @package JSONAPI\Exception
+ */
 class EncoderException extends JsonApiException
 {
     const UNKNOWN = 40;

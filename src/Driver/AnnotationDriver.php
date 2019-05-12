@@ -8,7 +8,6 @@
 
 namespace JSONAPI\Driver;
 
-
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
@@ -166,8 +165,11 @@ class AnnotationDriver
                         $attribute->getter = $reflectionMethod->getName();
                     }
                     if (!$attribute->name) {
-                        $attribute->name = lcfirst(str_replace(['get', 'is'], '',
-                            $reflectionMethod->getName()));
+                        $attribute->name = lcfirst(str_replace(
+                            ['get', 'is'],
+                            '',
+                            $reflectionMethod->getName()
+                        ));
                     }
                     if (!$attribute->property || !$reflectionClass->hasProperty($attribute->property)) {
                         $property = lcfirst(str_replace(['get', 'is'], '', $attribute->getter));
@@ -216,8 +218,7 @@ class AnnotationDriver
                         }
                     }
                     try {
-                        if (
-                            ($reflectionMethod->getReturnType()->isBuiltin() && $reflectionMethod->getReturnType()->getName() === 'array') ||
+                        if (($reflectionMethod->getReturnType()->isBuiltin() && $reflectionMethod->getReturnType()->getName() === 'array') ||
                             ((new ReflectionClass($reflectionMethod->getReturnType()->getName()))->implementsInterface(\Traversable::class))
                         ) {
                             $relationship->isCollection = true;

@@ -8,7 +8,6 @@
 
 namespace Test\JSONAPI;
 
-
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Metadata\Encoder;
@@ -63,9 +62,10 @@ class EncoderTest extends TestCase
         /** @var Relationship $relation */
         $relation = $resource->getRelationship('relations');
         $this->assertInstanceOf(Relationship::class, $relation);
-        $this->assertEquals(trim(file_get_contents(__DIR__.'/resources/resource.json')),
-            json_encode($resource));
-
+        $this->assertEquals(
+            trim(file_get_contents(__DIR__ . '/resources/resource.json')),
+            json_encode($resource)
+        );
     }
 
     /**

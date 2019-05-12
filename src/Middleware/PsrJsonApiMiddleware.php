@@ -8,7 +8,6 @@
 
 namespace JSONAPI\Middleware;
 
-
 use JSONAPI\Document\Document;
 use JSONAPI\Exception\UnsupportedMediaType;
 use Psr\Http\Message\ResponseInterface;
@@ -43,6 +42,5 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         /** @var ResponseInterface $response */
         $response = $handler->handle($request);
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
-
     }
 }

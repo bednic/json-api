@@ -8,7 +8,11 @@
 
 namespace JSONAPI\Exception;
 
-
+/**
+ * Class UnsupportedMediaType
+ *
+ * @package JSONAPI\Exception
+ */
 class UnsupportedMediaType extends JsonApiException
 {
 

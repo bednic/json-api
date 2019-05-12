@@ -10,7 +10,6 @@ namespace JSONAPI\Query;
 
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Relationship;
-use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\DocumentException;
 
@@ -73,11 +72,4 @@ class LinkProvider
         $url = self::getUrl() . $resource->getType() . '/' . $resource->getId() . '/' . $relationship->getKey();
         return new Link(self::RELATED, $url);
     }
-
-
-//    public static function createPaginationLinks()
-//    {
-//
-//    }
-
 }

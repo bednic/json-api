@@ -217,7 +217,6 @@ class Query
                 }
                 $this->filter[$field] = new Condition($value, $operand);
             }
-
         }
     }
 

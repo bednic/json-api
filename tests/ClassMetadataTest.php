@@ -8,7 +8,6 @@
 
 namespace Test\JSONAPI;
 
-
 use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;

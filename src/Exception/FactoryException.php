@@ -3,7 +3,11 @@
 
 namespace JSONAPI\Exception;
 
-
+/**
+ * Class FactoryException
+ *
+ * @package JSONAPI\Exception
+ */
 class FactoryException extends JsonApiException
 {
     const UNKNOWN = 10;

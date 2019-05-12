@@ -8,7 +8,6 @@
 
 namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\DocumentException;
 use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\EncoderException;
@@ -119,8 +118,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                 $document->data = [];
                 foreach ($body->data as $resourceDto) {
                     if ($resourceDto->type !== $document->getPrimaryDataType()) {
-                        throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                            DocumentException::RESOURCE_TYPE_MISMATCH);
+                        throw new DocumentException(
+                            "Primary data type mismatch from type gathered from url.",
+                            DocumentException::RESOURCE_TYPE_MISMATCH
+                        );
                     }
 
                     $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
@@ -146,8 +147,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             } else {
                 $document->data = null;
                 if ($body->data->type !== $document->getPrimaryDataType()) {
-                    throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                        DocumentException::RESOURCE_TYPE_MISMATCH);
+                    throw new DocumentException(
+                        "Primary data type mismatch from type gathered from url.",
+                        DocumentException::RESOURCE_TYPE_MISMATCH
+                    );
                 }
                 $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
                 foreach ($body->data->attributes as $attribute => $value) {
@@ -200,7 +203,8 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         if ($this->isError) {
             throw new DocumentException(
                 "Non-valid document. Data AND Errors are set. Only Data XOR Errors are allowed",
-                DocumentException::HAS_DATA_AND_ERRORS);
+                DocumentException::HAS_DATA_AND_ERRORS
+            );
         }
         try {
             $primaryDataType = $this->getPrimaryDataType();
@@ -211,8 +215,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                     foreach ($data as $obj) {
                         $resource = $this->encoder->encode($obj);
                         if ($resource->getType() !== $metadata->getResource()->type) {
-                            throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                                DocumentException::RESOURCE_TYPE_MISMATCH);
+                            throw new DocumentException(
+                                "Primary data type mismatch from type gathered from url.",
+                                DocumentException::RESOURCE_TYPE_MISMATCH
+                            );
                         }
 
                         $id = $this->getId($resource);
@@ -225,8 +231,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                 } else {
                     $resource = $this->encoder->encode($data);
                     if ($resource->getType() !== $metadata->getResource()->type) {
-                        throw new DocumentException("Primary data type mismatch from type gathered from url.",
-                            DocumentException::RESOURCE_TYPE_MISMATCH);
+                        throw new DocumentException(
+                            "Primary data type mismatch from type gathered from url.",
+                            DocumentException::RESOURCE_TYPE_MISMATCH
+                        );
                     }
                     $id = $this->getId($resource);
                     $this->ids[$id] = true;
@@ -234,7 +242,6 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                     $this->setIncludes($this->url->getIncludes(), $data);
                 }
             }
-
         } catch (JsonApiException $exception) {
             $this->addError(Error::fromException($exception));
         }
@@ -298,7 +305,6 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                     }
                 }
             }
-
         }
     }
 

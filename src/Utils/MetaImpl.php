@@ -3,9 +3,13 @@
 
 namespace JSONAPI\Utils;
 
-
 use JSONAPI\Document\Meta;
 
+/**
+ * Trait MetaImpl
+ *
+ * @package JSONAPI\Utils
+ */
 trait MetaImpl
 {
 

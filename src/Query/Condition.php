@@ -7,6 +7,7 @@
  */
 
 namespace JSONAPI\Query;
+
 /**
  * Class Condition
  *
@@ -29,5 +30,4 @@ class Condition
         $this->value = $value;
         $this->operand = $operand;
     }
-
 }

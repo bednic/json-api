@@ -8,9 +8,6 @@
 
 namespace JSONAPI\Document;
 
-
-use JSONAPI\Exception\DocumentException;
-
 class Attribute extends Field
 {
 

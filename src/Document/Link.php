@@ -38,8 +38,10 @@ class Link extends Field implements HasMeta
     public function setData($data)
     {
         if (!filter_var($data, FILTER_VALIDATE_URL)) {
-            throw new DocumentException("Data type is not supported",
-                DocumentException::FORBIDDEN_DATA_TYPE);
+            throw new DocumentException(
+                "Data type is not supported",
+                DocumentException::FORBIDDEN_DATA_TYPE
+            );
         }
         parent::setData($data);
     }
