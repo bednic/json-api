@@ -80,5 +80,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 [Unreleased]: https://gitlab.com/bednic/json-api/compare/2.1.0...2.x
-[2.0.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.1.0
+[2.1.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.1.0
 [2.0.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.0.0
