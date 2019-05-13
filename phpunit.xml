@@ -6,7 +6,7 @@
          bootstrap="./tests/bootstrap.php"
          cacheResult="false"
          cacheTokens="false"
-         colors="true"
+         colors="false"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
