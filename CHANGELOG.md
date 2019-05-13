@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+
+### Security
+
+## [2.1.0]
+
+### Added
 * LinkProvider::createRelatedLink() create related resource link
 * LinkProvider::createSelfLink() create self link 
 
@@ -64,5 +79,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.1.0...2.x
+[2.0.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.1.0
 [2.0.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.0.0
