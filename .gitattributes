@@ -3,6 +3,5 @@
 /vendor export-ignore
 .* export-ignore
 *.xml export-ignore
-phpDocumentor.phar export-ignore
-phpDocumentor.phar.pubkey export-ignore
+sonar-project.properties export-ignore
 /composer.lock -merge
