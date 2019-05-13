@@ -10,7 +10,7 @@ use function Sodium\crypto_box_publickey_from_secretkey;
 class URLTest extends TestCase
 {
 
-    public function test__construct()
+    public function testConstruct()
     {
         $url = new Query();
         $this->assertInstanceOf(Query::class, $url);
@@ -18,7 +18,7 @@ class URLTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetIncludes(Query $url)
     {
@@ -29,7 +29,7 @@ class URLTest extends TestCase
 
     /**
      * @param Query $url
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetFieldsFor(Query $url)
     {
@@ -42,7 +42,7 @@ class URLTest extends TestCase
 
     /**
      * @param Query $url
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetSort(Query $url)
     {
@@ -55,7 +55,7 @@ class URLTest extends TestCase
 
     /**
      * @param Query $url
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetFilter(Query $url)
     {
@@ -63,7 +63,17 @@ class URLTest extends TestCase
         $this->assertArrayHasKey('publicProperty', $filter);
         /** @var Condition $condition */
         foreach ($filter['publicProperty'] as $condition) {
-            $this->assertContains($condition->operand, [Query::EQUAL, Query::NOT_EQUAL, Query::GREATER_THEN, Query::LOWER_THEN, Query::LIKE, Query::IN]);
+            $this->assertContains(
+                $condition->operand,
+                [
+                    Query::EQUAL,
+                    Query::NOT_EQUAL,
+                    Query::GREATER_THEN,
+                    Query::LOWER_THEN,
+                    Query::LIKE,
+                    Query::IN
+                ]
+            );
             if ($condition->operand === Query::IN) {
                 $this->assertIsArray($condition->value);
             }
@@ -73,7 +83,7 @@ class URLTest extends TestCase
 
     /**
      * @param Query $url
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetPagination(Query $url)
     {

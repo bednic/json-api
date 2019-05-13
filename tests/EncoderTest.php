@@ -34,7 +34,7 @@ class EncoderTest extends TestCase
         self::$instance = $instance;
     }
 
-    public function test__construct()
+    public function testConstruct()
     {
         $encoder = new Encoder(self::$factory);
         $this->assertInstanceOf(Encoder::class, $encoder);
@@ -42,7 +42,7 @@ class EncoderTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetType(Encoder $encoder)
     {
@@ -51,7 +51,7 @@ class EncoderTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testEncode(Encoder $encoder)
     {
@@ -69,7 +69,7 @@ class EncoderTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetId(Encoder $encoder)
     {

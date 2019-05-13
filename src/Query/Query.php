@@ -8,6 +8,8 @@
 
 namespace JSONAPI\Query;
 
+use DateTime;
+use Exception;
 use JSONAPI\Exception\QueryException;
 
 /**
@@ -198,7 +200,15 @@ class Query
                     $value = $this->guessDataType($matches["value"]);
                     if (is_array($value)) {
                         $operand = self::IN;
-                    } elseif (in_array($matches["operand"], [self::GREATER_THEN, self::LOWER_THEN, self::NOT_EQUAL, self::LIKE])) {
+                    } elseif (in_array(
+                        $matches["operand"],
+                        [
+                            self::GREATER_THEN,
+                            self::LOWER_THEN,
+                            self::NOT_EQUAL,
+                            self::LIKE
+                        ]
+                    )) {
                         $operand = $matches["operand"];
                     } else {
                         $operand = self::EQUAL;
@@ -210,7 +220,15 @@ class Query
                 $value = $this->guessDataType($matches["value"]);
                 if (is_array($value)) {
                     $operand = self::IN;
-                } elseif (in_array($matches["operand"], [self::GREATER_THEN, self::LOWER_THEN, self::NOT_EQUAL, self::LIKE])) {
+                } elseif (in_array(
+                    $matches["operand"],
+                    [
+                        self::GREATER_THEN,
+                        self::LOWER_THEN,
+                        self::NOT_EQUAL,
+                        self::LIKE
+                    ]
+                )) {
                     $operand = $matches["operand"];
                 } else {
                     $operand = self::EQUAL;
@@ -243,8 +261,8 @@ class Query
             return null;
         } elseif (strlen($value) >= 4 && strtotime($value)) {
             try {
-                return new \DateTime($value);
-            } catch (\Exception $e) {
+                return new DateTime($value);
+            } catch (Exception $e) {
                 return $value;
             }
         } else {
@@ -262,7 +280,8 @@ class Query
         $baseUrl = LinkProvider::getUrl();
         $uri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
         $query = str_replace($baseUrl, '/', $uri);
-        $pattern = '/^\/(?P<resource>[a-z-_]+)(\/(?P<id>[a-z0-9-_]+))?((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?(?P<query>\?.+)?$/';
+        $pattern = '/^\/(?P<resource>[a-z-_]+)(\/(?P<id>[a-z0-9-_]+))?'
+            . '((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?(?P<query>\?.+)?$/';
         if (preg_match($pattern, $query, $matches)) {
             return new Path(
                 $matches['resource'],

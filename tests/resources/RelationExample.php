@@ -12,6 +12,7 @@ use JSONAPI\Annotation as API;
 
 /**
  * Class RelationExample
+ *
  * @package Test\JSONAPI
  * @API\Resource("resource-relation")
  */

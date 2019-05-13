@@ -12,13 +12,14 @@ namespace JSONAPI\Document;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\Utils\LinksImpl;
 use JSONAPI\Utils\MetaImpl;
+use JsonSerializable;
 
 /**
  * Class Error
  *
  * @package JSONAPI\Document
  */
-class Error implements \JsonSerializable, HasLinks, HasMeta
+class Error implements JsonSerializable, HasLinks, HasMeta
 {
     use LinksImpl;
     use MetaImpl;

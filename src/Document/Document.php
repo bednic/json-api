@@ -257,10 +257,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param \JSONAPI\Document\ResourceObject $resource
+     * @param ResourceObject $resource
      * @return string
      */
-    private function getId(\JSONAPI\Document\ResourceObject $resource): string
+    private function getId(ResourceObject $resource): string
     {
         return $resource->getType() . $resource->getId();
     }

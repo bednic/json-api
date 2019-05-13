@@ -23,6 +23,7 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
+use Traversable;
 
 /**
  * Class AnnotationDriver
@@ -87,8 +88,12 @@ class AnnotationDriver
      * @param                  $attributes
      * @param                  $relationships
      */
-    private function parseProperties(ReflectionClass $reflectionClass, &$id, ArrayCollection &$attributes, ArrayCollection &$relationships): void
-    {
+    private function parseProperties(
+        ReflectionClass $reflectionClass,
+        &$id,
+        ArrayCollection &$attributes,
+        ArrayCollection &$relationships
+    ): void {
         foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
             if (!$id && ($id = $this->reader->getPropertyAnnotation($reflectionProperty, Id::class))) {
@@ -129,8 +134,12 @@ class AnnotationDriver
      * @param ArrayCollection  $relationships
      * @throws DriverException
      */
-    private function parseMethods(ReflectionClass $reflectionClass, &$id, ArrayCollection &$attributes, ArrayCollection &$relationships): void
-    {
+    private function parseMethods(
+        ReflectionClass $reflectionClass,
+        &$id,
+        ArrayCollection &$attributes,
+        ArrayCollection &$relationships
+    ): void {
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
                 if (!$id && ($id = $this->reader->getMethodAnnotation($reflectionMethod, Id::class))) {
@@ -218,8 +227,10 @@ class AnnotationDriver
                         }
                     }
                     try {
-                        if (($reflectionMethod->getReturnType()->isBuiltin() && $reflectionMethod->getReturnType()->getName() === 'array') ||
-                            ((new ReflectionClass($reflectionMethod->getReturnType()->getName()))->implementsInterface(\Traversable::class))
+                        if (($reflectionMethod->getReturnType()->isBuiltin()
+                                && ($reflectionMethod->getReturnType()->getName() === 'array')) ||
+                            ((new ReflectionClass($reflectionMethod->getReturnType()->getName()))
+                                ->implementsInterface(Traversable::class))
                         ) {
                             $relationship->isCollection = true;
                         }

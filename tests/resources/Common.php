@@ -12,6 +12,7 @@ use JSONAPI\Annotation as API;
 
 /**
  * Class Common
+ *
  * @package Test\JSONAPI
  */
 abstract class Common

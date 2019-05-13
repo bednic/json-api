@@ -17,6 +17,8 @@ use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\FactoryException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
 
 /**
  * Class MetadataFactory
@@ -130,10 +132,10 @@ class MetadataFactory
      */
     private function createMetadataCache(): void
     {
-        $it = new \RecursiveIteratorIterator(new \RecursiveDirectoryIterator($this->path));
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->path));
         $it->rewind();
         while ($it->valid()) {
-            /** @var $it \RecursiveDirectoryIterator */
+            /** @var $it RecursiveDirectoryIterator */
             if (!$it->isDot()) {
                 $file = $it->key();
                 if (is_file($file) && (isset(pathinfo($file)["extension"]) && pathinfo($file)["extension"] === "php")) {

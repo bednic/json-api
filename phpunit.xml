@@ -12,10 +12,10 @@
     <testsuites>
         <testsuite name="default">
             <directory>tests</directory>
-<!--            <file>tests/MetadataFactoryTest.php</file>-->
-<!--            <file>tests/ClassMetadataTest.php</file>-->
-<!--            <file>tests/EncoderTest.php</file>-->
-<!--            <file>tests/DocumentTest.php</file>-->
+            <!--            <file>tests/MetadataFactoryTest.php</file>-->
+            <!--            <file>tests/ClassMetadataTest.php</file>-->
+            <!--            <file>tests/EncoderTest.php</file>-->
+            <!--            <file>tests/DocumentTest.php</file>-->
         </testsuite>
     </testsuites>
     <logging>

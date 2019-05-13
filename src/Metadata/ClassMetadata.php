@@ -44,8 +44,12 @@ final class ClassMetadata
      * @param ArrayCollection     $attributes
      * @param ArrayCollection     $relationships
      */
-    public function __construct(Annotation\Id $id, Annotation\Resource $resource, ArrayCollection $attributes, ArrayCollection $relationships)
-    {
+    public function __construct(
+        Annotation\Id $id,
+        Annotation\Resource $resource,
+        ArrayCollection $attributes,
+        ArrayCollection $relationships
+    ) {
         $this->id = $id;
         $this->resource = $resource;
         $this->attributes = $attributes;

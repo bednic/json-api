@@ -12,6 +12,7 @@ use JSONAPI\Document\Link;
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\DocumentException;
+use JSONAPI\Exception\QueryException;
 
 /**
  * Class LinkProvider
@@ -39,6 +40,7 @@ class LinkProvider
     /**
      * @return Link
      * @throws DocumentException
+     * @throws QueryException
      */
     public static function createPrimaryDataLink(): Link
     {

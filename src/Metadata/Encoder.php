@@ -128,7 +128,10 @@ class Encoder
     private function setFields(Document\ResourceObject $resourceObject): void
     {
         $fields = $this->query->getFieldsFor($resourceObject->getType());
-        foreach (array_merge($this->metadata->getAttributes()->toArray(), $this->metadata->getRelationships()->toArray()) as $name => $field) {
+        foreach (array_merge(
+            $this->metadata->getAttributes()->toArray(),
+            $this->metadata->getRelationships()->toArray()
+        ) as $name => $field) {
             if (($fields && in_array($name, $fields)) || !$fields) {
                 $value = null;
                 if ($field->getter != null) {

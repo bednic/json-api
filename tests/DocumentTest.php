@@ -15,7 +15,7 @@ use Psr\Http\Message\RequestInterface;
 class DocumentTest extends TestCase
 {
 
-    public function test__construct()
+    public function testConstruct()
     {
         $document = new Document(
             new MetadataFactory(__DIR__ . '/resources')
@@ -26,7 +26,7 @@ class DocumentTest extends TestCase
 
     /**
      * @param Document $document
-     * @depends test__construct
+     * @depends testConstruct
      * @return Document
      */
     public function testAddMeta(Document $document)
@@ -73,14 +73,14 @@ class DocumentTest extends TestCase
     /**
      * @depends testSetData
      */
-    public function test__toString(Document $document)
+    public function testToString(Document $document)
     {
         $this->assertEquals((string)$document, json_encode($document));
     }
 
     /**
      * @param Document $document
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testAddLink(Document $document)
     {
@@ -90,7 +90,7 @@ class DocumentTest extends TestCase
 
     /**
      * @param Document $document
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testAddError(Document $document)
     {

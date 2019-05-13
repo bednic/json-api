@@ -8,12 +8,14 @@
 
 namespace JSONAPI\Exception;
 
+use Exception;
+
 /**
  * Class JsonApiException
  *
  * @package JSONAPI\Exception
  */
-abstract class JsonApiException extends \Exception
+abstract class JsonApiException extends Exception
 {
     /**
      * @return int

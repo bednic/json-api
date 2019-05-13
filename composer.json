@@ -19,7 +19,10 @@
     ],
     "license": "MIT",
     "authors": [
-        {"name": "Tomáš Benedikt", "email": "tomas.benedikt@gmail.com"}
+        {
+            "name": "Tomáš Benedikt",
+            "email": "tomas.benedikt@gmail.com"
+        }
     ],
     "config": {
         "sort-packages": true

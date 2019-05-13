@@ -15,12 +15,13 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * Class MetadataFactoryTest
+ *
  * @package Test\JSONAPI
  */
 class MetadataFactoryTest extends TestCase
 {
 
-    public function test__construct()
+    public function testConstruct()
     {
         $factory = new MetadataFactory(__DIR__ . '/resources/');
         $this->assertInstanceOf(MetadataFactory::class, $factory);
@@ -34,7 +35,7 @@ class MetadataFactoryTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testExceptionClassIsNotResource(MetadataFactory $factory)
     {
@@ -43,7 +44,7 @@ class MetadataFactoryTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetMetadataClassByType(MetadataFactory $factory)
     {
@@ -51,7 +52,7 @@ class MetadataFactoryTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetClassByType(MetadataFactory $factory)
     {
@@ -59,7 +60,7 @@ class MetadataFactoryTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetMetadataByClass(MetadataFactory $factory)
     {
@@ -67,7 +68,7 @@ class MetadataFactoryTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetAllMetadata(MetadataFactory $factory)
     {
