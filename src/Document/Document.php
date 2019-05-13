@@ -13,6 +13,7 @@ use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\EncoderException;
 use JSONAPI\Exception\FactoryException;
 use JSONAPI\Exception\JsonApiException;
+use JSONAPI\Exception\QueryException;
 use JSONAPI\Exception\UnsupportedMediaType;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
@@ -91,6 +92,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      *
      * @param MetadataFactory      $metadataFactory
      * @param LoggerInterface|null $logger
+     * @throws QueryException
      */
     public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
     {
@@ -105,6 +107,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * @param MetadataFactory  $factory
      * @return Document
      * @throws DocumentException
+     * @throws QueryException
      * @throws UnsupportedMediaType
      */
     public static function createFromRequest(RequestInterface $request, MetadataFactory $factory): Document
@@ -210,37 +213,37 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             $primaryDataType = $this->getPrimaryDataType();
             $metadata = $this->factory->getMetadataClassByType($primaryDataType);
             $this->addLink(LinkProvider::createPrimaryDataLink());
-            if (!empty($data)) {
-                if (is_array($data)) {
-                    foreach ($data as $obj) {
-                        $resource = $this->encoder->encode($obj);
-                        if ($resource->getType() !== $metadata->getResource()->type) {
-                            throw new DocumentException(
-                                "Primary data type mismatch from type gathered from url.",
-                                DocumentException::RESOURCE_TYPE_MISMATCH
-                            );
-                        }
-
-                        $id = $this->getId($resource);
-                        if ($this->isUnique($id)) {
-                            $this->ids[$id] = true;
-                            $this->data[] = $resource;
-                            $this->setIncludes($this->url->getIncludes(), $obj);
-                        }
-                    }
-                } else {
-                    $resource = $this->encoder->encode($data);
+            if ($this->isCollection()) {
+                $this->data = [];
+                foreach ($data as $obj) {
+                    $resource = $this->encoder->encode($obj);
                     if ($resource->getType() !== $metadata->getResource()->type) {
                         throw new DocumentException(
                             "Primary data type mismatch from type gathered from url.",
                             DocumentException::RESOURCE_TYPE_MISMATCH
                         );
                     }
+
                     $id = $this->getId($resource);
-                    $this->ids[$id] = true;
-                    $this->data = $resource;
-                    $this->setIncludes($this->url->getIncludes(), $data);
+                    if ($this->isUnique($id)) {
+                        $this->ids[$id] = true;
+                        $this->data[] = $resource;
+                        $this->setIncludes($this->url->getIncludes(), $obj);
+                    }
                 }
+            } else {
+                $this->data = null;
+                $resource = $this->encoder->encode($data);
+                if ($resource->getType() !== $metadata->getResource()->type) {
+                    throw new DocumentException(
+                        "Primary data type mismatch from type gathered from url.",
+                        DocumentException::RESOURCE_TYPE_MISMATCH
+                    );
+                }
+                $id = $this->getId($resource);
+                $this->ids[$id] = true;
+                $this->data = $resource;
+                $this->setIncludes($this->url->getIncludes(), $data);
             }
         } catch (JsonApiException $exception) {
             $this->addError(Error::fromException($exception));
@@ -321,6 +324,20 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             return $this->factory->getMetadataByClass($metadata->getRelationship($name)->target)->getResource()->type;
         }
         return $metadata->getResource()->type;
+    }
+
+    /**
+     * @return bool
+     * @throws DriverException
+     * @throws FactoryException
+     */
+    private function isCollection(): bool
+    {
+        $metadata = $this->factory->getMetadataClassByType($this->url->path->getResource());
+        if ($name = $this->url->path->getRelationshipName()) {
+            return $metadata->getRelationship($name)->isCollection;
+        }
+        return $this->url->path->getId() ? false : true;
     }
 
     /**
