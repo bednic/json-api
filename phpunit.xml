@@ -1,38 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/7.3/phpunit.xsd"
-         bootstrap="tests/bootstrap.php"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.1/phpunit.xsd"
+         backupGlobals="true"
+         backupStaticAttributes="false"
+         bootstrap="./tests/bootstrap.php"
+         cacheResult="false"
+         cacheTokens="false"
+         colors="true"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
          forceCoversAnnotation="false"
-         beStrictAboutCoversAnnotation="true"
-         beStrictAboutOutputDuringTests="true"
-         beStrictAboutTodoAnnotatedTests="true"
-         verbose="true"
-         cacheResult="true"
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+         stopOnRisky="false"
+         verbose="false"
 >
     <testsuites>
         <testsuite name="default">
-            <directory>tests</directory>
-            <!--            <file>tests/MetadataFactoryTest.php</file>-->
-            <!--            <file>tests/ClassMetadataTest.php</file>-->
-            <!--            <file>tests/EncoderTest.php</file>-->
-            <!--            <file>tests/DocumentTest.php</file>-->
+            <directory>./tests/</directory>
         </testsuite>
     </testsuites>
     <logging>
-        <!--<log type="coverage-html" target="tmp/report" lowUpperBound="35" highLowerBound="70"/>-->
         <log type="coverage-clover" target="tmp/coverage.xml"/>
-        <!--<log type="coverage-php" target="tmp/coverage.serialized"/>-->
         <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
         <log type="junit" target="tmp/logfile.xml"/>
-        <!--<log type="testdox-html" target="tmp/testdox.html"/>-->
-        <!--<log type="testdox-text" target="tmp/testdox.txt"/>-->
     </logging>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">src</directory>
-            <exclude>
-                <directory>tests</directory>
-            </exclude>
+            <directory suffix=".php">./src/</directory>
         </whitelist>
     </filter>
     <php>
