@@ -110,7 +110,7 @@ class DocumentTest extends TestCase
      * @throws \Doctrine\Common\Annotations\AnnotationException
      * @throws \JSONAPI\Exception\DriverException
      * @throws \JSONAPI\Exception\FactoryException
-     * @throws \JSONAPI\Exception\UnsupportedMediaType
+     * @throws \JSONAPI\Exception\UnsupportedMediaTypeException
      */
     public function testCreateFromRequest()
     {

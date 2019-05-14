@@ -11,6 +11,7 @@ namespace JSONAPI\Query;
 use DateTime;
 use Exception;
 use JSONAPI\Exception\QueryException;
+use Slim\Psr7\Factory\UriFactory;
 
 /**
  * Class Query
@@ -277,11 +278,12 @@ class Query
      */
     private function parsePath(): Path
     {
-        $baseUrl = LinkProvider::getUrl();
-        $uri = "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
-        $query = str_replace($baseUrl, '/', $uri);
+        $uriFactory = new UriFactory();
+        $baseUrl = $uriFactory->createUri(LinkProvider::getAPIUrl());
+        $uri = $uriFactory->createFromGlobals($_SERVER);
+        $query = str_replace($baseUrl->getPath(), '/', $uri->getPath());
         $pattern = '/^\/(?P<resource>[a-z-_]+)(\/(?P<id>[a-z0-9-_]+))?'
-            . '((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?(?P<query>\?.+)?$/';
+            . '((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?$/';
         if (preg_match($pattern, $query, $matches)) {
             return new Path(
                 $matches['resource'],

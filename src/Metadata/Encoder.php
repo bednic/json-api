@@ -19,6 +19,7 @@ use JSONAPI\Exception\DocumentException;
 use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\EncoderException;
 use JSONAPI\Exception\FactoryException;
+use JSONAPI\Exception\QueryException;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
 use JSONAPI\Query\QueryFactory;
@@ -69,6 +70,7 @@ class Encoder
      *
      * @param MetadataFactory $metadataFactory
      * @param LoggerInterface $logger
+     * @throws QueryException
      */
     public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
     {
@@ -84,6 +86,7 @@ class Encoder
      * @throws DriverException
      * @throws EncoderException
      * @throws FactoryException
+     * @throws QueryException
      */
     public function encode($object): ResourceObject
     {
@@ -124,6 +127,7 @@ class Encoder
      * @throws DriverException
      * @throws EncoderException
      * @throws FactoryException
+     * @throws QueryException
      */
     private function setFields(Document\ResourceObject $resourceObject): void
     {

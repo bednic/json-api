@@ -7,13 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+* HttpException, NotFoundException for handle HTTP errors
+* Slim\Psr7 library for handling JSON API implementation 
+  requirement around headers and HTTP responses, like NotFound, BadRequest, UnsupportedMediaType etc...
 
 ### Changed
-
+* UnsupportedMediaTypeException now inherit from HttpException
 
 ### Deprecated 
 
 ### Fixed
+* Some enchantments to Query class to fix some vulnerabilities
 
 ### Removed 
 

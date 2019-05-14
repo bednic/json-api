@@ -13,8 +13,9 @@ use JSONAPI\Exception\DriverException;
 use JSONAPI\Exception\EncoderException;
 use JSONAPI\Exception\FactoryException;
 use JSONAPI\Exception\JsonApiException;
+use JSONAPI\Exception\NotFoundException;
 use JSONAPI\Exception\QueryException;
-use JSONAPI\Exception\UnsupportedMediaType;
+use JSONAPI\Exception\UnsupportedMediaTypeException;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Query\LinkProvider;
@@ -108,58 +109,27 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * @return Document
      * @throws DocumentException
      * @throws QueryException
-     * @throws UnsupportedMediaType
      */
     public static function createFromRequest(RequestInterface $request, MetadataFactory $factory): Document
     {
         $document = new static($factory);
-        $body = (string)$request->getBody();
-        $meta = $request->getHeader('Content-Type');
-        if (in_array(Document::MEDIA_TYPE, $meta)) {
-            $body = json_decode($body);
-            if (is_array($body->data)) {
-                $document->data = [];
-                foreach ($body->data as $resourceDto) {
-                    if ($resourceDto->type !== $document->getPrimaryDataType()) {
-                        throw new DocumentException(
-                            "Primary data type mismatch from type gathered from url.",
-                            DocumentException::RESOURCE_TYPE_MISMATCH
-                        );
-                    }
-
-                    $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
-                    foreach ($resourceDto->attributes as $attribute => $value) {
-                        $object->addAttribute(new Attribute($attribute, $value));
-                    }
-
-                    foreach (@$resourceDto->relationships ?? [] as $prop => $value) {
-                        $value = $value->data;
-                        if (is_array($value)) {
-                            $data = [];
-                            foreach ($value as $item) {
-                                $data[] = new ResourceObjectIdentifier($item->type, $item->id);
-                            }
-                        } else {
-                            $data = new ResourceObjectIdentifier($value->type, $value->id);
-                        }
-                        $relationship = new Relationship($prop, $data);
-                        $object->addRelationship($relationship);
-                    }
-                    $document->data[] = $object;
-                }
-            } else {
-                $document->data = null;
-                if ($body->data->type !== $document->getPrimaryDataType()) {
+        $body = json_decode((string)$request->getBody());
+        if (is_array($body->data)) {
+            $document->data = [];
+            foreach ($body->data as $resourceDto) {
+                if ($resourceDto->type !== $document->getPrimaryDataType()) {
                     throw new DocumentException(
                         "Primary data type mismatch from type gathered from url.",
                         DocumentException::RESOURCE_TYPE_MISMATCH
                     );
                 }
-                $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
-                foreach ($body->data->attributes as $attribute => $value) {
+
+                $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
+                foreach ($resourceDto->attributes as $attribute => $value) {
                     $object->addAttribute(new Attribute($attribute, $value));
                 }
-                foreach (@$body->data->relationships ?? [] as $prop => $value) {
+
+                foreach (@$resourceDto->relationships ?? [] as $prop => $value) {
                     $value = $value->data;
                     if (is_array($value)) {
                         $data = [];
@@ -172,10 +142,34 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                     $relationship = new Relationship($prop, $data);
                     $object->addRelationship($relationship);
                 }
-                $document->data = $object;
+                $document->data[] = $object;
             }
         } else {
-            throw new UnsupportedMediaType();
+            $document->data = null;
+            if ($body->data->type !== $document->getPrimaryDataType()) {
+                throw new DocumentException(
+                    "Primary data type mismatch from type gathered from url.",
+                    DocumentException::RESOURCE_TYPE_MISMATCH
+                );
+            }
+            $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
+            foreach ($body->data->attributes as $attribute => $value) {
+                $object->addAttribute(new Attribute($attribute, $value));
+            }
+            foreach (@$body->data->relationships ?? [] as $prop => $value) {
+                $value = $value->data;
+                if (is_array($value)) {
+                    $data = [];
+                    foreach ($value as $item) {
+                        $data[] = new ResourceObjectIdentifier($item->type, $item->id);
+                    }
+                } else {
+                    $data = new ResourceObjectIdentifier($value->type, $value->id);
+                }
+                $relationship = new Relationship($prop, $data);
+                $object->addRelationship($relationship);
+            }
+            $document->data = $object;
         }
         return $document;
     }
@@ -199,7 +193,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
 
     /**
      * @param object|object[] $data
-     * @throws DocumentException
+     * @throws NotFoundException
      */
     public function setData($data): void
     {
@@ -231,7 +225,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                         $this->setIncludes($this->url->getIncludes(), $obj);
                     }
                 }
-            } else {
+            } elseif (!empty($data)) {
                 $this->data = null;
                 $resource = $this->encoder->encode($data);
                 if ($resource->getType() !== $metadata->getResource()->type) {
@@ -244,6 +238,8 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                 $this->ids[$id] = true;
                 $this->data = $resource;
                 $this->setIncludes($this->url->getIncludes(), $data);
+            } else {
+                throw new NotFoundException();
             }
         } catch (JsonApiException $exception) {
             $this->addError(Error::fromException($exception));
@@ -275,6 +271,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * @throws DriverException
      * @throws EncoderException
      * @throws FactoryException
+     * @throws QueryException
      */
     private function setIncludes($includes, $object)
     {
@@ -338,6 +335,17 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             return $metadata->getRelationship($name)->isCollection;
         }
         return $this->url->path->getId() ? false : true;
+    }
+
+    /**
+     * @return bool
+     */
+    private function isRelation(): bool
+    {
+        if ($this->url->path->getRelationshipName()) {
+            return true;
+        }
+        return false;
     }
 
     /**

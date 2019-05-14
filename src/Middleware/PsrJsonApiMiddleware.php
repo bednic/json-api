@@ -9,11 +9,13 @@
 namespace JSONAPI\Middleware;
 
 use JSONAPI\Document\Document;
-use JSONAPI\Exception\UnsupportedMediaType;
+use JSONAPI\Exception\HttpException;
+use JSONAPI\Exception\UnsupportedMediaTypeException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Psr7\Factory\ResponseFactory;
 
 /**
  * Class PsrJsonApiMiddleware
@@ -32,15 +34,19 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * @param ServerRequestInterface  $request
      * @param RequestHandlerInterface $handler
      * @return ResponseInterface
-     * @throws UnsupportedMediaType
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
-            throw new UnsupportedMediaType();
+        $responseFactory = new ResponseFactory();
+        try {
+            if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
+                throw new UnsupportedMediaTypeException();
+            }
+            /** @var ResponseInterface $response */
+            $response = $handler->handle($request);
+        } catch (HttpException $exception) {
+            $response = $responseFactory->createResponse($exception->getStatus());
         }
-        /** @var ResponseInterface $response */
-        $response = $handler->handle($request);
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
     }
 }

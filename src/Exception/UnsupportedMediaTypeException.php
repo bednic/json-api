@@ -8,21 +8,17 @@
 
 namespace JSONAPI\Exception;
 
-use Exception;
+use Fig\Http\Message\StatusCodeInterface;
 use Throwable;
 
 /**
- * Class UnsupportedMediaType
+ * Class UnsupportedMediaTypeException
  *
  * @package JSONAPI\Exception
  */
-class UnsupportedMediaType extends Exception
+class UnsupportedMediaTypeException extends HttpException
 {
 
     protected $message = "Unsupported Media Type";
-
-    public function __construct(Throwable $previous = null)
-    {
-        parent::__construct($this->message, 415, $previous);
-    }
+    protected $status = StatusCodeInterface::STATUS_UNSUPPORTED_MEDIA_TYPE;
 }

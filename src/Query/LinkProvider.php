@@ -13,6 +13,7 @@ use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\DocumentException;
 use JSONAPI\Exception\QueryException;
+use Slim\Psr7\Factory\UriFactory;
 
 /**
  * Class LinkProvider
@@ -21,6 +22,8 @@ use JSONAPI\Exception\QueryException;
  */
 class LinkProvider
 {
+    private const API_URL_ENV = "JSON_API_URL";
+
     const SELF = 'self';
     const RELATED = 'related';
     const FIRST = 'first';
@@ -28,13 +31,29 @@ class LinkProvider
     const NEXT = 'next';
     const PREV = 'prev';
 
+    private static $url = '';
+
     /**
      * @return string
+     * @throws QueryException
      */
-    public static function getUrl(): string
+    public static function getAPIUrl(): string
     {
-        return getenv("JSON_API_URL") !== false ?
-            (string)getenv("JSON_API_URL") : "$_SERVER[REQUEST_SCHEME]://$_SERVER[HTTP_HOST]/";
+        if (!self::$url) {
+            $uriFactory = new UriFactory();
+            if (getenv(self::API_URL_ENV) !== false) {
+                $uri = $uriFactory->createUri(getenv(self::API_URL_ENV));
+                self::$url = (string)$uri . (preg_match('/\/$/', (string)$uri) === false ? '/' : '');
+            } else {
+                $uri = $uriFactory->createFromGlobals($_SERVER);
+                self::$url = $uri->getScheme() . '://' . $uri->getHost()
+                    . ($uri->getPort() ? ':' . $uri->getPort() : '') . '/';
+            }
+        }
+        if (!filter_var(self::$url, FILTER_VALIDATE_URL)) {
+            throw new QueryException("Bad API Url");
+        }
+        return self::$url;
     }
 
     /**
@@ -45,7 +64,7 @@ class LinkProvider
     public static function createPrimaryDataLink(): Link
     {
         $url = QueryFactory::create();
-        return new Link(self::SELF, self::getUrl() . (string)$url->path);
+        return new Link(self::SELF, self::getAPIUrl() . (string)$url->path);
     }
 
     /**
@@ -53,10 +72,11 @@ class LinkProvider
      * @param Relationship|null        $relationship
      * @return Link
      * @throws DocumentException
+     * @throws QueryException
      */
     public static function createSelfLink(ResourceObjectIdentifier $resource, Relationship $relationship = null): Link
     {
-        $url = self::getUrl() . $resource->getType() . '/' . $resource->getId();
+        $url = self::getAPIUrl() . $resource->getType() . '/' . $resource->getId();
         if ($relationship) {
             $url .= '/relationships/' . $relationship->getKey();
         }
@@ -68,10 +88,11 @@ class LinkProvider
      * @param Relationship             $relationship
      * @return Link
      * @throws DocumentException
+     * @throws QueryException
      */
     public static function createRelatedLink(ResourceObjectIdentifier $resource, Relationship $relationship): Link
     {
-        $url = self::getUrl() . $resource->getType() . '/' . $resource->getId() . '/' . $relationship->getKey();
+        $url = self::getAPIUrl() . $resource->getType() . '/' . $resource->getId() . '/' . $relationship->getKey();
         return new Link(self::RELATED, $url);
     }
 }
