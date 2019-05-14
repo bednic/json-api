@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+
+### Security
+
+## [2.1.1]
+
+### Added
 * HttpException, NotFoundException for handle HTTP errors
 * Slim\Psr7 library for handling JSON API implementation 
   requirement around headers and HTTP responses, like NotFound, BadRequest, UnsupportedMediaType etc...
@@ -84,5 +98,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 [Unreleased]: https://gitlab.com/bednic/json-api/compare/2.1.0...2.x
+[2.1.1]: https://gitlab.com/bednic/json-api/compare/2.1.0...2.1.1
 [2.1.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.1.0
 [2.0.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.0.0
