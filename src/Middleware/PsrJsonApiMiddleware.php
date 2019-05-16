@@ -9,13 +9,17 @@
 namespace JSONAPI\Middleware;
 
 use JSONAPI\Document\Document;
-use JSONAPI\Exception\HttpException;
-use JSONAPI\Exception\UnsupportedMediaTypeException;
+use JSONAPI\Document\Error;
+use JSONAPI\Exception\Document\BadRequest;
+use JSONAPI\Exception\Document\UnsupportedMediaType;
+use JSONAPI\Metadata\MetadataFactory;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Psr\Log\LoggerInterface;
 use Slim\Psr7\Factory\ResponseFactory;
+use Slim\Psr7\Factory\StreamFactory;
 
 /**
  * Class PsrJsonApiMiddleware
@@ -25,6 +29,20 @@ use Slim\Psr7\Factory\ResponseFactory;
 class PsrJsonApiMiddleware implements MiddlewareInterface
 {
 
+    private $factory;
+    private $logger;
+
+    /**
+     * PsrJsonApiMiddleware constructor.
+     *
+     * @param MetadataFactory      $factory
+     * @param LoggerInterface|null $logger
+     */
+    public function __construct(MetadataFactory $factory, LoggerInterface $logger = null)
+    {
+        $this->factory = $factory;
+        $this->logger = $logger;
+    }
     /**
      * Process an incoming server request.
      * Processes an incoming server request in order to produce a response.
@@ -37,15 +55,17 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $responseFactory = new ResponseFactory();
         try {
             if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
-                throw new UnsupportedMediaTypeException();
+                throw new UnsupportedMediaType();
             }
             /** @var ResponseInterface $response */
             $response = $handler->handle($request);
-        } catch (HttpException $exception) {
-            $response = $responseFactory->createResponse($exception->getStatus());
+        } catch (BadRequest $exception) {
+            $document = new Document($this->factory, $this->logger);
+            $document->addError(Error::fromException($exception));
+            $body = (new StreamFactory())->createStream(json_encode($document));
+            $response = (new ResponseFactory())->createResponse($exception->getStatus())->withBody($body);
         }
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
     }

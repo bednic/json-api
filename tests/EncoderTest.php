@@ -12,6 +12,7 @@ use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Query\QueryFactory;
 use PHPUnit\Framework\TestCase;
 
 class EncoderTest extends TestCase
@@ -20,13 +21,16 @@ class EncoderTest extends TestCase
      * @var MetadataFactory
      */
     private static $factory;
+    private static $query;
 
-    private static $options;
-
+    /**
+     * @var ObjectExample
+     */
     private static $instance;
 
     public static function setUpBeforeClass(): void
     {
+        self::$query = QueryFactory::create();
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
         $relation = new RelationExample();
         $instance = new ObjectExample();
@@ -36,7 +40,7 @@ class EncoderTest extends TestCase
 
     public function testConstruct()
     {
-        $encoder = new Encoder(self::$factory);
+        $encoder = new Encoder(self::$factory, self::$query);
         $this->assertInstanceOf(Encoder::class, $encoder);
         return $encoder;
     }

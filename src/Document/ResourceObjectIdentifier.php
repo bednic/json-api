@@ -8,6 +8,7 @@
 
 namespace JSONAPI\Document;
 
+use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Utils\MetaImpl;
 use JsonSerializable;
 
@@ -38,11 +39,16 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
      *
      * @param string          $type
      * @param string|int|null $id
+     * @throws ForbiddenDataType
      */
     public function __construct(string $type, $id)
     {
+        if (is_string($id) || is_int($id) || is_null($id)) {
+            $this->id = $id;
+        } else {
+            throw new ForbiddenDataType(gettype($id));
+        }
         $this->type = $type;
-        $this->id = $id;
     }
 
     /**

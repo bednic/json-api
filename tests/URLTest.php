@@ -5,7 +5,6 @@ namespace Test\JSONAPI;
 use JSONAPI\Query\Condition;
 use JSONAPI\Query\Query;
 use PHPUnit\Framework\TestCase;
-use function Sodium\crypto_box_publickey_from_secretkey;
 
 class URLTest extends TestCase
 {
@@ -28,7 +27,6 @@ class URLTest extends TestCase
     }
 
     /**
-     * @param Query $url
      * @depends testConstruct
      */
     public function testGetFieldsFor(Query $url)
@@ -41,7 +39,6 @@ class URLTest extends TestCase
     }
 
     /**
-     * @param Query $url
      * @depends testConstruct
      */
     public function testGetSort(Query $url)
@@ -54,7 +51,6 @@ class URLTest extends TestCase
     }
 
     /**
-     * @param Query $url
      * @depends testConstruct
      */
     public function testGetFilter(Query $url)
@@ -82,7 +78,6 @@ class URLTest extends TestCase
     }
 
     /**
-     * @param Query $url
      * @depends testConstruct
      */
     public function testGetPagination(Query $url)

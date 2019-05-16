@@ -7,7 +7,7 @@ use JSONAPI\Document\Error;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
 use JSONAPI\Document\ResourceObject;
-use JSONAPI\Exception\DocumentException;
+use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
@@ -25,9 +25,7 @@ class DocumentTest extends TestCase
     }
 
     /**
-     * @param Document $document
      * @depends testConstruct
-     * @return Document
      */
     public function testAddMeta(Document $document)
     {
@@ -37,9 +35,6 @@ class DocumentTest extends TestCase
     }
 
     /**
-     * @param Document $document
-     * @return Document
-     * @throws DocumentException
      * @depends testAddMeta
      */
     public function testSetData(Document $document)
@@ -79,24 +74,25 @@ class DocumentTest extends TestCase
     }
 
     /**
-     * @param Document $document
      * @depends testConstruct
      */
     public function testAddLink(Document $document)
     {
         $document->addLink(new Link('own', 'http://my-own.link.com'));
+        $document->setLinks([
+            new Link('link1', 'http://link1.com')
+        ]);
         $this->expectNotToPerformAssertions();
     }
 
     /**
-     * @param Document $document
      * @depends testConstruct
      */
     public function testAddError(Document $document)
     {
         try {
-            throw new DocumentException("Test exception");
-        } catch (DocumentException $exception) {
+            throw new BadRequest("Test exception");
+        } catch (BadRequest $exception) {
             $error = Error::fromException($exception);
             $document->addError($error);
             print json_encode($document);
@@ -105,13 +101,6 @@ class DocumentTest extends TestCase
         }
     }
 
-    /**
-     * @throws DocumentException
-     * @throws \Doctrine\Common\Annotations\AnnotationException
-     * @throws \JSONAPI\Exception\DriverException
-     * @throws \JSONAPI\Exception\FactoryException
-     * @throws \JSONAPI\Exception\UnsupportedMediaTypeException
-     */
     public function testCreateFromRequest()
     {
         /** @var RequestInterface $request */

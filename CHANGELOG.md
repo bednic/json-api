@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+* Whole error handling is reworked. Idea is that BadRequest exception are sent to user. But other JsonApiExceptions
+  are Internal Server Error, so user should handle them by self. Exceptions are categorised by purpose. [See](/src/Exception)
+* PsrJsonApiMiddleware now send PSR7 compatible Response with valid Document contains information about BadRequest error 
+  in case of exception. 
 
 ### Deprecated 
 

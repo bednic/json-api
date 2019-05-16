@@ -15,7 +15,9 @@ use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
-use JSONAPI\Exception\DriverException;
+use JSONAPI\Exception\Driver\AnnotationMisplace;
+use JSONAPI\Exception\Driver\ClassNotExist;
+use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Metadata\ClassMetadata;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -55,13 +57,15 @@ class AnnotationDriver
     }
 
     /**
-     * Returns metadata for provided class or null if class is not ResourceObject
+     * Returns metadata for provided class name
      *
      * @param string $className
-     * @return ClassMetadata|null
-     * @throws DriverException
+     * @return ClassMetadata
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
      */
-    public function getClassMetadata(string $className): ?ClassMetadata
+    public function getClassMetadata(string $className): ClassMetadata
     {
         try {
             $ref = new ReflectionClass($className);
@@ -75,11 +79,12 @@ class AnnotationDriver
                 $this->parseMethods($ref, $id, $attributes, $relationships);
                 $this->logger->info("Created ClassMetadata for <{$resource->type}>");
                 return new ClassMetadata($id, $resource, $attributes, $relationships);
+            } else {
+                throw new ClassNotResource($className);
             }
         } catch (ReflectionException $e) {
-            // class does not exist
+            throw new ClassNotExist($className);
         }
-        return null;
     }
 
     /**
@@ -132,7 +137,7 @@ class AnnotationDriver
      * @param                  $id
      * @param ArrayCollection  $attributes
      * @param ArrayCollection  $relationships
-     * @throws DriverException
+     * @throws AnnotationMisplace
      */
     private function parseMethods(
         ReflectionClass $reflectionClass,
@@ -144,11 +149,10 @@ class AnnotationDriver
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
                 if (!$id && ($id = $this->reader->getMethodAnnotation($reflectionMethod, Id::class))) {
                     if (!$id->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
-                        throw  new DriverException(
-                            "Annotation " . (Id::class) . " on method MUST be on getter. 
-                            Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
-                            doesn't seems like getter.",
-                            DriverException::ANNOTATION_NOT_ON_GETTER
+                        throw new AnnotationMisplace(
+                            Id::class,
+                            $reflectionMethod->getName(),
+                            $reflectionClass->name
                         );
                     }
                     if (!$id->getter) {
@@ -163,11 +167,10 @@ class AnnotationDriver
                 /** @var Attribute $attribute */
                 if ($attribute = $this->reader->getMethodAnnotation($reflectionMethod, Attribute::class)) {
                     if (!$attribute->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
-                        throw  new DriverException(
-                            "Annotation " . (Attribute::class) . " on method MUST be on getter. 
-                            Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
-                            doesn't seems like getter.",
-                            DriverException::ANNOTATION_NOT_ON_GETTER
+                        throw new AnnotationMisplace(
+                            Attribute::class,
+                            $reflectionMethod->getName(),
+                            $reflectionClass->name
                         );
                     }
                     if (!$attribute->getter) {
@@ -200,11 +203,10 @@ class AnnotationDriver
                 /** @var Relationship $relationship */
                 if ($relationship = $this->reader->getMethodAnnotation($reflectionMethod, Relationship::class)) {
                     if (!$relationship->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
-                        throw  new DriverException(
-                            "Annotation " . (Relationship::class) . " on method MUST be on getter. 
-                            Method {$reflectionMethod->getName()} on resource {$reflectionClass->name} 
-                            doesn't seems like getter.",
-                            DriverException::ANNOTATION_NOT_ON_GETTER
+                        throw new AnnotationMisplace(
+                            Relationship::class,
+                            $reflectionMethod->getName(),
+                            $reflectionClass->name
                         );
                     }
                     if (!$relationship->getter) {

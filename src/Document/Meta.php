@@ -33,13 +33,11 @@ class Meta implements JsonSerializable
     /**
      * @param $key
      * @param $value
+
      */
     public function addField($key, $value): void
     {
-        $field = new class($key, $value) extends Field
-        {
-        };
-        $this->fields[$field->getKey()] = $field;
+        $this->fields[$key] = $value;
     }
 
     /**

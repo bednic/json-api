@@ -8,14 +8,17 @@
 
 namespace JSONAPI\Document;
 
-use JSONAPI\Exception\DocumentException;
-use JSONAPI\Exception\DriverException;
-use JSONAPI\Exception\EncoderException;
-use JSONAPI\Exception\FactoryException;
-use JSONAPI\Exception\JsonApiException;
-use JSONAPI\Exception\NotFoundException;
-use JSONAPI\Exception\QueryException;
-use JSONAPI\Exception\UnsupportedMediaTypeException;
+use JSONAPI\Exception\Driver\AnnotationMisplace;
+use JSONAPI\Exception\Driver\ClassNotExist;
+use JSONAPI\Exception\Driver\ClassNotResource;
+use JSONAPI\Exception\Encoder\InvalidField;
+use JSONAPI\Exception\Document\BadRequest;
+use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
+use JSONAPI\Exception\Document\NotFound;
+use JSONAPI\Exception\Document\ResourceTypeMismatch;
+use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Query\LinkProvider;
@@ -93,22 +96,22 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      *
      * @param MetadataFactory      $metadataFactory
      * @param LoggerInterface|null $logger
-     * @throws QueryException
      */
     public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
     {
         $this->factory = $metadataFactory;
         $this->logger = $logger ?? new NullLogger();
-        $this->encoder = new Encoder($metadataFactory, $this->logger);
         $this->url = QueryFactory::create();
+        $this->encoder = new Encoder($metadataFactory, $this->url, $this->logger);
     }
 
     /**
      * @param RequestInterface $request
      * @param MetadataFactory  $factory
      * @return Document
-     * @throws DocumentException
-     * @throws QueryException
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws ResourceTypeMismatch
      */
     public static function createFromRequest(RequestInterface $request, MetadataFactory $factory): Document
     {
@@ -118,10 +121,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             $document->data = [];
             foreach ($body->data as $resourceDto) {
                 if ($resourceDto->type !== $document->getPrimaryDataType()) {
-                    throw new DocumentException(
-                        "Primary data type mismatch from type gathered from url.",
-                        DocumentException::RESOURCE_TYPE_MISMATCH
-                    );
+                    throw new ResourceTypeMismatch();
                 }
 
                 $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
@@ -147,10 +147,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         } else {
             $document->data = null;
             if ($body->data->type !== $document->getPrimaryDataType()) {
-                throw new DocumentException(
-                    "Primary data type mismatch from type gathered from url.",
-                    DocumentException::RESOURCE_TYPE_MISMATCH
-                );
+                throw new ResourceTypeMismatch();
             }
             $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
             foreach ($body->data->attributes as $attribute => $value) {
@@ -171,6 +168,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             }
             $document->data = $object;
         }
+
         return $document;
     }
 
@@ -192,58 +190,70 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param object|object[] $data
-     * @throws NotFoundException
+     * @param $data
+     * @throws AnnotationMisplace
+     * @throws BadRequest
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     * @throws InvalidField
+     * @throws NotFound
+     * @throws ResourceTypeMismatch
      */
     public function setData($data): void
     {
-        if ($this->isError) {
-            throw new DocumentException(
-                "Non-valid document. Data AND Errors are set. Only Data XOR Errors are allowed",
-                DocumentException::HAS_DATA_AND_ERRORS
-            );
-        }
-        try {
-            $primaryDataType = $this->getPrimaryDataType();
-            $metadata = $this->factory->getMetadataClassByType($primaryDataType);
-            $this->addLink(LinkProvider::createPrimaryDataLink());
-            if ($this->isCollection()) {
-                $this->data = [];
-                foreach ($data as $obj) {
-                    $resource = $this->encoder->encode($obj);
-                    if ($resource->getType() !== $metadata->getResource()->type) {
-                        throw new DocumentException(
-                            "Primary data type mismatch from type gathered from url.",
-                            DocumentException::RESOURCE_TYPE_MISMATCH
-                        );
-                    }
 
-                    $id = $this->getId($resource);
-                    if ($this->isUnique($id)) {
-                        $this->ids[$id] = true;
-                        $this->data[] = $resource;
-                        $this->setIncludes($this->url->getIncludes(), $obj);
-                    }
-                }
-            } elseif (!empty($data)) {
-                $this->data = null;
-                $resource = $this->encoder->encode($data);
-                if ($resource->getType() !== $metadata->getResource()->type) {
-                    throw new DocumentException(
-                        "Primary data type mismatch from type gathered from url.",
-                        DocumentException::RESOURCE_TYPE_MISMATCH
-                    );
-                }
-                $id = $this->getId($resource);
-                $this->ids[$id] = true;
-                $this->data = $resource;
-                $this->setIncludes($this->url->getIncludes(), $data);
-            } else {
-                throw new NotFoundException();
-            }
-        } catch (JsonApiException $exception) {
-            $this->addError(Error::fromException($exception));
+        if ($this->isError) {
+            throw new InvalidArgumentException("Trying to add data when document has error. 
+            Only data XOR errors is allowed");
         }
+        $primaryDataType = $this->getPrimaryDataType();
+        $metadata = $this->factory->getMetadataClassByType($primaryDataType);
+        $this->addLink(LinkProvider::createPrimaryDataLink());
+        if ($this->isCollection()) {
+            $this->data = [];
+            foreach ($data as $obj) {
+                $this->data[] = $this->save($obj, $metadata);
+            }
+        } elseif (!empty($data) || $this->isRelation()) {
+            $this->data = $this->save($data, $metadata);
+        } else {
+            throw new NotFound();
+        }
+    }
+
+    /**
+     * Return ResourceObject or null if ResourceObject is already saved to data
+     *
+     * @param object        $object
+     * @param ClassMetadata $metadata
+     * @return ResourceObject|null
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     * @throws InvalidField
+     * @throws ResourceTypeMismatch
+     */
+    private function save($object, ClassMetadata $metadata): ?ResourceObject
+    {
+        if ($object) {
+            $resource = $this->encoder->encode($object);
+            if ($resource->getType() !== $metadata->getResource()->type) {
+                throw new ResourceTypeMismatch();
+            }
+            $id = $this->getId($resource);
+            if ($this->isUnique($id)) {
+                $this->ids[$id] = true;
+                $this->setIncludes($this->url->getIncludes(), $object);
+                return $resource;
+            }
+        }
+        return null;
     }
 
     /**
@@ -267,11 +277,13 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     /**
      * @param $includes
      * @param $object
-     * @throws DocumentException
-     * @throws DriverException
-     * @throws EncoderException
-     * @throws FactoryException
-     * @throws QueryException
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     * @throws InvalidField
      */
     private function setIncludes($includes, $object)
     {
@@ -311,13 +323,16 @@ class Document implements JsonSerializable, HasLinks, HasMeta
 
     /**
      * @return string
-     * @throws DriverException
-     * @throws FactoryException
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws InvalidArgumentException
+     * @throws BadRequest
      */
     private function getPrimaryDataType(): string
     {
-        $metadata = $this->factory->getMetadataClassByType($this->url->path->getResource());
-        if ($name = $this->url->path->getRelationshipName()) {
+        $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
+        if ($name = $this->url->getPath()->getRelationshipName()) {
             return $this->factory->getMetadataByClass($metadata->getRelationship($name)->target)->getResource()->type;
         }
         return $metadata->getResource()->type;
@@ -325,27 +340,29 @@ class Document implements JsonSerializable, HasLinks, HasMeta
 
     /**
      * @return bool
-     * @throws DriverException
-     * @throws FactoryException
+     * @throws AnnotationMisplace
+     * @throws BadRequest
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws InvalidArgumentException
      */
     private function isCollection(): bool
     {
-        $metadata = $this->factory->getMetadataClassByType($this->url->path->getResource());
-        if ($name = $this->url->path->getRelationshipName()) {
+        $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
+        if ($name = $this->url->getPath()->getRelationshipName()) {
             return $metadata->getRelationship($name)->isCollection;
         }
-        return $this->url->path->getId() ? false : true;
+        return empty($this->url->getPath()->getId());
     }
 
     /**
      * @return bool
+     * @throws BadRequest
+     * @throws InvalidArgumentException
      */
     private function isRelation(): bool
     {
-        if ($this->url->path->getRelationshipName()) {
-            return true;
-        }
-        return false;
+        return !empty($this->url->getPath()->getRelationshipName());
     }
 
     /**

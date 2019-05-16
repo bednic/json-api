@@ -10,7 +10,8 @@ namespace JSONAPI\Query;
 
 use DateTime;
 use Exception;
-use JSONAPI\Exception\QueryException;
+use JSONAPI\Exception\Document\BadRequest;
+use JSONAPI\Exception\InvalidArgumentException;
 use Slim\Psr7\Factory\UriFactory;
 
 /**
@@ -58,18 +59,14 @@ class Query
     /**
      * @var Path
      */
-    public $path;
+    private $path;
 
     /**
      * Query constructor.
      *
-     * @throws QueryException
      */
     public function __construct()
     {
-
-        $this->path = $this->parsePath();
-
         if (isset($_GET['include'])) {
             $this->parseIncludes($_GET['include']);
         }
@@ -271,12 +268,25 @@ class Query
         }
     }
 
-
     /**
      * @return Path
-     * @throws QueryException
+     * @throws BadRequest
+     * @throws InvalidArgumentException
      */
-    private function parsePath(): Path
+    public function getPath(): Path
+    {
+        if (!$this->path) {
+            $this->parsePath();
+        }
+        return $this->path;
+    }
+
+    /**
+     * @return void
+     * @throws BadRequest
+     * @throws InvalidArgumentException
+     */
+    private function parsePath(): void
     {
         $uriFactory = new UriFactory();
         $baseUrl = $uriFactory->createUri(LinkProvider::getAPIUrl());
@@ -285,15 +295,15 @@ class Query
         $pattern = '/^\/(?P<resource>[a-z-_]+)(\/(?P<id>[a-z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?$/';
         if (preg_match($pattern, $query, $matches)) {
-            return new Path(
-                $matches['resource'],
+            $this->path =  new Path(
+                isset($matches['resource']) ? $matches['resource'] : '',
                 isset($matches['id']) ? $matches['id'] : null,
                 isset($matches['relationship']) ? $matches['relationship'] : null,
                 isset($matches['related']) ? $matches['related'] : null,
                 isset($matches['query']) ? $matches['query'] : null
             );
         } else {
-            throw new QueryException("Invalid URL", QueryException::INVALID_URL);
+            throw new BadRequest("Invalid URL");
         }
     }
 }

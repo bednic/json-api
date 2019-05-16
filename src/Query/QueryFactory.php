@@ -3,8 +3,6 @@
 
 namespace JSONAPI\Query;
 
-use JSONAPI\Exception\QueryException;
-
 /**
  * The trick in this should be, that PHP store static values in cache,
  * so I expect that instance of Query class will be created only once.
@@ -22,7 +20,6 @@ class QueryFactory
 
     /**
      * @return Query
-     * @throws QueryException
      */
     public static function create(): Query
     {

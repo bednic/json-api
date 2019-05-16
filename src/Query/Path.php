@@ -3,8 +3,6 @@
 
 namespace JSONAPI\Query;
 
-use JSONAPI\Exception\QueryException;
-
 /**
  * Class Path
  *
@@ -45,18 +43,14 @@ class Path
      * @param string|null     $relationship
      * @param string|null     $relation
      * @param string|null     $query
-     * @throws QueryException
      */
     public function __construct(
         string $resource,
         $id = null,
-        ?string $relationship = null,
-        ?string $relation = null,
-        ?string $query = null
+        string $relationship = null,
+        string $relation = null,
+        string $query = null
     ) {
-        if ($relationship && $relation) {
-            throw new QueryException("Relationship and Relation cannot coexists.", QueryException::PARSE_ERROR);
-        }
         $this->resource = $resource;
         $this->id = $id;
         $this->relationship = $relationship;

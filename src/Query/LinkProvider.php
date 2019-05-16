@@ -11,8 +11,10 @@ namespace JSONAPI\Query;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObjectIdentifier;
-use JSONAPI\Exception\DocumentException;
-use JSONAPI\Exception\QueryException;
+use JSONAPI\Exception\Document\BadRequest;
+use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
+use JSONAPI\Exception\InvalidArgumentException;
 use Slim\Psr7\Factory\UriFactory;
 
 /**
@@ -35,13 +37,17 @@ class LinkProvider
 
     /**
      * @return string
-     * @throws QueryException
+     * @throws InvalidArgumentException
      */
     public static function getAPIUrl(): string
     {
         if (!self::$url) {
             $uriFactory = new UriFactory();
-            if (getenv(self::API_URL_ENV) !== false) {
+            $fromEnv = getenv(self::API_URL_ENV);
+            if ($fromEnv !== false) {
+                if (!filter_var($fromEnv, FILTER_VALIDATE_URL)) {
+                    throw new InvalidArgumentException("Invalid URL passed from ENV");
+                }
                 $uri = $uriFactory->createUri(getenv(self::API_URL_ENV));
                 self::$url = (string)$uri . (preg_match('/\/$/', (string)$uri) === false ? '/' : '');
             } else {
@@ -50,29 +56,29 @@ class LinkProvider
                     . ($uri->getPort() ? ':' . $uri->getPort() : '') . '/';
             }
         }
-        if (!filter_var(self::$url, FILTER_VALIDATE_URL)) {
-            throw new QueryException("Bad API Url");
-        }
         return self::$url;
     }
 
     /**
      * @return Link
-     * @throws DocumentException
-     * @throws QueryException
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     * @throws BadRequest
      */
     public static function createPrimaryDataLink(): Link
     {
         $url = QueryFactory::create();
-        return new Link(self::SELF, self::getAPIUrl() . (string)$url->path);
+        return new Link(self::SELF, self::getAPIUrl() . (string)$url->getPath());
     }
 
     /**
      * @param ResourceObjectIdentifier $resource
      * @param Relationship|null        $relationship
      * @return Link
-     * @throws DocumentException
-     * @throws QueryException
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
      */
     public static function createSelfLink(ResourceObjectIdentifier $resource, Relationship $relationship = null): Link
     {
@@ -87,8 +93,9 @@ class LinkProvider
      * @param ResourceObjectIdentifier $resource
      * @param Relationship             $relationship
      * @return Link
-     * @throws DocumentException
-     * @throws QueryException
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
      */
     public static function createRelatedLink(ResourceObjectIdentifier $resource, Relationship $relationship): Link
     {

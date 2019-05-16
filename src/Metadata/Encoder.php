@@ -15,11 +15,17 @@ use JSONAPI\Document;
 use JSONAPI\Annotation;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Document\ResourceObject;
+use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\DocumentException;
-use JSONAPI\Exception\DriverException;
+use JSONAPI\Exception\Driver\AnnotationMisplace;
+use JSONAPI\Exception\Driver\ClassNotExist;
+use JSONAPI\Exception\Driver\ClassNotResource;
+use JSONAPI\Exception\Encoder\InvalidField;
 use JSONAPI\Exception\EncoderException;
 use JSONAPI\Exception\FactoryException;
-use JSONAPI\Exception\QueryException;
+use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Exception\BadRequest;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
 use JSONAPI\Query\QueryFactory;
@@ -69,24 +75,26 @@ class Encoder
      * Encoder constructor.
      *
      * @param MetadataFactory $metadataFactory
+     * @param Query           $query
      * @param LoggerInterface $logger
-     * @throws QueryException
      */
-    public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
+    public function __construct(MetadataFactory $metadataFactory, Query $query, LoggerInterface $logger = null)
     {
         $this->metadataFactory = $metadataFactory;
         $this->logger = $logger ?? new NullLogger();
-        $this->query = QueryFactory::create();
+        $this->query = $query;
     }
 
     /**
      * @param $object
      * @return ResourceObject
-     * @throws DocumentException
-     * @throws DriverException
-     * @throws EncoderException
-     * @throws FactoryException
-     * @throws QueryException
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     * @throws InvalidField
      */
     public function encode($object): ResourceObject
     {
@@ -122,12 +130,14 @@ class Encoder
     }
 
     /**
-     * @param Document\ResourceObject $resourceObject
-     * @throws DocumentException
-     * @throws DriverException
-     * @throws EncoderException
-     * @throws FactoryException
-     * @throws QueryException
+     * @param ResourceObject $resourceObject
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     * @throws InvalidField
+     * @throws ForbiddenCharacter
      */
     private function setFields(Document\ResourceObject $resourceObject): void
     {
@@ -159,8 +169,10 @@ class Encoder
                     }
 
                     $relationship = new Document\Relationship($field->name, $data);
-                    $relationship->addLink(LinkProvider::createSelfLink($resourceObject, $relationship));
-                    $relationship->addLink(LinkProvider::createRelatedLink($resourceObject, $relationship));
+                    $relationship->setLinks([
+                        LinkProvider::createSelfLink($resourceObject, $relationship),
+                        LinkProvider::createRelatedLink($resourceObject, $relationship)
+                    ]);
                     $resourceObject->addRelationship($relationship);
                     $this->logger->debug("Adding relationship {$name}.");
                 } elseif ($field instanceof Annotation\Attribute) {
@@ -171,10 +183,7 @@ class Encoder
                     $this->logger->debug("Adding attribute {$name}.");
                     $resourceObject->addAttribute(new Document\Attribute($name, $value));
                 } else {
-                    throw new EncoderException(
-                        "Field {$name} is not Attribute nor Relationship",
-                        EncoderException::INVALID_FIELD
-                    );
+                    throw new InvalidField($name);
                 }
             }
         }
@@ -182,6 +191,7 @@ class Encoder
 
     /**
      * @return ResourceObjectIdentifier
+     * @throws ForbiddenDataType
      */
     private function getIdentifier(): ResourceObjectIdentifier
     {
@@ -191,26 +201,21 @@ class Encoder
     /**
      * @param $object
      * @return Encoder
-     * @throws DriverException
-     * @throws EncoderException
-     * @throws FactoryException
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
      */
     private function for($object): Encoder
     {
-        $className = ClassUtils::getClass($object);
-        $this->logger->debug("Init encoding of {$className}.");
         $encoder = clone $this;
-        $encoder->object = $object;
-
         try {
+            $className = ClassUtils::getClass($object);
+            $this->logger->debug("Init encoding of {$className}.");
+            $encoder->object = $object;
+            $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
             $encoder->ref = new ReflectionClass($className);
-        } catch (ReflectionException $e) {
-            throw new EncoderException(
-                "Class {$className} does not exist.",
-                EncoderException::CLASS_NOT_EXIST
-            );
+        } catch (ReflectionException $exception) { //NOSONAR
         }
-        $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
         return $encoder;
     }
 }

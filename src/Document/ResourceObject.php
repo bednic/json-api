@@ -9,6 +9,7 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Utils\LinksImpl;
 
 /**
@@ -27,9 +28,11 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
     private $fields;
 
     /**
+     * ResourceObject constructor.
+     *
      * @param ResourceObjectIdentifier $resourceIdentifier
+     * @throws ForbiddenDataType
      */
-
     public function __construct(ResourceObjectIdentifier $resourceIdentifier)
     {
         parent::__construct($resourceIdentifier->type, $resourceIdentifier->id);

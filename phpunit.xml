@@ -31,7 +31,10 @@
     </logging>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory suffix=".php">./src/</directory>
+            <directory>./src/</directory>
+            <exclude>
+                <directory>./src/Annotation/</directory>
+            </exclude>
         </whitelist>
     </filter>
     <php>

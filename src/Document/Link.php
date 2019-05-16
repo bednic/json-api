@@ -3,7 +3,9 @@
 
 namespace JSONAPI\Document;
 
-use JSONAPI\Exception\DocumentException;
+use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
+use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Utils\MetaImpl;
 
 /**
@@ -21,7 +23,8 @@ class Link extends Field implements HasMeta
      * @param string    $key
      * @param string    $uri
      * @param Meta|null $meta
-     * @throws DocumentException
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      */
     public function __construct(string $key, string $uri, Meta $meta = null)
     {
@@ -33,15 +36,13 @@ class Link extends Field implements HasMeta
 
     /**
      * @param $data
-     * @throws DocumentException
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
      */
     public function setData($data)
     {
         if (!filter_var($data, FILTER_VALIDATE_URL)) {
-            throw new DocumentException(
-                "Data type is not supported",
-                DocumentException::FORBIDDEN_DATA_TYPE
-            );
+            throw new InvalidArgumentException("Data are not valid URL.");
         }
         parent::setData($data);
     }

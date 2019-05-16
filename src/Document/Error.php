@@ -60,10 +60,6 @@ class Error implements JsonSerializable, HasLinks, HasMeta
         $self->setCode($exception->getCode());
         $self->setStatus($exception->getStatus());
         $self->setDetail($exception->getMessage());
-        $self->setSource([
-            "Line" => "{$exception->getFile()} ({$exception->getLine()})"
-        ]);
-        $self->setMeta(new Meta(["trace", explode("\n", $exception->getTraceAsString())]));
         return $self;
     }
 

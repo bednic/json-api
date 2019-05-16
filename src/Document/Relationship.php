@@ -8,7 +8,8 @@
 
 namespace JSONAPI\Document;
 
-use JSONAPI\Exception\DocumentException;
+use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Utils\LinksImpl;
 use JSONAPI\Utils\MetaImpl;
 use JsonSerializable;
@@ -26,11 +27,12 @@ class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
     /**
      * Relationship constructor.
      *
-     * @param string                                              $key
-     * @param ResourceObjectIdentifier|ResourceObjectIdentifier[] $data
-     * @param Link[]                                              $links
-     * @param Meta                                                $meta
-     * @throws DocumentException
+     * @param string    $key
+     * @param           $data
+     * @param array     $links
+     * @param Meta|null $meta
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      */
     public function __construct(string $key, $data, array $links = [], Meta $meta = null)
     {
