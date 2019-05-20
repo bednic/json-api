@@ -207,7 +207,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
 
         if ($this->isError) {
             throw new InvalidArgumentException("Trying to add data when document has error. 
-            Only data XOR errors is allowed");
+            Only data XOR errors are allowed.");
         }
         $primaryDataType = $this->getPrimaryDataType();
         $metadata = $this->factory->getMetadataClassByType($primaryDataType);

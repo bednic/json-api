@@ -5,6 +5,7 @@ namespace JSONAPI\Exception;
 
 
 use Exception;
+use Fig\Http\Message\StatusCodeInterface;
 
 /**
  * Class JsonApiException
@@ -18,6 +19,6 @@ abstract class JsonApiException extends Exception
      */
     public function getStatus()
     {
-        return 500;
+        return StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
     }
 }

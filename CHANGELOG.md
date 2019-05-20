@@ -9,10 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+
+### Security
+
+## [2.2.0]
+
+### Added
+
+### Changed
 * Whole error handling is reworked. Idea is that BadRequest exception are sent to user. But other JsonApiExceptions
   are Internal Server Error, so user should handle them by self. Exceptions are categorised by purpose. [See](/src/Exception)
 * PsrJsonApiMiddleware now send PSR7 compatible Response with valid Document contains information about BadRequest error 
   in case of exception. 
+* Query::path is now private and you can access it by getter ::getPath().
 
 ### Deprecated 
 
@@ -101,7 +116,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.1.0...2.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.2.0...2.x
+[2.2.0]: https://gitlab.com/bednic/json-api/compare/2.1.1...2.2.0
 [2.1.1]: https://gitlab.com/bednic/json-api/compare/2.1.0...2.1.1
 [2.1.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.1.0
 [2.0.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.0.0
