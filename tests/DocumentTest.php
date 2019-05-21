@@ -9,6 +9,7 @@ use JSONAPI\Document\Meta;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Query\QueryFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -16,11 +17,16 @@ use Psr\Http\Message\ServerRequestInterface;
 class DocumentTest extends TestCase
 {
 
+    private static $factory;
+
+    public static function setUpBeforeClass(): void
+    {
+        self::$factory = new MetadataFactory(__DIR__ . '/resources');
+    }
+
     public function testConstruct()
     {
-        $document = new Document(
-            new MetadataFactory(__DIR__ . '/resources')
-        );
+        $document = new Document(self::$factory);
         $this->assertInstanceOf(Document::class, $document);
         return $document;
     }
@@ -56,6 +62,21 @@ class DocumentTest extends TestCase
     public function testGetData(Document $document)
     {
         $this->assertInstanceOf(ResourceObject::class, $document->getData());
+    }
+
+    public function testCollection()
+    {
+        //todo
+        $_SERVER["REQUEST_URI"] = "/resource";
+        $document = new Document(self::$factory);
+        $collection = [];
+        $collection[] = new ObjectExample('id1');
+        $collection[] = new ObjectExample('id2');
+
+        $document->setData($collection);
+        $this->assertIsArray($document->getData());
+        $this->assertCount(2, $document->getData());
+
     }
 
     /**

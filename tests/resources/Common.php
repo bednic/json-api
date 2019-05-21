@@ -31,4 +31,11 @@ abstract class Common
     {
         return $this->id;
     }
+
+    public function __construct(string $id = null)
+    {
+        if($id !== null){
+            $this->id = $id;
+        }
+    }
 }

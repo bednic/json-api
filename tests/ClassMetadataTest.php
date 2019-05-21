@@ -87,19 +87,31 @@ class ClassMetadataTest extends TestCase
         $this->assertFalse(self::$metadata->isAttribute('relations'));
     }
 
-    public function testGetAttribute()
+    public function testReadOnlyProperty()
+    {
+        $attribute = self::$metadata->getAttribute('readOnlyProperty');
+        $this->assertInstanceOf(Attribute::class, $attribute);
+        $this->assertEquals("", $attribute->setter, "Readonly property should have ::setter to ''");
+    }
+
+    public function testPrivateProperty()
     {
         $attribute = self::$metadata->getAttribute('privateProperty');
         $this->assertInstanceOf(Attribute::class, $attribute);
-        $this->assertEquals('privateProperty', $attribute->property);
-        $this->assertEquals('getPrivateProperty', $attribute->getter);
+        $this->assertNull($attribute->property);
         $this->assertEquals('privateProperty', $attribute->name);
+        $this->assertEquals('getPrivateProperty', $attribute->getter);
         $this->assertEquals('setPrivateProperty', $attribute->setter);
+    }
 
-        $readOnly = self::$metadata->getAttribute('readOnlyProperty');
-        $this->assertEquals("", $readOnly->setter, "Readonly property should have ::setter to ''");
-
-        $nullable = self::$metadata->getAttribute('nonExisting');
-        $this->assertNull($nullable);
+    public function testPublicProperty()
+    {
+        $attribute = self::$metadata->getAttribute('publicProperty');
+        $this->assertInstanceOf(Attribute::class, $attribute);
+        $this->assertEquals('publicProperty', $attribute->name);
+        $this->assertNull($attribute->getter);
+        $this->assertNull($attribute->setter);
+        $this->assertNotEmpty($attribute->property);
+        $this->assertEquals('publicProperty', $attribute->property);
     }
 }

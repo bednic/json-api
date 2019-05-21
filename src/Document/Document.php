@@ -354,6 +354,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($this->url->getPath()->getId())) {
             return false;
         }
+        var_dump($this->url->getPath()->getId());
         return empty($this->url->getPath()->getId());
     }
 
