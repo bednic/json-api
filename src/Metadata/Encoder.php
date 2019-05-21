@@ -17,18 +17,13 @@ use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\DocumentException;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Encoder\InvalidField;
-use JSONAPI\Exception\EncoderException;
-use JSONAPI\Exception\FactoryException;
 use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Exception\BadRequest;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
-use JSONAPI\Query\QueryFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -114,15 +109,15 @@ class Encoder
     }
 
     /**
-     * @return string|int|null
+     * @return string|null
      */
-    private function getId()
+    private function getId(): ?string
     {
         try {
             if ($this->metadata->getId()->getter != null) {
-                return call_user_func([$this->object, $this->metadata->getId()->getter]);
+                return (string) call_user_func([$this->object, $this->metadata->getId()->getter]);
             } else {
-                return $this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
+                return (string) $this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
             }
         } catch (ReflectionException $e) {
             return null;

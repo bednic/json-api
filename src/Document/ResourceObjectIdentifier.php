@@ -37,13 +37,13 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
     /**
      * ResourceObjectIdentifier constructor.
      *
-     * @param string          $type
-     * @param string|int|null $id
+     * @param string      $type
+     * @param string|null $id
      * @throws ForbiddenDataType
      */
-    public function __construct(string $type, $id)
+    public function __construct(string $type, ?string $id)
     {
-        if (is_string($id) || is_int($id) || is_null($id)) {
+        if (is_string($id) || is_null($id)) {
             $this->id = $id;
         } else {
             throw new ForbiddenDataType(gettype($id));
@@ -52,9 +52,9 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
     }
 
     /**
-     * @return int|string|null
+     * @return string|null
      */
-    public function getId()
+    public function getId(): ?string
     {
         return $this->id;
     }

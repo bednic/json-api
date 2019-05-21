@@ -27,7 +27,7 @@ use JSONAPI\Query\QueryFactory;
 use JSONAPI\Utils\LinksImpl;
 use JSONAPI\Utils\MetaImpl;
 use JsonSerializable;
-use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -106,24 +106,23 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param RequestInterface $request
-     * @param MetadataFactory  $factory
+     * @param ServerRequestInterface $request
+     * @param MetadataFactory        $factory
      * @return Document
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws ResourceTypeMismatch
      */
-    public static function createFromRequest(RequestInterface $request, MetadataFactory $factory): Document
+    public static function createFromRequest(ServerRequestInterface $request, MetadataFactory $factory): Document
     {
         $document = new static($factory);
-        $body = json_decode((string)$request->getBody());
+        $body = $request->getParsedBody();
         if (is_array($body->data)) {
             $document->data = [];
             foreach ($body->data as $resourceDto) {
                 if ($resourceDto->type !== $document->getPrimaryDataType()) {
                     throw new ResourceTypeMismatch();
                 }
-
                 $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
                 foreach ($resourceDto->attributes as $attribute => $value) {
                     $object->addAttribute(new Attribute($attribute, $value));

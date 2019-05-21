@@ -10,103 +10,175 @@ This library is tested in production with Doctrine2 and SlimPHP
 
 This library only provides data and wrappers to create valid JSON API document. Controllers and Response is on you.
 
-
 ## Usage
 
 > First we create some object and use annotations to define attributes and relationships
 
 ```php
 <?php
+/**
+ * Created by IntelliJ IDEA.
+ * User: tomas
+ * Date: 24.04.2019
+ * Time: 12:47
+ */
 
+namespace App;
+
+// Don't forget use Annotations, otherwise you get exception
 use \JSONAPI\Annotation as API;
 
-/**
- * Class AttributeOption
- * @Resource("attribute-options")
+/*
+ * Define some objects
  */
-class AttributeOption {
+
+/**
+ * Class Common
+ *
+ * @package JSONAPI
+ */
+abstract class Common
+{
+
     /**
-    * @var Attribute 
-    */
-    private $attribute;
-    
-    public function setAttribute(Attribute $attribute){
-        $this->attribute = $attribute;        
+     * @var string
+     */
+    protected $id;
+
+    /**
+     * @API\Id
+     * @return string
+     */
+    public function getId(): string
+    {
+        return $this->id;
     }
 }
 
 /**
- * Class Attribute
- * @package IND\Model\Entity
- * @Resource("attributes")
+ * Class ObjectExample
+ *
+ * @package App
+ * @API\Resource("resource")
  */
-class Attribute
+class ObjectExample extends Common
 {
+    protected $id = 'uuid';
     /**
-    * @var string 
-    */
-    private $label;
-    
+     * @API\Attribute
+     * @var string
+     */
+    public $publicProperty = 'public-value';
+
     /**
-    * @var AttributeOption[]
-    */
-    private $options;
-    
+     * @var string
+     */
+    private $privateProperty = 'private-value';
+
+    /**
+     * @var string
+     */
+    private $readOnlyProperty = 'read-only-value';
+
+    /**
+     * @var RelationExample[]
+     */
+    private $relations = [];
+
     /**
      * @API\Attribute
      * @return string
      */
-    public function getLabel(): string
+    public function getPrivateProperty(): string
     {
-        return $this->label;
-    }
-    
-    /**
-     * @param string $label
-     */
-    public function setLabel(string $label): void
-    {
-        $this->label = $label;
-    }
-    /**
-     * @API\Relationship(target=\AttributeOption::class)
-     * @return AttributeOption[]
-     */
-    public function getOptions(): array
-    {
-        return $this->options;
+        return $this->privateProperty;
     }
 
     /**
-     * @param AttributeOption[] $options
+     * @param string $privateProperty
      */
-    public function setOptions(array $options)
+    public function setPrivateProperty(string $privateProperty): void
     {
-        foreach ($options as $option) {
-            $option->setAttribute($this);
+        $this->privateProperty = $privateProperty;
+    }
+
+    /**
+     * @API\Attribute(setter="")
+     * @return string
+     */
+    public function getReadOnlyProperty(): string
+    {
+        return $this->readOnlyProperty;
+    }
+
+    /**
+     * @API\Relationship(target=RelationExample::class)
+     * @return RelationExample[]
+     */
+    public function getRelations(): array
+    {
+        return $this->relations;
+    }
+
+    /**
+     * @param RelationExample[] $relations
+     */
+    public function setRelations(array $relations): void
+    {
+        foreach ($relations as $relation) {
+            $relation->setObject($this);
         }
-        $this->options = $options;
+        $this->relations = $relations;
     }
 }
-``` 
 
-> Then we need setup few things
+/**
+ * Class RelationExample
+ *
+ * @package App
+ * @API\Resource("resource-relation")
+ */
+class RelationExample extends Common
+{
+    protected $id = 'relation-uuid';
+    /**
+     * @var ObjectExample
+     */
+    private $object;
 
-```php
-<?php
+    /**
+     * @API\Relationship(target=ObjectExample::class)
+     * @return ObjectExample
+     */
+    public function getObject(): ObjectExample
+    {
+        return $this->object;
+    }
+
+    /**
+     * @param ObjectExample $object
+     */
+    public function setObject(ObjectExample $object): void
+    {
+        $this->object = $object;
+    }
+}
+
+/*
+ *  Then we need setup few things
+ */
 
 // Create factory, best way is to do it through DI Container
-
 $factory = new \JSONAPI\Metadata\MetadataFactory('/path/to/your/resources');
 
 // Your object which you want to serialize
-$attribute = new Attribute();
+$object = new \App\ObjectExample();
 
 // Make Document instance
 $document = new \JSONAPI\Document\Document($factory);
 
 // Set your data
-$document->setData($attribute);
+$document->setData($object);
 
 // Your HTTP Response 
 $response->sendJson($document);
@@ -120,28 +192,56 @@ $response->sendJson($document);
         "version": "1.0"
     },
     "data": {
-        "type": "attributes",
-        "id": 4501,
+        "type": "resource",
+        "id": "uuid",
         "attributes": {
-            "label": "(1) Label"
+            "publicProperty": "public-value",
+            "privateProperty": "private-value"
         },
         "relationships": {
-            "options": {
+            "relations": {
                 "data": [
                     {
-                        "type": "attribute-options",
-                        "id": 156
+                        "type": "resource-relation",
+                        "id": "relation-uuid"
                     }
                 ],
                 "links": {
-                    "self": "http://localhost/attributes/4501/relationships/options",
-                    "related": "http://localhost/attributes/4501/options"
+                    "self": "http://unit.test.org/resource/uuid/relationships/relations",
+                    "related": "http://unit.test.org/resource/uuid/relations"
                 }
             }
+        },
+        "links": {
+            "self": "http://unit.test.org/resource/uuid"
         }
     },
+    "included": [
+        {
+            "type": "resource-relation",
+            "id": "relation-uuid",
+            "relationships": {
+                "object": {
+                    "data": {
+                        "type": "resource",
+                        "id": "uuid"
+                    },
+                    "links": {
+                        "self": "http://unit.test.org/resource-relation/relation-uuid/relationships/object",
+                        "related": "http://unit.test.org/resource-relation/relation-uuid/object"
+                    }
+                }
+            },
+            "links": {
+                "self": "http://unit.test.org/resource-relation/relation-uuid"
+            }
+        }
+    ],
     "links": {
-        "self": "http://localhost/attributes/4501"
+        "self": "http://unit.test.org/resource/uuid"
+    },
+    "meta": {
+        "count": 1
     }
 }
 ```
@@ -152,11 +252,70 @@ like Resources, then handle them in your model.
 ```php
 <?php
 /** @var \JSONAPI\Document\Document $document */
-$document = \JSONAPI\Document\Document::createFromRequest(\Psr\Http\Message\RequestInterface $request);
+$document = \JSONAPI\Document\Document::createFromRequest(
+    \Psr\Http\Message\ServerRequestInterface $request,
+ \JSONAPI\Metadata\MetadataFactory $factory
+);
 
 /** @var \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[] $resource */
 $resource = $document->getData();
 
+```
+> A little help with handling request/response you can use PsrJsonApiMiddleware. 
+Which provides header check for right content-type and parsing json body to ServerRequestInterface::parsedBody.
+Furthermore consume BadRequest exception and return 4xx based on exception to client. 
+It's compatible with PSR7 standard.
+
+```php
+<?php
+$middleware = new \JSONAPI\Middleware\PsrJsonApiMiddleware(
+    \JSONAPI\Metadata\MetadataFactory $factory,
+    \Psr\Log\LoggerInterface $logger
+    
+);
+$route->add($middleware);
+```
+
+## Exception Handling
+
+For now, it takes care of exceptions inherited from BadRequest. More fatal exception which are usually equal 
+Server Internal Error are not consumed by middleware. It's on you to handle these type of exception. Every exception 
+thrown by this library are inherited from JsonApiException and considered like Server Internal Error so ::getStatus 
+return 500. You can consume these exception and still send valid JSON API Document, just use 
+Error::fromException(JsonApiException $exception), or create own Error instance and set all useful data. Then you can add
+errors to Document instance ::addError() and send it to client. This belong to error handlers and as there isn't PSR 
+standard for exception handlers, you have to do it by self. 
+
+### Example
+```php
+<?php
+// Some exception
+$exception = new \JSONAPI\Exception\Encoder\EncoderException("Bad thing happened");
+
+// You need factory instance for document
+$factory = new \JSONAPI\Metadata\MetadataFactory('/resources');
+
+// Create new Document
+$document = new \JSONAPI\Document\Document($factory);
+
+// Create Error from exception
+$error = \JSONAPI\Document\Error::fromException($exception);
+
+// Set error to document
+$document->addError($error);
+
+// Or create own Error
+$myOwnError = new \JSONAPI\Document\Error();
+
+// Set some useful information
+$myOwnError->setTitle("Bad day");
+$myOwnError->setDetail("Someone split my coffee!");
+
+// You can add multiple errors to Document
+$document->addError($myOwnError);
+
+// Send it to client
+$response->sendJson($document);
 ```
 
 ## Issues

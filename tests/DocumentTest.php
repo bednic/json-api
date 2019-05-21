@@ -11,6 +11,7 @@ use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\RequestInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class DocumentTest extends TestCase
 {
@@ -103,10 +104,10 @@ class DocumentTest extends TestCase
 
     public function testCreateFromRequest()
     {
-        /** @var RequestInterface $request */
-        $request = $this->createMock(RequestInterface::class);
-        $request->method('getBody')
-            ->willReturn(trim(file_get_contents(__DIR__ . '/resources/request.json')));
+        /** @var ServerRequestInterface $request */
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getParsedBody')
+            ->willReturn(json_decode(trim(file_get_contents(__DIR__ . '/resources/request.json'))));
         $request->method('getHeader')
             ->with('Content-Type')
             ->willReturn([Document::MEDIA_TYPE]);

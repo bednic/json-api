@@ -16,7 +16,7 @@ class Path
     private $resource;
 
     /**
-     * @var string|int|null
+     * @var string|null
      */
     private $id;
 
@@ -38,15 +38,15 @@ class Path
     /**
      * Path constructor.
      *
-     * @param string          $resource
-     * @param int|string|null $id
-     * @param string|null     $relationship
-     * @param string|null     $relation
-     * @param string|null     $query
+     * @param string      $resource
+     * @param string|null $id
+     * @param string|null $relationship
+     * @param string|null $relation
+     * @param string|null $query
      */
     public function __construct(
         string $resource,
-        $id = null,
+        string $id = null,
         string $relationship = null,
         string $relation = null,
         string $query = null
@@ -67,9 +67,9 @@ class Path
     }
 
     /**
-     * @return int|string|null
+     * @return string|null
      */
-    public function getId()
+    public function getId(): ?string
     {
         return $this->id;
     }

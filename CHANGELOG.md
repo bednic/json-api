@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated 
 
 ### Fixed
+* Request does not contain json body. Added parsing to PsrJsonApiMiddleware.
+* Replace RequestInterface to ServerRequestInterface in Document::createFromRequest.
+* Fix return type from ResourceIdentifier::getId() should be always string or null;
+* Fixed README
 
 ### Removed 
 

@@ -43,6 +43,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         $this->factory = $factory;
         $this->logger = $logger;
     }
+
     /**
      * Process an incoming server request.
      * Processes an incoming server request in order to produce a response.
@@ -58,6 +59,15 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         try {
             if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                 throw new UnsupportedMediaType();
+            }
+
+            if ($data = file_get_contents('php://input')) {
+                $body = json_decode($data);
+                if (json_last_error() !== JSON_ERROR_NONE) {
+                    var_dump(json_last_error_msg());
+                    throw new BadRequest(json_last_error_msg());
+                }
+                $request = $request->withParsedBody($body);
             }
             /** @var ResponseInterface $response */
             $response = $handler->handle($request);
