@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated 
 
 ### Fixed
+
+### Removed 
+
+### Security
+
+## [2.2.1]
+
+### Added
+
+### Changed
+
+### Deprecated 
+
+### Fixed
 * Request does not contain json body. Added parsing to PsrJsonApiMiddleware.
 * Replace RequestInterface to ServerRequestInterface in Document::createFromRequest.
 * Fix return type from ResourceIdentifier::getId() should be always string or null;
@@ -120,7 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.2.0...2.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.2.1...2.x
+[2.2.1]: https://gitlab.com/bednic/json-api/compare/2.2.0...2.2.1
 [2.2.0]: https://gitlab.com/bednic/json-api/compare/2.1.1...2.2.0
 [2.1.1]: https://gitlab.com/bednic/json-api/compare/2.1.0...2.1.1
 [2.1.0]: https://gitlab.com/bednic/json-api/compare/2.0.0...2.1.0
