@@ -149,10 +149,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                 throw new ResourceTypeMismatch();
             }
             $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
-            foreach ($body->data->attributes as $attribute => $value) {
+            foreach ($body->data->attributes ?? [] as $attribute => $value) {
                 $object->addAttribute(new Attribute($attribute, $value));
             }
-            foreach (@$body->data->relationships ?? [] as $prop => $value) {
+            foreach ($body->data->relationships ?? [] as $prop => $value) {
                 $value = $value->data;
                 if (is_array($value)) {
                     $data = [];
@@ -350,6 +350,9 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
         if ($name = $this->url->getPath()->getRelationshipName()) {
             return $metadata->getRelationship($name)->isCollection;
+        }
+        if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($this->url->getPath()->getId())) {
+            return false;
         }
         return empty($this->url->getPath()->getId());
     }

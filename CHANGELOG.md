@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated 
 
 ### Fixed
+* Fix Document::isCollection bad resolving
+* Fix Driver, now only property annotations has Annotation::property non-empty. 
+  So when is Annotation::property filled up, then it means  it is property annotation, but if you annotation method then
+  it get privilege and will be used. In standard case it means, that if is Annotation::setter filled up, then
+  annotations are on methods, if Annotation::property is filled up then annotations are  on props.
 
 ### Removed 
 

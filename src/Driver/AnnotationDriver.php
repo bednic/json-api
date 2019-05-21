@@ -177,17 +177,8 @@ class AnnotationDriver
                         $attribute->getter = $reflectionMethod->getName();
                     }
                     if (!$attribute->name) {
-                        $attribute->name = lcfirst(str_replace(
-                            ['get', 'is'],
-                            '',
-                            $reflectionMethod->getName()
-                        ));
+                        $attribute->name = lcfirst(str_replace(['get', 'is'], '', $reflectionMethod->getName()));
                     }
-                    if (!$attribute->property || !$reflectionClass->hasProperty($attribute->property)) {
-                        $property = lcfirst(str_replace(['get', 'is'], '', $attribute->getter));
-                        $attribute->property = $reflectionClass->hasProperty($property) ? $property : null;
-                    }
-
                     if ($attribute->setter === null) {
                         if ($reflectionClass->hasMethod(str_replace(['get', 'is'], 'set', $attribute->getter))) {
                             $attribute->setter = str_replace(['get', 'is'], 'set', $attribute->getter);
@@ -214,10 +205,6 @@ class AnnotationDriver
                     }
                     if (!$relationship->name) {
                         $relationship->name = lcfirst(str_replace(['get'], '', $reflectionMethod->getName()));
-                    }
-                    if (!$relationship->property || !$reflectionClass->hasProperty($relationship->property)) {
-                        $property = lcfirst(str_replace(['get'], '', $relationship->getter));
-                        $relationship->property = $reflectionClass->hasProperty($property) ? $property : null;
                     }
                     if (!$relationship->setter) {
                         if ($reflectionClass->hasMethod(str_replace(['get'], 'set', $relationship->getter))) {
