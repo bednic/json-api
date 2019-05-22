@@ -50,9 +50,9 @@ abstract class Field implements JsonSerializable
      * @param string $key
      * @throws ForbiddenCharacter
      */
-    public function setKey(string $key)
+    protected function setKey(string $key)
     {
-        if (!preg_match("/[a-zA-Z0-9-_]/", $key)) {
+        if (!preg_match("/(^[a-zA-Z0-9])(([a-zA-Z-_]+)([a-zA-Z0-9]))?$/", $key)) {
             throw new ForbiddenCharacter($key);
         }
         $this->key = $key;
@@ -70,7 +70,7 @@ abstract class Field implements JsonSerializable
      * @param $data
      * @throws ForbiddenDataType
      */
-    public function setData($data)
+    protected function setData($data)
     {
         if (!in_array(gettype($data), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
             throw new ForbiddenDataType(gettype($data));

@@ -39,7 +39,7 @@ class Link extends Field implements HasMeta
      * @throws ForbiddenDataType
      * @throws InvalidArgumentException
      */
-    public function setData($data)
+    protected function setData($data)
     {
         if (!filter_var($data, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException("Data are not valid URL.");
