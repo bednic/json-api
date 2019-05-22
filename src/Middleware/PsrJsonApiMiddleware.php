@@ -29,8 +29,20 @@ use Slim\Psr7\Factory\StreamFactory;
 class PsrJsonApiMiddleware implements MiddlewareInterface
 {
 
+    /**
+     * @var MetadataFactory
+     */
     private $factory;
+
+    /**
+     * @var LoggerInterface|null
+     */
     private $logger;
+
+    /**
+     * @var string
+     */
+    private $streamPath = 'php://input';
 
     /**
      * PsrJsonApiMiddleware constructor.
@@ -60,13 +72,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                 throw new UnsupportedMediaType();
             }
-
-            if ($data = file_get_contents('php://input')) {
-                $body = json_decode($data);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    var_dump(json_last_error_msg());
-                    throw new BadRequest(json_last_error_msg());
-                }
+            if ($body = $this->getBody()) {
                 $request = $request->withParsedBody($body);
             }
             /** @var ResponseInterface $response */
@@ -78,5 +84,29 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             $response = (new ResponseFactory())->createResponse($exception->getStatus())->withBody($body);
         }
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setStream(string $path)
+    {
+        $this->streamPath = $path;
+    }
+
+    /**
+     * @return mixed|null
+     * @throws BadRequest
+     */
+    private function getBody()
+    {
+        if ($data = file_get_contents($this->streamPath)) {
+            $body = json_decode($data);
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                throw new BadRequest(json_last_error_msg());
+            }
+            return $body;
+        }
+        return null;
     }
 }

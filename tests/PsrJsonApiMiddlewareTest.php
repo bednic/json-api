@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Document;
@@ -13,8 +13,15 @@ use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Response;
+use Slim\Psr7\Stream;
 
+/**
+ * Class PsrJsonApiMiddlewareTest
+ *
+ * @package JSONAPI\Test
+ */
 class PsrJsonApiMiddlewareTest extends TestCase
 {
 
@@ -77,5 +84,36 @@ class PsrJsonApiMiddlewareTest extends TestCase
 
         $this->assertEquals(StatusCodeInterface::STATUS_NOT_FOUND, $response->getStatusCode());
         $this->assertTrue(in_array(Document::MEDIA_TYPE, $response->getHeader('Content-Type')));
+    }
+
+    public function testJsonBody()
+    {
+        $middleware = new PsrJsonApiMiddleware(self::$factory);
+        $middleware->setStream(__DIR__ . '/resources/request.json');
+        $request = ServerRequestFactory::createFromGlobals()
+            ->withHeader('Content-Type', Document::MEDIA_TYPE);
+
+
+        $handler = new class implements RequestHandlerInterface
+        {
+
+            /**
+             * Handles a request and produces a response.
+             *
+             * May call other collaborating code to generate the response.
+             */
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                return (new Response())->withBody(
+                    new Stream(fopen(__DIR__ . '/resources/request.json', 'r'))
+                );
+            }
+        };
+
+        $response = $middleware->process($request, $handler);
+        $this->assertEquals(
+            $response->getBody()->getContents(),
+            file_get_contents(__DIR__ . '/resources/request.json')
+        );
     }
 }

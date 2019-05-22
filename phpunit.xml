@@ -2,22 +2,9 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.1/phpunit.xsd"
          backupGlobals="true"
-         backupStaticAttributes="false"
          bootstrap="./tests/bootstrap.php"
          cacheResult="false"
          cacheTokens="false"
-         colors="false"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         forceCoversAnnotation="false"
-         processIsolation="false"
-         stopOnError="false"
-         stopOnFailure="false"
-         stopOnIncomplete="false"
-         stopOnSkipped="false"
-         stopOnRisky="false"
-         verbose="false"
 >
     <testsuites>
         <testsuite name="default">
@@ -26,7 +13,7 @@
     </testsuites>
     <logging>
         <log type="coverage-clover" target="tmp/coverage.xml"/>
-        <log type="coverage-text" target="php://stdout" showUncoveredFiles="false"/>
+        <log type="coverage-text" target="php://stdout"/>
         <log type="junit" target="tmp/logfile.xml"/>
     </logging>
     <filter>

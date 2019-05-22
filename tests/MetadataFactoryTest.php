@@ -6,7 +6,7 @@
  * Time: 12:59
  */
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\FactoryException;
@@ -18,10 +18,16 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class MetadataFactoryTest
  *
- * @package Test\JSONAPI
+ * @package JSONAPI\Test
  */
 class MetadataFactoryTest extends TestCase
 {
+
+    public function testBadPath()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        new MetadataFactory(__DIR__ . '/non-existing/resource');
+    }
 
     public function testConstruct()
     {

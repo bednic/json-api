@@ -101,7 +101,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     {
         $this->factory = $metadataFactory;
         $this->logger = $logger ?? new NullLogger();
-        $this->url = QueryFactory::create();
+        $this->url = new Query();
         $this->encoder = new Encoder($metadataFactory, $this->url, $this->logger);
     }
 
@@ -189,7 +189,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param $data
+     * @param object|object[] $data
      * @throws AnnotationMisplace
      * @throws BadRequest
      * @throws ClassNotExist
@@ -203,23 +203,27 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      */
     public function setData($data): void
     {
-
         if ($this->isError) {
-            throw new InvalidArgumentException("Trying to add data when document has error. 
-            Only data XOR errors are allowed.");
+            return;
         }
+        if ($this->isCollection() && !is_array($data)) {
+            throw new InvalidArgumentException("Collection fetch was detected, but data are not array");
+        }
+        if (!$this->isRelation() && empty($data)) {
+            throw new NotFound();
+        }
+
         $primaryDataType = $this->getPrimaryDataType();
         $metadata = $this->factory->getMetadataClassByType($primaryDataType);
         $this->addLink(LinkProvider::createPrimaryDataLink());
+
         if ($this->isCollection()) {
             $this->data = [];
             foreach ($data as $obj) {
                 $this->data[] = $this->save($obj, $metadata);
             }
-        } elseif (!empty($data) || $this->isRelation()) {
-            $this->data = $this->save($data, $metadata);
         } else {
-            throw new NotFound();
+            $this->data = $this->save($data, $metadata);
         }
     }
 
@@ -288,30 +292,35 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     {
         $metadata = $this->factory->getMetadataByClass(get_class($object));
         foreach ($includes ?? [] as $include => $sub) {
-            $relationship = $metadata->getRelationship($include);
-
-            if ($relationship && $relationship->getter) {
-                $data = call_user_func([$object, $relationship->getter]);
-                if ($relationship->isCollection) {
-                    foreach ($data as $item) {
-                        $relation = $this->encoder->encode($item);
+            if ($relationship = $metadata->getRelationship($include)) {
+                $data = null;
+                if ($relationship->property) {
+                    $data = $object->{$relationship->property};
+                } elseif ($relationship->getter) {
+                    $data = call_user_func([$object, $relationship->getter]);
+                }
+                if (!empty($data)) {
+                    if ($relationship->isCollection) {
+                        foreach ($data as $item) {
+                            $relation = $this->encoder->encode($item);
+                            $id = $this->getId($relation);
+                            if ($this->isUnique($id)) {
+                                $this->included[] = $relation;
+                                $this->ids[$id] = true;
+                                if ($sub) {
+                                    $this->setIncludes($sub, $item);
+                                }
+                            }
+                        }
+                    } else {
+                        $relation = $this->encoder->encode($data);
                         $id = $this->getId($relation);
                         if ($this->isUnique($id)) {
                             $this->included[] = $relation;
                             $this->ids[$id] = true;
                             if ($sub) {
-                                $this->setIncludes($sub, $item);
+                                $this->setIncludes($sub, $data);
                             }
-                        }
-                    }
-                } else {
-                    $relation = $this->encoder->encode($data);
-                    $id = $this->getId($relation);
-                    if ($this->isUnique($id)) {
-                        $this->included[] = $relation;
-                        $this->ids[$id] = true;
-                        if ($sub) {
-                            $this->setIncludes($sub, $data);
                         }
                     }
                 }
@@ -354,7 +363,6 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($this->url->getPath()->getId())) {
             return false;
         }
-        var_dump($this->url->getPath()->getId());
         return empty($this->url->getPath()->getId());
     }
 

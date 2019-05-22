@@ -1,11 +1,16 @@
 <?php
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use JSONAPI\Query\Condition;
 use JSONAPI\Query\Query;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class URLTest
+ *
+ * @package JSONAPI\Test
+ */
 class URLTest extends TestCase
 {
 

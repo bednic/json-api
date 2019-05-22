@@ -68,8 +68,8 @@ class LinkProvider
      */
     public static function createPrimaryDataLink(): Link
     {
-        $url = QueryFactory::create();
-        return new Link(self::SELF, self::getAPIUrl() . (string)$url->getPath());
+        $query = new Query();
+        return new Link(self::SELF, self::getAPIUrl() . (string)$query->getPath());
     }
 
     /**

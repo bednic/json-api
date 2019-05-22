@@ -25,3 +25,5 @@ $_GET['filter'] = [
         '[value,public,public-value]'
     ]
 ];
+
+\Doctrine\Common\Annotations\AnnotationReader::addGlobalIgnoredName('runTestsInSeparateProcesses');

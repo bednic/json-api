@@ -6,14 +6,14 @@
  * Time: 12:53
  */
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use JSONAPI\Annotation as API;
 
 /**
  * Class Common
  *
- * @package Test\JSONAPI
+ * @package JSONAPI\Test
  */
 abstract class Common
 {

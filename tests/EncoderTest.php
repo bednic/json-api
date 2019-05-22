@@ -6,21 +6,30 @@
  * Time: 15:54
  */
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
-use JSONAPI\Query\QueryFactory;
+use JSONAPI\Query\Query;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class EncoderTest
+ *
+ * @package JSONAPI\Test
+ */
 class EncoderTest extends TestCase
 {
     /**
      * @var MetadataFactory
      */
     private static $factory;
+
+    /**
+     * @var Query
+     */
     private static $query;
 
     /**
@@ -30,7 +39,7 @@ class EncoderTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$query = QueryFactory::create();
+        self::$query = new Query();
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
         $relation = new RelationExample();
         $instance = new ObjectExample();

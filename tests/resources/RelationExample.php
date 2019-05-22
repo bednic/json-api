@@ -6,14 +6,14 @@
  * Time: 12:51
  */
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use JSONAPI\Annotation as API;
 
 /**
  * Class RelationExample
  *
- * @package Test\JSONAPI
+ * @package JSONAPI\Test
  * @API\Resource("resource-relation")
  */
 class RelationExample extends Common
@@ -34,7 +34,7 @@ class RelationExample extends Common
     }
 
     /**
-     * @param \Test\JSONAPI\ObjectExample $object
+     * @param \JSONAPI\Test\ObjectExample $object
      */
     public function setObject(ObjectExample $object): void
     {

@@ -6,7 +6,7 @@
  * Time: 13:35
  */
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
@@ -19,7 +19,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Class ClassMetadataTest
  *
- * @package Test\JSONAPI
+ * @package JSONAPI\Test
  */
 class ClassMetadataTest extends TestCase
 {

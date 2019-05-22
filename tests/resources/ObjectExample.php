@@ -6,7 +6,7 @@
  * Time: 12:47
  */
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use \JSONAPI\Annotation as API;
 

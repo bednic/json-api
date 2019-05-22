@@ -58,7 +58,7 @@
             "tests/"
         ],
         "psr-4": {
-            "Test\\JSONAPI\\": "tests/"
+            "JSONAPI\\Test\\": "tests/"
         }
     },
     "archive": {

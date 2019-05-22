@@ -73,11 +73,11 @@ class Encoder
      * @param Query           $query
      * @param LoggerInterface $logger
      */
-    public function __construct(MetadataFactory $metadataFactory, Query $query, LoggerInterface $logger = null)
+    public function __construct(MetadataFactory $metadataFactory, Query $query = null, LoggerInterface $logger = null)
     {
         $this->metadataFactory = $metadataFactory;
         $this->logger = $logger ?? new NullLogger();
-        $this->query = $query;
+        $this->query = $query ?? new Query();
     }
 
     /**

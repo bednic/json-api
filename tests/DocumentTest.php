@@ -1,6 +1,6 @@
 <?php
 
-namespace Test\JSONAPI;
+namespace JSONAPI\Test;
 
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
@@ -9,11 +9,14 @@ use JSONAPI\Document\Meta;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Metadata\MetadataFactory;
-use JSONAPI\Query\QueryFactory;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
+/**
+ * Class DocumentTest
+ *
+ * @package JSONAPI\Test
+ */
 class DocumentTest extends TestCase
 {
 
@@ -21,7 +24,7 @@ class DocumentTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$factory = new MetadataFactory(__DIR__ . '/resources');
+        self::$factory = new MetadataFactory(__DIR__ . '/resources/');
     }
 
     public function testConstruct()
@@ -133,7 +136,7 @@ class DocumentTest extends TestCase
             ->with('Content-Type')
             ->willReturn([Document::MEDIA_TYPE]);
 
-        $document = Document::createFromRequest($request, new MetadataFactory(__DIR__ . '/resources'));
+        $document = Document::createFromRequest($request, self::$factory);
         $this->assertInstanceOf(Document::class, $document);
         $this->assertInstanceOf(ResourceObject::class, $document->getData());
     }
