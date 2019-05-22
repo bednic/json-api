@@ -79,7 +79,6 @@ class DocumentTest extends TestCase
         $document->setData($collection);
         $this->assertIsArray($document->getData());
         $this->assertCount(2, $document->getData());
-
     }
 
     /**

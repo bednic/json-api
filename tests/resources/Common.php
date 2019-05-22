@@ -34,7 +34,7 @@ abstract class Common
 
     public function __construct(string $id = null)
     {
-        if($id !== null){
+        if ($id !== null) {
             $this->id = $id;
         }
     }
