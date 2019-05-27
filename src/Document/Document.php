@@ -23,7 +23,6 @@ use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
-use JSONAPI\Query\QueryFactory;
 use JSONAPI\Utils\LinksImpl;
 use JSONAPI\Utils\MetaImpl;
 use JsonSerializable;
@@ -70,7 +69,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     private $errors = [];
 
     /**
-     * @var ResourceObject|ResourceObject[]
+     * @var ResourceObject|ResourceObject[]|ResourceObjectIdentifier|ResourceObjectIdentifier[]
      */
     private $data;
 
@@ -181,7 +180,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @return ResourceObject|ResourceObject[]
+     * @return ResourceObject|ResourceObject[]|ResourceObjectIdentifier|ResourceObjectIdentifier[]
      */
     public function getData()
     {
@@ -232,7 +231,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      *
      * @param object        $object
      * @param ClassMetadata $metadata
-     * @return ResourceObject|null
+     * @return ResourceObject|ResourceObjectIdentifier|null
      * @throws AnnotationMisplace
      * @throws BadRequest
      * @throws ClassNotExist
@@ -243,7 +242,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * @throws InvalidField
      * @throws ResourceTypeMismatch
      */
-    private function save($object, ClassMetadata $metadata): ?ResourceObject
+    private function save($object, ClassMetadata $metadata): ?ResourceObjectIdentifier
     {
         if ($object) {
             if ($this->url->getPath()->isRelationship()) {
@@ -278,10 +277,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param ResourceObject $resource
+     * @param ResourceObjectIdentifier $resource
      * @return string
      */
-    private function getId(ResourceObject $resource): string
+    private function getId(ResourceObjectIdentifier $resource): string
     {
         return $resource->getType() . $resource->getId();
     }
