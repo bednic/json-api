@@ -79,7 +79,7 @@ class LinkProvider
             $links[] = new Link(
                 self::RELATED,
                 self::getAPIUrl()
-                . '/' . $path->getResource()
+                . $path->getResource()
                 . '/' . $path->getId()
                 . '/' . $path->getRelationshipName()
             );
