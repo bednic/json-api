@@ -76,23 +76,13 @@ class LinkProvider
         ];
 
         if ($query->getPath()->isRelation()) {
-            if ($query->getPath()->isRelationship()) {
-                $links[] = new Link(
-                    self::RELATED,
-                    self::getAPIUrl()
-                    . '/' . $path->getResource()
-                    . '/' . $path->getId()
-                    . '/relationships/' . $path->getRelationshipName()
-                );
-            } else {
-                $links[] = new Link(
-                    self::RELATED,
-                    self::getAPIUrl()
-                    . '/' . $path->getResource()
-                    . '/' . $path->getId()
-                    . '/' . $path->getRelationshipName()
-                );
-            }
+            $links[] = new Link(
+                self::RELATED,
+                self::getAPIUrl()
+                . '/' . $path->getResource()
+                . '/' . $path->getId()
+                . '/' . $path->getRelationshipName()
+            );
         }
         return $links;
     }
