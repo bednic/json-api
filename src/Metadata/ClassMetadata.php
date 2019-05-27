@@ -18,6 +18,10 @@ use JSONAPI\Annotation;
  */
 final class ClassMetadata
 {
+    /**
+     * @var string
+     */
+    private $className;
 
     /**
      * @var Annotation\Id
@@ -39,21 +43,32 @@ final class ClassMetadata
     /**
      * ClassMetadata constructor.
      *
+     * @param string              $className
      * @param Annotation\Id       $id
      * @param Annotation\Resource $resource
      * @param ArrayCollection     $attributes
      * @param ArrayCollection     $relationships
      */
     public function __construct(
+        string $className,
         Annotation\Id $id,
         Annotation\Resource $resource,
         ArrayCollection $attributes,
         ArrayCollection $relationships
     ) {
+        $this->className = $className;
         $this->id = $id;
         $this->resource = $resource;
         $this->attributes = $attributes;
         $this->relationships = $relationships;
+    }
+
+    /**
+     * @return string
+     */
+    public function getClassName(): string
+    {
+        return $this->className;
     }
 
     /**
