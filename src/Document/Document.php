@@ -206,7 +206,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         if ($this->isError) {
             return;
         }
-        if ($this->isCollection() && !is_array($data)) {
+        if ($this->isCollection() && !is_iterable($data)) {
             throw new InvalidArgumentException("Collection fetch was detected, but data are not array");
         }
         if (!$this->url->getPath()->isRelation() && empty($data)) {
