@@ -75,7 +75,7 @@ class LinkProvider
             new Link(self::SELF, self::getAPIUrl() . (string)$path)
         ];
 
-        if ($query->getPath()->isRelation()) {
+        if ($query->getPath()->isRelationship()) {
             $links[] = new Link(
                 self::RELATED,
                 self::getAPIUrl()
