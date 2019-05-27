@@ -60,16 +60,41 @@ class LinkProvider
     }
 
     /**
-     * @return Link
+     * @return Link[]
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws InvalidArgumentException
      * @throws BadRequest
      */
-    public static function createPrimaryDataLink(): Link
+    public static function createPrimaryDataLinks(): array
     {
+
         $query = new Query();
-        return new Link(self::SELF, self::getAPIUrl() . (string)$query->getPath());
+        $path = $query->getPath();
+        $links = [
+            new Link(self::SELF, self::getAPIUrl() . (string)$path)
+        ];
+
+        if ($query->getPath()->isRelation()) {
+            if ($query->getPath()->isRelationship()) {
+                $links[] = new Link(
+                    self::RELATED,
+                    self::getAPIUrl()
+                    . '/' . $path->getResource()
+                    . '/' . $path->getId()
+                    . '/relationships/' . $path->getRelationshipName()
+                );
+            } else {
+                $links[] = new Link(
+                    self::RELATED,
+                    self::getAPIUrl()
+                    . '/' . $path->getResource()
+                    . '/' . $path->getId()
+                    . '/' . $path->getRelationshipName()
+                );
+            }
+        }
+        return $links;
     }
 
     /**

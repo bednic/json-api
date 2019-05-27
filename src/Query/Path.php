@@ -89,6 +89,22 @@ class Path
     }
 
     /**
+     * @return bool
+     */
+    public function isRelationship(): bool
+    {
+        return !empty($this->relationship);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRelation(): bool
+    {
+        return $this->isRelationship() || !empty($this->relation);
+    }
+
+    /**
      * @return string
      */
     public function __toString()

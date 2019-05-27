@@ -82,6 +82,20 @@ class Encoder
 
     /**
      * @param $object
+     * @return ResourceObjectIdentifier
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws ForbiddenDataType
+     */
+    public function identify($object): ResourceObjectIdentifier
+    {
+        $encoder = $this->for($object);
+        return $encoder->getIdentifier();
+    }
+
+    /**
+     * @param $object
      * @return ResourceObject
      * @throws AnnotationMisplace
      * @throws ClassNotExist

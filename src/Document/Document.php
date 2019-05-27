@@ -120,11 +120,11 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         if (is_array($body->data)) {
             $document->data = [];
             foreach ($body->data as $resourceDto) {
-                if ($resourceDto->type !== $document->getPrimaryDataType()) {
+                if ($resourceDto->type !== $document->getDataType()) {
                     throw new ResourceTypeMismatch();
                 }
                 $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
-                foreach ($resourceDto->attributes as $attribute => $value) {
+                foreach (@$resourceDto->attributes ?? [] as $attribute => $value) {
                     $object->addAttribute(new Attribute($attribute, $value));
                 }
 
@@ -145,14 +145,14 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             }
         } else {
             $document->data = null;
-            if ($body->data->type !== $document->getPrimaryDataType()) {
+            if ($body->data->type !== $document->getDataType()) {
                 throw new ResourceTypeMismatch();
             }
             $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
-            foreach ($body->data->attributes ?? [] as $attribute => $value) {
+            foreach (@$body->data->attributes ?? [] as $attribute => $value) {
                 $object->addAttribute(new Attribute($attribute, $value));
             }
-            foreach ($body->data->relationships ?? [] as $prop => $value) {
+            foreach (@$body->data->relationships ?? [] as $prop => $value) {
                 $value = $value->data;
                 if (is_array($value)) {
                     $data = [];
@@ -209,13 +209,13 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         if ($this->isCollection() && !is_array($data)) {
             throw new InvalidArgumentException("Collection fetch was detected, but data are not array");
         }
-        if (!$this->isRelation() && empty($data)) {
+        if (!$this->url->getPath()->isRelation() && empty($data)) {
             throw new NotFound();
         }
 
-        $primaryDataType = $this->getPrimaryDataType();
-        $metadata = $this->factory->getMetadataClassByType($primaryDataType);
-        $this->addLink(LinkProvider::createPrimaryDataLink());
+        $dataType = $this->getDataType();
+        $metadata = $this->factory->getMetadataClassByType($dataType);
+        $this->setLinks(LinkProvider::createPrimaryDataLinks());
 
         if ($this->isCollection()) {
             $this->data = [];
@@ -234,6 +234,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * @param ClassMetadata $metadata
      * @return ResourceObject|null
      * @throws AnnotationMisplace
+     * @throws BadRequest
      * @throws ClassNotExist
      * @throws ClassNotResource
      * @throws ForbiddenCharacter
@@ -245,14 +246,22 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     private function save($object, ClassMetadata $metadata): ?ResourceObject
     {
         if ($object) {
-            $resource = $this->encoder->encode($object);
+            if ($this->url->getPath()->isRelationship()) {
+                $resource = $this->encoder->identify($object);
+            } else {
+                $resource = $this->encoder->encode($object);
+            }
+
             if ($resource->getType() !== $metadata->getResource()->type) {
                 throw new ResourceTypeMismatch();
             }
+
             $id = $this->getId($resource);
             if ($this->isUnique($id)) {
                 $this->ids[$id] = true;
-                $this->setIncludes($this->url->getIncludes(), $object);
+                if (!$this->url->getPath()->isRelationship()) {
+                    $this->setIncludes($this->url->getIncludes(), $object);
+                }
                 return $resource;
             }
         }
@@ -337,7 +346,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * @throws InvalidArgumentException
      * @throws BadRequest
      */
-    private function getPrimaryDataType(): string
+    private function getDataType(): string
     {
         $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
         if ($name = $this->url->getPath()->getRelationshipName()) {
@@ -364,16 +373,6 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             return false;
         }
         return empty($this->url->getPath()->getId());
-    }
-
-    /**
-     * @return bool
-     * @throws BadRequest
-     * @throws InvalidArgumentException
-     */
-    private function isRelation(): bool
-    {
-        return !empty($this->url->getPath()->getRelationshipName());
     }
 
     /**
