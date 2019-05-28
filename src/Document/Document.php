@@ -205,23 +205,23 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         if ($this->isError) {
             return;
         }
-        if ($this->isCollection() && !is_iterable($data)) {
-            throw new InvalidArgumentException("Collection fetch was detected, but data are not array");
-        }
-        if (!$this->url->getPath()->isRelation() && empty($data)) {
-            throw new NotFound();
-        }
 
         $dataType = $this->getDataType();
         $metadata = $this->factory->getMetadataClassByType($dataType);
         $this->setLinks(LinkProvider::createPrimaryDataLinks());
 
         if ($this->isCollection()) {
+            if (!is_iterable($data)) {
+                throw new InvalidArgumentException("Collection fetch was detected, but data are not array");
+            }
             $this->data = [];
             foreach ($data as $obj) {
                 $this->data[] = $this->save($obj, $metadata);
             }
         } else {
+            if (!$this->url->getPath()->isRelation() && is_null($data)) {
+                throw new NotFound();
+            }
             $this->data = $this->save($data, $metadata);
         }
     }

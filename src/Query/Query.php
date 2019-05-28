@@ -292,8 +292,8 @@ class Query
         $baseUrl = $uriFactory->createUri(LinkProvider::getAPIUrl());
         $uri = $uriFactory->createFromGlobals($_SERVER);
         $query = str_replace($baseUrl->getPath(), '/', $uri->getPath());
-        $pattern = '/^\/(?P<resource>[a-z-_]+)(\/(?P<id>[a-z0-9-_]+))?'
-            . '((\/relationships\/(?P<relationship>[a-z-_]+))|(\/(?P<related>[a-z-_]+)))?$/';
+        $pattern = '/^\/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
+            . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
         if (preg_match($pattern, $query, $matches)) {
             $this->path =  new Path(
                 isset($matches['resource']) ? $matches['resource'] : '',

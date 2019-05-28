@@ -11,6 +11,8 @@ use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\BadRequest;
+use JSONAPI\Exception\Document\NotFound;
+use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
@@ -294,5 +296,29 @@ class DocumentTest extends TestCase
         $json = json_decode(json_encode($document), true);
         $this->assertArrayHasKey('data', $json);
         $this->assertArrayHasKey('included', $json);
+    }
+
+    public function testNotFound()
+    {
+        $this->expectException(NotFound::class);
+        $_SERVER["REQUEST_URI"] = "/resource/no-id";
+        $document = new Document(self::$factory);
+        $document->setData(null);
+    }
+
+    public function testEmptyData()
+    {
+        $_SERVER["REQUEST_URI"] = "/resource";
+        $document = new Document(self::$factory);
+        $document->setData([]);
+        $this->assertIsArray($document->getData());
+    }
+
+    public function testNonIterableCollection()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $_SERVER["REQUEST_URI"] = "/resource";
+        $document = new Document(self::$factory);
+        $document->setData(null);
     }
 }
