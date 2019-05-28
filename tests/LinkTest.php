@@ -28,5 +28,4 @@ class LinkTest extends TestCase
         $this->assertArrayHasKey('href', $link->getData());
         $this->assertArrayHasKey('meta', $link->getData());
     }
-
 }
