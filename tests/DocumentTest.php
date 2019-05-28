@@ -172,8 +172,6 @@ class DocumentTest extends TestCase
         $this->assertInstanceOf(ResourceObject::class, $resource);
         $this->assertEquals('uuid', $resource->getId());
         $this->assertEquals('resource', $resource->getType());
-
-
     }
 
     public function testCreateFromRequestCollection()
