@@ -177,7 +177,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 [Unreleased]: https://gitlab.com/bednic/json-api/compare/2.3.1...2.x
-[2.3.0]: https://gitlab.com/bednic/json-api/compare/2.3.0...2.3.1
+[2.3.1]: https://gitlab.com/bednic/json-api/compare/2.3.0...2.3.1
 [2.3.0]: https://gitlab.com/bednic/json-api/compare/2.2.1...2.3.0
 [2.2.1]: https://gitlab.com/bednic/json-api/compare/2.2.0...2.2.1
 [2.2.0]: https://gitlab.com/bednic/json-api/compare/2.1.1...2.2.0
