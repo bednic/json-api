@@ -69,7 +69,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     private $errors = [];
 
     /**
-     * @var ResourceObject|ResourceObject[]|ResourceObjectIdentifier|ResourceObjectIdentifier[]
+     * @var ResourceObject|ResourceObject[]|ResourceObjectIdentifier|ResourceObjectIdentifier[]|null
      */
     private $data;
 
@@ -180,7 +180,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @return ResourceObject|ResourceObject[]|ResourceObjectIdentifier|ResourceObjectIdentifier[]
+     * @return ResourceObject|ResourceObject[]|ResourceObjectIdentifier|ResourceObjectIdentifier[]|null
      */
     public function getData()
     {

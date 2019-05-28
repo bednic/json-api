@@ -2,11 +2,14 @@
 
 namespace JSONAPI\Test;
 
+use JSONAPI\Document\Attribute;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
+use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
+use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Metadata\MetadataFactory;
 use PHPUnit\Framework\TestCase;
@@ -108,8 +111,25 @@ class DocumentTest extends TestCase
         $this->assertEquals('http://link1.com', $json['links']['link1']);
     }
 
+    public function testOwnError()
+    {
+        $error = new Error();
+        $error->setId('my-id');
+        $error->setTitle('Title');
+        $error->setCode('code123');
+        $error->setStatus(500);
+        $error->setDetail('Some detailed information about error');
+        $error->setSource([
+            'pointer' => '/data/attributes/my-attribute'
+        ]);
+        $document = new Document(self::$factory);
+        $document->addError($error);
+        $json = json_decode(json_encode($document), true);
+        $this->assertArrayHasKey('errors', $json);
+        $this->assertEquals('my-id', $json['errors'][0]['id']);
+    }
 
-    public function testAddError()
+    public function testErrorFromException()
     {
         $document = new Document(self::$factory);
         try {
@@ -172,6 +192,16 @@ class DocumentTest extends TestCase
         $this->assertInstanceOf(ResourceObject::class, $resource);
         $this->assertEquals('uuid', $resource->getId());
         $this->assertEquals('resource', $resource->getType());
+        $relationship = $resource->getRelationship('relations');
+        $this->assertInstanceOf(Relationship::class, $relationship);
+        $this->assertContainsOnlyInstancesOf(ResourceObjectIdentifier::class, $relationship->getData());
+        $this->assertTrue($relationship->isCollection());
+        $this->assertEquals('rel1', $relationship->getData()[0]->getId());
+        $this->assertEquals('rel2', $relationship->getData()[1]->getId());
+        $attribute = $resource->getAttribute('publicProperty');
+        $this->assertInstanceOf(Attribute::class, $attribute);
+        $this->assertEquals('public', $attribute->getData());
+        $this->assertEquals('publicProperty', $attribute->getKey());
     }
 
     public function testCreateFromRequestCollection()
