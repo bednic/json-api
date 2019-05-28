@@ -13,13 +13,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated 
 
 ### Fixed
+
+### Removed 
+
+### Security
+
+## [2.3.0]
+
+### Added
+* Encoder::identify return ResourceObjectIdentifier
+* ClassMetadata::getClassName return name of class of metadata
+
+### Changed
+
+### Deprecated
+
+### Fixed
 * Fix Document::isCollection bad resolving
 * Fix Driver, now only property annotations has Annotation::property non-empty. 
   So when is Annotation::property filled up, then it means  it is property annotation, but if you annotation method then
   it get privilege and will be used. In standard case it means, that if is Annotation::setter filled up, then
   annotations are on methods, if Annotation::property is filled up then annotations are  on props.
+* Some url bugs, most typos
+* Relationships returns bad data format
+* Primary data links when relationships are returned
+* Request data parsing, when ResourceObjectIdentifiers are provided
 
 ### Removed 
+* QueryFactory
 
 ### Security
 
@@ -139,7 +160,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.2.1...2.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.3.0...2.x
+[2.3.0]: https://gitlab.com/bednic/json-api/compare/2.2.1...2.3.0
 [2.2.1]: https://gitlab.com/bednic/json-api/compare/2.2.0...2.2.1
 [2.2.0]: https://gitlab.com/bednic/json-api/compare/2.1.1...2.2.0
 [2.1.1]: https://gitlab.com/bednic/json-api/compare/2.1.0...2.1.1
