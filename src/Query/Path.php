@@ -111,7 +111,7 @@ class Path
     {
         return $this->resource
             . ($this->id ? '/' . $this->getId() : '')
-            . ($this->relationship ? '/relationship/' . $this->getRelationshipName() : '')
+            . ($this->relationship ? '/relationships/' . $this->getRelationshipName() : '')
             . ($this->relation ? '/' . $this->getRelationshipName() : '')
             . ($this->query ? $this->query : '');
     }

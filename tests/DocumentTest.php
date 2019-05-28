@@ -34,109 +34,237 @@ class DocumentTest extends TestCase
         return $document;
     }
 
-    /**
-     * @depends testConstruct
-     */
-    public function testAddMeta(Document $document)
+    public function testAddMeta()
     {
+        $document = new Document(self::$factory);
         $document->setMeta(new Meta(['count' => 1]));
-        $this->expectNotToPerformAssertions();
-        return $document;
+        $json = json_decode(json_encode($document), true);
+        $this->assertArrayHasKey('meta', $json);
+        $this->assertEquals(1, $json['meta']['count']);
     }
 
-    /**
-     * @depends testAddMeta
-     */
-    public function testSetData(Document $document)
+    public function testRelationships()
     {
-        $resource = new ObjectExample();
-        $relation = new RelationExample();
-        $resource->setRelations([$relation]);
-        $document->setData($resource);
-        print json_encode($document);
-        $this->expectOutputRegex('/^((?!\"errors\")(\s|.))*$/');
-        $this->expectOutputRegex('/\"data\"/');
-        return $document;
+        $_SERVER["REQUEST_URI"] = "/resource/uuid/relationships/relations";
+        $relations[] = new RelationExample('id1');
+        $relations[] = new RelationExample('id2');
+        $document = new Document(self::$factory);
+        $document->setData($relations);
+        $json = json_decode(json_encode($document), true);
+        $this->assertArrayHasKey('data', $json);
+        $this->assertArrayHasKey('links', $json);
+        $this->assertArrayHasKey('self', $json['links']);
+        $this->assertArrayHasKey('related', $json['links']);
+        $this->assertEquals('http://unit.test.org/resource/uuid/relationships/relations', $json['links']['self']);
+        $this->assertEquals('http://unit.test.org/resource/uuid/relations', $json['links']['related']);
+        $this->assertCount(2, $json['data']);
+        $this->assertEquals('id1', $json['data'][0]['id']);
+        $this->assertEquals('id2', $json['data'][1]['id']);
     }
 
-    /**
-     * @depends testSetData
-     */
-    public function testGetData(Document $document)
+    public function testRelations()
     {
-        $this->assertInstanceOf(ResourceObject::class, $document->getData());
+        $_SERVER["REQUEST_URI"] = "/resource/uuid/relations";
+        $relations[] = new RelationExample('id1');
+        $relations[] = new RelationExample('id2');
+        $document = new Document(self::$factory);
+        $document->setData($relations);
+        $json = json_decode(json_encode($document), true);
+        $this->assertArrayHasKey('data', $json);
+        $this->assertArrayHasKey('links', $json);
+        $this->assertArrayHasKey('self', $json['links']);
+        $this->assertEquals('http://unit.test.org/resource/uuid/relations', $json['links']['self']);
     }
 
     public function testCollection()
     {
-        //todo
         $_SERVER["REQUEST_URI"] = "/resource";
         $document = new Document(self::$factory);
         $collection = [];
         $collection[] = new ObjectExample('id1');
         $collection[] = new ObjectExample('id2');
-
         $document->setData($collection);
         $this->assertIsArray($document->getData());
         $this->assertCount(2, $document->getData());
     }
 
-    /**
-     * @depends testSetData
-     */
-    public function testJsonSerialize(Document $document)
+    public function testToString()
     {
-        $this->assertEquals(trim(file_get_contents(__DIR__ . '/resources/response.json')), json_encode($document));
-    }
-
-    /**
-     * @depends testSetData
-     */
-    public function testToString(Document $document)
-    {
+        $document = new Document(self::$factory);
         $this->assertEquals((string)$document, json_encode($document));
     }
 
-    /**
-     * @depends testConstruct
-     */
-    public function testAddLink(Document $document)
+
+    public function testAddLink()
     {
+        $document = new Document(self::$factory);
         $document->addLink(new Link('own', 'http://my-own.link.com'));
         $document->setLinks([
             new Link('link1', 'http://link1.com')
         ]);
-        $this->expectNotToPerformAssertions();
+        $json = json_decode(json_encode($document), true);
+        $this->assertArrayHasKey('links', $json);
+        $this->assertEquals('http://my-own.link.com', $json['links']['own']);
+        $this->assertEquals('http://link1.com', $json['links']['link1']);
     }
 
-    /**
-     * @depends testConstruct
-     */
-    public function testAddError(Document $document)
+
+    public function testAddError()
     {
+        $document = new Document(self::$factory);
         try {
             throw new BadRequest("Test exception");
         } catch (BadRequest $exception) {
             $error = Error::fromException($exception);
             $document->addError($error);
-            print json_encode($document);
-            $this->expectOutputRegex('/^((?!\"data\")(\s|.))*$/');
-            $this->expectOutputRegex('/\"errors\"/');
+            $json = json_decode(json_encode($document), true);
+            $this->assertArrayHasKey('errors', $json);
+            $this->assertArrayNotHasKey('data', $json);
         }
     }
 
-    public function testCreateFromRequest()
+    public function testCreateFromRequestSingle()
     {
+        $single = [
+            'data' => [
+                'id' => 'uuid',
+                'type' => 'resource',
+                'attributes' => [
+                    'publicProperty' => 'public',
+                    'privateProperty' => 'private',
+                    'readOnlyProperty' => 'read-only'
+                ],
+                'relationships' => [
+                    'relations' => [
+                        'data' => [
+                            [
+                                'id' => 'rel1',
+                                'type' => 'resource-relation'
+                            ],
+                            [
+                                'id' => 'rel2',
+                                'type' => 'resource-relation'
+                            ]
+                        ],
+                        'links' => [
+                            'self' => 'http://unit.test.org/resource/uuid/relationships/relations',
+                            'related' => 'http://unit.test.org/resource/uuid/relations'
+                        ]
+                    ]
+                ]
+            ],
+            'links' => [
+                'self' => 'http://unit.test.org/resource/uuid'
+            ]
+        ];
+
         /** @var ServerRequestInterface $request */
         $request = $this->createMock(ServerRequestInterface::class);
         $request->method('getParsedBody')
-            ->willReturn(json_decode(trim(file_get_contents(__DIR__ . '/resources/request.json'))));
+            ->willReturn(json_decode(json_encode($single)));
         $request->method('getHeader')
             ->with('Content-Type')
             ->willReturn([Document::MEDIA_TYPE]);
 
         $document = Document::createFromRequest($request, self::$factory);
+        $resource = $document->getData();
         $this->assertInstanceOf(Document::class, $document);
-        $this->assertInstanceOf(ResourceObject::class, $document->getData());
+        $this->assertInstanceOf(ResourceObject::class, $resource);
+        $this->assertEquals('uuid', $resource->getId());
+        $this->assertEquals('resource', $resource->getType());
+
+
+    }
+
+    public function testCreateFromRequestCollection()
+    {
+        $collection = [
+            'data' => [
+                [
+                    'id' => 'uuid1',
+                    'type' => 'resource',
+                    'attributes' => [
+                        'publicProperty' => 'public',
+                        'privateProperty' => 'private',
+                        'readOnlyProperty' => 'read-only'
+                    ],
+                    'relationships' => [
+                        'relations' => [
+                            'data' => [
+                                [
+                                    'id' => 'rel1',
+                                    'type' => 'resource-relation'
+                                ],
+                                [
+                                    'id' => 'rel2',
+                                    'type' => 'resource-relation'
+                                ]
+                            ],
+                            'links' => [
+                                'self' => 'http://unit.test.org/resource/uuid1/relationships/relations',
+                                'related' => 'http://unit.test.org/resource/uuid1/relations'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'id' => 'uuid2',
+                    'type' => 'resource',
+                    'attributes' => [
+                        'publicProperty' => 'public',
+                        'privateProperty' => 'private',
+                        'readOnlyProperty' => 'read-only'
+                    ],
+                    'relationships' => [
+                        'relations' => [
+                            'data' => [
+                                [
+                                    'id' => 'rel3',
+                                    'type' => 'resource-relation'
+                                ],
+                                [
+                                    'id' => 'rel4',
+                                    'type' => 'resource-relation'
+                                ]
+                            ],
+                            'links' => [
+                                'self' => 'http://unit.test.org/resource/uuid2/relationships/relations',
+                                'related' => 'http://unit.test.org/resource/uuid2/relations'
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            'links' => [
+                'self' => 'http://unit.test.org/resource'
+            ]
+        ];
+
+        /** @var ServerRequestInterface $request */
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->method('getParsedBody')
+            ->willReturn(json_decode(json_encode($collection)));
+        $request->method('getHeader')
+            ->with('Content-Type')
+            ->willReturn([Document::MEDIA_TYPE]);
+
+        $document = Document::createFromRequest($request, self::$factory);
+        $resources = $document->getData();
+        $this->assertInstanceOf(Document::class, $document);
+        $this->assertContainsOnlyInstancesOf(ResourceObject::class, $resources);
+        $this->assertCount(2, $resources);
+    }
+
+    public function testDataSingle()
+    {
+        $resource = new ObjectExample('uuid');
+        $relation1 = new RelationExample('rel1');
+        $relation2 = new RelationExample('rel2');
+        $resource->setRelations([$relation1, $relation2]);
+        $document = new Document(self::$factory);
+        $document->setData($resource);
+        $json = json_decode(json_encode($document), true);
+        $this->assertArrayHasKey('data', $json);
+        $this->assertArrayHasKey('included', $json);
     }
 }

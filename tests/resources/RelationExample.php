@@ -26,9 +26,9 @@ class RelationExample extends Common
 
     /**
      * @API\Relationship(target=ObjectExample::class)
-     * @return ObjectExample
+     * @return ObjectExample|null
      */
-    public function getObject(): ObjectExample
+    public function getObject(): ?ObjectExample
     {
         return $this->object;
     }

@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JSONAPI\Test\exceptions;
+namespace JSONAPI\Test;
 
 use JSONAPI\Annotation as API;
 

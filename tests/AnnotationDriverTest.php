@@ -7,8 +7,6 @@ use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use PHPUnit\Framework\TestCase;
-use JSONAPI\Test\exceptions\BadAnnotationPlacement;
-use JSONAPI\Test\exceptions\NotResource;
 
 /**
  * Class AnnotationDriverTest
