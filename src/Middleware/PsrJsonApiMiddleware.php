@@ -8,6 +8,7 @@
 
 namespace JSONAPI\Middleware;
 
+use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
 use JSONAPI\Exception\Document\BadRequest;
@@ -69,13 +70,16 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
-            if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
-                throw new UnsupportedMediaType();
+            if (in_array(
+                $request->getMethod(),
+                [RequestMethodInterface::METHOD_POST, RequestMethodInterface::METHOD_PATCH]
+            )
+            ) {
+                if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
+                    throw new UnsupportedMediaType();
+                }
+                $request = $request->withParsedBody($this->getBody());
             }
-            if ($body = $this->getBody()) {
-                $request = $request->withParsedBody($body);
-            }
-            /** @var ResponseInterface $response */
             $response = $handler->handle($request);
         } catch (BadRequest $exception) {
             $document = new Document($this->factory, $this->logger);
