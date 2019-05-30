@@ -38,6 +38,7 @@ class PsrJsonApiMiddlewareTest extends TestCase
 
         $request = $this->createMock(ServerRequestInterface::class);
         $request->method('getHeader')->willReturn(['application/json']);
+        $request->method('getMethod')->willReturn('POST');
 
         $response = $this->createMock(ResponseInterface::class);
 
