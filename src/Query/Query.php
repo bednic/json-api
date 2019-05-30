@@ -154,7 +154,9 @@ class Query
     {
         $this->fields = [];
         foreach ($query as $type => $fields) {
-            $this->fields[$type] = explode(',', $fields);
+            $this->fields[$type] = array_map(function ($item) {
+                return trim($item);
+            }, explode(',', $fields));
         }
     }
 
@@ -295,7 +297,7 @@ class Query
         $pattern = '/^\/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
         if (preg_match($pattern, $query, $matches)) {
-            $this->path =  new Path(
+            $this->path = new Path(
                 isset($matches['resource']) ? $matches['resource'] : '',
                 isset($matches['id']) ? $matches['id'] : null,
                 isset($matches['relationship']) ? $matches['relationship'] : null,
