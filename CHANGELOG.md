@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated 
 
 ### Fixed
+* JsonApiMiddleware throw UnsupportedMediaType even for get, when it's not necessary.
+  Now middleware check Content-Type only when it's POST or PATCH, so body is expected.
 
 ### Removed 
 
