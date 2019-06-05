@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated 
 
 ### Fixed
+
+### Removed 
+
+### Security
+
+## [2.3.2]
+
+### Added
+
+### Changed
+
+### Deprecated 
+
+### Fixed
 * JsonApiMiddleware throw UnsupportedMediaType even for get, when it's not necessary.
   Now middleware check Content-Type only when it's POST or PATCH, so body is expected.
 
@@ -178,7 +192,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.3.1...2.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.3.2...2.x
+[2.3.1]: https://gitlab.com/bednic/json-api/compare/2.3.1...2.3.2
 [2.3.1]: https://gitlab.com/bednic/json-api/compare/2.3.0...2.3.1
 [2.3.0]: https://gitlab.com/bednic/json-api/compare/2.2.1...2.3.0
 [2.2.1]: https://gitlab.com/bednic/json-api/compare/2.2.0...2.2.1
