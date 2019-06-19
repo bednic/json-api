@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated 
 
 ### Fixed
+* fix issue [#9](https://gitlab.com/bednic/json-api/issues/9)
 
 ### Removed 
 

@@ -45,6 +45,11 @@ class AnnotationDriver
     private $reader;
 
     /**
+     * Regex patter for getters
+     */
+    private const GETTER = '/^(is|get)/';
+
+    /**
      * AnnotationDriver constructor.
      *
      * @param LoggerInterface|null $logger
@@ -160,7 +165,7 @@ class AnnotationDriver
                     }
                     $this->logger->debug("Found resource ID.");
                     if (!$id->property || !$reflectionClass->hasProperty($id->property)) {
-                        $property = lcfirst(str_replace(['get', 'is'], '', $id->getter));
+                        $property = lcfirst(preg_replace(self::GETTER, '', $id->getter));
                         $id->property = $reflectionClass->hasProperty($property) ? $property : null;
                     }
                 }
@@ -177,11 +182,11 @@ class AnnotationDriver
                         $attribute->getter = $reflectionMethod->getName();
                     }
                     if (!$attribute->name) {
-                        $attribute->name = lcfirst(str_replace(['get', 'is'], '', $reflectionMethod->getName()));
+                        $attribute->name = lcfirst(preg_replace(self::GETTER, '', $reflectionMethod->getName()));
                     }
                     if ($attribute->setter === null) {
-                        if ($reflectionClass->hasMethod(str_replace(['get', 'is'], 'set', $attribute->getter))) {
-                            $attribute->setter = str_replace(['get', 'is'], 'set', $attribute->getter);
+                        if ($reflectionClass->hasMethod(preg_replace(self::GETTER, 'set', $attribute->getter))) {
+                            $attribute->setter = preg_replace(self::GETTER, 'set', $attribute->getter);
                         } elseif ($reflectionClass->hasMethod('set' . ucfirst($attribute->name))) {
                             $attribute->setter = 'set' . ucfirst($attribute->name);
                         } elseif ($reflectionClass->hasMethod('set' . ucfirst($attribute->property))) {
@@ -204,11 +209,11 @@ class AnnotationDriver
                         $relationship->getter = $reflectionMethod->getName();
                     }
                     if (!$relationship->name) {
-                        $relationship->name = lcfirst(str_replace(['get'], '', $reflectionMethod->getName()));
+                        $relationship->name = lcfirst(preg_replace(self::GETTER, '', $reflectionMethod->getName()));
                     }
                     if (!$relationship->setter) {
-                        if ($reflectionClass->hasMethod(str_replace(['get'], 'set', $relationship->getter))) {
-                            $relationship->setter = str_replace(['get'], 'set', $relationship->getter);
+                        if ($reflectionClass->hasMethod(preg_replace(self::GETTER, 'set', $relationship->getter))) {
+                            $relationship->setter = preg_replace(self::GETTER, 'set', $relationship->getter);
                         } elseif ($reflectionClass->hasMethod('set' . ucfirst($relationship->name))) {
                             $relationship->setter = 'set' . ucfirst($relationship->name);
                         } elseif ($reflectionClass->hasMethod('set' . ucfirst($relationship->property))) {
