@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated 
 
 ### Fixed
+
+### Removed 
+
+### Security
+
+## [2.3.3]
+
+### Added
+
+### Changed
+
+### Deprecated 
+
+### Fixed
 * fix issue [#9](https://gitlab.com/bednic/json-api/issues/9)
 
 ### Removed 
@@ -193,8 +207,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.3.2...2.x
-[2.3.1]: https://gitlab.com/bednic/json-api/compare/2.3.1...2.3.2
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.3.3...2.x
+[2.3.3]: https://gitlab.com/bednic/json-api/compare/2.3.2...2.3.3
+[2.3.2]: https://gitlab.com/bednic/json-api/compare/2.3.1...2.3.2
 [2.3.1]: https://gitlab.com/bednic/json-api/compare/2.3.0...2.3.1
 [2.3.0]: https://gitlab.com/bednic/json-api/compare/2.2.1...2.3.0
 [2.2.1]: https://gitlab.com/bednic/json-api/compare/2.2.0...2.2.1
