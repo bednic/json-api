@@ -18,6 +18,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [2.3.4]
+
+### Added
+
+### Changed
+
+### Deprecated 
+
+### Fixed
+* AnnotationDriver::isGetter return bad state if getter return same class as is caller class.
+  Historical reason cause fluent setters. Now check removed, cause Parent->Children object relations.
+
+### Removed 
+
+### Security
+
 ## [2.3.3]
 
 ### Added

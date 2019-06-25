@@ -252,10 +252,6 @@ class AnnotationDriver
             (
                 ($reflectionMethod->getReturnType()->isBuiltin() === true) &&
                 ($reflectionMethod->getReturnType()->getName() === 'void')
-            ) ||
-            (
-                ($reflectionMethod->getReturnType()->isBuiltin() === false) &&
-                ($reflectionMethod->getReturnType()->getName() === $reflectionClass->name)
             )
         );
     }

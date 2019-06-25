@@ -41,6 +41,16 @@ class ObjectExample extends Common
     private $relations = [];
 
     /**
+     * @var ObjectExample
+     */
+    private $parent;
+
+    /**
+     * @var ObjectExample[]
+     */
+    private $children;
+
+    /**
      * @API\Attribute
      * @return string
      */
@@ -84,5 +94,39 @@ class ObjectExample extends Common
             $relation->setObject($this);
         }
         $this->relations = $relations;
+    }
+
+    /**
+     * @API\Relationship(target=ObjectExample::class)
+     * @return ObjectExample
+     */
+    public function getParent(): ObjectExample
+    {
+        return $this->parent;
+    }
+
+    /**
+     * @param ObjectExample $parent
+     */
+    public function setParent(ObjectExample $parent): void
+    {
+        $this->parent = $parent;
+    }
+
+    /**
+     * @API\Relationship(target=ObjectExample::class)
+     * @return ObjectExample[]
+     */
+    public function getChildren(): array
+    {
+        return $this->children;
+    }
+
+    /**
+     * @param ObjectExample[] $children
+     */
+    public function setChildren(array $children): void
+    {
+        $this->children = $children;
     }
 }
