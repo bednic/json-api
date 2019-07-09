@@ -21,5 +21,5 @@ don't hesitate post some error logs, or debug info
     * e.g. API_ENV_URL = http://localhost/
 
 #### Check your version
-
-[] 1.0.x
+* [ ] 1.x
+* [ ] 2.x
