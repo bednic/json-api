@@ -18,6 +18,7 @@ use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Document\NotFound;
 use JSONAPI\Exception\Document\ResourceTypeMismatch;
 use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\JsonDeserializable;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
@@ -108,6 +109,9 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * @param ServerRequestInterface $request
      * @param MetadataFactory        $factory
      * @return Document
+     * @throws AnnotationMisplace
+     * @throws ClassNotExist
+     * @throws ClassNotResource
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws ResourceTypeMismatch
@@ -115,6 +119,8 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     public static function createFromRequest(ServerRequestInterface $request, MetadataFactory $factory): Document
     {
         $document = new static($factory);
+
+        $metadata = $factory->getMetadataClassByType($document->getDataType());
         $body = $request->getParsedBody();
         if (is_array($body->data)) {
             $document->data = [];
@@ -124,6 +130,16 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                 }
                 $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
                 foreach (@$resourceDto->attributes ?? [] as $attribute => $value) {
+                    try {
+                        $attr = $metadata->getAttribute($attribute);
+                        /** @var JsonDeserializable $className */
+                        $className = $attr->type;
+                        if ((new \ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
+                            $value = $className::jsonDeserialize((array) $value);
+                        }
+                    } catch (\ReflectionException $ignored) {
+                        //NOSONAR
+                    }
                     $object->addAttribute(new Attribute($attribute, $value));
                 }
 
@@ -149,6 +165,16 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             }
             $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
             foreach (@$body->data->attributes ?? [] as $attribute => $value) {
+                try {
+                    $attr = $metadata->getAttribute($attribute);
+                    /** @var JsonDeserializable $className */
+                    $className = $attr->type;
+                    if ((new \ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
+                        $value = $className::jsonDeserialize((array) $value);
+                    }
+                } catch (\ReflectionException $ignored) {
+                    //NOSONAR
+                }
                 $object->addAttribute(new Attribute($attribute, $value));
             }
             foreach (@$body->data->relationships ?? [] as $prop => $value) {
