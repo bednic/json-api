@@ -14,6 +14,7 @@ use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Exception\Document\NotFound;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Test\resources\DtoValue;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -154,7 +155,12 @@ class DocumentTest extends TestCase
                 'attributes' => [
                     'publicProperty' => 'public',
                     'privateProperty' => 'private',
-                    'readOnlyProperty' => 'read-only'
+                    'readOnlyProperty' => 'read-only',
+                    'dtoProperty' => [
+                        'stringProperty' => 'asdf',
+                        'intProperty' => 123,
+                        'boolProperty' => false
+                    ]
                 ],
                 'relationships' => [
                     'relations' => [
@@ -204,6 +210,12 @@ class DocumentTest extends TestCase
         $this->assertInstanceOf(Attribute::class, $attribute);
         $this->assertEquals('public', $attribute->getData());
         $this->assertEquals('publicProperty', $attribute->getKey());
+        /** @var DtoValue $dto */
+        $dto = $resource->getAttribute('dtoProperty')->getData();
+        $this->assertInstanceOf(DtoValue::class, $dto);
+        $this->assertEquals('asdf', $dto->getStringProperty());
+        $this->assertEquals(123, $dto->getIntProperty());
+        $this->assertEquals(false, $dto->isBoolProperty());
     }
 
     public function testCreateFromRequestCollection()

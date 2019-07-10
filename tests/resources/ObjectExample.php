@@ -9,6 +9,7 @@
 namespace JSONAPI\Test;
 
 use \JSONAPI\Annotation as API;
+use JSONAPI\Test\resources\DtoValue;
 
 /**
  * Class ObjectExample
@@ -36,6 +37,11 @@ class ObjectExample extends Common
     private $readOnlyProperty = 'read-only-value';
 
     /**
+     * @var DtoValue
+     */
+    private $dtoProperty;
+
+    /**
      * @var RelationExample[]
      */
     private $relations = [];
@@ -49,6 +55,18 @@ class ObjectExample extends Common
      * @var ObjectExample[]
      */
     private $children;
+
+    /**
+     * ObjectExample constructor.
+     *
+     * @param string|null $id
+     */
+    public function __construct(string $id = null)
+    {
+        parent::__construct($id);
+        $this->dtoProperty = new DtoValue();
+    }
+
 
     /**
      * @API\Attribute
@@ -74,6 +92,23 @@ class ObjectExample extends Common
     public function getReadOnlyProperty(): string
     {
         return $this->readOnlyProperty;
+    }
+
+    /**
+     * @API\Attribute
+     * @return DtoValue
+     */
+    public function getDtoProperty(): DtoValue
+    {
+        return $this->dtoProperty;
+    }
+
+    /**
+     * @param DtoValue $dtoProperty
+     */
+    public function setDtoProperty(DtoValue $dtoProperty): void
+    {
+        $this->dtoProperty = $dtoProperty;
     }
 
     /**

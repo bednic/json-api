@@ -18,6 +18,8 @@ use JSONAPI\Annotation\Resource;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
+use JSONAPI\Exception\Driver\DriverException;
+use JSONAPI\JsonDeserializable;
 use JSONAPI\Metadata\ClassMetadata;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -120,6 +122,8 @@ class AnnotationDriver
                 if (!$attribute->property) {
                     $attribute->property = $reflectionProperty->getName();
                 }
+                preg_match('/@var (?P<type>[a-zA-Z_-]+)/', $reflectionProperty->getDocComment(), $match);
+                $attribute->type = $match['type'] ? $match['type'] : null;
                 $attributes->set($attribute->name, $attribute);
                 $this->logger->debug("Found resource attribute {$attribute->name}.");
             }
@@ -143,6 +147,7 @@ class AnnotationDriver
      * @param ArrayCollection  $attributes
      * @param ArrayCollection  $relationships
      * @throws AnnotationMisplace
+     * @throws DriverException
      */
     private function parseMethods(
         ReflectionClass $reflectionClass,
@@ -191,6 +196,20 @@ class AnnotationDriver
                             $attribute->setter = 'set' . ucfirst($attribute->name);
                         } elseif ($reflectionClass->hasMethod('set' . ucfirst($attribute->property))) {
                             $attribute->setter = 'set' . ucfirst($attribute->property);
+                        }
+                    }
+
+                    if ($attribute->setter) {
+                        try {
+                            $setter = new ReflectionMethod($reflectionClass->getName(), $attribute->setter);
+                            if ($setter->getNumberOfRequiredParameters() > 1) {
+                                throw new DriverException("Setter can have only one required parameter.");
+                            }
+                            $parameter = $setter->getParameters()[0];
+                            $attribute->type = $parameter->getType()->isBuiltin() ? $parameter->getType()
+                                : $parameter->getClass()->getName();
+                        } catch (ReflectionException $ignored) {
+                            //NOSONAR
                         }
                     }
                     $attributes->set($attribute->name, $attribute);
