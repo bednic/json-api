@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+
+### Security
+
+## [2.4.0]
+
+### Added
 * <code>JsonDeserializable</code> interface - marks object as json deserializable, 
   so it's possible create instance of object from plain json
 * <code>JsonConvertible</code> interface - merge JsonSerializable and JsonDeserializable together. 
@@ -229,7 +243,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.3.4...2.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.4.0...2.x
+[2.4.0]: https://gitlab.com/bednic/json-api/compare/2.3.4...2.4.0
 [2.3.4]: https://gitlab.com/bednic/json-api/compare/2.3.3...2.3.4
 [2.3.3]: https://gitlab.com/bednic/json-api/compare/2.3.2...2.3.3
 [2.3.2]: https://gitlab.com/bednic/json-api/compare/2.3.1...2.3.2
