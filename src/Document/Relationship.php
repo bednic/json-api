@@ -10,8 +10,8 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Utils\LinksImpl;
-use JSONAPI\Utils\MetaImpl;
+use JSONAPI\LinksTrait;
+use JSONAPI\MetaTrait;
 use JsonSerializable;
 
 /**
@@ -21,8 +21,8 @@ use JsonSerializable;
  */
 class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
 {
-    use LinksImpl;
-    use MetaImpl;
+    use LinksTrait;
+    use MetaTrait;
 
     /**
      * Relationship constructor.

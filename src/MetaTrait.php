@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JSONAPI\Utils;
+namespace JSONAPI;
 
 use JSONAPI\Document\Meta;
 
@@ -10,7 +10,7 @@ use JSONAPI\Document\Meta;
  *
  * @package JSONAPI\Utils
  */
-trait MetaImpl
+trait MetaTrait
 {
 
     /**

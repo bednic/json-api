@@ -6,7 +6,7 @@ namespace JSONAPI\Document;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Utils\MetaImpl;
+use JSONAPI\MetaTrait;
 
 /**
  * Class Link
@@ -15,7 +15,7 @@ use JSONAPI\Utils\MetaImpl;
  */
 class Link extends Field implements HasMeta
 {
-    use MetaImpl;
+    use MetaTrait;
 
     /**
      * Link constructor.

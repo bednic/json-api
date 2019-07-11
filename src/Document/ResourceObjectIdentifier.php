@@ -9,7 +9,7 @@
 namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Utils\MetaImpl;
+use JSONAPI\MetaTrait;
 use JsonSerializable;
 
 /**
@@ -20,7 +20,7 @@ use JsonSerializable;
 class ResourceObjectIdentifier implements JsonSerializable, HasMeta
 {
 
-    use MetaImpl;
+    use MetaTrait;
 
     /**
      * @var string

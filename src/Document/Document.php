@@ -24,8 +24,8 @@ use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
-use JSONAPI\Utils\LinksImpl;
-use JSONAPI\Utils\MetaImpl;
+use JSONAPI\LinksTrait;
+use JSONAPI\MetaTrait;
 use JsonSerializable;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -41,8 +41,8 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     const MEDIA_TYPE = "application/vnd.api+json";
     const VERSION = "1.0";
 
-    use LinksImpl;
-    use MetaImpl;
+    use LinksTrait;
+    use MetaTrait;
 
     /**
      * @var MetadataFactory

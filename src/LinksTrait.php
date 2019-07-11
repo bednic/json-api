@@ -1,7 +1,7 @@
 <?php
 
 
-namespace JSONAPI\Utils;
+namespace JSONAPI;
 
 use JSONAPI\Document\Link;
 
@@ -10,7 +10,7 @@ use JSONAPI\Document\Link;
  *
  * @package JSONAPI\Utils
  */
-trait LinksImpl
+trait LinksTrait
 {
 
     /**

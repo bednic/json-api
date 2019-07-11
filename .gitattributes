@@ -1,7 +1,7 @@
 /docker export-ignore
-/test export-ignore
+/tests export-ignore
 /vendor export-ignore
-.* export-ignore
-*.xml export-ignore
-sonar-project.properties export-ignore
+/.* export-ignore
+/*.xml export-ignore
+/*.properties export-ignore
 /composer.lock -merge

@@ -10,7 +10,7 @@ namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Utils\LinksImpl;
+use JSONAPI\LinksTrait;
 
 /**
  * Class ResourceObject
@@ -20,7 +20,7 @@ use JSONAPI\Utils\LinksImpl;
 class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLinks
 {
 
-    use LinksImpl;
+    use LinksTrait;
 
     /**
      * @var ArrayCollection | Field[]
