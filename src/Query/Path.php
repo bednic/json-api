@@ -113,6 +113,6 @@ class Path
             . ($this->id ? '/' . $this->getId() : '')
             . ($this->relationship ? '/relationships/' . $this->getRelationshipName() : '')
             . ($this->relation ? '/' . $this->getRelationshipName() : '')
-            . ($this->query ? $this->query : '');
+            . ($this->query ? '?' . $this->query : '');
     }
 }

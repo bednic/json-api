@@ -8,10 +8,9 @@
 
 namespace JSONAPI\Query;
 
-use DateTime;
-use Exception;
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Filter\ArrayFilterParser;
 use Slim\Psr7\Factory\UriFactory;
 
 /**
@@ -22,15 +21,15 @@ use Slim\Psr7\Factory\UriFactory;
 class Query
 {
 
-    const EQUAL = "=";
-    const NOT_EQUAL = "!";
-    const GREATER_THEN = ">";
-    const LOWER_THEN = "<";
-    const LIKE = "~";
-    const IN = "IN";
+    /**
+     * @var Filter
+     */
+    private $filterParser;
 
-    const OFFSET = 'offset';
-    const LIMIT = 'limit';
+    /**
+     * @var Pagination
+     */
+    private $paginationParser;
 
     /**
      * @var array|null
@@ -40,21 +39,11 @@ class Query
      * @var array|null
      */
     private $fields = null;
+
     /**
      * @var array|null
      */
     private $sort = null;
-    /**
-     * @var array|null
-     */
-    private $filter = null;
-    /**
-     * @var array
-     */
-    private $pagination = [
-        self::OFFSET => 0,
-        self::LIMIT => 25
-    ];
 
     /**
      * @var Path
@@ -64,9 +53,15 @@ class Query
     /**
      * Query constructor.
      *
+     * @param Filter|null     $filterParser
+     * @param Pagination|null $paginationParser
      */
-    public function __construct()
+    public function __construct(Filter $filterParser = null, Pagination $paginationParser = null)
     {
+        // todo: in version 3.x change default to VoidFilterParser, this is only for compatibility
+        $this->filterParser = $filterParser ?? new ArrayFilterParser();
+        $this->paginationParser = $paginationParser ?? new LimitOffsetPaginationParser();
+
         if (isset($_GET['include'])) {
             $this->parseIncludes($_GET['include']);
         }
@@ -96,6 +91,7 @@ class Query
 
     /**
      * @param $resourceType
+     *
      * @return array
      */
     public function getFieldsFor($resourceType): array
@@ -112,19 +108,19 @@ class Query
     }
 
     /**
-     * @return array|null
+     * @return Pagination
      */
-    public function getPagination(): ?array
+    public function getPagination(): Pagination
     {
-        return $this->pagination;
+        return $this->paginationParser;
     }
 
     /**
-     * @return array|null
+     * @return mixed
      */
-    public function getFilter(): ?array
+    public function getFilter()
     {
-        return $this->filter;
+        return $this->filterParser->getCondition();
     }
 
     /**
@@ -177,97 +173,15 @@ class Query
      */
     private function parsePage(array $pagination)
     {
-        if (isset($pagination[self::OFFSET])) {
-            $this->pagination[self::OFFSET] = (int)$pagination[self::OFFSET];
-        }
-        if (isset($pagination[self::LIMIT])) {
-            $this->pagination[self::LIMIT] = (int)$pagination[self::LIMIT];
-        }
+        $this->paginationParser->parse($pagination);
     }
 
     /**
-     * It's custom idea, I can't guarantee that this will satisfy all needs
-     *
-     * @param array $filters
+     * @param $filter
      */
-    private function parseFilter(array $filters)
+    private function parseFilter($filter)
     {
-        $this->filter = [];
-        foreach ($filters as $field => $values) {
-            if (is_array($values)) {
-                foreach ($values as $value) {
-                    preg_match('/^(?P<operand>!|>|<|~|)(?P<value>.+)/', $value, $matches);
-                    $value = $this->guessDataType($matches["value"]);
-                    if (is_array($value)) {
-                        $operand = self::IN;
-                    } elseif (in_array(
-                        $matches["operand"],
-                        [
-                            self::GREATER_THEN,
-                            self::LOWER_THEN,
-                            self::NOT_EQUAL,
-                            self::LIKE
-                        ]
-                    )) {
-                        $operand = $matches["operand"];
-                    } else {
-                        $operand = self::EQUAL;
-                    }
-                    $this->filter[$field][] = new Condition($value, $operand);
-                }
-            } else {
-                preg_match('/^(?P<operand>!|>|<|~|)(?P<value>.+)/', $values, $matches);
-                $value = $this->guessDataType($matches["value"]);
-                if (is_array($value)) {
-                    $operand = self::IN;
-                } elseif (in_array(
-                    $matches["operand"],
-                    [
-                        self::GREATER_THEN,
-                        self::LOWER_THEN,
-                        self::NOT_EQUAL,
-                        self::LIKE
-                    ]
-                )) {
-                    $operand = $matches["operand"];
-                } else {
-                    $operand = self::EQUAL;
-                }
-                $this->filter[$field] = new Condition($value, $operand);
-            }
-        }
-    }
-
-    /**
-     * @param $value
-     * @return mixed
-     */
-    private function guessDataType($value)
-    {
-        if (preg_match('/^\[([a-zA-Z0-9-_. ]+\,?)+\]$/', $value, $matches)) {
-            preg_match_all('/([a-zA-Z0-9-_. ]+)\,?/', $matches[0], $values);
-            $ret = $values[1];
-            foreach ($ret as &$item) {
-                $item = $this->guessDataType($item);
-            }
-            return $ret;
-        } elseif ($ret = filter_var($value, FILTER_VALIDATE_INT)) {
-            return $ret;
-        } elseif ($ret = filter_var($value, FILTER_VALIDATE_FLOAT)) {
-            return $ret;
-        } elseif (($ret = filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE)) !== null) {
-            return $ret;
-        } elseif ($value === "null") {
-            return null;
-        } elseif (strlen($value) >= 4 && strtotime($value)) {
-            try {
-                return new DateTime($value);
-            } catch (Exception $e) {
-                return $value;
-            }
-        } else {
-            return (string)$value;
-        }
+        $this->filterParser->parse($filter);
     }
 
     /**
@@ -293,16 +207,16 @@ class Query
         $uriFactory = new UriFactory();
         $baseUrl = $uriFactory->createUri(LinkProvider::getAPIUrl());
         $uri = $uriFactory->createFromGlobals($_SERVER);
-        $query = str_replace($baseUrl->getPath(), '/', $uri->getPath());
+        $url = str_replace($baseUrl->getPath(), '/', $uri->getPath());
         $pattern = '/^\/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
-        if (preg_match($pattern, $query, $matches)) {
+        if (preg_match($pattern, $url, $matches)) {
             $this->path = new Path(
                 isset($matches['resource']) ? $matches['resource'] : '',
                 isset($matches['id']) ? $matches['id'] : null,
                 isset($matches['relationship']) ? $matches['relationship'] : null,
                 isset($matches['related']) ? $matches['related'] : null,
-                isset($matches['query']) ? $matches['query'] : null
+                $uri->getQuery()
             );
         } else {
             throw new BadRequest("Invalid URL");
