@@ -2,8 +2,7 @@
 
 namespace JSONAPI\Test;
 
-use JSONAPI\Filter\ArrayFilterParser;
-use JSONAPI\Filter\Condition;
+use JSONAPI\Query\Condition;
 use JSONAPI\Query\Query;
 use PHPUnit\Framework\TestCase;
 
@@ -68,15 +67,15 @@ class URLTest extends TestCase
             $this->assertContains(
                 $condition->operand,
                 [
-                    ArrayFilterParser::EQUAL,
-                    ArrayFilterParser::NOT_EQUAL,
-                    ArrayFilterParser::GREATER_THEN,
-                    ArrayFilterParser::LOWER_THEN,
-                    ArrayFilterParser::LIKE,
-                    ArrayFilterParser::IN
+                    Query::EQUAL,
+                    Query::NOT_EQUAL,
+                    Query::GREATER_THEN,
+                    Query::LOWER_THEN,
+                    Query::LIKE,
+                    Query::IN
                 ]
             );
-            if ($condition->operand === ArrayFilterParser::IN) {
+            if ($condition->operand === Query::IN) {
                 $this->assertIsArray($condition->value);
             }
         }
@@ -89,7 +88,10 @@ class URLTest extends TestCase
     public function testGetPagination(Query $url)
     {
         $pagination = $url->getPagination();
-        $this->assertEquals(10, $pagination->getOffset());
-        $this->assertEquals(20, $pagination->getLimit());
+        $this->assertIsArray($pagination);
+        $this->assertArrayHasKey(Query::OFFSET, $pagination);
+        $this->assertArrayHasKey(Query::LIMIT, $pagination);
+        $this->assertEquals(10, $pagination[Query::OFFSET]);
+        $this->assertEquals(20, $pagination[Query::LIMIT]);
     }
 }

@@ -6,7 +6,7 @@
  * Time: 16:01
  */
 
-namespace JSONAPI\Filter;
+namespace JSONAPI\Query;
 
 /**
  * Class Condition
@@ -16,7 +16,7 @@ namespace JSONAPI\Filter;
 class Condition
 {
 
-    public $operand = ArrayFilterParser::EQUAL;
+    public $operand = Query::EQUAL;
     public $value;
 
     /**
@@ -25,7 +25,7 @@ class Condition
      * @param        $value
      * @param string $operand
      */
-    public function __construct($value, $operand = ArrayFilterParser::EQUAL)
+    public function __construct($value, $operand = Query::EQUAL)
     {
         $this->value = $value;
         $this->operand = $operand;
