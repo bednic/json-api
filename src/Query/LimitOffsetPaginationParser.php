@@ -57,7 +57,7 @@ class LimitOffsetPaginationParser implements Pagination
     public function parse($data)
     {
         if (isset($data['limit'])) {
-            $this->offset = filter_var($data['limit'], FILTER_VALIDATE_INT);
+            $this->limit = filter_var($data['limit'], FILTER_VALIDATE_INT);
         }
 
         if (isset($data['offset'])) {

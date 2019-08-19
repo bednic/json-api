@@ -2,8 +2,8 @@
 
 namespace JSONAPI\Test;
 
-use JSONAPI\Filter\ArrayFilterParser;
-use JSONAPI\Filter\Condition;
+use JSONAPI\Query\Filter;
+use JSONAPI\Query\Pagination;
 use JSONAPI\Query\Query;
 use PHPUnit\Framework\TestCase;
 
@@ -62,25 +62,8 @@ class URLTest extends TestCase
     public function testGetFilter(Query $url)
     {
         $filter = $url->getFilter();
-        $this->assertArrayHasKey('publicProperty', $filter);
-        /** @var Condition $condition */
-        foreach ($filter['publicProperty'] as $condition) {
-            $this->assertContains(
-                $condition->operand,
-                [
-                    ArrayFilterParser::EQUAL,
-                    ArrayFilterParser::NOT_EQUAL,
-                    ArrayFilterParser::GREATER_THEN,
-                    ArrayFilterParser::LOWER_THEN,
-                    ArrayFilterParser::LIKE,
-                    ArrayFilterParser::IN
-                ]
-            );
-            if ($condition->operand === ArrayFilterParser::IN) {
-                $this->assertIsArray($condition->value);
-            }
-        }
-        $this->assertIsArray($filter);
+        $this->assertInstanceOf(Filter::class, $filter);
+        $this->assertNotNull($filter->getCondition());
     }
 
     /**
@@ -89,6 +72,7 @@ class URLTest extends TestCase
     public function testGetPagination(Query $url)
     {
         $pagination = $url->getPagination();
+        $this->assertInstanceOf(Pagination::class, $pagination);
         $this->assertEquals(10, $pagination->getOffset());
         $this->assertEquals(20, $pagination->getLimit());
     }

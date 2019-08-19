@@ -11,16 +11,16 @@ namespace JSONAPI\Query;
 class VoidFilterParser implements Filter
 {
     /**
-     * @var mixed
+     * @var string
      */
-    private $filter;
+    private $filter = '';
 
     /**
      * Function accepts value from filter query param and returns whatever you need
      *
      * @param mixed $filter
      */
-    public function parse($filter)
+    public function parse($filter): void
     {
         $this->filter = $filter;
     }

@@ -9,6 +9,7 @@
 namespace JSONAPI\Test;
 
 use JSONAPI\Test\resources\DtoValue;
+use JSONAPI\Annotation as API;
 
 /**
  * Class ObjectExample

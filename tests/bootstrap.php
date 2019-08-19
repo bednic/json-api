@@ -18,14 +18,5 @@ $_GET['page'] = [
     'offset' => 10,
     'limit' => 20
 ];
-$_GET['filter'] = [
-    'publicProperty' => [
-        '~public',
-        '!private-value',
-        '>0',
-        '<100',
-        '[value,public,public-value]'
-    ]
-];
 
 AnnotationReader::addGlobalIgnoredName('runTestsInSeparateProcesses');
