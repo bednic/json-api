@@ -66,17 +66,28 @@ class Encoder
     private $query;
 
     /**
+     * @var int
+     */
+    private $relationshipLimit;
+
+    /**
      * Encoder constructor.
      *
      * @param MetadataFactory $metadataFactory
      * @param Query           $query
      * @param LoggerInterface $logger
+     * @param int             $relationshipLimit
      */
-    public function __construct(MetadataFactory $metadataFactory, Query $query = null, LoggerInterface $logger = null)
-    {
+    public function __construct(
+        MetadataFactory $metadataFactory,
+        Query $query = null,
+        LoggerInterface $logger = null,
+        int $relationshipLimit = 25
+    ) {
         $this->metadataFactory = $metadataFactory;
         $this->logger = $logger ?? new NullLogger();
         $this->query = $query ?? new Query();
+        $this->relationshipLimit = $relationshipLimit;
     }
 
     /**
@@ -170,10 +181,24 @@ class Encoder
                 }
                 if ($field instanceof Annotation\Relationship) {
                     $data = null;
+                    $meta = null;
                     if ($field->isCollection) {
                         $data = [];
+                        $total = count($value);
+                        $limit = min($this->relationshipLimit, $total);
+                        $counter = $limit;
                         foreach ($value as $object) {
                             $data[] = $this->for($object)->getIdentifier();
+                            $counter--;
+                            if ($counter === 0) {
+                                break;
+                            }
+                        }
+                        if ($total > $limit) {
+                            $meta = new Document\Meta();
+                            $meta->addField('total', $total);
+                            $meta->addField('limit', $limit);
+                            $meta->addField('offset', 0);
                         }
                     } elseif ($value) {
                         $data = $this->for($value)->getIdentifier();
@@ -181,7 +206,7 @@ class Encoder
 
                     $relationship = new Document\Relationship($field->name, $data);
                     $relationship->setLinks([
-                        LinkProvider::createSelfLink($resourceObject, $relationship),
+                        LinkProvider::createRelationshipLink($resourceObject, $relationship, $meta),
                         LinkProvider::createRelatedLink($resourceObject, $relationship)
                     ]);
                     $resourceObject->addRelationship($relationship);

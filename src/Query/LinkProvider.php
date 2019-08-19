@@ -9,6 +9,7 @@
 namespace JSONAPI\Query;
 
 use JSONAPI\Document\Link;
+use JSONAPI\Document\Meta;
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\BadRequest;
@@ -89,34 +90,59 @@ class LinkProvider
 
     /**
      * @param ResourceObjectIdentifier $resource
-     * @param Relationship|null        $relationship
+     * @param Meta|null                $meta
      *
      * @return Link
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws InvalidArgumentException
      */
-    public static function createSelfLink(ResourceObjectIdentifier $resource, Relationship $relationship = null): Link
+    public static function createSelfLink(ResourceObjectIdentifier $resource, Meta $meta = null): Link
     {
         $url = self::getAPIUrl() . $resource->getType() . '/' . $resource->getId();
-        if ($relationship) {
-            $url .= '/relationships/' . $relationship->getKey();
-        }
-        return new Link(self::SELF, $url);
+        return new Link(self::SELF, $url, $meta);
     }
 
     /**
      * @param ResourceObjectIdentifier $resource
      * @param Relationship             $relationship
      *
+     * @param Meta|null                $meta
+     *
      * @return Link
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws InvalidArgumentException
      */
-    public static function createRelatedLink(ResourceObjectIdentifier $resource, Relationship $relationship): Link
-    {
+    public static function createRelationshipLink(
+        ResourceObjectIdentifier $resource,
+        Relationship $relationship,
+        Meta $meta = null
+    ) {
+        return new Link(
+            self::SELF,
+            (self::createSelfLink($resource))->getData() . '/relationships/' . $relationship->getKey(),
+            $meta
+        );
+    }
+
+    /**
+     * @param ResourceObjectIdentifier $resource
+     * @param Relationship             $relationship
+     *
+     * @param Meta|null                $meta
+     *
+     * @return Link
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     */
+    public static function createRelatedLink(
+        ResourceObjectIdentifier $resource,
+        Relationship $relationship,
+        Meta $meta = null
+    ): Link {
         $url = self::getAPIUrl() . $resource->getType() . '/' . $resource->getId() . '/' . $relationship->getKey();
-        return new Link(self::RELATED, $url);
+        return new Link(self::RELATED, $url, $meta);
     }
 }
