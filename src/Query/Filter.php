@@ -15,7 +15,7 @@ interface Filter
      *
      * @param $filter
      */
-    public function parse($filter);
+    public function parse($filter): void;
 
     /**
      * @return mixed

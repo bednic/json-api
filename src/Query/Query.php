@@ -114,11 +114,11 @@ class Query
     }
 
     /**
-     * @return mixed
+     * @return Filter
      */
-    public function getFilter()
+    public function getFilter(): Filter
     {
-        return $this->filterParser->getCondition();
+        return $this->filterParser;
     }
 
     /**
