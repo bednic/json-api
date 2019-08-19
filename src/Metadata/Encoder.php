@@ -10,11 +10,10 @@ namespace JSONAPI\Metadata;
 
 use DateTime;
 use Doctrine\Common\Util\ClassUtils;
-
-use JSONAPI\Document;
 use JSONAPI\Annotation;
-use JSONAPI\Document\ResourceObjectIdentifier;
+use JSONAPI\Document;
 use JSONAPI\Document\ResourceObject;
+use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
@@ -82,6 +81,7 @@ class Encoder
 
     /**
      * @param $object
+     *
      * @return ResourceObjectIdentifier
      * @throws AnnotationMisplace
      * @throws ClassNotExist
@@ -96,6 +96,7 @@ class Encoder
 
     /**
      * @param $object
+     *
      * @return ResourceObject
      * @throws AnnotationMisplace
      * @throws ClassNotExist
@@ -129,9 +130,9 @@ class Encoder
     {
         try {
             if ($this->metadata->getId()->getter != null) {
-                return (string) call_user_func([$this->object, $this->metadata->getId()->getter]);
+                return (string)call_user_func([$this->object, $this->metadata->getId()->getter]);
             } else {
-                return (string) $this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
+                return (string)$this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
             }
         } catch (ReflectionException $e) {
             return null;
@@ -140,6 +141,7 @@ class Encoder
 
     /**
      * @param ResourceObject $resourceObject
+     *
      * @throws AnnotationMisplace
      * @throws ClassNotExist
      * @throws ClassNotResource
@@ -209,6 +211,7 @@ class Encoder
 
     /**
      * @param $object
+     *
      * @return Encoder
      * @throws AnnotationMisplace
      * @throws ClassNotExist

@@ -51,6 +51,7 @@ class Error implements JsonSerializable, HasLinks, HasMeta
 
     /**
      * @param JsonApiException $exception
+     *
      * @return Error
      */
     public static function fromException(JsonApiException $exception)

@@ -33,7 +33,6 @@ class Meta implements JsonSerializable
     /**
      * @param $key
      * @param $value
-
      */
     public function addField($key, $value): void
     {

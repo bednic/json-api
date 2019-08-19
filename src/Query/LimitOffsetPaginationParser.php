@@ -17,6 +17,7 @@ class LimitOffsetPaginationParser implements Pagination
      * @var int
      */
     private $limit;
+
     /**
      * @var int
      */

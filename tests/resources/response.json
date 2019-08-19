@@ -1,1 +1,57 @@
-{"jsonapi":{"version":"1.0"},"data":{"type":"resource","id":"uuid","attributes":{"publicProperty":"public-value","privateProperty":"private-value"},"relationships":{"relations":{"data":[{"type":"resource-relation","id":"relation-uuid"}],"links":{"self":"http:\/\/unit.test.org\/resource\/uuid\/relationships\/relations","related":"http:\/\/unit.test.org\/resource\/uuid\/relations"}}},"links":{"self":"http:\/\/unit.test.org\/resource\/uuid"}},"included":[{"type":"resource-relation","id":"relation-uuid","relationships":{"object":{"data":{"type":"resource","id":"uuid"},"links":{"self":"http:\/\/unit.test.org\/resource-relation\/relation-uuid\/relationships\/object","related":"http:\/\/unit.test.org\/resource-relation\/relation-uuid\/object"}}},"links":{"self":"http:\/\/unit.test.org\/resource-relation\/relation-uuid"}}],"links":{"self":"http:\/\/unit.test.org\/resource\/uuid"},"meta":{"count":1}}
+{
+  "jsonapi": {
+    "version": "1.0"
+  },
+  "data": {
+    "type": "resource",
+    "id": "uuid",
+    "attributes": {
+      "publicProperty": "public-value",
+      "privateProperty": "private-value"
+    },
+    "relationships": {
+      "relations": {
+        "data": [
+          {
+            "type": "resource-relation",
+            "id": "relation-uuid"
+          }
+        ],
+        "links": {
+          "self": "http:\/\/unit.test.org\/resource\/uuid\/relationships\/relations",
+          "related": "http:\/\/unit.test.org\/resource\/uuid\/relations"
+        }
+      }
+    },
+    "links": {
+      "self": "http:\/\/unit.test.org\/resource\/uuid"
+    }
+  },
+  "included": [
+    {
+      "type": "resource-relation",
+      "id": "relation-uuid",
+      "relationships": {
+        "object": {
+          "data": {
+            "type": "resource",
+            "id": "uuid"
+          },
+          "links": {
+            "self": "http:\/\/unit.test.org\/resource-relation\/relation-uuid\/relationships\/object",
+            "related": "http:\/\/unit.test.org\/resource-relation\/relation-uuid\/object"
+          }
+        }
+      },
+      "links": {
+        "self": "http:\/\/unit.test.org\/resource-relation\/relation-uuid"
+      }
+    }
+  ],
+  "links": {
+    "self": "http:\/\/unit.test.org\/resource\/uuid"
+  },
+  "meta": {
+    "count": 1
+  }
+}

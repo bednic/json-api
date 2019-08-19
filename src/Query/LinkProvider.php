@@ -90,6 +90,7 @@ class LinkProvider
     /**
      * @param ResourceObjectIdentifier $resource
      * @param Relationship|null        $relationship
+     *
      * @return Link
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
@@ -107,6 +108,7 @@ class LinkProvider
     /**
      * @param ResourceObjectIdentifier $resource
      * @param Relationship             $relationship
+     *
      * @return Link
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType

@@ -7,6 +7,12 @@ use DateTime;
 use Exception;
 use JSONAPI\Query\Filter;
 
+/**
+ * Class ArrayFilterParser
+ *
+ * @package JSONAPI\Filter
+ * @deprecated
+ */
 class ArrayFilterParser implements Filter
 {
     const EQUAL = "=";

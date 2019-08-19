@@ -97,6 +97,7 @@ final class ClassMetadata
 
     /**
      * @param string $name
+     *
      * @return Annotation\Attribute|null
      */
     public function getAttribute(string $name): ?Annotation\Attribute
@@ -114,6 +115,7 @@ final class ClassMetadata
 
     /**
      * @param string $name
+     *
      * @return Annotation\Relationship|null
      */
     public function getRelationship(string $name): ?Annotation\Relationship
@@ -123,6 +125,7 @@ final class ClassMetadata
 
     /**
      * @param string $fieldName
+     *
      * @return bool
      */
     public function isRelationship(string $fieldName): bool
@@ -132,6 +135,7 @@ final class ClassMetadata
 
     /**
      * @param string $fieldName
+     *
      * @return bool
      */
     public function isAttribute(string $fieldName): bool

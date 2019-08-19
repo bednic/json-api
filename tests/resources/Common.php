@@ -8,8 +8,6 @@
 
 namespace JSONAPI\Test;
 
-use JSONAPI\Annotation as API;
-
 /**
  * Class Common
  *

@@ -31,6 +31,7 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
      * ResourceObject constructor.
      *
      * @param ResourceObjectIdentifier $resourceIdentifier
+     *
      * @throws ForbiddenDataType
      */
     public function __construct(ResourceObjectIdentifier $resourceIdentifier)
@@ -51,6 +52,7 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
      * Function return Attribute or null if doesn't exist
      *
      * @param string $key
+     *
      * @return Attribute|null
      */
     public function getAttribute(string $key): ?Attribute
@@ -84,6 +86,7 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
      * Returns Relationship or null if doesn't exist
      *
      * @param string $key
+     *
      * @return Relationship | null
      */
     public function getRelationship(string $key): ?Relationship

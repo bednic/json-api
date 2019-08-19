@@ -3,7 +3,11 @@
 
 namespace JSONAPI\Query;
 
-
+/**
+ * Interface Filter
+ *
+ * @package JSONAPI\Query
+ */
 interface Filter
 {
     /**

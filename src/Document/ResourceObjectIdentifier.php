@@ -39,6 +39,7 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
      *
      * @param string      $type
      * @param string|null $id
+     *
      * @throws ForbiddenDataType
      */
     public function __construct(string $type, ?string $id)

@@ -23,6 +23,7 @@ class Link extends Field implements HasMeta
      * @param string    $key
      * @param string    $uri
      * @param Meta|null $meta
+     *
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
@@ -36,6 +37,7 @@ class Link extends Field implements HasMeta
 
     /**
      * @param $data
+     *
      * @throws ForbiddenDataType
      * @throws InvalidArgumentException
      */

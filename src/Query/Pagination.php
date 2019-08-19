@@ -6,6 +6,11 @@ namespace JSONAPI\Query;
 
 use JSONAPI\Exception\Query\MethodNotImplemented;
 
+/**
+ * Interface Pagination
+ *
+ * @package JSONAPI\Query
+ */
 interface Pagination
 {
     /**

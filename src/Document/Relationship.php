@@ -31,6 +31,7 @@ class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
      * @param           $data
      * @param array     $links
      * @param Meta|null $meta
+     *
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */

@@ -19,7 +19,6 @@ use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
-use JSONAPI\JsonDeserializable;
 use JSONAPI\Metadata\ClassMetadata;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -55,6 +54,7 @@ class AnnotationDriver
      * AnnotationDriver constructor.
      *
      * @param LoggerInterface|null $logger
+     *
      * @throws AnnotationException
      */
     public function __construct(LoggerInterface $logger = null)
@@ -67,10 +67,12 @@ class AnnotationDriver
      * Returns metadata for provided class name
      *
      * @param string $className
+     *
      * @return ClassMetadata
      * @throws AnnotationMisplace
      * @throws ClassNotExist
      * @throws ClassNotResource
+     * @throws DriverException
      */
     public function getClassMetadata(string $className): ClassMetadata
     {
@@ -146,6 +148,7 @@ class AnnotationDriver
      * @param                  $id
      * @param ArrayCollection  $attributes
      * @param ArrayCollection  $relationships
+     *
      * @throws AnnotationMisplace
      * @throws DriverException
      */
@@ -262,6 +265,7 @@ class AnnotationDriver
      *
      * @param ReflectionMethod $reflectionMethod
      * @param ReflectionClass  $reflectionClass
+     *
      * @return bool
      */
     private function isGetter(ReflectionMethod $reflectionMethod, ReflectionClass $reflectionClass): bool

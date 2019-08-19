@@ -60,6 +60,7 @@ class MetadataFactory
      * @param string               $pathToObjects
      * @param Cache|null           $cache
      * @param LoggerInterface|null $logger
+     *
      * @throws AnnotationException
      * @throws AnnotationMisplace
      * @throws ClassNotExist
@@ -80,6 +81,7 @@ class MetadataFactory
 
     /**
      * @param string $className
+     *
      * @return ClassMetadata
      * @throws ClassNotResource
      * @throws AnnotationMisplace
@@ -99,6 +101,7 @@ class MetadataFactory
 
     /**
      * @param string $resourceType
+     *
      * @return ClassMetadata
      * @throws AnnotationMisplace
      * @throws ClassNotExist
@@ -111,6 +114,7 @@ class MetadataFactory
 
     /**
      * @param string $resourceType
+     *
      * @return string
      */
     public function getClassByType(string $resourceType): string
@@ -179,6 +183,7 @@ class MetadataFactory
 
     /**
      * @param string $className
+     *
      * @throws AnnotationMisplace
      * @throws ClassNotExist
      * @throws ClassNotResource

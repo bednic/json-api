@@ -12,6 +12,7 @@ namespace JSONAPI\Filter;
  * Class Condition
  *
  * @package JSONAPI\Query
+ * @deprecated
  */
 class Condition
 {

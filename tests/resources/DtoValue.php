@@ -74,6 +74,7 @@ class DtoValue implements JsonConvertible
 
     /**
      * @param array $json
+     *
      * @return static
      */
     public static function jsonDeserialize(array $json)

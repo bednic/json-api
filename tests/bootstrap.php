@@ -1,5 +1,7 @@
 <?php
 
+use Doctrine\Common\Annotations\AnnotationReader;
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 putenv("JSON_API_URL=http://unit.test.org/");
@@ -26,4 +28,4 @@ $_GET['filter'] = [
     ]
 ];
 
-\Doctrine\Common\Annotations\AnnotationReader::addGlobalIgnoredName('runTestsInSeparateProcesses');
+AnnotationReader::addGlobalIgnoredName('runTestsInSeparateProcesses');

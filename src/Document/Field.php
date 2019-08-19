@@ -29,6 +29,7 @@ abstract class Field implements JsonSerializable
      *
      * @param string $key
      * @param        $data
+     *
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
@@ -48,6 +49,7 @@ abstract class Field implements JsonSerializable
 
     /**
      * @param string $key
+     *
      * @throws ForbiddenCharacter
      */
     protected function setKey(string $key)
@@ -68,6 +70,7 @@ abstract class Field implements JsonSerializable
 
     /**
      * @param $data
+     *
      * @throws ForbiddenDataType
      */
     protected function setData($data)

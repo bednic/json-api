@@ -9,7 +9,6 @@ use JSONAPI\Exception\NotFoundException;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Middleware\PsrJsonApiMiddleware;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;

@@ -8,28 +8,30 @@
 
 namespace JSONAPI\Document;
 
-use JSONAPI\Exception\Driver\AnnotationMisplace;
-use JSONAPI\Exception\Driver\ClassNotExist;
-use JSONAPI\Exception\Driver\ClassNotResource;
-use JSONAPI\Exception\Encoder\InvalidField;
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Document\NotFound;
 use JSONAPI\Exception\Document\ResourceTypeMismatch;
+use JSONAPI\Exception\Driver\AnnotationMisplace;
+use JSONAPI\Exception\Driver\ClassNotExist;
+use JSONAPI\Exception\Driver\ClassNotResource;
+use JSONAPI\Exception\Encoder\InvalidField;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\JsonDeserializable;
+use JSONAPI\LinksTrait;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\MetaTrait;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
-use JSONAPI\LinksTrait;
-use JSONAPI\MetaTrait;
 use JsonSerializable;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use ReflectionClass;
+use ReflectionException;
 
 /**
  * Class Document
@@ -108,6 +110,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     /**
      * @param ServerRequestInterface $request
      * @param MetadataFactory        $factory
+     *
      * @return Document
      * @throws AnnotationMisplace
      * @throws ClassNotExist
@@ -134,10 +137,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                         $attr = $metadata->getAttribute($attribute);
                         /** @var JsonDeserializable $className */
                         $className = $attr->type;
-                        if ((new \ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
-                            $value = $className::jsonDeserialize((array) $value);
+                        if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
+                            $value = $className::jsonDeserialize((array)$value);
                         }
-                    } catch (\ReflectionException $ignored) {
+                    } catch (ReflectionException $ignored) {
                         //NOSONAR
                     }
                     $object->addAttribute(new Attribute($attribute, $value));
@@ -169,10 +172,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                     $attr = $metadata->getAttribute($attribute);
                     /** @var JsonDeserializable $className */
                     $className = $attr->type;
-                    if ((new \ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
-                        $value = $className::jsonDeserialize((array) $value);
+                    if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
+                        $value = $className::jsonDeserialize((array)$value);
                     }
-                } catch (\ReflectionException $ignored) {
+                } catch (ReflectionException $ignored) {
                     //NOSONAR
                 }
                 $object->addAttribute(new Attribute($attribute, $value));
@@ -215,6 +218,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
 
     /**
      * @param object|object[] $data
+     *
      * @throws AnnotationMisplace
      * @throws BadRequest
      * @throws ClassNotExist
@@ -257,6 +261,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      *
      * @param object        $object
      * @param ClassMetadata $metadata
+     *
      * @return ResourceObject|ResourceObjectIdentifier|null
      * @throws AnnotationMisplace
      * @throws BadRequest
@@ -295,6 +300,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
 
     /**
      * @param $id
+     *
      * @return bool
      */
     private function isUnique($id): bool
@@ -304,6 +310,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
 
     /**
      * @param ResourceObjectIdentifier $resource
+     *
      * @return string
      */
     private function getId(ResourceObjectIdentifier $resource): string
@@ -314,6 +321,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     /**
      * @param $includes
      * @param $object
+     *
      * @throws AnnotationMisplace
      * @throws ClassNotExist
      * @throws ClassNotResource

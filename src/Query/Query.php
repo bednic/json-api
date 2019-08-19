@@ -10,7 +10,6 @@ namespace JSONAPI\Query;
 
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Filter\ArrayFilterParser;
 use Slim\Psr7\Factory\UriFactory;
 
 /**
@@ -58,8 +57,7 @@ class Query
      */
     public function __construct(Filter $filterParser = null, Pagination $paginationParser = null)
     {
-        // todo: in version 3.x change default to VoidFilterParser, this is only for compatibility
-        $this->filterParser = $filterParser ?? new ArrayFilterParser();
+        $this->filterParser = $filterParser ?? new VoidFilterParser();
         $this->paginationParser = $paginationParser ?? new LimitOffsetPaginationParser();
 
         if (isset($_GET['include'])) {

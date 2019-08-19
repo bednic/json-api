@@ -1,1 +1,21 @@
-{"data": {"type": "resource", "id": "uuid", "attributes": {"publicProperty": "public-value", "privateProperty": "private-value", "readOnlyProperty": "read-only-value"}, "relationships": {"relations": {"data": [{"type": "resource-relation", "id": "relation-uuid"}]}}}}
+{
+  "data": {
+    "type": "resource",
+    "id": "uuid",
+    "attributes": {
+      "publicProperty": "public-value",
+      "privateProperty": "private-value",
+      "readOnlyProperty": "read-only-value"
+    },
+    "relationships": {
+      "relations": {
+        "data": [
+          {
+            "type": "resource-relation",
+            "id": "relation-uuid"
+          }
+        ]
+      }
+    }
+  }
+}

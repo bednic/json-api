@@ -8,8 +8,6 @@
 
 namespace JSONAPI\Test;
 
-use JSONAPI\Annotation as API;
-
 /**
  * Class RelationExample
  *
@@ -34,7 +32,7 @@ class RelationExample extends Common
     }
 
     /**
-     * @param \JSONAPI\Test\ObjectExample $object
+     * @param ObjectExample $object
      */
     public function setObject(ObjectExample $object): void
     {

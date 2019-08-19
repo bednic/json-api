@@ -8,7 +8,6 @@
 
 namespace JSONAPI\Test;
 
-use \JSONAPI\Annotation as API;
 use JSONAPI\Test\resources\DtoValue;
 
 /**

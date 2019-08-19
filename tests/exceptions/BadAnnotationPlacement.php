@@ -3,8 +3,6 @@
 
 namespace JSONAPI\Test;
 
-use JSONAPI\Annotation as API;
-
 /**
  * Class BadAnnotationPlacement
  *
@@ -26,6 +24,7 @@ class BadAnnotationPlacement
 
     /**
      * @param mixed $property
+     *
      * @API\Attribute
      */
     public function setProperty($property): void
