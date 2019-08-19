@@ -68,7 +68,7 @@ class Encoder
     /**
      * @var int
      */
-    private $relationshipLimit;
+    private $relationshipLimit = 25;
 
     /**
      * Encoder constructor.
@@ -76,17 +76,30 @@ class Encoder
      * @param MetadataFactory $metadataFactory
      * @param Query           $query
      * @param LoggerInterface $logger
-     * @param int             $relationshipLimit
      */
     public function __construct(
         MetadataFactory $metadataFactory,
         Query $query = null,
-        LoggerInterface $logger = null,
-        int $relationshipLimit = 25
+        LoggerInterface $logger = null
     ) {
         $this->metadataFactory = $metadataFactory;
         $this->logger = $logger ?? new NullLogger();
         $this->query = $query ?? new Query();
+    }
+
+    /**
+     * @return int
+     */
+    public function getRelationshipLimit(): int
+    {
+        return $this->relationshipLimit;
+    }
+
+    /**
+     * @param int $relationshipLimit
+     */
+    public function setRelationshipLimit(int $relationshipLimit): void
+    {
         $this->relationshipLimit = $relationshipLimit;
     }
 

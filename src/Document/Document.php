@@ -108,6 +108,14 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
+     * @return Encoder
+     */
+    public function getEncoder(): Encoder
+    {
+        return $this->encoder;
+    }
+
+    /**
      * @param ServerRequestInterface $request
      * @param MetadataFactory        $factory
      *
