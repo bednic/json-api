@@ -18,6 +18,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [3.0.0]
+
+### Added
+* `Filter` interface
+    * This resolve problem with externally defined filter parser. Because JSON-API standard is agnostic
+    about filtering, we should be too. So now it's possible define own parser which will parse filter value
+* `Pagination` interface
+    * This interface is focused to extract pagination strategy out of library. Cause JSON-API is agnostic
+    about pagination strategy. So you can now define own strategy for pagination. Now we support page-based, 
+    offset-based and cursor-based, but all only throw interface. Only offset-based strategy is implemented
+
+* `LimitOffsetPaginationParser` offset-based pagination implementation
+* `VoidFilterParser` default filter parser, just pass filter without modification
+* `MethodNotImplemented` is supposed to be thrown when method in `Filter` or `Pagination` is not implemented 
+it's standard server error, not uri error.
+* `Encoder::relationshipLimit` this tells to encoder to limit relationships, so it's not that huge on response
+* `Document::getEncoder()` expose `Encoder` out
+* `Encoder::setRelationshipLimit()` through this you can set limit for relationships
+* `Encoder::getRelationshipLimit()`
+
+### Changed
+* `Query::getFilter` now returns `Filter` interface
+* `Query::getPagination` now returns `Pagination` interface
+
+### Deprecated 
+
+### Fixed
+* Primary link now contains query string, like ?filter etc.
+
+### Removed 
+* Default filtering is removed, see `Filter` interface
+
+### Security
+
 ## [2.4.0]
 
 ### Added
@@ -243,7 +277,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/2.4.0...2.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/3.0.0...3.x
+[3.0.0]: https://gitlab.com/bednic/json-api/compare/2.4.0...3.0.0
 [2.4.0]: https://gitlab.com/bednic/json-api/compare/2.3.4...2.4.0
 [2.3.4]: https://gitlab.com/bednic/json-api/compare/2.3.3...2.3.4
 [2.3.3]: https://gitlab.com/bednic/json-api/compare/2.3.2...2.3.3
