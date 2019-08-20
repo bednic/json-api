@@ -7,9 +7,9 @@ namespace JSONAPI;
 interface JsonDeserializable
 {
     /**
-     * @param array $json
+     * @param mixed $json
      *
      * @return static
      */
-    public static function jsonDeserialize(array $json);
+    public static function jsonDeserialize($json);
 }

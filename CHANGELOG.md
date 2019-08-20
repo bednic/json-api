@@ -18,6 +18,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [3.0.1]
+
+### Added
+
+### Changed
+* `JsonDeserializable::jsonDeserialize` is now type free, cause sometimes we need serialize non-array data
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+
+### Security
+
 ## [3.0.0]
 
 ### Added
@@ -277,7 +292,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/3.0.0...3.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/3.0.1...3.x
+[3.0.1]: https://gitlab.com/bednic/json-api/compare/3.0.0...3.0.1
 [3.0.0]: https://gitlab.com/bednic/json-api/compare/2.4.0...3.0.0
 [2.4.0]: https://gitlab.com/bednic/json-api/compare/2.3.4...2.4.0
 [2.3.4]: https://gitlab.com/bednic/json-api/compare/2.3.3...2.3.4
