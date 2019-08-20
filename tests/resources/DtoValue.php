@@ -77,8 +77,9 @@ class DtoValue implements JsonConvertible
      *
      * @return static
      */
-    public static function jsonDeserialize(array $json)
+    public static function jsonDeserialize($json)
     {
+        $json = (array) $json;
         $self = new static();
         $self->setStringProperty($json['stringProperty']);
         $self->setIntProperty($json['intProperty']);
