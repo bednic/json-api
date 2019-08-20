@@ -181,7 +181,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                     /** @var JsonDeserializable $className */
                     $className = $attr->type;
                     if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
-                        $value = $className::jsonDeserialize((array)$value);
+                        $value = $className::jsonDeserialize($value);
                     }
                 } catch (ReflectionException $ignored) {
                     //NOSONAR
