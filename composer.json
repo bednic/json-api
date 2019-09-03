@@ -32,6 +32,7 @@
         "ext-json": "*",
         "doctrine/annotations": "^1.6",
         "doctrine/cache": "^1.8",
+        "doctrine/collections": "^1.6",
         "doctrine/common": "^2.10",
         "psr/http-server-middleware": "^1.0",
         "psr/log": "^1.1",

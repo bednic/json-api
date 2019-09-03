@@ -11,6 +11,7 @@ namespace JSONAPI\Driver;
 use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
@@ -48,7 +49,7 @@ class AnnotationDriver
     /**
      * Regex patter for getters
      */
-    private const GETTER = '/^(is|get)/';
+    private const GETTER = '/^(get|is|has)/';
 
     /**
      * AnnotationDriver constructor.
@@ -107,7 +108,8 @@ class AnnotationDriver
         &$id,
         ArrayCollection &$attributes,
         ArrayCollection &$relationships
-    ): void {
+    ): void
+    {
         foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
             if (!$id && ($id = $this->reader->getPropertyAnnotation($reflectionProperty, Id::class))) {
@@ -157,49 +159,41 @@ class AnnotationDriver
         &$id,
         ArrayCollection &$attributes,
         ArrayCollection &$relationships
-    ): void {
+    ): void
+    {
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
                 if (!$id && ($id = $this->reader->getMethodAnnotation($reflectionMethod, Id::class))) {
-                    if (!$id->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
+                    if (!$this->isGetter($reflectionMethod)) {
                         throw new AnnotationMisplace(
                             Id::class,
                             $reflectionMethod->getName(),
                             $reflectionClass->name
                         );
                     }
-                    if (!$id->getter) {
-                        $id->getter = $reflectionMethod->getName();
-                    }
+                    $id->getter = $reflectionMethod->getName();
                     $this->logger->debug("Found resource ID.");
-                    if (!$id->property || !$reflectionClass->hasProperty($id->property)) {
-                        $property = lcfirst(preg_replace(self::GETTER, '', $id->getter));
-                        $id->property = $reflectionClass->hasProperty($property) ? $property : null;
-                    }
                 }
+
                 /** @var Attribute $attribute */
                 if ($attribute = $this->reader->getMethodAnnotation($reflectionMethod, Attribute::class)) {
-                    if (!$attribute->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
+                    if (!$this->isGetter($reflectionMethod)) {
                         throw new AnnotationMisplace(
                             Attribute::class,
                             $reflectionMethod->getName(),
                             $reflectionClass->name
                         );
                     }
-                    if (!$attribute->getter) {
-                        $attribute->getter = $reflectionMethod->getName();
-                    }
+                    $attribute->getter = $reflectionMethod->getName();
+
                     if (!$attribute->name) {
-                        $attribute->name = lcfirst(preg_replace(self::GETTER, '', $reflectionMethod->getName()));
+                        $attribute->name = $this->getName($reflectionMethod);
                     }
-                    if ($attribute->setter === null) {
-                        if ($reflectionClass->hasMethod(preg_replace(self::GETTER, 'set', $attribute->getter))) {
-                            $attribute->setter = preg_replace(self::GETTER, 'set', $attribute->getter);
-                        } elseif ($reflectionClass->hasMethod('set' . ucfirst($attribute->name))) {
-                            $attribute->setter = 'set' . ucfirst($attribute->name);
-                        } elseif ($reflectionClass->hasMethod('set' . ucfirst($attribute->property))) {
-                            $attribute->setter = 'set' . ucfirst($attribute->property);
-                        }
+                    if ($attribute->setter === null
+                        && $reflectionClass->hasMethod(
+                            preg_replace(self::GETTER, 'set', $attribute->getter))
+                    ) {
+                        $attribute->setter = preg_replace(self::GETTER, 'set', $attribute->getter);
                     }
 
                     if ($attribute->setter) {
@@ -208,11 +202,11 @@ class AnnotationDriver
                             if ($setter->getNumberOfRequiredParameters() > 1) {
                                 throw new DriverException("Setter can have only one required parameter.");
                             }
-                            $parameter = $setter->getParameters()[0];
+                            $parameter = array_shift($setter->getParameters());
                             $attribute->type = $parameter->getType()->isBuiltin() ? $parameter->getType()
                                 : $parameter->getClass()->getName();
-                        } catch (ReflectionException $ignored) {
-                            //NOSONAR
+                        } catch (ReflectionException $exception) {
+                            throw new DriverException($exception->getMessage(), $exception->getCode(), $exception);
                         }
                     }
                     $attributes->set($attribute->name, $attribute);
@@ -220,39 +214,24 @@ class AnnotationDriver
                 }
                 /** @var Relationship $relationship */
                 if ($relationship = $this->reader->getMethodAnnotation($reflectionMethod, Relationship::class)) {
-                    if (!$relationship->getter && !$this->isGetter($reflectionMethod, $reflectionClass)) {
+                    if (!$this->isGetter($reflectionMethod)) {
                         throw new AnnotationMisplace(
                             Relationship::class,
                             $reflectionMethod->getName(),
                             $reflectionClass->name
                         );
                     }
-                    if (!$relationship->getter) {
-                        $relationship->getter = $reflectionMethod->getName();
-                    }
+                    $relationship->getter = $reflectionMethod->getName();
                     if (!$relationship->name) {
-                        $relationship->name = lcfirst(preg_replace(self::GETTER, '', $reflectionMethod->getName()));
+                        $relationship->name = $this->getName($reflectionMethod);
                     }
-                    if (!$relationship->setter) {
-                        if ($reflectionClass->hasMethod(preg_replace(self::GETTER, 'set', $relationship->getter))) {
-                            $relationship->setter = preg_replace(self::GETTER, 'set', $relationship->getter);
-                        } elseif ($reflectionClass->hasMethod('set' . ucfirst($relationship->name))) {
-                            $relationship->setter = 'set' . ucfirst($relationship->name);
-                        } elseif ($reflectionClass->hasMethod('set' . ucfirst($relationship->property))) {
-                            $relationship->setter = 'set' . ucfirst($relationship->property);
-                        }
+                    if ($relationship->setter === null
+                        && $reflectionClass->hasMethod(
+                            preg_replace(self::GETTER, 'set', $relationship->getter))
+                    ) {
+                        $relationship->setter = preg_replace(self::GETTER, 'set', $relationship->getter);
                     }
-                    try {
-                        if (($reflectionMethod->getReturnType()->isBuiltin()
-                                && ($reflectionMethod->getReturnType()->getName() === 'array')) ||
-                            ((new ReflectionClass($reflectionMethod->getReturnType()->getName()))
-                                ->implementsInterface(Traversable::class))
-                        ) {
-                            $relationship->isCollection = true;
-                        }
-                    } catch (ReflectionException $ignored) {
-                        //NOSONAR
-                    }
+                    $relationship->isCollection = $this->isCollection($reflectionMethod);
                     $relationships->set($relationship->name, $relationship);
                     $this->logger->debug("Found resource relationship {$relationship->name}.");
                 }
@@ -264,18 +243,80 @@ class AnnotationDriver
      * This method try determine, if method on class is getter.
      *
      * @param ReflectionMethod $reflectionMethod
-     * @param ReflectionClass  $reflectionClass
      *
      * @return bool
      */
-    private function isGetter(ReflectionMethod $reflectionMethod, ReflectionClass $reflectionClass): bool
+    private function isGetter(ReflectionMethod $reflectionMethod): bool
     {
-        return !(
-            (!$reflectionMethod->hasReturnType()) ||
-            (
-                ($reflectionMethod->getReturnType()->isBuiltin() === true) &&
-                ($reflectionMethod->getReturnType()->getName() === 'void')
-            )
-        );
+        return $reflectionMethod->hasReturnType()
+            && $reflectionMethod->getReturnType()->getName() !== 'void'
+            && preg_match(self::GETTER, $reflectionMethod->getName());
+    }
+
+    /**
+     * @param ReflectionMethod $reflectionMethod
+     *
+     * @return string
+     */
+    private function getName(ReflectionMethod $reflectionMethod): string
+    {
+        return lcfirst(preg_replace(self::GETTER, '', $reflectionMethod->getName()));
+    }
+
+    /**
+     * @param ReflectionMethod $reflectionMethod
+     *
+     * @return bool
+     * @throws DriverException
+     */
+    private function isCollection(ReflectionMethod $reflectionMethod): bool
+    {
+        if ($reflectionMethod->getReturnType()->isBuiltin() && $reflectionMethod->getReturnType()->getName() === 'array') {
+            throw new DriverException("Collection relationships cannot return array, but " . Collection::class . ".");
+        }
+
+        try {
+            return (new ReflectionClass($reflectionMethod->getReturnType()->getName()))
+                ->implementsInterface(Collection::class);
+        } catch (\Exception $exception) {
+            throw new DriverException($exception->getMessage(), $exception->getCode(), $exception);
+        }
+
+    }
+
+    /**
+     * @param ReflectionClass $reflectionClass
+     * @param Attribute       $attribute
+     *
+     * @return string|null
+     */
+    private function parseSetter(ReflectionClass $reflectionClass, Attribute $attribute): ?string
+    {
+        if($reflectionClass->hasMethod(preg_replace(self::GETTER, 'set', $attribute->getter))) {
+            return preg_replace(self::GETTER, 'set', $attribute->getter);
+        }
+        return null;
+    }
+
+    /**
+     * @param ReflectionClass $reflectionClass
+     * @param Attribute       $attribute
+     *
+     * @return mixed
+     * @throws DriverException
+     */
+    private function getSetterParameterType(ReflectionClass $reflectionClass, Attribute $attribute)
+    {
+        try {
+            $method = new ReflectionMethod($reflectionClass->getName(), $attribute->setter);
+        } catch (\Exception $e) {
+            throw new DriverException($e->getMessage(), $e->getCode(), $e);
+        }
+        if ($method->getNumberOfRequiredParameters() > 1) {
+            throw new DriverException("Setter can have only one required parameter.");
+        }
+        $parameter = array_shift($method->getParameters());
+        return $parameter->getType()->isBuiltin() ? $parameter->getType() : $parameter->getClass()->getName();
+
     }
 }
