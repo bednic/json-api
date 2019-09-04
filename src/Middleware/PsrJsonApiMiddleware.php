@@ -116,7 +116,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             }
             if (!$result->isValid()) {
                 $error = $result->getFirstError();
-                $msg = "Error: " . $error->keyword() . ' args: [' . implode(', ', $error->keywordArgs()) . ']';
+                $msg = "Error: " . $error->keyword() . ' args: [' . print_r($error->keywordArgs()) . ']';
                 throw new BadRequest($msg);
             }
             return $body;
