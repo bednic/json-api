@@ -16,6 +16,7 @@ use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
+use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -62,9 +63,9 @@ class MetadataFactory
      * @param LoggerInterface|null $logger
      *
      * @throws AnnotationException
-     * @throws AnnotationMisplace
      * @throws ClassNotExist
      * @throws ClassNotResource
+     * @throws DriverException
      * @throws InvalidArgumentException
      */
     public function __construct(string $pathToObjects, Cache $cache = null, LoggerInterface $logger = null)
@@ -80,12 +81,43 @@ class MetadataFactory
     }
 
     /**
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws DriverException
+     */
+    private function load(): void
+    {
+        if ($this->cache->contains(self::class)) {
+            foreach ($this->cache->fetch(self::class) as $className) {
+                $this->loadMetadata($className);
+            }
+        } else {
+            $this->createMetadataCache();
+        }
+    }
+
+    /**
+     * @param string $className
+     *
+     * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws DriverException
+     */
+    private function loadMetadata(string $className)
+    {
+        $classMetadata = $this->getMetadataByClass($className);
+        $this->metadata[$className] = $classMetadata;
+        $this->typeToClassMap[$classMetadata->getResource()->type] = $className;
+    }
+
+    /**
      * @param string $className
      *
      * @return ClassMetadata
-     * @throws ClassNotResource
      * @throws AnnotationMisplace
      * @throws ClassNotExist
+     * @throws ClassNotResource
+     * @throws DriverException
      */
     public function getMetadataByClass(string $className): ClassMetadata
     {
@@ -100,38 +132,7 @@ class MetadataFactory
     }
 
     /**
-     * @param string $resourceType
-     *
-     * @return ClassMetadata
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     */
-    public function getMetadataClassByType(string $resourceType): ClassMetadata
-    {
-        return $this->getMetadataByClass($this->getClassByType($resourceType));
-    }
-
-    /**
-     * @param string $resourceType
-     *
-     * @return string
-     */
-    public function getClassByType(string $resourceType): string
-    {
-        return $this->typeToClassMap[$resourceType];
-    }
-
-    /**
-     * @return ClassMetadata[]
-     */
-    public function getAllMetadata(): array
-    {
-        return $this->metadata;
-    }
-
-    /**
-     * @throws AnnotationMisplace
+     * @throws DriverException
      */
     private function createMetadataCache(): void
     {
@@ -166,32 +167,34 @@ class MetadataFactory
     }
 
     /**
+     * @param string $resourceType
+     *
+     * @return ClassMetadata
      * @throws AnnotationMisplace
      * @throws ClassNotExist
      * @throws ClassNotResource
+     * @throws DriverException
      */
-    private function load(): void
+    public function getMetadataClassByType(string $resourceType): ClassMetadata
     {
-        if ($this->cache->contains(self::class)) {
-            foreach ($this->cache->fetch(self::class) as $className) {
-                $this->loadMetadata($className);
-            }
-        } else {
-            $this->createMetadataCache();
-        }
+        return $this->getMetadataByClass($this->getClassByType($resourceType));
     }
 
     /**
-     * @param string $className
+     * @param string $resourceType
      *
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
+     * @return string
      */
-    private function loadMetadata(string $className)
+    public function getClassByType(string $resourceType): string
     {
-        $classMetadata = $this->getMetadataByClass($className);
-        $this->metadata[$className] = $classMetadata;
-        $this->typeToClassMap[$classMetadata->getResource()->type] = $className;
+        return $this->typeToClassMap[$resourceType];
+    }
+
+    /**
+     * @return ClassMetadata[]
+     */
+    public function getAllMetadata(): array
+    {
+        return $this->metadata;
     }
 }

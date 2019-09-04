@@ -26,9 +26,9 @@ class VoidFilterParser implements Filter
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getCondition()
+    public function getCondition(): string
     {
         return $this->filter;
     }

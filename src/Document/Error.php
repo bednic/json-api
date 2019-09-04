@@ -65,20 +65,11 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param string $id
+     * @param string $title
      */
-    public function setId(string $id): void
+    public function setTitle(string $title): void
     {
-        $this->id = $id;
-    }
-
-
-    /**
-     * @param int $status
-     */
-    public function setStatus(int $status): void
-    {
-        $this->status = $status;
+        $this->title = $title;
     }
 
     /**
@@ -90,11 +81,11 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param string $title
+     * @param int $status
      */
-    public function setTitle(string $title): void
+    public function setStatus(int $status): void
     {
-        $this->title = $title;
+        $this->status = $status;
     }
 
     /**
@@ -103,6 +94,14 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     public function setDetail(string $detail): void
     {
         $this->detail = $detail;
+    }
+
+    /**
+     * @param string $id
+     */
+    public function setId(string $id): void
+    {
+        $this->id = $id;
     }
 
     /**

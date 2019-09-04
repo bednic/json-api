@@ -39,7 +39,7 @@ class ClassMetadataTest extends TestCase
     {
         $id = self::$metadata->getId();
         $this->assertInstanceOf(Id::class, $id);
-        $this->assertEquals('id', $id->property);
+        $this->assertNull($id->property);
         $this->assertEquals('getId', $id->getter);
     }
 

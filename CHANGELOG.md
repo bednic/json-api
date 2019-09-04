@@ -7,13 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+* JSON API schema validation for requests in `PsrJsonApiMiddleware` and tests
 
 ### Changed
+* Now we insist that Relationships collections have to be `Doctrine\Common\Collections\Collection` 
+  so we can use some additional methods as `count(), slice()`.
 
 ### Deprecated 
 
 ### Fixed
-
+* `AnnotationDriver` inconsistencies. There is rule, that if `Annotation\Attribute` is on getter method,
+  then `Attribute::proptery` is empty, so we can decide if we work with object property, or object getter.
+  At some points of algorithm this rule was broken.
+ 
 ### Removed 
 
 ### Security

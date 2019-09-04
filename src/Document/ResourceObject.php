@@ -65,16 +65,6 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
     }
 
     /**
-     * @return array
-     */
-    public function getAttributes(): array
-    {
-        return $this->fields->filter(function ($element) {
-            return $element instanceof Attribute;
-        })->toArray();
-    }
-
-    /**
      * @param Relationship $relationship
      */
     public function addRelationship(Relationship $relationship)
@@ -99,16 +89,6 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
     }
 
     /**
-     * @return array
-     */
-    public function getRelationships(): array
-    {
-        return $this->fields->filter(function ($element) {
-            return $element instanceof Relationship;
-        })->toArray();
-    }
-
-    /**
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -127,5 +107,25 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
         }
         $ret['links'] = $this->links;
         return $ret;
+    }
+
+    /**
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        return $this->fields->filter(function ($element) {
+            return $element instanceof Attribute;
+        })->toArray();
+    }
+
+    /**
+     * @return array
+     */
+    public function getRelationships(): array
+    {
+        return $this->fields->filter(function ($element) {
+            return $element instanceof Relationship;
+        })->toArray();
     }
 }

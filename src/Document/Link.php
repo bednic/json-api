@@ -35,20 +35,6 @@ class Link extends Field implements HasMeta
         }
     }
 
-    /**
-     * @param $data
-     *
-     * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
-     */
-    protected function setData($data)
-    {
-        if (!filter_var($data, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException("Data are not valid URL.");
-        }
-        parent::setData($data);
-    }
-
     public function getData()
     {
         if ($this->meta) {
@@ -59,5 +45,19 @@ class Link extends Field implements HasMeta
         } else {
             return parent::getData();
         }
+    }
+
+    /**
+     * @param string $data
+     *
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     */
+    protected function setData($data): void
+    {
+        if (!filter_var($data, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException("Data are not valid URL.");
+        }
+        parent::setData($data);
     }
 }

@@ -8,15 +8,12 @@
 
 namespace JSONAPI\Document;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\Document\BadRequest;
-use JSONAPI\Exception\Document\ForbiddenCharacter;
-use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Document\NotFound;
 use JSONAPI\Exception\Document\ResourceTypeMismatch;
-use JSONAPI\Exception\Driver\AnnotationMisplace;
-use JSONAPI\Exception\Driver\ClassNotExist;
-use JSONAPI\Exception\Driver\ClassNotResource;
-use JSONAPI\Exception\Encoder\InvalidField;
+use JSONAPI\Exception\Driver\DriverException;
+use JSONAPI\Exception\Encoder\EncoderException;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\JsonDeserializable;
 use JSONAPI\LinksTrait;
@@ -108,65 +105,26 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @return Encoder
-     */
-    public function getEncoder(): Encoder
-    {
-        return $this->encoder;
-    }
-
-    /**
      * @param ServerRequestInterface $request
      * @param MetadataFactory        $factory
      *
      * @return Document
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     * @throws ResourceTypeMismatch
+     * @throws BadRequest
+     * @throws DriverException
      */
     public static function createFromRequest(ServerRequestInterface $request, MetadataFactory $factory): Document
     {
         $document = new static($factory);
-
         $metadata = $factory->getMetadataClassByType($document->getDataType());
         $body = $request->getParsedBody();
+
         if (is_array($body->data)) {
             $document->data = [];
             foreach ($body->data as $resourceDto) {
                 if ($resourceDto->type !== $document->getDataType()) {
                     throw new ResourceTypeMismatch();
                 }
-                $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
-                foreach (@$resourceDto->attributes ?? [] as $attribute => $value) {
-                    try {
-                        $attr = $metadata->getAttribute($attribute);
-                        /** @var JsonDeserializable $className */
-                        $className = $attr->type;
-                        if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
-                            $value = $className::jsonDeserialize($value);
-                        }
-                    } catch (ReflectionException $ignored) {
-                        //NOSONAR
-                    }
-                    $object->addAttribute(new Attribute($attribute, $value));
-                }
-
-                foreach (@$resourceDto->relationships ?? [] as $prop => $value) {
-                    $value = $value->data;
-                    if (is_array($value)) {
-                        $data = [];
-                        foreach ($value as $item) {
-                            $data[] = new ResourceObjectIdentifier($item->type, $item->id);
-                        }
-                    } else {
-                        $data = new ResourceObjectIdentifier($value->type, $value->id);
-                    }
-                    $relationship = new Relationship($prop, $data);
-                    $object->addRelationship($relationship);
-                }
+                $object = self::getResourceObject($resourceDto, $metadata);
                 $document->data[] = $object;
             }
         } else {
@@ -174,37 +132,73 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             if ($body->data->type !== $document->getDataType()) {
                 throw new ResourceTypeMismatch();
             }
-            $object = new ResourceObject(new ResourceObjectIdentifier($body->data->type, @$body->data->id));
-            foreach (@$body->data->attributes ?? [] as $attribute => $value) {
-                try {
-                    $attr = $metadata->getAttribute($attribute);
-                    /** @var JsonDeserializable $className */
-                    $className = $attr->type;
-                    if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
-                        $value = $className::jsonDeserialize($value);
-                    }
-                } catch (ReflectionException $ignored) {
-                    //NOSONAR
-                }
-                $object->addAttribute(new Attribute($attribute, $value));
-            }
-            foreach (@$body->data->relationships ?? [] as $prop => $value) {
-                $value = $value->data;
-                if (is_array($value)) {
-                    $data = [];
-                    foreach ($value as $item) {
-                        $data[] = new ResourceObjectIdentifier($item->type, $item->id);
-                    }
-                } else {
-                    $data = new ResourceObjectIdentifier($value->type, $value->id);
-                }
-                $relationship = new Relationship($prop, $data);
-                $object->addRelationship($relationship);
-            }
+            $object = self::getResourceObject($body->data, $metadata);
             $document->data = $object;
         }
-
         return $document;
+    }
+
+    /**
+     * @return string
+     * @throws BadRequest
+     * @throws DriverException
+     * @throws InvalidArgumentException
+     */
+    private function getDataType(): string
+    {
+        $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
+        if ($name = $this->url->getPath()->getRelationshipName()) {
+            return $this->factory->getMetadataByClass($metadata->getRelationship($name)->target)->getResource()->type;
+        }
+        return $metadata->getResource()->type;
+    }
+
+    /**
+     * @param               $resourceDto
+     * @param ClassMetadata $metadata
+     *
+     * @return ResourceObject
+     * @throws BadRequest
+     */
+    private static function getResourceObject($resourceDto, ClassMetadata $metadata)
+    {
+        $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
+        foreach ($resourceDto->attributes ?? [] as $attribute => $value) {
+            $attr = $metadata->getAttribute($attribute);
+            try {
+                $className = $attr->type;
+                if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
+                    /** @var JsonDeserializable $className */
+                    $value = $className::jsonDeserialize($value);
+                }
+            } catch (ReflectionException $ignored) {
+                //NOSONAR
+            }
+            $object->addAttribute(new Attribute($attribute, $value));
+        }
+
+        foreach ($resourceDto->relationships ?? [] as $prop => $value) {
+            $value = $value->data;
+            if (is_array($value)) {
+                $data = new ArrayCollection();
+                foreach ($value as $item) {
+                    $data->add(new ResourceObjectIdentifier($item->type, $item->id));
+                }
+            } else {
+                $data = new ResourceObjectIdentifier($value->type, $value->id);
+            }
+            $relationship = new Relationship($prop, $data);
+            $object->addRelationship($relationship);
+        }
+        return $object;
+    }
+
+    /**
+     * @return Encoder
+     */
+    public function getEncoder(): Encoder
+    {
+        return $this->encoder;
     }
 
     /**
@@ -227,16 +221,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     /**
      * @param object|object[] $data
      *
-     * @throws AnnotationMisplace
      * @throws BadRequest
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
+     * @throws DriverException
+     * @throws EncoderException
      * @throws InvalidArgumentException
-     * @throws InvalidField
-     * @throws NotFound
-     * @throws ResourceTypeMismatch
      */
     public function setData($data): void
     {
@@ -265,21 +253,34 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
+     * @return bool
+     * @throws BadRequest
+     * @throws DriverException
+     * @throws InvalidArgumentException
+     */
+    private function isCollection(): bool
+    {
+        $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
+        if ($name = $this->url->getPath()->getRelationshipName()) {
+            return $metadata->getRelationship($name)->isCollection;
+        }
+        if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($this->url->getPath()->getId())) {
+            return false;
+        }
+        return empty($this->url->getPath()->getId());
+    }
+
+    /**
      * Return ResourceObject or null if ResourceObject is already saved to data
      *
      * @param object        $object
      * @param ClassMetadata $metadata
      *
-     * @return ResourceObject|ResourceObjectIdentifier|null
-     * @throws AnnotationMisplace
+     * @return ResourceObjectIdentifier|null
      * @throws BadRequest
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
+     * @throws DriverException
+     * @throws EncoderException
      * @throws InvalidArgumentException
-     * @throws InvalidField
-     * @throws ResourceTypeMismatch
      */
     private function save($object, ClassMetadata $metadata): ?ResourceObjectIdentifier
     {
@@ -307,16 +308,6 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param $id
-     *
-     * @return bool
-     */
-    private function isUnique($id): bool
-    {
-        return !isset($this->ids[$id]);
-    }
-
-    /**
      * @param ResourceObjectIdentifier $resource
      *
      * @return string
@@ -327,16 +318,23 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
+     * @param $id
+     *
+     * @return bool
+     */
+    private function isUnique($id): bool
+    {
+        return !isset($this->ids[$id]);
+    }
+
+    /**
      * @param $includes
      * @param $object
      *
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
+     * @throws DriverException
+     * @throws EncoderException
+     * @throws BadRequest
      * @throws InvalidArgumentException
-     * @throws InvalidField
      */
     private function setIncludes($includes, $object)
     {
@@ -376,44 +374,6 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                 }
             }
         }
-    }
-
-
-    /**
-     * @return string
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws InvalidArgumentException
-     * @throws BadRequest
-     */
-    private function getDataType(): string
-    {
-        $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
-        if ($name = $this->url->getPath()->getRelationshipName()) {
-            return $this->factory->getMetadataByClass($metadata->getRelationship($name)->target)->getResource()->type;
-        }
-        return $metadata->getResource()->type;
-    }
-
-    /**
-     * @return bool
-     * @throws AnnotationMisplace
-     * @throws BadRequest
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws InvalidArgumentException
-     */
-    private function isCollection(): bool
-    {
-        $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
-        if ($name = $this->url->getPath()->getRelationshipName()) {
-            return $metadata->getRelationship($name)->isCollection;
-        }
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($this->url->getPath()->getId())) {
-            return false;
-        }
-        return empty($this->url->getPath()->getId());
     }
 
     /**

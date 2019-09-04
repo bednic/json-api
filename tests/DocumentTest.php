@@ -2,6 +2,7 @@
 
 namespace JSONAPI\Test;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Document\Attribute;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
@@ -15,6 +16,8 @@ use JSONAPI\Exception\Document\NotFound;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Test\resources\DtoValue;
+use Opis\JsonSchema\Schema;
+use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -25,12 +28,26 @@ use Psr\Http\Message\ServerRequestInterface;
  */
 class DocumentTest extends TestCase
 {
-
+    /**
+     * @var MetadataFactory
+     */
     private static $factory;
+
+    /**
+     * @var Schema
+     */
+    private static $schema;
+
+    /**
+     * @var Validator
+     */
+    private static $validator;
 
     public static function setUpBeforeClass(): void
     {
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
+        self::$schema = Schema::fromJsonString(file_get_contents(__DIR__ . '/../schema.json'));
+        self::$validator = new Validator();
     }
 
     public function testConstruct()
@@ -302,12 +319,11 @@ class DocumentTest extends TestCase
         $resource = new ObjectExample('uuid');
         $relation1 = new RelationExample('rel1');
         $relation2 = new RelationExample('rel2');
-        $resource->setRelations([$relation1, $relation2]);
+        $resource->setRelations(new ArrayCollection([$relation1, $relation2]));
         $document = new Document(self::$factory);
         $document->setData($resource);
-        $json = json_decode(json_encode($document), true);
-        $this->assertArrayHasKey('data', $json);
-        $this->assertArrayHasKey('included', $json);
+        $this->assertTrue(self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema)
+            ->isValid());
     }
 
     public function testNotFound()
@@ -324,6 +340,8 @@ class DocumentTest extends TestCase
         $document = new Document(self::$factory);
         $document->setData([]);
         $this->assertIsArray($document->getData());
+        $this->assertTrue(self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema)
+            ->isValid());
     }
 
     public function testNonIterableCollection()

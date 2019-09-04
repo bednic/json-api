@@ -18,7 +18,7 @@ interface Pagination
      *
      * @return mixed
      */
-    public function parse($data);
+    public function parse($data): void;
 
     /**
      * @return int

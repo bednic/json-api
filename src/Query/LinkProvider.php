@@ -37,30 +37,6 @@ class LinkProvider
     private static $url = '';
 
     /**
-     * @return string
-     * @throws InvalidArgumentException
-     */
-    public static function getAPIUrl(): string
-    {
-        if (!self::$url) {
-            $uriFactory = new UriFactory();
-            $fromEnv = getenv(self::API_URL_ENV);
-            if ($fromEnv !== false) {
-                if (!filter_var($fromEnv, FILTER_VALIDATE_URL)) {
-                    throw new InvalidArgumentException("Invalid URL passed from ENV");
-                }
-                $uri = $uriFactory->createUri(getenv(self::API_URL_ENV));
-                self::$url = (string)$uri . (preg_match('/\/$/', (string)$uri) === false ? '/' : '');
-            } else {
-                $uri = $uriFactory->createFromGlobals($_SERVER);
-                self::$url = $uri->getScheme() . '://' . $uri->getHost()
-                    . ($uri->getPort() ? ':' . $uri->getPort() : '') . '/';
-            }
-        }
-        return self::$url;
-    }
-
-    /**
      * @return Link[]
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
@@ -89,18 +65,27 @@ class LinkProvider
     }
 
     /**
-     * @param ResourceObjectIdentifier $resource
-     * @param Meta|null                $meta
-     *
-     * @return Link
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
+     * @return string
      * @throws InvalidArgumentException
      */
-    public static function createSelfLink(ResourceObjectIdentifier $resource, Meta $meta = null): Link
+    public static function getAPIUrl(): string
     {
-        $url = self::getAPIUrl() . $resource->getType() . '/' . $resource->getId();
-        return new Link(self::SELF, $url, $meta);
+        if (!self::$url) {
+            $uriFactory = new UriFactory();
+            $fromEnv = getenv(self::API_URL_ENV);
+            if ($fromEnv !== false) {
+                if (!filter_var($fromEnv, FILTER_VALIDATE_URL)) {
+                    throw new InvalidArgumentException("Invalid URL passed from ENV");
+                }
+                $uri = $uriFactory->createUri(getenv(self::API_URL_ENV));
+                self::$url = (string)$uri . (preg_match('/\/$/', (string)$uri) === false ? '/' : '');
+            } else {
+                $uri = $uriFactory->createFromGlobals($_SERVER);
+                self::$url = $uri->getScheme() . '://' . $uri->getHost()
+                    . ($uri->getPort() ? ':' . $uri->getPort() : '') . '/';
+            }
+        }
+        return self::$url;
     }
 
     /**
@@ -124,6 +109,21 @@ class LinkProvider
             (self::createSelfLink($resource))->getData() . '/relationships/' . $relationship->getKey(),
             $meta
         );
+    }
+
+    /**
+     * @param ResourceObjectIdentifier $resource
+     * @param Meta|null                $meta
+     *
+     * @return Link
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
+     */
+    public static function createSelfLink(ResourceObjectIdentifier $resource, Meta $meta = null): Link
+    {
+        $url = self::getAPIUrl() . $resource->getType() . '/' . $resource->getId();
+        return new Link(self::SELF, $url, $meta);
     }
 
     /**

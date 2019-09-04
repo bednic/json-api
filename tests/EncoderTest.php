@@ -8,6 +8,7 @@
 
 namespace JSONAPI\Test;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Metadata\Encoder;
@@ -43,7 +44,7 @@ class EncoderTest extends TestCase
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
         $relation = new RelationExample();
         $instance = new ObjectExample();
-        $instance->setRelations([$relation]);
+        $instance->setRelations(new ArrayCollection([$relation]));
         self::$instance = $instance;
     }
 

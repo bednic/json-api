@@ -26,6 +26,7 @@ class PsrJsonApiMiddlewareTest extends TestCase
 
     private static $factory;
 
+
     public static function setUpBeforeClass(): void
     {
         self::$factory = new MetadataFactory(__DIR__ . '/resources');
@@ -91,6 +92,7 @@ class PsrJsonApiMiddlewareTest extends TestCase
         $middleware = new PsrJsonApiMiddleware(self::$factory);
         $middleware->setStream(__DIR__ . '/resources/request.json');
         $request = ServerRequestFactory::createFromGlobals()
+            ->withMethod('POST')
             ->withHeader('Content-Type', Document::MEDIA_TYPE);
 
 

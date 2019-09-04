@@ -64,6 +64,7 @@ class URLTest extends TestCase
         $filter = $url->getFilter();
         $this->assertInstanceOf(Filter::class, $filter);
         $this->assertNotNull($filter->getCondition());
+        $this->assertEquals('attribute eq \'value\'', $filter->getCondition());
     }
 
     /**

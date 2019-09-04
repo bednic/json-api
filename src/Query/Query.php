@@ -80,48 +80,6 @@ class Query
     }
 
     /**
-     * @return array|null
-     */
-    public function getIncludes(): ?array
-    {
-        return $this->includes;
-    }
-
-    /**
-     * @param $resourceType
-     *
-     * @return array
-     */
-    public function getFieldsFor($resourceType): array
-    {
-        return isset($this->fields[$resourceType]) ? $this->fields[$resourceType] : [];
-    }
-
-    /**
-     * @return array|null
-     */
-    public function getSort(): ?array
-    {
-        return $this->sort;
-    }
-
-    /**
-     * @return Pagination
-     */
-    public function getPagination(): Pagination
-    {
-        return $this->paginationParser;
-    }
-
-    /**
-     * @return Filter
-     */
-    public function getFilter(): Filter
-    {
-        return $this->filterParser;
-    }
-
-    /**
      * @param string $query
      */
     private function parseIncludes(string $query)
@@ -180,6 +138,48 @@ class Query
     private function parseFilter($filter)
     {
         $this->filterParser->parse($filter);
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getIncludes(): ?array
+    {
+        return $this->includes;
+    }
+
+    /**
+     * @param $resourceType
+     *
+     * @return array
+     */
+    public function getFieldsFor($resourceType): array
+    {
+        return isset($this->fields[$resourceType]) ? $this->fields[$resourceType] : [];
+    }
+
+    /**
+     * @return array|null
+     */
+    public function getSort(): ?array
+    {
+        return $this->sort;
+    }
+
+    /**
+     * @return Pagination
+     */
+    public function getPagination(): Pagination
+    {
+        return $this->paginationParser;
+    }
+
+    /**
+     * @return Filter
+     */
+    public function getFilter(): Filter
+    {
+        return $this->filterParser;
     }
 
     /**

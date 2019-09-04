@@ -12,7 +12,9 @@ use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Exception;
 use JSONAPI\Annotation\Attribute;
+use JSONAPI\Annotation\Common;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
@@ -27,7 +29,6 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
-use Traversable;
 
 /**
  * Class AnnotationDriver
@@ -37,19 +38,17 @@ use Traversable;
 class AnnotationDriver
 {
     /**
+     * Regex patter for getters
+     */
+    private const GETTER = '/^(get|is|has)/';
+    /**
      * @var LoggerInterface
      */
     private $logger;
-
     /**
      * @var AnnotationReader
      */
     private $reader;
-
-    /**
-     * Regex patter for getters
-     */
-    private const GETTER = '/^(get|is|has)/';
 
     /**
      * AnnotationDriver constructor.
@@ -108,8 +107,7 @@ class AnnotationDriver
         &$id,
         ArrayCollection &$attributes,
         ArrayCollection &$relationships
-    ): void
-    {
+    ): void {
         foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
             if (!$id && ($id = $this->reader->getPropertyAnnotation($reflectionProperty, Id::class))) {
@@ -159,8 +157,7 @@ class AnnotationDriver
         &$id,
         ArrayCollection &$attributes,
         ArrayCollection &$relationships
-    ): void
-    {
+    ): void {
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
                 if (!$id && ($id = $this->reader->getMethodAnnotation($reflectionMethod, Id::class))) {
@@ -189,25 +186,12 @@ class AnnotationDriver
                     if (!$attribute->name) {
                         $attribute->name = $this->getName($reflectionMethod);
                     }
-                    if ($attribute->setter === null
-                        && $reflectionClass->hasMethod(
-                            preg_replace(self::GETTER, 'set', $attribute->getter))
-                    ) {
-                        $attribute->setter = preg_replace(self::GETTER, 'set', $attribute->getter);
+                    if ($attribute->setter === null) {
+                        $attribute->setter = $this->getSetter($reflectionClass, $attribute);
                     }
 
-                    if ($attribute->setter) {
-                        try {
-                            $setter = new ReflectionMethod($reflectionClass->getName(), $attribute->setter);
-                            if ($setter->getNumberOfRequiredParameters() > 1) {
-                                throw new DriverException("Setter can have only one required parameter.");
-                            }
-                            $parameter = array_shift($setter->getParameters());
-                            $attribute->type = $parameter->getType()->isBuiltin() ? $parameter->getType()
-                                : $parameter->getClass()->getName();
-                        } catch (ReflectionException $exception) {
-                            throw new DriverException($exception->getMessage(), $exception->getCode(), $exception);
-                        }
+                    if ($attribute->setter && $attribute->type === null) {
+                        $attribute->type = $this->getSetterParameterType($reflectionClass, $attribute);
                     }
                     $attributes->set($attribute->name, $attribute);
                     $this->logger->debug("Found resource attribute {$attribute->name}.");
@@ -225,11 +209,8 @@ class AnnotationDriver
                     if (!$relationship->name) {
                         $relationship->name = $this->getName($reflectionMethod);
                     }
-                    if ($relationship->setter === null
-                        && $reflectionClass->hasMethod(
-                            preg_replace(self::GETTER, 'set', $relationship->getter))
-                    ) {
-                        $relationship->setter = preg_replace(self::GETTER, 'set', $relationship->getter);
+                    if ($relationship->setter === null) {
+                        $relationship->setter = $this->getSetter($reflectionClass, $relationship);
                     }
                     $relationship->isCollection = $this->isCollection($reflectionMethod);
                     $relationships->set($relationship->name, $relationship);
@@ -264,36 +245,15 @@ class AnnotationDriver
     }
 
     /**
-     * @param ReflectionMethod $reflectionMethod
-     *
-     * @return bool
-     * @throws DriverException
-     */
-    private function isCollection(ReflectionMethod $reflectionMethod): bool
-    {
-        if ($reflectionMethod->getReturnType()->isBuiltin() && $reflectionMethod->getReturnType()->getName() === 'array') {
-            throw new DriverException("Collection relationships cannot return array, but " . Collection::class . ".");
-        }
-
-        try {
-            return (new ReflectionClass($reflectionMethod->getReturnType()->getName()))
-                ->implementsInterface(Collection::class);
-        } catch (\Exception $exception) {
-            throw new DriverException($exception->getMessage(), $exception->getCode(), $exception);
-        }
-
-    }
-
-    /**
      * @param ReflectionClass $reflectionClass
-     * @param Attribute       $attribute
+     * @param Common          $annotation
      *
      * @return string|null
      */
-    private function parseSetter(ReflectionClass $reflectionClass, Attribute $attribute): ?string
+    private function getSetter(ReflectionClass $reflectionClass, Common $annotation): ?string
     {
-        if($reflectionClass->hasMethod(preg_replace(self::GETTER, 'set', $attribute->getter))) {
-            return preg_replace(self::GETTER, 'set', $attribute->getter);
+        if ($reflectionClass->hasMethod(preg_replace(self::GETTER, 'set', $annotation->getter))) {
+            return preg_replace(self::GETTER, 'set', $annotation->getter);
         }
         return null;
     }
@@ -309,14 +269,36 @@ class AnnotationDriver
     {
         try {
             $method = new ReflectionMethod($reflectionClass->getName(), $attribute->setter);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
         if ($method->getNumberOfRequiredParameters() > 1) {
             throw new DriverException("Setter can have only one required parameter.");
         }
-        $parameter = array_shift($method->getParameters());
+        $parameters = $method->getParameters();
+        $parameter = array_shift($parameters);
         return $parameter->getType()->isBuiltin() ? $parameter->getType() : $parameter->getClass()->getName();
+    }
 
+    /**
+     * @param ReflectionMethod $reflectionMethod
+     *
+     * @return bool
+     * @throws DriverException
+     */
+    private function isCollection(ReflectionMethod $reflectionMethod): bool
+    {
+        if ($reflectionMethod->getReturnType()->isBuiltin()
+            && $reflectionMethod->getReturnType()->getName() === 'array') {
+            throw new DriverException("Collection relationships cannot return array, but "
+                . Collection::class . ".");
+        }
+
+        try {
+            return (new ReflectionClass($reflectionMethod->getReturnType()->getName()))
+                ->implementsInterface(Collection::class);
+        } catch (Exception $exception) {
+            throw new DriverException($exception->getMessage(), $exception->getCode(), $exception);
+        }
     }
 }

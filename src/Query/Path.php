@@ -67,6 +67,34 @@ class Path
     }
 
     /**
+     * @return bool
+     */
+    public function isRelation(): bool
+    {
+        return $this->isRelationship() || !empty($this->relation);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isRelationship(): bool
+    {
+        return !empty($this->relationship);
+    }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->resource
+            . ($this->id ? '/' . $this->getId() : '')
+            . ($this->relationship ? '/relationships/' . $this->getRelationshipName() : '')
+            . ($this->relation ? '/' . $this->getRelationshipName() : '')
+            . ($this->query ? '?' . $this->query : '');
+    }
+
+    /**
      * @return string|null
      */
     public function getId(): ?string
@@ -86,33 +114,5 @@ class Path
         } else {
             return null;
         }
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRelationship(): bool
-    {
-        return !empty($this->relationship);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isRelation(): bool
-    {
-        return $this->isRelationship() || !empty($this->relation);
-    }
-
-    /**
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->resource
-            . ($this->id ? '/' . $this->getId() : '')
-            . ($this->relationship ? '/relationships/' . $this->getRelationshipName() : '')
-            . ($this->relation ? '/' . $this->getRelationshipName() : '')
-            . ($this->query ? '?' . $this->query : '');
     }
 }

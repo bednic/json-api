@@ -14,11 +14,14 @@ use JSONAPI\Document\Error;
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Exception\Document\UnsupportedMediaType;
 use JSONAPI\Metadata\MetadataFactory;
+use Opis\JsonSchema\Schema;
+use Opis\JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\Factory\StreamFactory;
 
@@ -31,15 +34,21 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
 {
 
     /**
+     * @var Schema
+     */
+    private static $schema;
+    /**
+     * @var Validator
+     */
+    private static $validator;
+    /**
      * @var MetadataFactory
      */
     private $factory;
-
     /**
      * @var LoggerInterface|null
      */
     private $logger;
-
     /**
      * @var string
      */
@@ -48,13 +57,15 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     /**
      * PsrJsonApiMiddleware constructor.
      *
-     * @param MetadataFactory      $factory
-     * @param LoggerInterface|null $logger
+     * @param MetadataFactory $factory
+     * @param LoggerInterface $logger
      */
     public function __construct(MetadataFactory $factory, LoggerInterface $logger = null)
     {
         $this->factory = $factory;
-        $this->logger = $logger;
+        $this->logger = $logger ?? new NullLogger();
+        self::$schema = Schema::fromJsonString(file_get_contents(__DIR__ . '/../../schema.json'));
+        self::$validator = new Validator();
     }
 
     /**
@@ -92,14 +103,6 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @param string $path
-     */
-    public function setStream(string $path)
-    {
-        $this->streamPath = $path;
-    }
-
-    /**
      * @return mixed|null
      * @throws BadRequest
      */
@@ -107,11 +110,25 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     {
         if ($data = file_get_contents($this->streamPath)) {
             $body = json_decode($data);
+            $result = self::$validator->schemaValidation($body, self::$schema);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new BadRequest(json_last_error_msg());
+            }
+            if (!$result->isValid()) {
+                $error = $result->getFirstError();
+                $msg = "Error: " . $error->keyword() . ' args: [' . implode(', ', $error->keywordArgs()) . ']';
+                throw new BadRequest($msg);
             }
             return $body;
         }
         return null;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setStream(string $path)
+    {
+        $this->streamPath = $path;
     }
 }

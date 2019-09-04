@@ -8,6 +8,8 @@
 
 namespace JSONAPI\Test;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use JSONAPI\Test\resources\DtoValue;
 use JSONAPI\Annotation as API;
 
@@ -19,7 +21,11 @@ use JSONAPI\Annotation as API;
  */
 class ObjectExample extends Common
 {
+    /**
+     * @var string
+     */
     protected $id = 'uuid';
+
     /**
      * @API\Attribute
      * @var string
@@ -42,9 +48,9 @@ class ObjectExample extends Common
     private $dtoProperty;
 
     /**
-     * @var RelationExample[]
+     * @var RelationExample[]|Collection
      */
-    private $relations = [];
+    private $relations;
 
     /**
      * @var ObjectExample
@@ -52,7 +58,7 @@ class ObjectExample extends Common
     private $parent;
 
     /**
-     * @var ObjectExample[]
+     * @var ObjectExample[]|Collection
      */
     private $children;
 
@@ -65,6 +71,8 @@ class ObjectExample extends Common
     {
         parent::__construct($id);
         $this->dtoProperty = new DtoValue();
+        $this->children = new ArrayCollection();
+        $this->relations = new ArrayCollection();
     }
 
 
@@ -113,17 +121,17 @@ class ObjectExample extends Common
 
     /**
      * @API\Relationship(target=RelationExample::class)
-     * @return RelationExample[]
+     * @return RelationExample[]|Collection
      */
-    public function getRelations(): array
+    public function getRelations(): Collection
     {
         return $this->relations;
     }
 
     /**
-     * @param RelationExample[] $relations
+     * @param RelationExample[]|Collection $relations
      */
-    public function setRelations(array $relations): void
+    public function setRelations(Collection $relations): void
     {
         foreach ($relations as $relation) {
             $relation->setObject($this);
@@ -150,17 +158,17 @@ class ObjectExample extends Common
 
     /**
      * @API\Relationship(target=ObjectExample::class)
-     * @return ObjectExample[]
+     * @return ObjectExample[]|Collection
      */
-    public function getChildren(): array
+    public function getChildren(): Collection
     {
         return $this->children;
     }
 
     /**
-     * @param ObjectExample[] $children
+     * @param ObjectExample[]|Collection $children
      */
-    public function setChildren(array $children): void
+    public function setChildren(Collection $children): void
     {
         $this->children = $children;
     }

@@ -9,6 +9,8 @@
 namespace JSONAPI\Metadata;
 
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Util\ClassUtils;
 use JSONAPI\Annotation;
 use JSONAPI\Document;
@@ -16,9 +18,8 @@ use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\Driver\AnnotationMisplace;
-use JSONAPI\Exception\Driver\ClassNotExist;
-use JSONAPI\Exception\Driver\ClassNotResource;
+use JSONAPI\Exception\Driver\DriverException;
+use JSONAPI\Exception\Encoder\EncoderException;
 use JSONAPI\Exception\Encoder\InvalidField;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Query\LinkProvider;
@@ -41,7 +42,7 @@ class Encoder
     private $metadataFactory;
 
     /**
-     * @var LoggerInterface|NullLogger
+     * @var LoggerInterface
      */
     private $logger;
 
@@ -107,9 +108,7 @@ class Encoder
      * @param $object
      *
      * @return ResourceObjectIdentifier
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
+     * @throws DriverException
      * @throws ForbiddenDataType
      */
     public function identify($object): ResourceObjectIdentifier
@@ -121,22 +120,30 @@ class Encoder
     /**
      * @param $object
      *
-     * @return ResourceObject
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
-     * @throws InvalidField
+     * @return Encoder
+     * @throws DriverException
      */
-    public function encode($object): ResourceObject
+    private function for($object): Encoder
     {
-        $encoder = $this->for($object);
-        $resource = new ResourceObject($encoder->getIdentifier());
-        $encoder->setFields($resource);
-        $resource->addLink(LinkProvider::createSelfLink($resource));
-        return $resource;
+        $encoder = clone $this;
+        try {
+            $className = ClassUtils::getClass($object);
+            $this->logger->debug("Init encoding of {$className}.");
+            $encoder->object = $object;
+            $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
+            $encoder->ref = new ReflectionClass($className);
+        } catch (ReflectionException $exception) { //NOSONAR
+        }
+        return $encoder;
+    }
+
+    /**
+     * @return ResourceObjectIdentifier
+     * @throws ForbiddenDataType
+     */
+    private function getIdentifier(): ResourceObjectIdentifier
+    {
+        return new ResourceObjectIdentifier($this->getType(), $this->getId());
     }
 
     /**
@@ -164,15 +171,32 @@ class Encoder
     }
 
     /**
-     * @param ResourceObject $resourceObject
+     * @param $object
      *
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
+     * @return ResourceObject
+     * @throws DriverException
+     * @throws EncoderException
+     * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws InvalidArgumentException
-     * @throws InvalidField
+     */
+    public function encode($object): ResourceObject
+    {
+        $encoder = $this->for($object);
+        $resource = new ResourceObject($encoder->getIdentifier());
+        $encoder->setFields($resource);
+        $resource->addLink(LinkProvider::createSelfLink($resource));
+        return $resource;
+    }
+
+    /**
+     * @param ResourceObject $resourceObject
+     *
+     * @throws DriverException
+     * @throws EncoderException
      * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
      */
     private function setFields(Document\ResourceObject $resourceObject): void
     {
@@ -188,24 +212,20 @@ class Encoder
                 } else {
                     try {
                         $value = $this->ref->getProperty($field->property)->getValue($this->object);
-                    } catch (ReflectionException $ignored) {
-                        //NOSONAR
+                    } catch (ReflectionException $exception) {
+                        throw new EncoderException($exception->getMessage(), $exception->getCode(), $exception);
                     }
                 }
                 if ($field instanceof Annotation\Relationship) {
                     $data = null;
                     $meta = null;
                     if ($field->isCollection) {
-                        $data = [];
-                        $total = count($value);
+                        /** @var Collection $value */
+                        $data = new ArrayCollection();
+                        $total = $value->count();
                         $limit = min($this->relationshipLimit, $total);
-                        $counter = $limit;
-                        foreach ($value as $object) {
-                            $data[] = $this->for($object)->getIdentifier();
-                            $counter--;
-                            if ($counter === 0) {
-                                break;
-                            }
+                        foreach ($value->slice(0, $limit) as $object) {
+                            $data->add($this->for($object)->getIdentifier());
                         }
                         if ($total > $limit) {
                             $meta = new Document\Meta();
@@ -236,36 +256,5 @@ class Encoder
                 }
             }
         }
-    }
-
-    /**
-     * @return ResourceObjectIdentifier
-     * @throws ForbiddenDataType
-     */
-    private function getIdentifier(): ResourceObjectIdentifier
-    {
-        return new ResourceObjectIdentifier($this->getType(), $this->getId());
-    }
-
-    /**
-     * @param $object
-     *
-     * @return Encoder
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     */
-    private function for($object): Encoder
-    {
-        $encoder = clone $this;
-        try {
-            $className = ClassUtils::getClass($object);
-            $this->logger->debug("Init encoding of {$className}.");
-            $encoder->object = $object;
-            $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
-            $encoder->ref = new ReflectionClass($className);
-        } catch (ReflectionException $exception) { //NOSONAR
-        }
-        return $encoder;
     }
 }

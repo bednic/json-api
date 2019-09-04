@@ -18,5 +18,6 @@ $_GET['page'] = [
     'offset' => 10,
     'limit' => 20
 ];
+$_GET['filter'] = 'attribute eq \'value\'';
 
 AnnotationReader::addGlobalIgnoredName('runTestsInSeparateProcesses');
