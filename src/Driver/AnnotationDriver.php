@@ -273,7 +273,8 @@ class AnnotationDriver
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
         if ($method->getNumberOfRequiredParameters() > 1) {
-            throw new DriverException("Setter can have only one required parameter.");
+            throw new DriverException("Setter " . $reflectionClass->getName() . "::" . $method->getName() .
+                "can have only one required parameter.");
         }
         $parameters = $method->getParameters();
         $parameter = array_shift($parameters);
@@ -290,8 +291,10 @@ class AnnotationDriver
     {
         if ($reflectionMethod->getReturnType()->isBuiltin()
             && $reflectionMethod->getReturnType()->getName() === 'array') {
-            throw new DriverException("Collection relationships cannot return array, but "
-                . Collection::class . ".");
+            throw new DriverException(
+                "Collection relationships " . $reflectionMethod->getDeclaringClass()->getName()
+                . "::" . $reflectionMethod->getName() . " cannot return array, but " . Collection::class . "."
+            );
         }
 
         try {
