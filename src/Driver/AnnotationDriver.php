@@ -289,11 +289,12 @@ class AnnotationDriver
      */
     private function isCollection(ReflectionMethod $reflectionMethod): bool
     {
-        if ($reflectionMethod->getReturnType()->isBuiltin()
-            && $reflectionMethod->getReturnType()->getName() === 'array') {
+        if ($reflectionMethod->getReturnType()->isBuiltin()) {
             throw new DriverException(
-                "Collection relationships " . $reflectionMethod->getDeclaringClass()->getName()
-                . "::" . $reflectionMethod->getName() . " cannot return array, but " . Collection::class . "."
+                "Relationships "
+                . $reflectionMethod->getDeclaringClass()->getName() . "::" . $reflectionMethod->getName()
+                . " cannot return " . $reflectionMethod->getReturnType()->getName()
+                . ", but Object or " . Collection::class . "."
             );
         }
 
