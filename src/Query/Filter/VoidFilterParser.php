@@ -1,7 +1,9 @@
 <?php
 
 
-namespace JSONAPI\Query;
+namespace JSONAPI\Query\Filter;
+
+use JSONAPI\Query\Filter;
 
 /**
  * Class VoidFilterParser

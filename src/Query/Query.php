@@ -10,6 +10,8 @@ namespace JSONAPI\Query;
 
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Query\Filter\VoidFilterParser;
+use JSONAPI\Query\Pagination\LimitOffsetPaginationParser;
 use Slim\Psr7\Factory\UriFactory;
 
 /**

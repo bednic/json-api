@@ -1,9 +1,10 @@
 <?php
 
 
-namespace JSONAPI\Query;
+namespace JSONAPI\Query\Pagination;
 
 use JSONAPI\Exception\Query\MethodNotImplemented;
+use JSONAPI\Query\Pagination;
 
 /**
  * Class LimitOffsetPaginationParser
