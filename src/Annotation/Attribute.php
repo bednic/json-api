@@ -17,5 +17,8 @@ namespace JSONAPI\Annotation;
  */
 class Attribute extends Common
 {
+    /**
+     * @var string
+     */
     public $type = null;
 }

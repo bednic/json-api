@@ -262,10 +262,10 @@ class AnnotationDriver
      * @param ReflectionClass $reflectionClass
      * @param Attribute       $attribute
      *
-     * @return mixed
+     * @return string
      * @throws DriverException
      */
-    private function getSetterParameterType(ReflectionClass $reflectionClass, Attribute $attribute)
+    private function getSetterParameterType(ReflectionClass $reflectionClass, Attribute $attribute): string
     {
         try {
             $method = new ReflectionMethod($reflectionClass->getName(), $attribute->setter);
