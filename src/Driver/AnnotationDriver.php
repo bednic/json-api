@@ -278,7 +278,8 @@ class AnnotationDriver
         }
         $parameters = $method->getParameters();
         $parameter = array_shift($parameters);
-        return $parameter->getType()->isBuiltin() ? $parameter->getType() : $parameter->getClass()->getName();
+        return $parameter->getType()->isBuiltin() ?
+            $parameter->getType()->getName() : $parameter->getClass()->getName();
     }
 
     /**
