@@ -189,9 +189,12 @@ class AnnotationDriver
                     if ($attribute->setter === null) {
                         $attribute->setter = $this->getSetter($reflectionClass, $attribute);
                     }
-
-                    if ($attribute->setter && $attribute->type === null) {
-                        $attribute->type = $this->getSetterParameterType($reflectionClass, $attribute);
+                    if ($attribute->type === null) {
+                        if ($reflectionMethod->getReturnType() !== null) {
+                            $attribute->type = $reflectionMethod->getReturnType()->getName();
+                        } elseif ($attribute->setter) {
+                            $attribute->type = $this->getSetterParameterType($reflectionClass, $attribute);
+                        }
                     }
                     $attributes->set($attribute->name, $attribute);
                     $this->logger->debug("Found resource attribute {$attribute->name}.");
