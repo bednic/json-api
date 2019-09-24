@@ -21,4 +21,9 @@ class Attribute extends Common
      * @var string
      */
     public $type = null;
+
+    /**
+     * @var string
+     */
+    public $of = null;
 }

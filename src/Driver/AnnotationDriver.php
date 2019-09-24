@@ -196,6 +196,11 @@ class AnnotationDriver
                             $attribute->type = $this->getSetterParameterType($reflectionClass, $attribute);
                         }
                     }
+                    if ($attribute->type === 'array' && $attribute->of === null) {
+                        throw new DriverException("Attribute {$reflectionClass->getName()}::{$attribute->name} 
+                        is type of {$attribute->type}, so annotation parameter 'of' is required. Please specify type of 
+                        array items.");
+                    }
                     $attributes->set($attribute->name, $attribute);
                     $this->logger->debug("Found resource attribute {$attribute->name}.");
                 }

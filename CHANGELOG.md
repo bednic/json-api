@@ -9,10 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * JSON API schema validation for requests in `PsrJsonApiMiddleware` and tests
 * `CriteriaFilterParser` advanced filter inspired by OData semantic
+* `Annotation\Attribute::of` property, which is used for declare type of array items. 
+This will be used primary for OpenAPI schema
 
 ### Changed
 * Now we insist that Relationships collections have to be `Doctrine\Common\Collections\Collection` 
   so we can use some additional methods as `count(), slice()`.
+* Determination of attribute data type is now resolved in sequence:
+    1. Try get type from return type of function
+    2. Get type from setter parameter, if setter exists
 
 ### Deprecated 
 
