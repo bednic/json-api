@@ -87,7 +87,7 @@ class AnnotationDriver
                 $this->parseProperties($ref, $id, $attributes, $relationships);
                 $this->parseMethods($ref, $id, $attributes, $relationships);
                 $this->logger->info("Created ClassMetadata for <{$resource->type}>");
-                return new ClassMetadata($className, $id, $resource, $attributes, $relationships);
+                return new ClassMetadata($ref, $id, $resource, $attributes, $relationships);
             } else {
                 throw new ClassNotResource($className);
             }

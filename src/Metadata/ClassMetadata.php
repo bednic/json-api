@@ -10,6 +10,7 @@ namespace JSONAPI\Metadata;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Annotation;
+use ReflectionClass;
 
 /**
  * Class ClassMetadata
@@ -19,9 +20,9 @@ use JSONAPI\Annotation;
 final class ClassMetadata
 {
     /**
-     * @var string
+     * @var ReflectionClass
      */
-    private $className;
+    private $reflection;
 
     /**
      * @var Annotation\Id
@@ -43,20 +44,20 @@ final class ClassMetadata
     /**
      * ClassMetadata constructor.
      *
-     * @param string              $className
+     * @param ReflectionClass     $ref
      * @param Annotation\Id       $id
      * @param Annotation\Resource $resource
      * @param ArrayCollection     $attributes
      * @param ArrayCollection     $relationships
      */
     public function __construct(
-        string $className,
+        ReflectionClass $ref,
         Annotation\Id $id,
         Annotation\Resource $resource,
         ArrayCollection $attributes,
         ArrayCollection $relationships
     ) {
-        $this->className = $className;
+        $this->reflection = $ref;
         $this->id = $id;
         $this->resource = $resource;
         $this->attributes = $attributes;
@@ -64,11 +65,27 @@ final class ClassMetadata
     }
 
     /**
+     * @return ReflectionClass
+     */
+    public function getReflection(): ReflectionClass
+    {
+        return $this->reflection;
+    }
+
+    /**
      * @return string
      */
     public function getClassName(): string
     {
-        return $this->className;
+        return $this->reflection->getName();
+    }
+
+    /**
+     * @return string
+     */
+    public function getShortClassName(): string
+    {
+        return $this->reflection->getShortName();
     }
 
     /**
