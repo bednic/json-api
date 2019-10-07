@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by IntelliJ IDEA.
  * User: tomas
@@ -142,7 +143,8 @@ class MetadataFactory
             /** @var $it RecursiveDirectoryIterator */
             if (!$it->isDot()) {
                 $file = $it->key();
-                if (is_file($file)
+                if (
+                    is_file($file)
                     && (
                         isset(pathinfo($file)["extension"])
                         && pathinfo($file)["extension"] === "php"

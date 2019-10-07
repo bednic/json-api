@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by IntelliJ IDEA.
  * User: tomas
@@ -37,11 +38,11 @@ use ReflectionException;
  */
 class Document implements JsonSerializable, HasLinks, HasMeta
 {
-    const MEDIA_TYPE = "application/vnd.api+json";
-    const VERSION = "1.0";
-
     use LinksTrait;
     use MetaTrait;
+
+    public const MEDIA_TYPE = "application/vnd.api+json";
+    public const VERSION = "1.0";
 
     /**
      * @var MetadataFactory

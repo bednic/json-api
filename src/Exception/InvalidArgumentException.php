@@ -1,6 +1,5 @@
 <?php
 
-
 namespace JSONAPI\Exception;
 
 class InvalidArgumentException extends JsonApiException

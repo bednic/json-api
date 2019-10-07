@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by IntelliJ IDEA.
  * User: tomas
@@ -19,7 +20,6 @@ use JsonSerializable;
  */
 class ResourceObjectIdentifier implements JsonSerializable, HasMeta
 {
-
     use MetaTrait;
 
     /**

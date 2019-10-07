@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Exception\Driver;
-
 
 class AnnotationMisplace extends DriverException
 {

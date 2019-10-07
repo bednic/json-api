@@ -1,6 +1,5 @@
 <?php
 
-
 namespace JSONAPI\Query\Filter;
 
 use JSONAPI\Query\Filter;

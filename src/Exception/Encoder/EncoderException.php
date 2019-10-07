@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Exception\Encoder;
-
 
 use JSONAPI\Exception\JsonApiException;
 

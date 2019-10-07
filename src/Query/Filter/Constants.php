@@ -1,30 +1,28 @@
 <?php
 
-
 namespace JSONAPI\Query\Filter;
-
 
 class Constants
 {
-    const KEYWORD_EQUAL = 'eq';
-    const KEYWORD_NOT_EQUAL = 'neq';
-    const KEYWORD_LOWER_THAN = 'lt';
-    const KEYWORD_LOWER_THAN_OR_EQUAL = 'lte';
-    const KEYWORD_GREATER_THAN = 'gt';
-    const KEYWORD_GREATER_THAN_OR_EQUAL = 'gte';
+    public const KEYWORD_EQUAL = 'eq';
+    public const KEYWORD_NOT_EQUAL = 'neq';
+    public const KEYWORD_LOWER_THAN = 'lt';
+    public const KEYWORD_LOWER_THAN_OR_EQUAL = 'lte';
+    public const KEYWORD_GREATER_THAN = 'gt';
+    public const KEYWORD_GREATER_THAN_OR_EQUAL = 'gte';
 
-    const KEYWORD_NULL = 'null';
-    const KEYWORD_TRUE = 'true';
-    const KEYWORD_FALSE = 'false';
-    const KEYWORD_AND = 'and';
-    const KEYWORD_OR = 'or';
+    public const KEYWORD_NULL = 'null';
+    public const KEYWORD_TRUE = 'true';
+    public const KEYWORD_FALSE = 'false';
+    public const KEYWORD_AND = 'and';
+    public const KEYWORD_OR = 'or';
 
-    const FN_STARTS_WITH = 'startsWith';
-    const FN_ENDS_WITH = 'endsWith';
-    const FN_CONTAINS = 'contains';
-    const FN_IN = 'in';
-    const FN_NOT_IN = 'notIn';
+    public const FN_STARTS_WITH = 'startsWith';
+    public const FN_ENDS_WITH = 'endsWith';
+    public const FN_CONTAINS = 'contains';
+    public const FN_IN = 'in';
+    public const FN_NOT_IN = 'notIn';
 
-    const XML_INFINITY_LITERAL = 'INF';
-    const XML_NAN_LITERAL = 'NaN';
+    public const XML_INFINITY_LITERAL = 'INF';
+    public const XML_NAN_LITERAL = 'NaN';
 }

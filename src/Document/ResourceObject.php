@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by IntelliJ IDEA.
  * User: tomas
@@ -19,7 +20,6 @@ use JSONAPI\LinksTrait;
  */
 class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLinks
 {
-
     use LinksTrait;
 
     /**

@@ -36,74 +36,74 @@ use MyCLabs\Enum\Enum;
 class ExpressionTokenId extends Enum
 {
     //Unknown.
-    const UNKNOWN = 1;
+    public const UNKNOWN = 1;
 
     //End of text.
-    const END = 2;
+    public const END = 2;
 
     //'=' - equality character.
-    const EQUAL = 3;
+    public const EQUAL = 3;
 
     //Identifier.
-    const IDENTIFIER = 4;
+    public const IDENTIFIER = 4;
 
     //NullLiteral.
-    const NULL_LITERAL = 5;
+    public const NULL_LITERAL = 5;
 
     //BooleanLiteral.
-    const BOOLEAN_LITERAL = 6;
+    public const BOOLEAN_LITERAL = 6;
 
     //StringLiteral.
-    const STRING_LITERAL = 7;
+    public const STRING_LITERAL = 7;
 
     //IntegerLiteral. (int32)
-    const INTEGER_LITERAL = 8;
+    public const INTEGER_LITERAL = 8;
 
     //Int64 literal.
-    const INT64_LITERAL = 9;
+    public const INT64_LITERAL = 9;
 
     //Single literal. (float)
-    const SINGLE_LITERAL = 10;
+    public const SINGLE_LITERAL = 10;
 
     //DateTime literal.
-    const DATETIME_LITERAL = 11;
+    public const DATETIME_LITERAL = 11;
 
     //Decimal literal.
-    const DECIMAL_LITERAL = 12;
+    public const DECIMAL_LITERAL = 12;
 
     //Double literal.
-    const DOUBLE_LITERAL = 13;
+    public const DOUBLE_LITERAL = 13;
 
     //GUID literal.
-    const GUID_LITERAL = 14;
+    public const GUID_LITERAL = 14;
 
     //Binary literal.
-    const BINARY_LITERAL = 15;
+    public const BINARY_LITERAL = 15;
 
     //Exclamation.
-    const EXCLAMATION = 16;
+    public const EXCLAMATION = 16;
 
     //OpenParen.
-    const OPENPARAM = 17;
+    public const OPENPARAM = 17;
 
     //CloseParen.
-    const CLOSEPARAM = 18;
+    public const CLOSEPARAM = 18;
 
     //Comma.
-    const COMMA = 19;
+    public const COMMA = 19;
 
     //Minus.
-    const MINUS = 20;
+    public const MINUS = 20;
 
     //Slash.
-    const SLASH = 21;
+    public const SLASH = 21;
 
     //Question.
-    const QUESTION = 22;
+    public const QUESTION = 22;
 
     //Dot.
-    const DOT = 23;
+    public const DOT = 23;
 
     //Star.
-    const STAR = 24;
+    public const STAR = 24;
 }

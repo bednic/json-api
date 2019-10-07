@@ -2,7 +2,6 @@
 
 namespace JSONAPI\Query\Filter;
 
-
 use Exception;
 
 /**

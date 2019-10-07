@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Query\Filter;
-
 
 use DateTime;
 use Doctrine\Common\Collections\Criteria;
@@ -147,7 +145,8 @@ class CriteriaFilterParser implements Filter
                     $this->err(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
                 }
                 $this->lexer->nextToken(); // and, or, END
-                if ($fn === Constants::FN_IN ||
+                if (
+                    $fn === Constants::FN_IN ||
                     $fn === Constants::FN_NOT_IN
                 ) {
                     return Criteria::expr()->{$fn}($field, $params);

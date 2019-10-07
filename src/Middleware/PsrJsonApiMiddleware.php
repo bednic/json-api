@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by IntelliJ IDEA.
  * User: tomas
@@ -82,10 +83,11 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
-            if (in_array(
-                $request->getMethod(),
-                [RequestMethodInterface::METHOD_POST, RequestMethodInterface::METHOD_PATCH]
-            )
+            if (
+                in_array(
+                    $request->getMethod(),
+                    [RequestMethodInterface::METHOD_POST, RequestMethodInterface::METHOD_PATCH]
+                )
             ) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();

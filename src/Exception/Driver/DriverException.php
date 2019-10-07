@@ -1,6 +1,5 @@
 <?php
 
-
 namespace JSONAPI\Exception\Driver;
 
 use JSONAPI\Exception\JsonApiException;

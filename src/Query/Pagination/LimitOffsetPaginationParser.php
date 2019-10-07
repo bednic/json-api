@@ -1,6 +1,5 @@
 <?php
 
-
 namespace JSONAPI\Query\Pagination;
 
 use JSONAPI\Exception\Query\MethodNotImplemented;

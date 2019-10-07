@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Created by IntelliJ IDEA.
  * User: tomas
@@ -27,12 +28,12 @@ class LinkProvider
 {
     private const API_URL_ENV = "JSON_API_URL";
 
-    const SELF = 'self';
-    const RELATED = 'related';
-    const FIRST = 'first';
-    const LAST = 'last';
-    const NEXT = 'next';
-    const PREV = 'prev';
+    public const SELF = 'self';
+    public const RELATED = 'related';
+    public const FIRST = 'first';
+    public const LAST = 'last';
+    public const NEXT = 'next';
+    public const PREV = 'prev';
 
     private static $url = '';
 

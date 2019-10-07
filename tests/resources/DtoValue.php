@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Test\resources;
-
 
 use JSONAPI\JsonConvertible;
 

@@ -2,7 +2,6 @@
 
 namespace JSONAPI\Query\Filter;
 
-
 use Exception;
 
 /**
@@ -27,18 +26,18 @@ use Exception;
  */
 class ExpressionLexer
 {
-    const A = 65;
-    const Z = 90;
-    const SMALL_A = 97;
-    const SMALL_Z = 122;
-    const F = 70;
-    const SMALL_F = 102;
-    const ZERO = 48;
-    const NINE = 57;
-    const TAB = 9;
-    const NEWLINE = 10;
-    const CARRIAGE_RETURN = 13;
-    const SPACE = 32;
+    public const A = 65;
+    public const Z = 90;
+    public const SMALL_A = 97;
+    public const SMALL_Z = 122;
+    public const F = 70;
+    public const SMALL_F = 102;
+    public const ZERO = 48;
+    public const NINE = 57;
+    public const TAB = 9;
+    public const NEWLINE = 10;
+    public const CARRIAGE_RETURN = 13;
+    public const SPACE = 32;
 
 
     /**
@@ -46,14 +45,14 @@ class ExpressionLexer
      *
      * @var string
      */
-    const SINGLE_SUFFIX_LOWER = 'f';
+    public const SINGLE_SUFFIX_LOWER = 'f';
 
     /**
      * Suffix for single literals
      *
      * @var string
      */
-    const SINGLE_SUFFIX_UPPER = 'F';
+    public const SINGLE_SUFFIX_UPPER = 'F';
 
     /**
      * Text being parsed
@@ -256,7 +255,8 @@ class ExpressionLexer
                 $this->token->id->equals(ExpressionTokenId::DOUBLE_LITERAL());
             } elseif (self::isInfinityOrNanSingle($this->token->text)) {
                 $this->token->id = ExpressionTokenId::SINGLE_LITERAL();
-            } elseif ($this->token->text == Constants::KEYWORD_TRUE
+            } elseif (
+                $this->token->text == Constants::KEYWORD_TRUE
                 || $this->token->text == Constants::KEYWORD_FALSE
             ) {
                 $this->token->id = ExpressionTokenId::BOOLEAN_LITERAL();
@@ -511,7 +511,8 @@ class ExpressionLexer
             $id = ExpressionTokenId::DATETIME_LITERAL();
         } elseif (strcasecmp('guid', $tokenText) == 0) {
             $id = ExpressionTokenId::GUID_LITERAL();
-        } elseif (strcasecmp('binary', $tokenText) == 0
+        } elseif (
+            strcasecmp('binary', $tokenText) == 0
             || strcasecmp('X', $tokenText) == 0
             || strcasecmp('x', $tokenText) == 0
         ) {

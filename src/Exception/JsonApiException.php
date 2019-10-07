@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Exception;
-
 
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;

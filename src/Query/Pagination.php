@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Query;
-
 
 use JSONAPI\Exception\Query\MethodNotImplemented;
 

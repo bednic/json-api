@@ -1,6 +1,5 @@
 <?php
 
-
 namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
