@@ -32,8 +32,6 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
      */
     protected $id;
 
-    protected $meta;
-
     /**
      * ResourceObjectIdentifier constructor.
      *
@@ -80,7 +78,7 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
     public function jsonSerialize()
     {
         $ret = ['type' => $this->type, 'id' => $this->id];
-        if ($this->meta) {
+        if ($this->meta && !$this->meta->isEmpty()) {
             $ret['meta'] = $this->meta;
         }
         return $ret;

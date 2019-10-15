@@ -95,7 +95,7 @@ class ObjectExample extends Common
     }
 
     /**
-     * @API\Attribute(setter="")
+     * @API\Attribute(setter=false)
      * @return string
      */
     public function getReadOnlyProperty(): string
@@ -172,5 +172,14 @@ class ObjectExample extends Common
     public function setChildren(Collection $children): void
     {
         $this->children = $children;
+    }
+
+    /**
+     * @API\Meta
+     * @return bool
+     */
+    public function getState(): bool
+    {
+        return true;
     }
 }

@@ -27,4 +27,14 @@ class Attribute extends Common
      * @var string
      */
     public $of = null;
+
+    /**
+     * Returns if Attribute is on property
+     *
+     * @return bool
+     */
+    public function isProperty(): bool
+    {
+        return $this->property ? true : false;
+    }
 }

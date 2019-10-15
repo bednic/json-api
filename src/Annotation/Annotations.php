@@ -11,3 +11,4 @@ require_once __DIR__ . "/Attribute.php";
 require_once __DIR__ . "/Id.php";
 require_once __DIR__ . "/Relationship.php";
 require_once __DIR__ . "/Resource.php";
+require_once __DIR__ . "/Meta.php";

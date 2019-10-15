@@ -37,6 +37,7 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
     public function __construct(ResourceObjectIdentifier $resourceIdentifier)
     {
         parent::__construct($resourceIdentifier->type, $resourceIdentifier->id);
+        $this->meta = $resourceIdentifier->meta;
         $this->fields = new ArrayCollection();
     }
 

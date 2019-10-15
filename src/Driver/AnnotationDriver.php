@@ -17,6 +17,7 @@ use Exception;
 use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Common;
 use JSONAPI\Annotation\Id;
+use JSONAPI\Annotation\Meta;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
@@ -85,10 +86,11 @@ class AnnotationDriver
                 $id = null;
                 $attributes = new ArrayCollection();
                 $relationships = new ArrayCollection();
-                $this->parseProperties($ref, $id, $attributes, $relationships);
-                $this->parseMethods($ref, $id, $attributes, $relationships);
+                $metas = new ArrayCollection();
+                $this->parseProperties($ref, $id, $attributes, $relationships, $metas);
+                $this->parseMethods($ref, $id, $attributes, $relationships, $metas);
                 $this->logger->info("Created ClassMetadata for <{$resource->type}>");
-                return new ClassMetadata($ref, $id, $resource, $attributes, $relationships);
+                return new ClassMetadata($ref, $id, $resource, $attributes, $relationships, $metas);
             } else {
                 throw new ClassNotResource($className);
             }
@@ -100,14 +102,16 @@ class AnnotationDriver
     /**
      * @param ReflectionClass  $reflectionClass
      * @param                  $id
-     * @param                  $attributes
-     * @param                  $relationships
+     * @param ArrayCollection  $attributes
+     * @param ArrayCollection  $relationships
+     * @param ArrayCollection  $metas
      */
     private function parseProperties(
         ReflectionClass $reflectionClass,
         &$id,
         ArrayCollection &$attributes,
-        ArrayCollection &$relationships
+        ArrayCollection &$relationships,
+        ArrayCollection &$metas
     ): void {
         foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
@@ -141,6 +145,18 @@ class AnnotationDriver
                 $relationships->set($relationship->name, $relationship);
                 $this->logger->debug("Found resource relationship {$relationship->name}.");
             }
+
+            /** @var Meta | null $meta */
+            if ($meta = $this->reader->getPropertyAnnotation($reflectionProperty, Meta::class)) {
+                if (!$meta->name) {
+                    $meta->name = $reflectionProperty->getName();
+                }
+                if (!$meta->property) {
+                    $meta->property = $reflectionProperty->getName();
+                }
+                $metas->set($meta->name, $meta);
+                $this->logger->debug("Found resource meta {$meta->name}.");
+            }
         }
     }
 
@@ -150,6 +166,8 @@ class AnnotationDriver
      * @param ArrayCollection  $attributes
      * @param ArrayCollection  $relationships
      *
+     * @param ArrayCollection  $metas
+     *
      * @throws AnnotationMisplace
      * @throws DriverException
      */
@@ -157,7 +175,8 @@ class AnnotationDriver
         ReflectionClass $reflectionClass,
         &$id,
         ArrayCollection &$attributes,
-        ArrayCollection &$relationships
+        ArrayCollection &$relationships,
+        ArrayCollection &$metas
     ): void {
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
@@ -187,9 +206,11 @@ class AnnotationDriver
                     if (!$attribute->name) {
                         $attribute->name = $this->getName($reflectionMethod);
                     }
+
                     if ($attribute->setter === null) {
                         $attribute->setter = $this->getSetter($reflectionClass, $attribute);
                     }
+
                     if ($attribute->type === null) {
                         if ($reflectionMethod->getReturnType() !== null) {
                             $attribute->type = $reflectionMethod->getReturnType()->getName();
@@ -197,12 +218,15 @@ class AnnotationDriver
                             $attribute->type = $this->getSetterParameterType($reflectionClass, $attribute);
                         }
                     }
+
                     if ($attribute->type === 'array' && $attribute->of === null) {
                         throw new DriverException("Attribute {$reflectionClass->getName()}::{$attribute->name} 
                         is type of {$attribute->type}, so annotation parameter 'of' is required. Please specify type of 
                         array items.");
                     }
+
                     $attributes->set($attribute->name, $attribute);
+
                     $this->logger->debug("Found resource attribute {$attribute->name}.");
                 }
                 /** @var Relationship $relationship */
@@ -214,16 +238,44 @@ class AnnotationDriver
                             $reflectionClass->name
                         );
                     }
+
                     $relationship->getter = $reflectionMethod->getName();
+
                     if (!$relationship->name) {
                         $relationship->name = $this->getName($reflectionMethod);
                     }
+
                     if ($relationship->setter === null) {
                         $relationship->setter = $this->getSetter($reflectionClass, $relationship);
                     }
+
                     $relationship->isCollection = $this->isCollection($reflectionMethod);
+
                     $relationships->set($relationship->name, $relationship);
+
                     $this->logger->debug("Found resource relationship {$relationship->name}.");
+                }
+
+                /** @var Meta $meta */
+                if ($meta = $this->reader->getMethodAnnotation($reflectionMethod, Meta::class)) {
+                    if (!$this->isGetter($reflectionMethod)) {
+                        throw new AnnotationMisplace(
+                            Meta::class,
+                            $reflectionMethod->getName(),
+                            $reflectionClass->name
+                        );
+                    }
+
+                    $meta->getter = $reflectionMethod->getName();
+
+                    if (!$meta->name) {
+                        $meta->name = $this->getName($reflectionMethod);
+                    }
+                    if ($meta->setter === null) {
+                        $meta->setter = $this->getSetter($reflectionClass, $meta);
+                    }
+                    $metas->set($meta->name, $meta);
+                    $this->logger->debug("Found resource meta {$meta->name}.");
                 }
             }
         }

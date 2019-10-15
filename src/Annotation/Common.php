@@ -31,8 +31,5 @@ class Common
      */
     public $getter = null;
 
-    /**
-     * @var string
-     */
     public $setter = null;
 }

@@ -2,6 +2,7 @@
 
 namespace JSONAPI\Test;
 
+use JSONAPI\Document\Field;
 use JSONAPI\Document\Meta;
 use PHPUnit\Framework\TestCase;
 
@@ -25,7 +26,7 @@ class MetaTest extends TestCase
     public function testAddField()
     {
         $meta = new Meta();
-        $meta->addField('key', 'value');
+        $meta->setProperty('key', 'value');
         $this->assertCount(1, $meta->jsonSerialize());
         $this->assertArrayHasKey('key', $meta->jsonSerialize());
     }

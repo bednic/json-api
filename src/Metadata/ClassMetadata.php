@@ -43,6 +43,11 @@ final class ClassMetadata
     private $relationships;
 
     /**
+     * @var Annotation\Meta[]
+     */
+    private $metas;
+
+    /**
      * ClassMetadata constructor.
      *
      * @param ReflectionClass     $ref
@@ -50,19 +55,22 @@ final class ClassMetadata
      * @param Annotation\Resource $resource
      * @param ArrayCollection     $attributes
      * @param ArrayCollection     $relationships
+     * @param ArrayCollection     $metas
      */
     public function __construct(
         ReflectionClass $ref,
         Annotation\Id $id,
         Annotation\Resource $resource,
         ArrayCollection $attributes,
-        ArrayCollection $relationships
+        ArrayCollection $relationships,
+        ArrayCollection $metas
     ) {
         $this->reflection = $ref;
         $this->id = $id;
         $this->resource = $resource;
         $this->attributes = $attributes;
         $this->relationships = $relationships;
+        $this->metas = $metas;
     }
 
     /**
@@ -142,6 +150,24 @@ final class ClassMetadata
     }
 
     /**
+     * @return Annotation\Meta[]|ArrayCollection
+     */
+    public function getMetas(): ArrayCollection
+    {
+        return $this->metas;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Annotation\Meta|null
+     */
+    public function getMeta(string $name): ?Annotation\Meta
+    {
+        return $this->metas->get($name);
+    }
+
+    /**
      * @param string $fieldName
      *
      * @return bool
@@ -159,5 +185,15 @@ final class ClassMetadata
     public function isAttribute(string $fieldName): bool
     {
         return $this->attributes->containsKey($fieldName);
+    }
+
+    /**
+     * @param string $fieldName
+     *
+     * @return bool
+     */
+    public function isMeta(string $fieldName): bool
+    {
+        return  $this->metas->containsKey($fieldName);
     }
 }

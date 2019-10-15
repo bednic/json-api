@@ -25,6 +25,7 @@ use JSONAPI\Exception\Encoder\InvalidField;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
+use PHPUnit\Util\Filter;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -140,11 +141,40 @@ class Encoder
 
     /**
      * @return ResourceObjectIdentifier
+     * @throws EncoderException
+     * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
     private function getIdentifier(): ResourceObjectIdentifier
     {
-        return new ResourceObjectIdentifier($this->getType(), $this->getId());
+        $identifier = new ResourceObjectIdentifier($this->getType(), $this->getId());
+        $this->setMeta($identifier);
+        return $identifier;
+    }
+
+    /**
+     * @param ResourceObjectIdentifier $identifier
+     *
+     * @throws EncoderException
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function setMeta(ResourceObjectIdentifier $identifier)
+    {
+        $meta = new Document\Meta();
+        foreach ($this->metadata->getMetas() as $name => $field) {
+            if ($field->getter != null) {
+                $value = call_user_func([$this->object, $field->getter]);
+            } else {
+                try {
+                    $value = $this->ref->getProperty($field->property)->getValue($this->object);
+                } catch (ReflectionException $exception) {
+                    throw new EncoderException($exception->getMessage(), $exception->getCode(), $exception);
+                }
+            }
+            $meta->setProperty($name, $value);
+        }
+        $identifier->setMeta($meta);
     }
 
     /**
@@ -187,6 +217,7 @@ class Encoder
         $resource = new ResourceObject($encoder->getIdentifier());
         $encoder->setFields($resource);
         $resource->addLink(LinkProvider::createSelfLink($resource));
+
         return $resource;
     }
 
@@ -231,10 +262,11 @@ class Encoder
                             $data->add($this->for($object)->getIdentifier());
                         }
                         if ($total > $limit) {
-                            $meta = new Document\Meta();
-                            $meta->addField('total', $total);
-                            $meta->addField('limit', $limit);
-                            $meta->addField('offset', 0);
+                            $meta = new Document\Meta([
+                                'total' => $total,
+                                'limit' => $limit,
+                                'offset' => 0
+                            ]);
                         }
                     } elseif ($value) {
                         $data = $this->for($value)->getIdentifier();

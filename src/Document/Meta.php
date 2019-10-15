@@ -2,6 +2,9 @@
 
 namespace JSONAPI\Document;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
 use JsonSerializable;
 
 /**
@@ -13,29 +16,49 @@ class Meta implements JsonSerializable
 {
 
     /**
-     * @var Field[]
+     * @var array
      */
-    private $fields;
+    private $properties;
 
     /**
      * Meta constructor.
      *
-     * @param array $fields
+     * @param array $properties
+     *
+     * @example [
+     *          'key' => 'value',
+     *          ...
+     * ]
      */
-    public function __construct(array $fields = [])
+    public function __construct(array $properties = [])
     {
-        foreach ($fields as $key => $value) {
-            $this->addField($key, $value);
-        }
+        $this->properties = $properties;
     }
 
     /**
-     * @param $key
-     * @param $value
+     * @param string $key
+     * @param        $value
+     *
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      */
-    public function addField($key, $value): void
+    public function setProperty(string $key, $value): void
     {
-        $this->fields[$key] = $value;
+        if (!preg_match("/(^[a-zA-Z0-9])(([a-zA-Z-_]+)([a-zA-Z0-9]))?$/", $key)) {
+            throw new ForbiddenCharacter($key);
+        }
+        if (!in_array(gettype($value), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
+            throw new ForbiddenDataType(gettype($value));
+        }
+        $this->properties[$key] = $value;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return count($this->properties) === 0;
     }
 
     /**
@@ -48,6 +71,6 @@ class Meta implements JsonSerializable
      */
     public function jsonSerialize()
     {
-        return $this->fields;
+        return $this->properties;
     }
 }

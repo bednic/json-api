@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `Annotation\Attribute::of` property, which is used for declare type of array items. 
 This will be used primary for OpenAPI schema
 * `ClassMetadata::getShortClassName` return class short name
+* `Annotation\Meta` is used for meta information of ResourceObject
+* `Annotation\Attribute::isProperty` returns true if Annotation is on property
 
 ### Changed
 * Now we insist that Relationships collections have to be `Doctrine\Common\Collections\Collection` 
@@ -20,6 +22,7 @@ This will be used primary for OpenAPI schema
     1. Try get type from return type of function
     2. Get type from setter parameter, if setter exists
 * `ClassMetadata::__construct` now accept reflection of class as first argument, instead string className
+* Now if you want to make attribute read-only, just type `setter=false` instead `setter=""`, but both solutions are ok.
 
 ### Deprecated 
 

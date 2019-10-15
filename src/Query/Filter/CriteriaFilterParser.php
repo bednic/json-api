@@ -48,12 +48,12 @@ class CriteriaFilterParser implements Filter
      * @param string $filter
      *
      * @throws ExpressionException
-     * @throws InvalidArgumentException
      */
     public function parse($filter): void
     {
         if (!is_string($filter)) {
-            throw new InvalidArgumentException("Filter have to be a string");
+            //todo: this should by something like invalid argument exception
+            throw new ExpressionException("Filter have to be a string");
         }
         $this->lexer = new ExpressionLexer($filter);
         $exp = $this->parseExpression();
@@ -100,7 +100,7 @@ class CriteriaFilterParser implements Filter
     }
 
     /**
-     * @return Comparison|Expression
+     * @return Expression
      * @throws ExpressionException
      */
     private function parseStart()
@@ -111,8 +111,10 @@ class CriteriaFilterParser implements Filter
                 return $this->parseIdentifier();
             case ExpressionTokenId::OPENPARAM():
                 return $this->parseGroup();
+            case $token->isKeyValueToken():
+                return $this->parseValue();
             default:
-                return $this->err(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
+                $this->err(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
     }
 
@@ -172,6 +174,27 @@ class CriteriaFilterParser implements Filter
             $this->lexer->nextToken();
             return Criteria::expr()->{$operator}($field, $value);
         }
+    }
+
+    /**
+     * @return Expression
+     * @throws ExpressionException
+     */
+    private function parseValue(): Expression
+    {
+        $value = $this->validateValue($this->lexer->getCurrentToken());
+        $this->lexer->nextToken();
+        if (!$this->lexer->getCurrentToken()->isComparisonOperator()) {
+            $this->err(Messages::expressionErrorComparisonOperatorExpected(
+                $this->lexer->getCurrentToken()->text,
+                $this->lexer->getPosition()
+            ));
+        }
+        $operator = $this->lexer->getCurrentToken()->text;
+        $this->lexer->nextToken();
+        $field = $this->lexer->getCurrentToken()->text;
+        $this->lexer->nextToken();
+        return Criteria::expr()->{$operator}($field, $value);
     }
 
     /**
