@@ -163,7 +163,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      */
     private static function getResourceObject($resourceDto, ClassMetadata $metadata)
     {
-        $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, $resourceDto->id));
+        $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, @$resourceDto->id));
         foreach ($resourceDto->attributes ?? [] as $attribute => $value) {
             $attr = $metadata->getAttribute($attribute);
             try {
