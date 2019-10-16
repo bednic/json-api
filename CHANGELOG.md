@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-* JSON API schema validation for requests in `PsrJsonApiMiddleware` and tests
+* JSON API schema validation for tests
 * `CriteriaFilterParser` advanced filter inspired by OData semantic
 * `Annotation\Attribute::of` property, which is used for declare type of array items. 
 This will be used primary for OpenAPI schema
@@ -24,7 +24,7 @@ This will be used primary for OpenAPI schema
 * `ClassMetadata::__construct` now accept reflection of class as first argument, instead string className
 * Now if you want to make attribute read-only, just type `setter=false` instead `setter=""`, but both solutions are ok.
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * `AnnotationDriver` inconsistencies. There is rule, that if `Annotation\Attribute` is on getter method,

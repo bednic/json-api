@@ -103,7 +103,7 @@ class ObjectExample extends Common
     }
 
     /**
-     * @API\Attribute(setter="")
+     * @API\Attribute(setter=false)
      * @return string
      */
     public function getReadOnlyProperty(): string
