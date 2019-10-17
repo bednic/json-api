@@ -2,7 +2,6 @@
 
 namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JsonSerializable;

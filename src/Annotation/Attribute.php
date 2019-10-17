@@ -35,6 +35,16 @@ class Attribute extends Common
      */
     public function isProperty(): bool
     {
-        return $this->property ? true : false;
+        return !!$this->property;
+    }
+
+    /**
+     * Return true if attribute has getter but not setter, thus is read-only
+     *
+     * @return bool
+     */
+    public function isReadOnly(): bool
+    {
+        return ($this->getter && !$this->setter);
     }
 }

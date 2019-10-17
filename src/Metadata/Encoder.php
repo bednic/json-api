@@ -25,7 +25,6 @@ use JSONAPI\Exception\Encoder\InvalidField;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Query\LinkProvider;
 use JSONAPI\Query\Query;
-use PHPUnit\Util\Filter;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -153,6 +152,30 @@ class Encoder
     }
 
     /**
+     * @return string
+     */
+    private function getType(): string
+    {
+        return $this->metadata->getResource()->type;
+    }
+
+    /**
+     * @return string|null
+     */
+    private function getId(): ?string
+    {
+        try {
+            if ($this->metadata->getId()->getter != null) {
+                return (string)call_user_func([$this->object, $this->metadata->getId()->getter]);
+            } else {
+                return (string)$this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
+            }
+        } catch (ReflectionException $e) {
+            return null;
+        }
+    }
+
+    /**
      * @param ResourceObjectIdentifier $identifier
      *
      * @throws EncoderException
@@ -175,30 +198,6 @@ class Encoder
             $meta->setProperty($name, $value);
         }
         $identifier->setMeta($meta);
-    }
-
-    /**
-     * @return string
-     */
-    private function getType(): string
-    {
-        return $this->metadata->getResource()->type;
-    }
-
-    /**
-     * @return string|null
-     */
-    private function getId(): ?string
-    {
-        try {
-            if ($this->metadata->getId()->getter != null) {
-                return (string)call_user_func([$this->object, $this->metadata->getId()->getter]);
-            } else {
-                return (string)$this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
-            }
-        } catch (ReflectionException $e) {
-            return null;
-        }
     }
 
     /**

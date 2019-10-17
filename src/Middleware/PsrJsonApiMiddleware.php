@@ -115,15 +115,15 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new BadRequest(json_last_error_msg());
             }
-//          todo: Disabled cause weird behavior see
-//                https://discuss.jsonapi.org/t/json-schema-required-id-in-case-of-creating-resourceobject/1724
-//
-//            $result = self::$validator->schemaValidation($body, self::$schema);
-//            if (!$result->isValid()) {
-//                $error = $result->getFirstError();
-//                $msg = "Error: " . $error->keyword() . ' args: [' . print_r($error->keywordArgs(), true) . ']';
-//                throw new BadRequest($msg);
-//            }
+            //          todo: Disabled cause weird behavior see
+            //                https://discuss.jsonapi.org/t/json-schema-required-id-in-case-of-creating-resourceobject/1724
+            //
+            //            $result = self::$validator->schemaValidation($body, self::$schema);
+            //            if (!$result->isValid()) {
+            //                $error = $result->getFirstError();
+            //                $msg = "Error: " . $error->keyword() . ' args: [' . print_r($error->keywordArgs(), true) . ']';
+            //                throw new BadRequest($msg);
+            //            }
             return $body;
         }
         return null;

@@ -7,7 +7,6 @@
  * Time: 13:14
  */
 
-
 namespace JSONAPI\Document;
 
 use JSONAPI\Exception\JsonApiException;

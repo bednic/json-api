@@ -194,6 +194,6 @@ final class ClassMetadata
      */
     public function isMeta(string $fieldName): bool
     {
-        return  $this->metas->containsKey($fieldName);
+        return $this->metas->containsKey($fieldName);
     }
 }
