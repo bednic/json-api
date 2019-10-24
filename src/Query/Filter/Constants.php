@@ -2,6 +2,12 @@
 
 namespace JSONAPI\Query\Filter;
 
+/**
+ * Class Constants
+ *
+ * @package JSONAPI\Query\Filter
+ * @codeCoverageIgnore
+ */
 class Constants
 {
     public const KEYWORD_EQUAL = 'eq';

@@ -6,6 +6,7 @@ namespace JSONAPI\Query\Filter;
  * Class Messages helps to format error messages
  *
  * @package POData\Common
+ * @codeCoverageIgnore
  */
 class Messages
 {

@@ -23,6 +23,7 @@ use Exception;
  * GUID            guid'digit*
  *
  * @package POData\UriProcessor\QueryProcessor\ExpressionParser
+ * @codeCoverageIgnore
  */
 class ExpressionLexer
 {

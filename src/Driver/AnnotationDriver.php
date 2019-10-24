@@ -129,7 +129,7 @@ class AnnotationDriver
                 if (!$attribute->property) {
                     $attribute->property = $reflectionProperty->getName();
                 }
-                preg_match('/@var (?P<type>[a-zA-Z_-]+)/', $reflectionProperty->getDocComment(), $match);
+                preg_match('/@var (?P<type>[a-zA-Z0-9_-]+)/', $reflectionProperty->getDocComment(), $match);
                 $attribute->type = $match['type'] ? $match['type'] : null;
                 $attributes->set($attribute->name, $attribute);
                 $this->logger->debug("Found resource attribute {$attribute->name}.");

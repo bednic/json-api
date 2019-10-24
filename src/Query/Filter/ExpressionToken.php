@@ -8,6 +8,7 @@ use Exception;
  * Class ExpressionToken
  *
  * @package POData\UriProcessor\QueryProcessor\ExpressionParser
+ * @codeCoverageIgnore
  */
 class ExpressionToken
 {

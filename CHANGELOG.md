@@ -15,6 +15,7 @@ This will be used primary for OpenAPI schema
 * `Annotation\Meta` is used for meta information of ResourceObject
 * `Annotation\Attribute::isProperty` returns true if Annotation is on property
 * `Annotation\Attribute::isReadOnly` returns true if Attribute is read-only
+* `CriteriaFilterParserTest`
 
 ### Changed
 * Now we insist that Relationships collections have to be `Doctrine\Common\Collections\Collection` 

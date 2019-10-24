@@ -32,6 +32,7 @@ use MyCLabs\Enum\Enum;
  * @method static ExpressionTokenId QUESTION()
  * @method static ExpressionTokenId DOT()
  * @method static ExpressionTokenId STAR()
+ * @codeCoverageIgnore
  */
 class ExpressionTokenId extends Enum
 {
