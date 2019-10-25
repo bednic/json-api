@@ -18,8 +18,8 @@ This will be used primary for OpenAPI schema
 * `CriteriaFilterParserTest`
 
 ### Changed
-* Now we insist that Relationships collections have to be `Doctrine\Common\Collections\Collection` 
-  so we can use some additional methods as `count(), slice()`.
+* Now we can return Relationships collections as `Doctrine\Common\Collections\Collection` (preferred) 
+  or as `array` (old way)
 * Determination of attribute data type is now resolved in sequence:
     1. Try get type from return type of function
     2. Get type from setter parameter, if setter exists
