@@ -326,7 +326,7 @@ it's standard server error, not uri error.
 
 ---
 [Unreleased]: https://gitlab.com/bednic/json-api/compare/3.1.0...3.x
-[3.0.1]: https://gitlab.com/bednic/json-api/compare/3.0.1...3.1.0
+[3.1.0]: https://gitlab.com/bednic/json-api/compare/3.0.1...3.1.0
 [3.0.1]: https://gitlab.com/bednic/json-api/compare/3.0.0...3.0.1
 [3.0.0]: https://gitlab.com/bednic/json-api/compare/2.4.0...3.0.0
 [2.4.0]: https://gitlab.com/bednic/json-api/compare/2.3.4...2.4.0
