@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 class CriteriaFilterParserTest extends TestCase
 {
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testParse(CriteriaFilterParser $parser)
     {
@@ -36,14 +36,14 @@ class CriteriaFilterParserTest extends TestCase
     }
 
     /**
-     * @depends test__construct
+     * @depends testConstruct
      */
     public function testGetCondition(CriteriaFilterParser $parser)
     {
         $this->assertInstanceOf(Criteria::class, $parser->getCondition());
     }
 
-    public function test__construct()
+    public function testConstruct()
     {
         $instance = new CriteriaFilterParser();
         $this->assertInstanceOf(CriteriaFilterParser::class, $instance);
