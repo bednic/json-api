@@ -49,7 +49,7 @@ class ObjectExample extends Common
     private $dtoProperty;
 
     /**
-     * @var RelationExample[]|Collection
+     * @var RelationExample[]
      */
     private $relations;
 
@@ -73,7 +73,7 @@ class ObjectExample extends Common
         parent::__construct($id);
         $this->dtoProperty = new DtoValue();
         $this->children = new ArrayCollection();
-        $this->relations = new ArrayCollection();
+        $this->relations = [];
     }
 
 
@@ -124,15 +124,15 @@ class ObjectExample extends Common
      * @API\Relationship(target=RelationExample::class)
      * @return RelationExample[]|Collection
      */
-    public function getRelations(): Collection
+    public function getRelations(): array
     {
         return $this->relations;
     }
 
     /**
-     * @param RelationExample[]|Collection $relations
+     * @param RelationExample[] $relations
      */
-    public function setRelations(Collection $relations): void
+    public function setRelations(array $relations): void
     {
         foreach ($relations as $relation) {
             $relation->setObject($this);

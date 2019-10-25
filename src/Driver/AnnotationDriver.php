@@ -129,8 +129,7 @@ class AnnotationDriver
                 if (!$attribute->property) {
                     $attribute->property = $reflectionProperty->getName();
                 }
-                preg_match('/@var (?P<type>[a-zA-Z0-9_-]+)/', $reflectionProperty->getDocComment(), $match);
-                $attribute->type = $match['type'] ? $match['type'] : null;
+                $attribute->type = $this->guessPropertyType($reflectionProperty);
                 $attributes->set($attribute->name, $attribute);
                 $this->logger->debug("Found resource attribute {$attribute->name}.");
             }
@@ -158,6 +157,22 @@ class AnnotationDriver
                 $this->logger->debug("Found resource meta {$meta->name}.");
             }
         }
+    }
+
+    /**
+     *
+     * @param ReflectionProperty $reflectionProperty
+     *
+     * @return mixed|null return type if we know it or null if we don't
+     *
+     * @todo This need some enchantment, there is no guarantee that we guess type right.
+     *       It should guess array even if use something like Class[], or integer even if use null|int.
+     *       By this we should detect if relationship is collection or not.
+     */
+    private function guessPropertyType(ReflectionProperty $reflectionProperty)
+    {
+        preg_match('/@var (?P<type>[a-zA-Z0-9_-]+)/', $reflectionProperty->getDocComment(), $match);
+        return $match['type'] ? $match['type'] : null;
     }
 
     /**
@@ -249,7 +264,9 @@ class AnnotationDriver
                         $relationship->setter = $this->getSetter($reflectionClass, $relationship);
                     }
 
-                    $relationship->isCollection = $this->isCollection($reflectionMethod);
+                    if ($relationship->isCollection === null) {
+                        $relationship->isCollection = $this->isCollection($reflectionMethod);
+                    }
 
                     $relationships->set($relationship->name, $relationship);
 
@@ -351,18 +368,16 @@ class AnnotationDriver
      */
     private function isCollection(ReflectionMethod $reflectionMethod): bool
     {
-        if ($reflectionMethod->getReturnType()->isBuiltin()) {
-            throw new DriverException(
-                "Relationships "
-                . $reflectionMethod->getDeclaringClass()->getName() . "::" . $reflectionMethod->getName()
-                . " cannot return " . $reflectionMethod->getReturnType()->getName()
-                . ", but Object or " . Collection::class . "."
-            );
-        }
-
         try {
-            return (new ReflectionClass($reflectionMethod->getReturnType()->getName()))
-                ->implementsInterface(Collection::class);
+            if (
+                ($reflectionMethod->getReturnType()->isBuiltin()
+                    && $reflectionMethod->getReturnType()->getName() === 'array')
+                || (new ReflectionClass($reflectionMethod->getReturnType()->getName()))
+                    ->implementsInterface(Collection::class)
+            ) {
+                return true;
+            }
+            return false;
         } catch (Exception $exception) {
             throw new DriverException($exception->getMessage(), $exception->getCode(), $exception);
         }

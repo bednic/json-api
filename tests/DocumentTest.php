@@ -319,7 +319,7 @@ class DocumentTest extends TestCase
         $resource = new ObjectExample('uuid');
         $relation1 = new RelationExample('rel1');
         $relation2 = new RelationExample('rel2');
-        $resource->setRelations(new ArrayCollection([$relation1, $relation2]));
+        $resource->setRelations([$relation1, $relation2]);
         $document = new Document(self::$factory);
         $document->setData($resource);
         $this->assertTrue(self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema)

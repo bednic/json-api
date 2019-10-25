@@ -45,7 +45,7 @@ class EncoderTest extends TestCase
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
         $relation = new RelationExample();
         $instance = new ObjectExample();
-        $instance->setRelations(new ArrayCollection([$relation]));
+        $instance->setRelations([$relation]);
         self::$instance = $instance;
     }
 

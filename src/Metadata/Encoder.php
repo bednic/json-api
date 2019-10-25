@@ -253,6 +253,9 @@ class Encoder
                     $data = null;
                     $meta = null;
                     if ($field->isCollection) {
+                        if (!($value instanceof Collection)) {
+                            $value = new ArrayCollection($value);
+                        }
                         /** @var Collection $value */
                         $data = new ArrayCollection();
                         $total = $value->count();

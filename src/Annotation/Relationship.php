@@ -27,5 +27,5 @@ class Relationship extends Common
     /**
      * @var bool
      */
-    public $isCollection = false;
+    public $isCollection;
 }
