@@ -2,6 +2,7 @@
     "name": "bednic/json-api",
     "type": "library",
     "description": "JSON API implementation, driven by annotations.",
+    "version": "3.1.0",
     "homepage": "https://gitlab.com/bednic/json-api",
     "support": {
         "issues": "https://gitlab.com/bednic/json-api/issues",
