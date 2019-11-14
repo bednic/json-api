@@ -18,6 +18,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [3.1.1]
+
+### Added
+* `ReserveWordException` thrown when Attribute/Relation name is `type` or `id`.
+
+### Changed
+
+### Deprecated 
+
+### Fixed
+* It was possible have Attribute or Relationship named as `type` or `id`. Now it's fixed.
+* Fix getter detection. Return type of method is now optional, not required.
+
+### Removed 
+
+### Security
+
 ## [3.1.0]
 
 ### Added
@@ -325,7 +342,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/3.1.0...3.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/3.1.1...3.x
+[3.1.0]: https://gitlab.com/bednic/json-api/compare/3.1.0...3.1.1
 [3.1.0]: https://gitlab.com/bednic/json-api/compare/3.0.1...3.1.0
 [3.0.1]: https://gitlab.com/bednic/json-api/compare/3.0.0...3.0.1
 [3.0.0]: https://gitlab.com/bednic/json-api/compare/2.4.0...3.0.0
