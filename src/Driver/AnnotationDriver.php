@@ -24,6 +24,7 @@ use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
+use JSONAPI\Exception\Driver\ReserveWordException;
 use JSONAPI\Metadata\ClassMetadata;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -82,14 +83,14 @@ class AnnotationDriver
             $ref = new ReflectionClass($className);
             /** @var Resource $resource */
             if ($resource = $this->reader->getClassAnnotation($ref, Resource::class)) {
-                $this->logger->debug("Found resource {$resource->type}.");
+                $this->logger->debug('Found resource ' . $resource->type);
                 $id = null;
                 $attributes = new ArrayCollection();
                 $relationships = new ArrayCollection();
                 $metas = new ArrayCollection();
                 $this->parseProperties($ref, $id, $attributes, $relationships, $metas);
                 $this->parseMethods($ref, $id, $attributes, $relationships, $metas);
-                $this->logger->info("Created ClassMetadata for <{$resource->type}>");
+                $this->logger->info('Created ClassMetadata for ' . $resource->type);
                 return new ClassMetadata($ref, $id, $resource, $attributes, $relationships, $metas);
             } else {
                 throw new ClassNotResource($className);
@@ -119,7 +120,7 @@ class AnnotationDriver
                 if (!$id->property) {
                     $id->property = $reflectionProperty->getName();
                 }
-                $this->logger->debug("Found resource ID.");
+                $this->logger->debug('Found resource ID.');
             }
             /** @var Attribute | null $attribute */
             if ($attribute = $this->reader->getPropertyAnnotation($reflectionProperty, Attribute::class)) {
@@ -131,7 +132,7 @@ class AnnotationDriver
                 }
                 $attribute->type = $this->guessPropertyType($reflectionProperty);
                 $attributes->set($attribute->name, $attribute);
-                $this->logger->debug("Found resource attribute {$attribute->name}.");
+                $this->logger->debug('Found resource attribute ' . $attribute->name);
             }
             /** @var Relationship | null $relationship */
             if ($relationship = $this->reader->getPropertyAnnotation($reflectionProperty, Relationship::class)) {
@@ -142,7 +143,7 @@ class AnnotationDriver
                     $relationship->property = $reflectionProperty->getName();
                 }
                 $relationships->set($relationship->name, $relationship);
-                $this->logger->debug("Found resource relationship {$relationship->name}.");
+                $this->logger->debug('Found resource relationship ' . $relationship->name);
             }
 
             /** @var Meta | null $meta */
@@ -154,7 +155,7 @@ class AnnotationDriver
                     $meta->property = $reflectionProperty->getName();
                 }
                 $metas->set($meta->name, $meta);
-                $this->logger->debug("Found resource meta {$meta->name}.");
+                $this->logger->debug('Found resource meta ' . $meta->name);
             }
         }
     }
@@ -204,7 +205,7 @@ class AnnotationDriver
                         );
                     }
                     $id->getter = $reflectionMethod->getName();
-                    $this->logger->debug("Found resource ID.");
+                    $this->logger->debug('Found resource ID.');
                 }
 
                 /** @var Attribute $attribute */
@@ -235,14 +236,14 @@ class AnnotationDriver
                     }
 
                     if ($attribute->type === 'array' && $attribute->of === null) {
-                        throw new DriverException("Attribute {$reflectionClass->getName()}::{$attribute->name} 
-                        is type of {$attribute->type}, so annotation parameter 'of' is required. Please specify type of 
-                        array items.");
+                        throw new DriverException('Attribute ' . $reflectionClass->getName()
+                            . '::' . $attribute->name . 'is type of ' . $attribute->type
+                            . ', so annotation parameter "of" is required. Please specify type of  array items.');
                     }
-
+                    $this->checkReservedNames($attribute->name);
                     $attributes->set($attribute->name, $attribute);
 
-                    $this->logger->debug("Found resource attribute {$attribute->name}.");
+                    $this->logger->debug('Found resource attribute ' . $attribute->name);
                 }
                 /** @var Relationship $relationship */
                 if ($relationship = $this->reader->getMethodAnnotation($reflectionMethod, Relationship::class)) {
@@ -267,10 +268,10 @@ class AnnotationDriver
                     if ($relationship->isCollection === null) {
                         $relationship->isCollection = $this->isCollection($reflectionMethod);
                     }
-
+                    $this->checkReservedNames($relationship->name);
                     $relationships->set($relationship->name, $relationship);
 
-                    $this->logger->debug("Found resource relationship {$relationship->name}.");
+                    $this->logger->debug('Found resource relationship ' . $relationship->name);
                 }
 
                 /** @var Meta $meta */
@@ -292,7 +293,7 @@ class AnnotationDriver
                         $meta->setter = $this->getSetter($reflectionClass, $meta);
                     }
                     $metas->set($meta->name, $meta);
-                    $this->logger->debug("Found resource meta {$meta->name}.");
+                    $this->logger->debug('Found resource meta ' . $meta->name);
                 }
             }
         }
@@ -307,9 +308,8 @@ class AnnotationDriver
      */
     private function isGetter(ReflectionMethod $reflectionMethod): bool
     {
-        return $reflectionMethod->hasReturnType()
-            && $reflectionMethod->getReturnType()->getName() !== 'void'
-            && preg_match(self::GETTER, $reflectionMethod->getName());
+        return ($reflectionMethod->hasReturnType() && $reflectionMethod->getReturnType()->getName() !== 'void')
+            || preg_match(self::GETTER, $reflectionMethod->getName());
     }
 
     /**
@@ -346,13 +346,13 @@ class AnnotationDriver
     private function getSetterParameterType(ReflectionClass $reflectionClass, Attribute $attribute): string
     {
         try {
-            $method = new ReflectionMethod($reflectionClass->getName(), $attribute->setter);
+            $method = $reflectionClass->getMethod($attribute->setter);
         } catch (Exception $e) {
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
         if ($method->getNumberOfRequiredParameters() > 1) {
-            throw new DriverException("Setter " . $reflectionClass->getName() . "::" . $method->getName() .
-                "can have only one required parameter.");
+            throw new DriverException('Setter ' . $reflectionClass->getName() . '::' . $method->getName() .
+                'should have only one required parameter.');
         }
         $parameters = $method->getParameters();
         $parameter = array_shift($parameters);
@@ -380,6 +380,18 @@ class AnnotationDriver
             return false;
         } catch (Exception $exception) {
             throw new DriverException($exception->getMessage(), $exception->getCode(), $exception);
+        }
+    }
+
+    /**
+     * @param string $name
+     *
+     * @throws ReserveWordException
+     */
+    private function checkReservedNames(string $name): void
+    {
+        if (in_array(strtolower($name), ['type', 'id'])) {
+            throw new ReserveWordException();
         }
     }
 }

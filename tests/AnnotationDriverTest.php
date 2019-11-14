@@ -6,6 +6,7 @@ use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
+use JSONAPI\Exception\Driver\ReserveWordException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -51,5 +52,17 @@ class AnnotationDriverTest extends TestCase
         $this->expectException(ClassNotResource::class);
         $notResource = new NotResource();
         $driver->getClassMetadata(get_class($notResource));
+    }
+
+    /**
+     * @depends testConstruct
+     */
+    public function testCheckReservedNames(AnnotationDriver $driver)
+    {
+        $this->expectException(ReserveWordException::class);
+        $ref = new \ReflectionClass($driver);
+        $method = $ref->getMethod('checkReservedNames');
+        $method->setAccessible(true);
+        $method->invokeArgs($driver, ['type']);
     }
 }

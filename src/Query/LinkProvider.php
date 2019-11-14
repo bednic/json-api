@@ -57,7 +57,7 @@ class LinkProvider
             $links[] = new Link(
                 self::RELATED,
                 self::getAPIUrl()
-                . $path->getResource()
+                . '/' . $path->getResource()
                 . '/' . $path->getId()
                 . '/' . $path->getRelationshipName()
             );
@@ -79,11 +79,11 @@ class LinkProvider
                     throw new InvalidArgumentException("Invalid URL passed from ENV");
                 }
                 $uri = $uriFactory->createUri(getenv(self::API_URL_ENV));
-                self::$url = (string)$uri . (preg_match('/\/$/', (string)$uri) === false ? '/' : '');
+                self::$url = preg_replace('/\/$/', '', (string)$uri);
             } else {
                 $uri = $uriFactory->createFromGlobals($_SERVER);
                 self::$url = $uri->getScheme() . '://' . $uri->getHost()
-                    . ($uri->getPort() ? ':' . $uri->getPort() : '') . '/';
+                    . ($uri->getPort() ? ':' . $uri->getPort() : '');
             }
         }
         return self::$url;
@@ -123,7 +123,7 @@ class LinkProvider
      */
     public static function createSelfLink(ResourceObjectIdentifier $resource, Meta $meta = null): Link
     {
-        $url = self::getAPIUrl() . $resource->getType() . '/' . $resource->getId();
+        $url = self::getAPIUrl() . '/' . $resource->getType() . '/' . $resource->getId();
         return new Link(self::SELF, $url, $meta);
     }
 
@@ -143,7 +143,10 @@ class LinkProvider
         Relationship $relationship,
         Meta $meta = null
     ): Link {
-        $url = self::getAPIUrl() . $resource->getType() . '/' . $resource->getId() . '/' . $relationship->getKey();
+        $url = self::getAPIUrl()
+            . '/' . $resource->getType()
+            . '/' . $resource->getId()
+            . '/' . $relationship->getKey();
         return new Link(self::RELATED, $url, $meta);
     }
 }

@@ -86,7 +86,7 @@ class Path
      */
     public function __toString()
     {
-        return $this->resource
+        return '/' . $this->resource
             . ($this->id ? '/' . $this->getId() : '')
             . ($this->relationship ? '/relationships/' . $this->getRelationshipName() : '')
             . ($this->relation ? '/' . $this->getRelationshipName() : '')
