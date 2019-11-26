@@ -10,10 +10,9 @@
 namespace JSONAPI\Query;
 
 use JSONAPI\Exception\Document\BadRequest;
-use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Query\Filter\VoidFilterParser;
 use JSONAPI\Query\Pagination\LimitOffsetPaginationParser;
-use Slim\Psr7\Factory\UriFactory;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class Query
@@ -22,6 +21,8 @@ use Slim\Psr7\Factory\UriFactory;
  */
 class Query
 {
+
+    private $request;
 
     /**
      * @var Filter
@@ -55,30 +56,33 @@ class Query
     /**
      * Query constructor.
      *
-     * @param Filter|null     $filterParser
-     * @param Pagination|null $paginationParser
+     * @param ServerRequestInterface $request
+     * @param Filter|null            $filterParser
+     * @param Pagination|null        $paginationParser
      */
-    public function __construct(Filter $filterParser = null, Pagination $paginationParser = null)
-    {
+    public function __construct(
+        ServerRequestInterface $request,
+        Filter $filterParser = null,
+        Pagination $paginationParser = null
+    ) {
+        $this->request = $request;
         $this->filterParser = $filterParser ?? new VoidFilterParser();
         $this->paginationParser = $paginationParser ?? new LimitOffsetPaginationParser();
-
-        if (isset($_GET['include'])) {
-            $this->parseIncludes($_GET['include']);
+        $params = $request->getQueryParams();
+        if (isset($params['include'])) {
+            $this->parseIncludes($params['include']);
         }
-
-        if (isset($_GET['fields'])) {
-            $this->parseFields($_GET['fields']);
+        if (isset($params['fields'])) {
+            $this->parseFields($params['fields']);
         }
-        if (isset($_GET['sort'])) {
-            $this->parseSort($_GET['sort']);
+        if (isset($params['sort'])) {
+            $this->parseSort($params['sort']);
         }
-        if (isset($_GET['page'])) {
-            $this->parsePage($_GET['page']);
+        if (isset($params['page'])) {
+            $this->parsePage($params['page']);
         }
-
-        if (isset($_GET['filter'])) {
-            $this->parseFilter($_GET['filter']);
+        if (isset($params['filter'])) {
+            $this->parseFilter($params['filter']);
         }
     }
 
@@ -188,7 +192,6 @@ class Query
     /**
      * @return Path
      * @throws BadRequest
-     * @throws InvalidArgumentException
      */
     public function getPath(): Path
     {
@@ -201,14 +204,10 @@ class Query
     /**
      * @return void
      * @throws BadRequest
-     * @throws InvalidArgumentException
      */
     private function parsePath(): void
     {
-        $uriFactory = new UriFactory();
-        $baseUrl = $uriFactory->createUri(LinkProvider::getAPIUrl());
-        $uri = $uriFactory->createFromGlobals($_SERVER);
-        $url = str_replace($baseUrl->getPath(), '/', $uri->getPath());
+        $url = $this->request->getUri()->getPath();
         $pattern = '/^\/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
         if (preg_match($pattern, $url, $matches)) {
@@ -217,7 +216,7 @@ class Query
                 isset($matches['id']) ? $matches['id'] : null,
                 isset($matches['relationship']) ? $matches['relationship'] : null,
                 isset($matches['related']) ? $matches['related'] : null,
-                $uri->getQuery()
+                $this->request->getUri()->getQuery()
             );
         } else {
             throw new BadRequest("Invalid URL");

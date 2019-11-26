@@ -81,12 +81,12 @@ class Encoder
      */
     public function __construct(
         MetadataFactory $metadataFactory,
-        Query $query = null,
+        Query $query,
         LoggerInterface $logger = null
     ) {
         $this->metadataFactory = $metadataFactory;
+        $this->query = $query;
         $this->logger = $logger ?? new NullLogger();
-        $this->query = $query ?? new Query();
     }
 
     /**

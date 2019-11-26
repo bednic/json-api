@@ -15,6 +15,7 @@ use JSONAPI\Document\Error;
 use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Exception\Document\UnsupportedMediaType;
 use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Query\Query;
 use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
@@ -82,6 +83,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
+        $query = new Query($request);
         try {
             if (
                 in_array(
@@ -92,11 +94,13 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
                 }
-                $request = $request->withParsedBody($this->getBody());
+                $request = $request
+                    ->withParsedBody($this->getBody())
+                    ->withAttribute('query', $query);
             }
             $response = $handler->handle($request);
         } catch (BadRequest $exception) {
-            $document = new Document($this->factory, $this->logger);
+            $document = new Document($this->factory, $query, $this->logger);
             $document->addError(Error::fromException($exception));
             $body = (new StreamFactory())->createStream(json_encode($document));
             $response = (new ResponseFactory())->createResponse($exception->getStatus())->withBody($body);

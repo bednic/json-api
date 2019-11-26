@@ -23,6 +23,7 @@ use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\MetaTrait;
 use JSONAPI\Query\LinkProvider;
+use JSONAPI\Query\Path;
 use JSONAPI\Query\Query;
 use JsonSerializable;
 use Psr\Http\Message\ServerRequestInterface;
@@ -57,7 +58,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     /**
      * @var Query
      */
-    private $url;
+    private $query;
 
     /**
      * @var LoggerInterface
@@ -95,14 +96,15 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * Document constructor.
      *
      * @param MetadataFactory      $metadataFactory
+     * @param Query                $query
      * @param LoggerInterface|null $logger
      */
-    public function __construct(MetadataFactory $metadataFactory, LoggerInterface $logger = null)
+    public function __construct(MetadataFactory $metadataFactory, Query $query, LoggerInterface $logger = null)
     {
         $this->factory = $metadataFactory;
+        $this->query = $query;
         $this->logger = $logger ?? new NullLogger();
-        $this->url = new Query();
-        $this->encoder = new Encoder($metadataFactory, $this->url, $this->logger);
+        $this->encoder = new Encoder($metadataFactory, $query, $this->logger);
     }
 
     /**
@@ -115,7 +117,8 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      */
     public static function createFromRequest(ServerRequestInterface $request, MetadataFactory $factory): Document
     {
-        $document = new static($factory);
+        $query = new Query($request);
+        $document = new static($factory, $query);
         $metadata = $factory->getMetadataClassByType($document->getDataType());
         $body = $request->getParsedBody();
 
@@ -147,8 +150,8 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      */
     private function getDataType(): string
     {
-        $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
-        if ($name = $this->url->getPath()->getRelationshipName()) {
+        $metadata = $this->factory->getMetadataClassByType($this->query->getPath()->getResource());
+        if ($name = $this->query->getPath()->getRelationshipName()) {
             return $this->factory->getMetadataByClass($metadata->getRelationship($name)->target)->getResource()->type;
         }
         return $metadata->getResource()->type;
@@ -246,7 +249,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                 $this->data[] = $this->save($obj, $metadata);
             }
         } else {
-            if (!$this->url->getPath()->isRelation() && is_null($data)) {
+            if (!$this->query->getPath()->isRelation() && is_null($data)) {
                 throw new NotFound();
             }
             $this->data = $this->save($data, $metadata);
@@ -261,14 +264,14 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      */
     private function isCollection(): bool
     {
-        $metadata = $this->factory->getMetadataClassByType($this->url->getPath()->getResource());
-        if ($name = $this->url->getPath()->getRelationshipName()) {
+        $metadata = $this->factory->getMetadataClassByType($this->query->getPath()->getResource());
+        if ($name = $this->query->getPath()->getRelationshipName()) {
             return $metadata->getRelationship($name)->isCollection;
         }
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($this->url->getPath()->getId())) {
+        if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($this->query->getPath()->getId())) {
             return false;
         }
-        return empty($this->url->getPath()->getId());
+        return empty($this->query->getPath()->getId());
     }
 
     /**
@@ -286,7 +289,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     private function save($object, ClassMetadata $metadata): ?ResourceObjectIdentifier
     {
         if ($object) {
-            if ($this->url->getPath()->isRelationship()) {
+            if ($this->query->getPath()->isRelationship()) {
                 $resource = $this->encoder->identify($object);
             } else {
                 $resource = $this->encoder->encode($object);
@@ -299,8 +302,8 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             $id = $this->getId($resource);
             if ($this->isUnique($id)) {
                 $this->ids[$id] = true;
-                if (!$this->url->getPath()->isRelationship()) {
-                    $this->setIncludes($this->url->getIncludes(), $object);
+                if (!$this->query->getPath()->isRelationship()) {
+                    $this->setIncludes($this->query->getIncludes(), $object);
                 }
                 return $resource;
             }
