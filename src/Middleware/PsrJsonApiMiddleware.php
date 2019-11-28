@@ -12,10 +12,13 @@ namespace JSONAPI\Middleware;
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
-use JSONAPI\Exception\Document\BadRequest;
-use JSONAPI\Exception\Document\UnsupportedMediaType;
+use JSONAPI\Exception\Document\DocumentException;
+use JSONAPI\Exception\Driver\DriverException;
+use JSONAPI\Exception\Encoder\EncoderException;
+use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Exception\Http\BadRequest;
+use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Metadata\MetadataFactory;
-use JSONAPI\Query\Query;
 use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
 use Psr\Http\Message\ResponseInterface;
@@ -80,10 +83,13 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * @param RequestHandlerInterface $handler
      *
      * @return ResponseInterface
+     * @throws DocumentException
+     * @throws DriverException
+     * @throws EncoderException
+     * @throws InvalidArgumentException
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
-        $query = new Query($request);
         try {
             if (
                 in_array(
@@ -94,16 +100,21 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
                 }
-                $request = $request
-                    ->withParsedBody($this->getBody())
-                    ->withAttribute('query', $query);
+                $request = $request->withParsedBody($this->getBody());
             }
             $response = $handler->handle($request);
-        } catch (BadRequest $exception) {
-            $document = new Document($this->factory, $query, $this->logger);
-            $document->addError(Error::fromException($exception));
-            $body = (new StreamFactory())->createStream(json_encode($document));
-            $response = (new ResponseFactory())->createResponse($exception->getStatus())->withBody($body);
+            if (self::$validator->dataValidation($response->getBody()->getContents(), self::$schema)->isValid()) {
+                throw new DocumentException("Document is not valid");
+            }
+        } catch (\Exception $exception) {
+            $document = new Document($this->factory, $request, $this->logger);
+            $error = Error::fromException($exception);
+            $document->addError($error);
+            $body = (new StreamFactory())
+                ->createStream(json_encode($document));
+            $response = (new ResponseFactory())
+                ->createResponse($error->getStatus())
+                ->withBody($body);
         }
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
     }

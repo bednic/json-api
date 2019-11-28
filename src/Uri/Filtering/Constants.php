@@ -1,6 +1,6 @@
 <?php
 
-namespace JSONAPI\Query\Filter;
+namespace JSONAPI\Uri\Filtering;
 
 /**
  * Class Constants

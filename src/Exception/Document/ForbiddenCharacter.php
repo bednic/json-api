@@ -7,8 +7,9 @@ namespace JSONAPI\Exception\Document;
  *
  * @package JSONAPI\Exception\Http
  */
-class ForbiddenCharacter extends BadRequest
+class ForbiddenCharacter extends DocumentException
 {
+    protected $code = 21;
     protected $message = "Parameter %s contains forbidden character(s).";
 
     public function __construct(string $parameterName)

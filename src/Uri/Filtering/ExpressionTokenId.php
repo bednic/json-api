@@ -1,6 +1,6 @@
 <?php
 
-namespace JSONAPI\Query\Filter;
+namespace JSONAPI\Uri\Filtering;
 
 use MyCLabs\Enum\Enum;
 

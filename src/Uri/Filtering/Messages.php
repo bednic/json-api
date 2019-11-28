@@ -1,6 +1,6 @@
 <?php
 
-namespace JSONAPI\Query\Filter;
+namespace JSONAPI\Uri\Filtering;
 
 /**
  * Class Messages helps to format error messages
@@ -1282,7 +1282,7 @@ class Messages
      */
     public static function orderByParserFailedToCreateDummyObject()
     {
-        return 'OrderBy Parser failed to create dummy object from request uri resource type';
+        return 'OrderBy UriParser failed to create dummy object from request uri resource type';
     }
 
     /**

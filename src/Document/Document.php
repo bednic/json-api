@@ -10,27 +10,35 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use JSONAPI\Exception\Document\BadRequest;
-use JSONAPI\Exception\Document\NotFound;
+use JSONAPI\Exception\Document\DocumentException;
+use JSONAPI\Exception\Http\BadRequest;
+use JSONAPI\Exception\Http\NotFound;
 use JSONAPI\Exception\Document\ResourceTypeMismatch;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Encoder\EncoderException;
 use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Exception\JsonApiException;
 use JSONAPI\JsonDeserializable;
 use JSONAPI\LinksTrait;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\MetaTrait;
-use JSONAPI\Query\LinkProvider;
-use JSONAPI\Query\Path;
-use JSONAPI\Query\Query;
+use JSONAPI\Uri\Fieldset\FieldsetParser;
+use JSONAPI\Uri\Fieldset\SortParser;
+use JSONAPI\Uri\Filtering\VoidFilterParser;
+use JSONAPI\Uri\Filter;
+use JSONAPI\Uri\Inclusion\InclusionParser;
+use JSONAPI\Uri\Pagination\LimitOffsetPaginationParser;
+use JSONAPI\Uri\Pagination;
+use JSONAPI\Uri\Path\PathParser;
 use JsonSerializable;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
 use ReflectionException;
+use stdClass;
 
 /**
  * Class Document
@@ -56,11 +64,6 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     private $encoder;
 
     /**
-     * @var Query
-     */
-    private $query;
-
-    /**
      * @var LoggerInterface
      */
     private $logger;
@@ -81,120 +84,208 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     private $included = [];
 
     /**
-     * Helper array
+     * Helper map of existing resources
      *
      * @var array
      */
-    private $ids = [];
+    private $keymap = [];
 
     /**
-     * @var bool
+     * @var ServerRequestInterface
      */
-    private $isError = false;
+    private $request;
+    /**
+     * @var Filter
+     */
+    private $filterParser;
+    /**
+     * @var Pagination
+     */
+    private $paginationParser;
+    /**
+     * @var Filter
+     */
+    private $fieldsetParser;
+    /**
+     * @var InclusionParser
+     */
+    private $inclusionParser;
+    /**
+     * @var PathParser
+     */
+    private $pathParser;
+    /**
+     * @var SortParser
+     */
+    private $sortParser;
 
     /**
      * Document constructor.
      *
-     * @param MetadataFactory      $metadataFactory
-     * @param Query                $query
-     * @param LoggerInterface|null $logger
-     */
-    public function __construct(MetadataFactory $metadataFactory, Query $query, LoggerInterface $logger = null)
-    {
-        $this->factory = $metadataFactory;
-        $this->query = $query;
-        $this->logger = $logger ?? new NullLogger();
-        $this->encoder = new Encoder($metadataFactory, $query, $this->logger);
-    }
-
-    /**
+     * @param MetadataFactory        $metadataFactory
      * @param ServerRequestInterface $request
-     * @param MetadataFactory        $factory
+     * @param LoggerInterface|null   $logger
      *
-     * @return Document
-     * @throws BadRequest
+     * @throws DocumentException
      * @throws DriverException
-     */
-    public static function createFromRequest(ServerRequestInterface $request, MetadataFactory $factory): Document
-    {
-        $query = new Query($request);
-        $document = new static($factory, $query);
-        $metadata = $factory->getMetadataClassByType($document->getDataType());
-        $body = $request->getParsedBody();
-
-        if (is_array($body->data)) {
-            $document->data = [];
-            foreach ($body->data as $resourceDto) {
-                if ($resourceDto->type !== $document->getDataType()) {
-                    throw new ResourceTypeMismatch();
-                }
-                $object = self::getResourceObject($resourceDto, $metadata);
-                $document->data[] = $object;
-            }
-        } else {
-            $document->data = null;
-            if ($body->data->type !== $document->getDataType()) {
-                throw new ResourceTypeMismatch();
-            }
-            $object = self::getResourceObject($body->data, $metadata);
-            $document->data = $object;
-        }
-        return $document;
-    }
-
-    /**
-     * @return string
-     * @throws BadRequest
-     * @throws DriverException
+     * @throws EncoderException
      * @throws InvalidArgumentException
      */
-    private function getDataType(): string
-    {
-        $metadata = $this->factory->getMetadataClassByType($this->query->getPath()->getResource());
-        if ($name = $this->query->getPath()->getRelationshipName()) {
-            return $this->factory->getMetadataByClass($metadata->getRelationship($name)->target)->getResource()->type;
+    public function __construct(
+        MetadataFactory $metadataFactory,
+        ServerRequestInterface $request,
+        LoggerInterface $logger = null
+    ) {
+        $this->factory = $metadataFactory;
+        $this->request = $request;
+        $this->fieldsetParser = new FieldsetParser();
+        $this->filterParser = new VoidFilterParser();
+        $this->inclusionParser = new InclusionParser();
+        $this->paginationParser = new LimitOffsetPaginationParser();
+        $this->pathParser = new PathParser($metadataFactory);
+        $this->sortParser = new SortParser();
+        $this->logger = $logger ?? new NullLogger();
+        $this->encoder = new Encoder($metadataFactory, $this->fieldsetParser, $this->logger);
+        try {
+            $this->parseUri();
+            if (in_array(strtoupper($request->getMethod()), ['POST', 'PATCH'])) {
+                $this->loadData();
+            }
+        } catch (BadRequest $exception) {
+            $error = Error::fromException($exception);
+            $this->addError($error);
         }
-        return $metadata->getResource()->type;
+    }
+
+    public function setFilterParser(Filter $parser)
+    {
+        $this->filterParser = $parser;
+    }
+
+    public function setPagination(Pagination $parser)
+    {
+        $this->paginationParser = $parser;
+    }
+
+    public function getFilter(): Filter
+    {
+        return $this->filterParser;
+    }
+
+    public function getPagination(): Pagination
+    {
+        return $this->paginationParser;
     }
 
     /**
-     * @param               $resourceDto
+     * @throws BadRequest
+     * @throws InvalidArgumentException
+     */
+    private function parseUri()
+    {
+        $this->pathParser->parse($this->request->getUri()->getPath());
+        $params = $this->request->getQueryParams();
+        if (isset($params['fields'])) {
+            $this->fieldsetParser->parse($params['fields']);
+        }
+        if (isset($params['filter'])) {
+            $this->filterParser->parse($params['filter']);
+        }
+        if (isset($params['include'])) {
+            $this->inclusionParser->parse($params['include']);
+        }
+        if (isset($params['page'])) {
+            $this->paginationParser->parse($params['page']);
+        }
+        if (isset($params['sort'])) {
+            $this->sortParser->parse($params['sort']);
+        }
+    }
+
+    /**
+     * @return void
+     * @throws DocumentException
+     * @throws DriverException
+     * @throws EncoderException
+     * @throws InvalidArgumentException
+     */
+    private function loadData(): void
+    {
+        $primaryDataType = $this->pathParser->getPrimaryDataType();
+        $metadata = $this->factory->getMetadataClassByType($primaryDataType);
+        $body = $this->request->getParsedBody();
+
+        if (is_array($body->data)) {
+            $this->data = [];
+            foreach ($body->data as $object) {
+                if ($object->type !== $primaryDataType) {
+                    throw new ResourceTypeMismatch();
+                }
+                $resource = $this->getResourceObject($object, $metadata);
+                $this->data[] = $resource;
+            }
+        } else {
+            $this->data = null;
+            if ($body->data->type !== $primaryDataType) {
+                throw new ResourceTypeMismatch();
+            }
+            $this->data = $this->getResourceObject($body->data, $metadata);
+        }
+    }
+
+    /**
+     * @param               $object
      * @param ClassMetadata $metadata
      *
      * @return ResourceObject
-     * @throws BadRequest
+     * @throws DriverException
+     * @throws EncoderException
+     * @throws InvalidArgumentException
+     * @throws DocumentException
      */
-    private static function getResourceObject($resourceDto, ClassMetadata $metadata)
+    private function getResourceObject($object, ClassMetadata $metadata): ResourceObjectIdentifier
     {
-        $object = new ResourceObject(new ResourceObjectIdentifier($resourceDto->type, @$resourceDto->id));
-        foreach ($resourceDto->attributes ?? [] as $attribute => $value) {
-            $attr = $metadata->getAttribute($attribute);
-            try {
-                $className = $attr->type;
-                if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
-                    /** @var JsonDeserializable $className */
-                    $value = $className::jsonDeserialize($value);
+        if ($object instanceof stdClass) {
+            $resource = new ResourceObject(new ResourceObjectIdentifier($object->type, @$object->id));
+            foreach ($object->attributes ?? [] as $attribute => $value) {
+                $attr = $metadata->getAttribute($attribute);
+                try {
+                    $className = $attr->type;
+                    if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
+                        /** @var JsonDeserializable $className */
+                        $value = $className::jsonDeserialize($value);
+                    }
+                } catch (ReflectionException $ignored) {
+                    //NOSONAR
                 }
-            } catch (ReflectionException $ignored) {
-                //NOSONAR
+                $resource->addAttribute(new Attribute($attribute, $value));
             }
-            $object->addAttribute(new Attribute($attribute, $value));
-        }
 
-        foreach ($resourceDto->relationships ?? [] as $prop => $value) {
-            $value = $value->data;
-            if (is_array($value)) {
-                $data = new ArrayCollection();
-                foreach ($value as $item) {
-                    $data->add(new ResourceObjectIdentifier($item->type, $item->id));
+            foreach ($object->relationships ?? [] as $prop => $value) {
+                $value = $value->data;
+                if (is_array($value)) {
+                    $data = new ArrayCollection();
+                    foreach ($value as $item) {
+                        $data->add(new ResourceObjectIdentifier($item->type, $item->id));
+                    }
+                } else {
+                    $data = new ResourceObjectIdentifier($value->type, $value->id);
                 }
-            } else {
-                $data = new ResourceObjectIdentifier($value->type, $value->id);
+                $relationship = new Relationship($prop, $data);
+                $resource->addRelationship($relationship);
             }
-            $relationship = new Relationship($prop, $data);
-            $object->addRelationship($relationship);
+            return $resource;
+        } else {
+            if ($this->pathParser->isRelationship()) {
+                $resource = $this->encoder->identify($object);
+            } else {
+                $resource = $this->encoder->encode($object);
+            }
+            if ($resource->getType() !== $metadata->getResource()->type) {
+                throw new ResourceTypeMismatch();
+            }
+            return $resource;
         }
-        return $object;
     }
 
     /**
@@ -210,7 +301,6 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      */
     public function addError(Error $error)
     {
-        $this->isError = true;
         $this->errors[] = $error;
     }
 
@@ -232,103 +322,50 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      */
     public function setData($data): void
     {
-        if ($this->isError) {
+        if (count($this->errors) > 0) {
             return;
         }
-
-        $dataType = $this->getDataType();
+        $dataType = $this->pathParser->getPrimaryDataType();
         $metadata = $this->factory->getMetadataClassByType($dataType);
-        $this->setLinks(LinkProvider::createPrimaryDataLinks());
-
-        if ($this->isCollection()) {
+        if ($this->pathParser->isCollection()) {
             if (!is_iterable($data)) {
                 throw new InvalidArgumentException("Collection fetch was detected, but data are not array");
             }
             $this->data = [];
-            foreach ($data as $obj) {
-                $this->data[] = $this->save($obj, $metadata);
+            foreach ($data as $object) {
+                $resource = $this->getResourceObject($object, $metadata);
+                $key = self::getKey($resource);
+                if (!isset($this->keymap[$key])) {
+                    $this->data[] = $this->getResourceObject($object, $metadata);
+                    $this->setIncludes($this->inclusionParser->getIncludes(), $object);
+                    $this->keymap[$key] = true;
+                }
             }
         } else {
-            if (!$this->query->getPath()->isRelation() && is_null($data)) {
-                throw new NotFound();
-            }
-            $this->data = $this->save($data, $metadata);
-        }
-    }
-
-    /**
-     * @return bool
-     * @throws BadRequest
-     * @throws DriverException
-     * @throws InvalidArgumentException
-     */
-    private function isCollection(): bool
-    {
-        $metadata = $this->factory->getMetadataClassByType($this->query->getPath()->getResource());
-        if ($name = $this->query->getPath()->getRelationshipName()) {
-            return $metadata->getRelationship($name)->isCollection;
-        }
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && empty($this->query->getPath()->getId())) {
-            return false;
-        }
-        return empty($this->query->getPath()->getId());
-    }
-
-    /**
-     * Return ResourceObject or null if ResourceObject is already saved to data
-     *
-     * @param object        $object
-     * @param ClassMetadata $metadata
-     *
-     * @return ResourceObjectIdentifier|null
-     * @throws BadRequest
-     * @throws DriverException
-     * @throws EncoderException
-     * @throws InvalidArgumentException
-     */
-    private function save($object, ClassMetadata $metadata): ?ResourceObjectIdentifier
-    {
-        if ($object) {
-            if ($this->query->getPath()->isRelationship()) {
-                $resource = $this->encoder->identify($object);
-            } else {
-                $resource = $this->encoder->encode($object);
-            }
-
-            if ($resource->getType() !== $metadata->getResource()->type) {
-                throw new ResourceTypeMismatch();
-            }
-
-            $id = $this->getId($resource);
-            if ($this->isUnique($id)) {
-                $this->ids[$id] = true;
-                if (!$this->query->getPath()->isRelationship()) {
-                    $this->setIncludes($this->query->getIncludes(), $object);
+            if (is_null($data)) {
+                if ($this->pathParser->getRelation()) {
+                    $this->data = null;
+                } else {
+                    throw new NotFound();
                 }
-                return $resource;
+            } else {
+                $resource = $this->getResourceObject($data, $metadata);
+                $key = self::getKey($resource);
+                $this->data = $resource;
+                $this->setIncludes($this->inclusionParser->getIncludes(), $data);
+                $this->keymap[$key] = true;
             }
         }
-        return null;
     }
 
-    /**
-     * @param ResourceObjectIdentifier $resource
-     *
-     * @return string
-     */
-    private function getId(ResourceObjectIdentifier $resource): string
+    private static function getKey(ResourceObjectIdentifier $resource): string
     {
         return $resource->getType() . $resource->getId();
     }
 
-    /**
-     * @param $id
-     *
-     * @return bool
-     */
-    private function isUnique($id): bool
+    private function setPrimaryLink()
     {
-        return !isset($this->ids[$id]);
+
     }
 
     /**
@@ -355,10 +392,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                     if ($relationship->isCollection) {
                         foreach ($data as $item) {
                             $relation = $this->encoder->encode($item);
-                            $id = $this->getId($relation);
-                            if ($this->isUnique($id)) {
+                            $key = self::getKey($relation);
+                            if (isset($key)) {
                                 $this->included[] = $relation;
-                                $this->ids[$id] = true;
+                                $this->keymap[$key] = true;
                                 if ($sub) {
                                     $this->setIncludes($sub, $item);
                                 }
@@ -366,10 +403,10 @@ class Document implements JsonSerializable, HasLinks, HasMeta
                         }
                     } else {
                         $relation = $this->encoder->encode($data);
-                        $id = $this->getId($relation);
-                        if ($this->isUnique($id)) {
+                        $key = self::getKey($relation);
+                        if (!isset($this->keymap[$key])) {
                             $this->included[] = $relation;
-                            $this->ids[$id] = true;
+                            $this->keymap[$key] = true;
                             if ($sub) {
                                 $this->setIncludes($sub, $data);
                             }
@@ -391,12 +428,12 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     public function jsonSerialize()
     {
         $ret["jsonapi"] = ["version" => self::VERSION];
-        if ($this->isError) {
+        if (count($this->errors) > 0) {
             $ret["errors"] = $this->errors;
         } else {
             $ret['data'] = $this->data;
         }
-        if (count($this->included)) {
+        if (count($this->included) > 0) {
             $ret["included"] = $this->included;
         }
         if ($this->links) {
@@ -409,7 +446,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @return false|string
+     * @return string
      */
     public function __toString(): string
     {

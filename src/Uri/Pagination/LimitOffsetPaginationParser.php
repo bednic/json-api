@@ -1,16 +1,18 @@
 <?php
 
-namespace JSONAPI\Query\Pagination;
+namespace JSONAPI\Uri\Pagination;
 
-use JSONAPI\Exception\Query\MethodNotImplemented;
-use JSONAPI\Query\Pagination;
+use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Exception\Http\MethodNotImplemented;
+use JSONAPI\Uri\Pagination;
+use JSONAPI\Uri\UriParser;
 
 /**
  * Class LimitOffsetPaginationParser
  *
  * @package JSONAPI\Query
  */
-class LimitOffsetPaginationParser implements Pagination
+class LimitOffsetPaginationParser implements Pagination, UriParser
 {
 
     /**
@@ -53,9 +55,14 @@ class LimitOffsetPaginationParser implements Pagination
 
     /**
      * @param array $data
+     *
+     * @throws InvalidArgumentException
      */
     public function parse($data): void
     {
+        if (!is_array($data)) {
+            throw new InvalidArgumentException("Parameter query must be an array.");
+        }
         if (isset($data['limit'])) {
             $this->limit = filter_var($data['limit'], FILTER_VALIDATE_INT);
         }
@@ -90,5 +97,10 @@ class LimitOffsetPaginationParser implements Pagination
     public function getSize(): int
     {
         throw new MethodNotImplemented();
+    }
+
+    public function __toString()
+    {
+        return 'page[offset]=' . $this->getOffset() . '&page[limit]=' . $this->getLimit();
     }
 }

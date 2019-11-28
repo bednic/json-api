@@ -12,6 +12,8 @@ use Fig\Http\Message\StatusCodeInterface;
  */
 abstract class JsonApiException extends Exception
 {
+    protected $code = 50;
+    protected $message = "Internal Server Error.";
     /**
      * @return int
      */

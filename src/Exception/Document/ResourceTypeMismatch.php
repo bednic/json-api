@@ -7,7 +7,8 @@ namespace JSONAPI\Exception\Document;
  *
  * @package JSONAPI\Exception\Http
  */
-class ResourceTypeMismatch extends BadRequest
+class ResourceTypeMismatch extends DocumentException
 {
+    protected $code = 23;
     protected $message = "Document primary Resource::type is not same as type of primary data";
 }

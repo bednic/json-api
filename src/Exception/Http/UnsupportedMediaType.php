@@ -7,7 +7,7 @@
  * Time: 19:47
  */
 
-namespace JSONAPI\Exception\Document;
+namespace JSONAPI\Exception\Http;
 
 use Fig\Http\Message\StatusCodeInterface;
 
@@ -19,6 +19,10 @@ use Fig\Http\Message\StatusCodeInterface;
 class UnsupportedMediaType extends BadRequest
 {
 
-    protected $code = StatusCodeInterface::STATUS_UNSUPPORTED_MEDIA_TYPE;
+    protected $code = 43;
     protected $message = "Unsupported Media Type";
+    public function getStatus()
+    {
+        return StatusCodeInterface::STATUS_UNSUPPORTED_MEDIA_TYPE;
+    }
 }

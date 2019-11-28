@@ -1,19 +1,21 @@
 <?php
 
-namespace JSONAPI\Query\Filter;
+namespace JSONAPI\Uri\Filtering;
 
 use DateTime;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Expression;
 use Exception;
-use JSONAPI\Query\Filter;
+use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Uri\Filter;
+use JSONAPI\Uri\UriParser;
 
 /**
- * Class Parser
+ * Class UriParser
  *
  * @package JSONAPI\Query\Filter
  */
-class CriteriaFilterParser implements Filter
+class CriteriaFilterParser implements Filter, UriParser
 {
 
     private $functions = [
@@ -35,7 +37,7 @@ class CriteriaFilterParser implements Filter
     private $criteria;
 
     /**
-     * Parser constructor.
+     * UriParser constructor.
      */
     public function __construct()
     {
@@ -43,17 +45,17 @@ class CriteriaFilterParser implements Filter
     }
 
     /**
-     * @param string $filter
+     * @param string $data
      *
      * @throws ExpressionException
+     * @throws InvalidArgumentException
      */
-    public function parse($filter): void
+    public function parse($data): void
     {
-        if (!is_string($filter)) {
-            //todo: this should by something like invalid argument exception
-            throw new ExpressionException("Filter have to be a string");
+        if (!is_string($data)) {
+            throw new InvalidArgumentException("Parameter query must be a string.");
         }
-        $this->lexer = new ExpressionLexer($filter);
+        $this->lexer = new ExpressionLexer($data);
         $exp = $this->parseExpression();
         $this->criteria->where($exp);
     }
@@ -112,7 +114,7 @@ class CriteriaFilterParser implements Filter
             case $token->isKeyValueToken():
                 return $this->parseValue();
             default:
-                $this->err(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
+                throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
     }
 
@@ -253,5 +255,10 @@ class CriteriaFilterParser implements Filter
     public function getCondition(): Criteria
     {
         return $this->criteria;
+    }
+
+    public function __toString()
+    {
+        return 'filter=' . $this->lexer->getExpressionText();
     }
 }

@@ -2,10 +2,13 @@
 
 namespace JSONAPI\Test;
 
-use JSONAPI\Query\Filter;
-use JSONAPI\Query\Pagination;
-use JSONAPI\Query\Query;
+use Grpc\Server;
+use JSONAPI\Uri\Filter;
+use JSONAPI\Uri\Pagination;
+use JSONAPI\Uri\Query;
 use PHPUnit\Framework\TestCase;
+use Slim\Psr7\Factory\RequestFactory;
+use Slim\Psr7\Factory\ServerRequestFactory;
 
 /**
  * Class URLTest
@@ -17,9 +20,10 @@ class URLTest extends TestCase
 
     public function testConstruct()
     {
-        $url = new Query();
-        $this->assertInstanceOf(Query::class, $url);
-        return $url;
+        $request = ServerRequestFactory::createFromGlobals();
+        $query = new Query($request);
+        $this->assertInstanceOf(Query::class, $query);
+        return $query;
     }
 
     /**

@@ -23,8 +23,8 @@ use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Encoder\EncoderException;
 use JSONAPI\Exception\Encoder\InvalidField;
 use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Query\LinkProvider;
-use JSONAPI\Query\Query;
+use JSONAPI\Uri\SparseFieldset;
+use JSONAPI\Uri\LinkFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -63,9 +63,9 @@ class Encoder
     private $metadata = null;
 
     /**
-     * @var Query
+     * @var SparseFieldset
      */
-    private $query;
+    private $fieldset;
 
     /**
      * @var int
@@ -76,16 +76,16 @@ class Encoder
      * Encoder constructor.
      *
      * @param MetadataFactory $metadataFactory
-     * @param Query           $query
+     * @param SparseFieldset  $fieldset
      * @param LoggerInterface $logger
      */
     public function __construct(
         MetadataFactory $metadataFactory,
-        Query $query,
+        SparseFieldset $fieldset,
         LoggerInterface $logger = null
     ) {
         $this->metadataFactory = $metadataFactory;
-        $this->query = $query;
+        $this->fieldset = $fieldset;
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -110,6 +110,8 @@ class Encoder
      *
      * @return ResourceObjectIdentifier
      * @throws DriverException
+     * @throws EncoderException
+     * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
     public function identify($object): ResourceObjectIdentifier
@@ -215,7 +217,7 @@ class Encoder
         $encoder = $this->for($object);
         $resource = new ResourceObject($encoder->getIdentifier());
         $encoder->setFields($resource);
-        $resource->addLink(LinkProvider::createSelfLink($resource));
+        $resource->addLink(LinkFactory::createSelfLink($resource));
 
         return $resource;
     }
@@ -231,14 +233,13 @@ class Encoder
      */
     private function setFields(Document\ResourceObject $resourceObject): void
     {
-        $fields = $this->query->getFieldsFor($resourceObject->getType());
         foreach (
             array_merge(
                 $this->metadata->getAttributes()->toArray(),
                 $this->metadata->getRelationships()->toArray()
             ) as $name => $field
         ) {
-            if (($fields && in_array($name, $fields)) || !$fields) {
+            if ($this->fieldset->showField($resourceObject->getType(), $name)) {
                 $value = null;
                 if ($field->getter != null) {
                     $value = call_user_func([$this->object, $field->getter]);
@@ -276,8 +277,8 @@ class Encoder
 
                     $relationship = new Document\Relationship($field->name, $data);
                     $relationship->setLinks([
-                        LinkProvider::createRelationshipLink($resourceObject, $relationship, $meta),
-                        LinkProvider::createRelatedLink($resourceObject, $relationship)
+                        LinkFactory::createRelationshipLink($resourceObject, $relationship, $meta),
+                        LinkFactory::createRelatedLink($resourceObject, $relationship)
                     ]);
                     $resourceObject->addRelationship($relationship);
                     $this->logger->debug("Adding relationship {$name}.");

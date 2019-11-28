@@ -1,8 +1,8 @@
 <?php
 
-namespace JSONAPI\Query;
+namespace JSONAPI\Uri;
 
-use JSONAPI\Exception\Query\MethodNotImplemented;
+use JSONAPI\Exception\Http\MethodNotImplemented;
 
 /**
  * Interface Pagination
@@ -11,12 +11,6 @@ use JSONAPI\Exception\Query\MethodNotImplemented;
  */
 interface Pagination
 {
-    /**
-     * @param mixed $data
-     *
-     * @return mixed
-     */
-    public function parse($data): void;
 
     /**
      * @return int

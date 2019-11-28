@@ -7,8 +7,9 @@ namespace JSONAPI\Exception\Document;
  *
  * @package JSONAPI\Exception\Document
  */
-class ForbiddenDataType extends BadRequest
+class ForbiddenDataType extends DocumentException
 {
+    protected $code = 22;
     protected $message = "Assigned data has forbidden data type %s.";
 
     /**

@@ -7,24 +7,23 @@
  * Time: 0:22
  */
 
-namespace JSONAPI\Query;
+namespace JSONAPI\Uri;
 
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObjectIdentifier;
-use JSONAPI\Exception\Document\BadRequest;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\InvalidArgumentException;
 use Slim\Psr7\Factory\UriFactory;
 
 /**
- * Class LinkProvider
+ * Class LinkFactory
  *
  * @package JSONAPI
  */
-class LinkProvider
+class LinkFactory
 {
     private const API_URL_ENV = "JSON_API_URL";
 
@@ -38,34 +37,6 @@ class LinkProvider
     private static $url = '';
 
     /**
-     * @return Link[]
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
-     * @throws BadRequest
-     */
-    public static function createPrimaryDataLinks(): array
-    {
-
-        $query = new Query();
-        $path = $query->getPath();
-        $links = [
-            new Link(self::SELF, self::getAPIUrl() . (string)$path)
-        ];
-
-        if ($query->getPath()->isRelationship()) {
-            $links[] = new Link(
-                self::RELATED,
-                self::getAPIUrl()
-                . '/' . $path->getResource()
-                . '/' . $path->getId()
-                . '/' . $path->getRelationshipName()
-            );
-        }
-        return $links;
-    }
-
-    /**
      * @return string
      * @throws InvalidArgumentException
      */
@@ -73,18 +44,12 @@ class LinkProvider
     {
         if (!self::$url) {
             $uriFactory = new UriFactory();
-            $fromEnv = getenv(self::API_URL_ENV);
-            if ($fromEnv !== false) {
-                if (!filter_var($fromEnv, FILTER_VALIDATE_URL)) {
-                    throw new InvalidArgumentException("Invalid URL passed from ENV");
-                }
-                $uri = $uriFactory->createUri(getenv(self::API_URL_ENV));
-                self::$url = preg_replace('/\/$/', '', (string)$uri);
-            } else {
-                $uri = $uriFactory->createFromGlobals($_SERVER);
-                self::$url = $uri->getScheme() . '://' . $uri->getHost()
-                    . ($uri->getPort() ? ':' . $uri->getPort() : '');
+            $url = getenv(self::API_URL_ENV);
+            if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
+                throw new InvalidArgumentException("Invalid URL passed from ENV");
             }
+            $uri = $uriFactory->createUri(getenv(self::API_URL_ENV));
+            self::$url = preg_replace('/\/$/', '', (string)$uri);
         }
         return self::$url;
     }

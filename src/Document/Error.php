@@ -9,6 +9,7 @@
 
 namespace JSONAPI\Document;
 
+use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\LinksTrait;
 use JSONAPI\MetaTrait;
@@ -31,7 +32,7 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     /**
      * @var int
      */
-    private $status = 500;
+    private $status = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
     /**
      * @var string
      */
@@ -50,16 +51,15 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     private $source = [];
 
     /**
-     * @param JsonApiException $exception
+     * @param \Exception $exception
      *
      * @return Error
      */
-    public static function fromException(JsonApiException $exception)
+    public static function fromException(\Exception $exception)
     {
         $self = new static();
         $self->setTitle(get_class($exception));
         $self->setCode($exception->getCode());
-        $self->setStatus($exception->getStatus());
         $self->setDetail($exception->getMessage());
         return $self;
     }
@@ -87,6 +87,15 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     {
         $this->status = $status;
     }
+
+    /**
+     * @return int
+     */
+    public function getStatus(): int
+    {
+        return $this->status;
+    }
+
 
     /**
      * @param string $detail

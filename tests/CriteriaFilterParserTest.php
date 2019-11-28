@@ -3,7 +3,7 @@
 namespace JSONAPI\Test;
 
 use Doctrine\Common\Collections\Criteria;
-use JSONAPI\Query\Filter\CriteriaFilterParser;
+use JSONAPI\Uri\Filtering\CriteriaFilterParser;
 use PHPUnit\Framework\TestCase;
 
 class CriteriaFilterParserTest extends TestCase
