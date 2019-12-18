@@ -1,9 +1,8 @@
 <?php
 
-namespace JSONAPI\Test;
+namespace JSONAPI\Uri\Filtering;
 
 use Doctrine\Common\Collections\Criteria;
-use JSONAPI\Uri\Filtering\CriteriaFilterParser;
 use PHPUnit\Framework\TestCase;
 
 class CriteriaFilterParserTest extends TestCase

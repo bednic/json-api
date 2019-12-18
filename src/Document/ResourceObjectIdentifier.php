@@ -25,29 +25,23 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
     /**
      * @var string
      */
-    protected $type;
+    protected string $type;
 
     /**
      * @var string|int|null
      */
-    protected $id;
+    protected ?string $id;
 
     /**
      * ResourceObjectIdentifier constructor.
      *
      * @param string      $type
      * @param string|null $id
-     *
-     * @throws ForbiddenDataType
      */
     public function __construct(string $type, ?string $id)
     {
-        if (is_string($id) || is_null($id)) {
-            $this->id = $id;
-        } else {
-            throw new ForbiddenDataType(gettype($id));
-        }
         $this->type = $type;
+        $this->id = $id;
     }
 
     /**
@@ -77,9 +71,12 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
      */
     public function jsonSerialize()
     {
-        $ret = ['type' => $this->type, 'id' => $this->id];
-        if ($this->meta && !$this->meta->isEmpty()) {
-            $ret['meta'] = $this->meta;
+        $ret = [
+            'type' => $this->type,
+            'id' => $this->id
+        ];
+        if(!$this->getMeta()->isEmpty()){
+            $ret['meta'] = $this->getMeta();
         }
         return $ret;
     }

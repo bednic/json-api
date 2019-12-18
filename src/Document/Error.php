@@ -9,6 +9,7 @@
 
 namespace JSONAPI\Document;
 
+use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\LinksTrait;
@@ -28,39 +29,43 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     /**
      * @var string
      */
-    private $id;
+    private string $id = "";
     /**
      * @var int
      */
-    private $status = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
+    private int $status = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
+    /**
+     * @var int
+     */
+    private int $code = 0;
     /**
      * @var string
      */
-    private $code;
+    private string $title = "";
     /**
      * @var string
      */
-    private $title;
+    private string $detail = "";
     /**
-     * @var string
+     * @todo this should be own class contains defined props
+     * @var object
      */
-    private $detail;
-    /**
-     * @var array
-     */
-    private $source = [];
+    private $source;
 
     /**
-     * @param \Exception $exception
+     * @param Exception $exception
      *
      * @return Error
      */
-    public static function fromException(\Exception $exception)
+    public static function fromException(Exception $exception)
     {
         $self = new static();
         $self->setTitle(get_class($exception));
         $self->setCode($exception->getCode());
         $self->setDetail($exception->getMessage());
+        if ($exception instanceof JsonApiException) {
+            $self->setStatus($exception->getStatus());
+        }
         return $self;
     }
 
@@ -73,9 +78,9 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param string $code
+     * @param int $code
      */
-    public function setCode(string $code): void
+    public function setCode(int $code): void
     {
         $this->code = $code;
     }
@@ -131,15 +136,22 @@ class Error implements JsonSerializable, HasLinks, HasMeta
      */
     public function jsonSerialize()
     {
-        return [
+        $ret = [
             'id' => $this->id,
-            'links' => $this->links,
-            'meta' => $this->meta,
-            'status' => $this->status,
-            'code' => $this->code,
+            'status' => (string) $this->status,
+            'code' => (string) $this->code,
             'title' => $this->title,
             'detail' => $this->detail,
-            'source' => $this->source
         ];
+        if ($this->source) {
+            $ret['source'] = $this->source;
+        }
+        if (!$this->getMeta()->isEmpty()) {
+            $ret['meta'] = $this->meta;
+        }
+        if (count($this->getLinks()) > 0) {
+            $ret['links'] = $this->links;
+        }
+        return $ret;
     }
 }

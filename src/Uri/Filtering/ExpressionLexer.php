@@ -22,7 +22,7 @@ use Exception;
  * Binary          (binary|X)'digit*'
  * GUID            guid'digit*
  *
- * @package POData\UriProcessor\QueryProcessor\ExpressionParser
+ * @package JSONAPI\Uri\Filtering
  * @codeCoverageIgnore
  */
 class ExpressionLexer

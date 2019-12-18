@@ -12,7 +12,7 @@ use Fig\Http\Message\StatusCodeInterface;
  */
 abstract class JsonApiException extends Exception
 {
-    protected $code = 50;
+    protected $code = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
     protected $message = "Internal Server Error.";
     /**
      * @return int

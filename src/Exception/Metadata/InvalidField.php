@@ -1,15 +1,15 @@
 <?php
 
-namespace JSONAPI\Exception\Encoder;
+namespace JSONAPI\Exception\Metadata;
 
 /**
  * Class InvalidField
  *
- * @package JSONAPI\Exception\Encoder
+ * @package JSONAPI\Exception\Metadata
  */
-class InvalidField extends EncoderException
+class InvalidField extends MetadataException
 {
-    protected $code = 31;
+    protected $code = 542;
     protected $message = "Field %s is not Attribute nor Relationship";
 
     /**

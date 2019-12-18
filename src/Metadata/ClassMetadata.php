@@ -11,7 +11,14 @@ namespace JSONAPI\Metadata;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Annotation;
-use ReflectionClass;
+use JSONAPI\Annotation\Attribute;
+use JSONAPI\Annotation\Id;
+use JSONAPI\Annotation\Meta;
+use JSONAPI\Annotation\Relationship;
+use JSONAPI\Annotation\Resource;
+use JSONAPI\Exception\Metadata\AttributeNotFound;
+use JSONAPI\Exception\Metadata\MetaNotFound;
+use JSONAPI\Exception\Metadata\RelationNotFound;
 
 /**
  * Class ClassMetadata
@@ -21,64 +28,51 @@ use ReflectionClass;
 final class ClassMetadata
 {
     /**
-     * @var ReflectionClass
+     * @var string
      */
-    private $reflection;
+    private string $className;
 
     /**
-     * @var Annotation\Id
+     * @var Id
      */
-    private $id;
+    private Id $id;
+
     /**
      * @var Resource
      */
-    private $resource;
-    /**
-     * @var Annotation\Attribute[]
-     */
-    private $attributes;
-    /**
-     * @var Annotation\Relationship[]
-     */
-    private $relationships;
+    private Annotation\Resource $resource;
 
     /**
-     * @var Annotation\Meta[]
+     * @var Attribute[]|ArrayCollection
      */
-    private $metas;
+    private ArrayCollection $attributes;
+
+    /**
+     * @var Relationship[]|ArrayCollection
+     */
+    private ArrayCollection $relationships;
 
     /**
      * ClassMetadata constructor.
      *
-     * @param ReflectionClass     $ref
-     * @param Annotation\Id       $id
+     * @param string              $className
+     * @param Id                  $id
      * @param Annotation\Resource $resource
      * @param ArrayCollection     $attributes
      * @param ArrayCollection     $relationships
-     * @param ArrayCollection     $metas
      */
     public function __construct(
-        ReflectionClass $ref,
-        Annotation\Id $id,
+        string $className,
+        Id $id,
         Annotation\Resource $resource,
         ArrayCollection $attributes,
-        ArrayCollection $relationships,
-        ArrayCollection $metas
+        ArrayCollection $relationships
     ) {
-        $this->reflection = $ref;
+        $this->className = $className;
         $this->id = $id;
         $this->resource = $resource;
         $this->attributes = $attributes;
         $this->relationships = $relationships;
-        $this->metas = $metas;
-    }
-
-    /**
-     * @return ReflectionClass
-     */
-    public function getReflection(): ReflectionClass
-    {
-        return $this->reflection;
     }
 
     /**
@@ -86,21 +80,13 @@ final class ClassMetadata
      */
     public function getClassName(): string
     {
-        return $this->reflection->getName();
+        return $this->className;
     }
 
     /**
-     * @return string
+     * @return Id
      */
-    public function getShortClassName(): string
-    {
-        return $this->reflection->getShortName();
-    }
-
-    /**
-     * @return Annotation\Id
-     */
-    public function getId(): Annotation\Id
+    public function getId(): Id
     {
         return $this->id;
     }
@@ -114,7 +100,7 @@ final class ClassMetadata
     }
 
     /**
-     * @return Annotation\Attribute[]|ArrayCollection
+     * @return Attribute[]|ArrayCollection
      */
     public function getAttributes(): ArrayCollection
     {
@@ -124,15 +110,19 @@ final class ClassMetadata
     /**
      * @param string $name
      *
-     * @return Annotation\Attribute|null
+     * @return Attribute
+     * @throws AttributeNotFound
      */
-    public function getAttribute(string $name): ?Annotation\Attribute
+    public function getAttribute(string $name): Attribute
     {
-        return $this->attributes->get($name);
+        if ($this->attributes->containsKey($name)) {
+            return $this->attributes->get($name);
+        }
+        throw new AttributeNotFound($name, $this->getResource()->type);
     }
 
     /**
-     * @return Annotation\Relationship[]|ArrayCollection
+     * @return Relationship[]|ArrayCollection
      */
     public function getRelationships(): ArrayCollection
     {
@@ -142,29 +132,15 @@ final class ClassMetadata
     /**
      * @param string $name
      *
-     * @return Annotation\Relationship|null
+     * @return Relationship
+     * @throws RelationNotFound
      */
-    public function getRelationship(string $name): ?Annotation\Relationship
+    public function getRelationship(string $name): Relationship
     {
-        return $this->relationships->get($name);
-    }
-
-    /**
-     * @return Annotation\Meta[]|ArrayCollection
-     */
-    public function getMetas(): ArrayCollection
-    {
-        return $this->metas;
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return Annotation\Meta|null
-     */
-    public function getMeta(string $name): ?Annotation\Meta
-    {
-        return $this->metas->get($name);
+        if ($this->relationships->containsKey($name)) {
+            return $this->relationships->get($name);
+        }
+        throw new RelationNotFound($name, $this->getResource()->type);
     }
 
     /**
@@ -185,15 +161,5 @@ final class ClassMetadata
     public function isAttribute(string $fieldName): bool
     {
         return $this->attributes->containsKey($fieldName);
-    }
-
-    /**
-     * @param string $fieldName
-     *
-     * @return bool
-     */
-    public function isMeta(string $fieldName): bool
-    {
-        return $this->metas->containsKey($fieldName);
     }
 }

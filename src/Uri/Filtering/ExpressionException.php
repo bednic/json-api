@@ -7,7 +7,7 @@ use Exception;
 /**
  * Class ExpressionException
  *
- * @package JSONAPI\Query\Filter
+ * @package JSONAPI\Uri\Filtering
  * @codeCoverageIgnore
  */
 class ExpressionException extends Exception

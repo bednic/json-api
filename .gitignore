@@ -1,10 +1,10 @@
-vendor/
-.idea
-.scannerwork/
+/vendor
+/.idea/
+/.scannerwork/
 *.iml
 .phpunit*
-tmp/
-cache/
-docs/
-build/
+/tmp/
+/cache/
+/docs/
+/build/
 composer.lock

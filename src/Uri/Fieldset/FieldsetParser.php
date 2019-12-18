@@ -2,53 +2,51 @@
 
 namespace JSONAPI\Uri\Fieldset;
 
-use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Uri\SparseFieldset;
-use JSONAPI\Uri\UriParser;
-
-class FieldsetParser implements UriParser, SparseFieldset
+/**
+ * Class FieldsetParser
+ *
+ * @package JSONAPI\Uri\Fieldset
+ */
+class FieldsetParser implements FieldsetInterface
 {
     /**
      * @var array
      */
-    private $fields = [];
+    private array $fields = [];
 
     /**
      * @param $data
      *
-     * @throws InvalidArgumentException
+     * @return FieldsetInterface
      */
-    public function parse($data): void
+    public function parse(array $data): FieldsetInterface
     {
-        if (!is_array($data)) {
-            throw new InvalidArgumentException('Parameter $query must be an array.');
-        }
-
         $this->fields = [];
         foreach ($data as $type => $fields) {
             $this->fields[$type] = array_map(function ($item) {
                 return trim($item);
             }, explode(',', $fields));
         }
+        return $this;
     }
 
     public function showField(string $type, string $fieldName): bool
     {
         if (!isset($this->fields[$type])) {
             return true;
-        } elseif (isset($this->fields[$type][$fieldName])) {
+        } elseif (in_array($fieldName, $this->fields[$type])) {
             return true;
         } else {
             return false;
         }
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         $str = '';
         foreach ($this->fields as $type => $fields) {
             $str .= (strlen($str) > 0 ? '&' : '') . "fields[$type]=" . implode(',', $fields);
         }
-        return $str;
+        return urlencode($str);
     }
 }

@@ -9,26 +9,25 @@
 
 namespace JSONAPI\Middleware;
 
+use Exception;
 use Fig\Http\Message\RequestMethodInterface;
+use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
-use JSONAPI\Exception\Document\DocumentException;
-use JSONAPI\Exception\Driver\DriverException;
-use JSONAPI\Exception\Encoder\EncoderException;
-use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Metadata\MetadataFactory;
+use JsonException;
 use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Slim\Psr7\Factory\ResponseFactory;
-use Slim\Psr7\Factory\StreamFactory;
+use stdClass;
 
 /**
  * Class PsrJsonApiMiddleware
@@ -37,40 +36,43 @@ use Slim\Psr7\Factory\StreamFactory;
  */
 class PsrJsonApiMiddleware implements MiddlewareInterface
 {
-
-    /**
-     * @var Schema
-     */
-    private static $schema;
-    /**
-     * @var Validator
-     */
-    private static $validator;
     /**
      * @var MetadataFactory
      */
-    private $factory;
+    private MetadataFactory $metadataFactory;
+
+    /**
+     * @var ResponseFactoryInterface
+     */
+    private ResponseFactoryInterface $responseFactory;
+    /**
+     * @var StreamFactoryInterface
+     */
+    private StreamFactoryInterface $streamFactory;
     /**
      * @var LoggerInterface|null
      */
-    private $logger;
-    /**
-     * @var string
-     */
-    private $streamPath = 'php://input';
+    private LoggerInterface $logger;
+
 
     /**
      * PsrJsonApiMiddleware constructor.
      *
-     * @param MetadataFactory $factory
-     * @param LoggerInterface $logger
+     * @param MetadataFactory          $metadataFactory
+     * @param ResponseFactoryInterface $responseFactory
+     * @param StreamFactoryInterface   $streamFactory
+     * @param LoggerInterface          $logger
      */
-    public function __construct(MetadataFactory $factory, LoggerInterface $logger = null)
-    {
-        $this->factory = $factory;
+    public function __construct(
+        MetadataFactory $metadataFactory,
+        ResponseFactoryInterface $responseFactory,
+        StreamFactoryInterface $streamFactory,
+        LoggerInterface $logger = null
+    ) {
+        $this->metadataFactory = $metadataFactory;
+        $this->responseFactory = $responseFactory;
+        $this->streamFactory = $streamFactory;
         $this->logger = $logger ?? new NullLogger();
-        self::$schema = Schema::fromJsonString(file_get_contents(__DIR__ . '/../../schema.json'));
-        self::$validator = new Validator();
     }
 
     /**
@@ -83,14 +85,11 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * @param RequestHandlerInterface $handler
      *
      * @return ResponseInterface
-     * @throws DocumentException
-     * @throws DriverException
-     * @throws EncoderException
-     * @throws InvalidArgumentException
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
+            $document = new Document($this->metadataFactory, $request);
             if (
                 in_array(
                     $request->getMethod(),
@@ -100,46 +99,30 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
                 }
-                $request = $request->withParsedBody($this->getBody());
+                $document->loadRequestData($this->getBody());
             }
-            $response = $handler->handle($request);
-            if (self::$validator->dataValidation($response->getBody()->getContents(), self::$schema)->isValid()) {
-                throw new DocumentException("Document is not valid");
-            }
-        } catch (\Exception $exception) {
-            $document = new Document($this->factory, $request, $this->logger);
+            $response = $handler->handle($request->withParsedBody($document));
+        } catch (Exception $exception) {
+            $document = new Document($this->metadataFactory, $request, $this->logger);
             $error = Error::fromException($exception);
             $document->addError($error);
-            $body = (new StreamFactory())
-                ->createStream(json_encode($document));
-            $response = (new ResponseFactory())
+            $response = $this->responseFactory
                 ->createResponse($error->getStatus())
-                ->withBody($body);
+                ->withBody($this->streamFactory->createStream(json_encode($document)));
         }
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
     }
 
     /**
-     * @return mixed|null
-     * @throws BadRequest
+     * @return stdClass
+     * @throws JsonException
      */
-    private function getBody()
+    private function getBody(): stdClass
     {
-        if ($data = file_get_contents($this->streamPath)) {
-            $body = json_decode($data);
-            if (json_last_error() !== JSON_ERROR_NONE) {
-                throw new BadRequest(json_last_error_msg());
-            }
-            return $body;
+        $body = new stdClass();
+        if ($data = file_get_contents('php://input')) {
+            $body = json_decode($data, false, 512, JSON_THROW_ON_ERROR);
         }
-        return null;
-    }
-
-    /**
-     * @param string $path
-     */
-    public function setStream(string $path)
-    {
-        $this->streamPath = $path;
+        return $body;
     }
 }

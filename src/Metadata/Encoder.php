@@ -9,21 +9,21 @@
 
 namespace JSONAPI\Metadata;
 
-use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\Common\Util\ClassUtils;
 use JSONAPI\Annotation;
+use JSONAPI\DoctrineProxyTrait;
 use JSONAPI\Document;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Driver\DriverException;
-use JSONAPI\Exception\Encoder\EncoderException;
-use JSONAPI\Exception\Encoder\InvalidField;
 use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Uri\SparseFieldset;
+use JSONAPI\Exception\Metadata\InvalidField;
+use JSONAPI\Exception\Metadata\MetadataException;
+use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\LinkFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -37,55 +37,66 @@ use ReflectionException;
  */
 class Encoder
 {
+    use DoctrineProxyTrait;
+
     /**
      * @var MetadataFactory
      */
-    private $metadataFactory;
+    private MetadataFactory $metadataFactory;
+
 
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    private LoggerInterface $logger;
 
     /**
      * @var object
      */
-    private $object;
+    private object $object;
 
     /**
      * @var ReflectionClass
      */
-    private $ref;
+    private ReflectionClass $ref;
 
     /**
      * @var ClassMetadata
      */
-    private $metadata = null;
-
-    /**
-     * @var SparseFieldset
-     */
-    private $fieldset;
+    private ClassMetadata $metadata;
 
     /**
      * @var int
      */
-    private $relationshipLimit = 25;
+    private int $relationshipLimit = 25;
+
+    /**
+     * @var FieldsetInterface
+     */
+    private FieldsetInterface $fieldset;
+
+    /**
+     * @var LinkFactory
+     */
+    private LinkFactory $linkFactory;
 
     /**
      * Encoder constructor.
      *
-     * @param MetadataFactory $metadataFactory
-     * @param SparseFieldset  $fieldset
-     * @param LoggerInterface $logger
+     * @param MetadataFactory   $metadataFactory
+     * @param FieldsetInterface $fieldset
+     * @param LinkFactory       $linkFactory
+     * @param LoggerInterface   $logger
      */
     public function __construct(
         MetadataFactory $metadataFactory,
-        SparseFieldset $fieldset,
+        FieldsetInterface $fieldset,
+        LinkFactory $linkFactory,
         LoggerInterface $logger = null
     ) {
         $this->metadataFactory = $metadataFactory;
         $this->fieldset = $fieldset;
+        $this->linkFactory = $linkFactory;
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -110,9 +121,9 @@ class Encoder
      *
      * @return ResourceObjectIdentifier
      * @throws DriverException
-     * @throws EncoderException
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
+     * @throws InvalidArgumentException
      */
     public function identify($object): ResourceObjectIdentifier
     {
@@ -125,12 +136,13 @@ class Encoder
      *
      * @return Encoder
      * @throws DriverException
+     * @throws InvalidArgumentException
      */
     private function for($object): Encoder
     {
         $encoder = clone $this;
         try {
-            $className = ClassUtils::getClass($object);
+            $className = self::clearDoctrineProxyPrefix(get_class($object));
             $this->logger->debug("Init encoding of {$className}.");
             $encoder->object = $object;
             $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
@@ -142,8 +154,6 @@ class Encoder
 
     /**
      * @return ResourceObjectIdentifier
-     * @throws EncoderException
-     * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
     private function getIdentifier(): ResourceObjectIdentifier
@@ -179,27 +189,13 @@ class Encoder
 
     /**
      * @param ResourceObjectIdentifier $identifier
-     *
-     * @throws EncoderException
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
      */
     private function setMeta(ResourceObjectIdentifier $identifier)
     {
-        $meta = new Document\Meta();
-        foreach ($this->metadata->getMetas() as $name => $field) {
-            if ($field->getter != null) {
-                $value = call_user_func([$this->object, $field->getter]);
-            } else {
-                try {
-                    $value = $this->ref->getProperty($field->property)->getValue($this->object);
-                } catch (ReflectionException $exception) {
-                    throw new EncoderException($exception->getMessage(), $exception->getCode(), $exception);
-                }
-            }
-            $meta->setProperty($name, $value);
+        if ($meta = $this->metadata->getResource()->meta) {
+            $meta = call_user_func([$this->object, $meta->getter]);
+            $identifier->setMeta($meta);
         }
-        $identifier->setMeta($meta);
     }
 
     /**
@@ -207,18 +203,17 @@ class Encoder
      *
      * @return ResourceObject
      * @throws DriverException
-     * @throws EncoderException
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws InvalidArgumentException
+     * @throws MetadataException
      */
     public function encode($object): ResourceObject
     {
         $encoder = $this->for($object);
         $resource = new ResourceObject($encoder->getIdentifier());
         $encoder->setFields($resource);
-        $resource->addLink(LinkFactory::createSelfLink($resource));
-
+        $resource->addLink($this->linkFactory->getResourceLinkage($resource));
         return $resource;
     }
 
@@ -226,10 +221,11 @@ class Encoder
      * @param ResourceObject $resourceObject
      *
      * @throws DriverException
-     * @throws EncoderException
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws InvalidArgumentException
+     * @throws InvalidField
+     * @throws MetadataException
      */
     private function setFields(Document\ResourceObject $resourceObject): void
     {
@@ -247,12 +243,15 @@ class Encoder
                     try {
                         $value = $this->ref->getProperty($field->property)->getValue($this->object);
                     } catch (ReflectionException $exception) {
-                        throw new EncoderException($exception->getMessage(), $exception->getCode(), $exception);
+                        throw new MetadataException($exception->getMessage(), 60, $exception);
                     }
                 }
                 if ($field instanceof Annotation\Relationship) {
                     $data = null;
                     $meta = null;
+                    if ($field->meta) {
+                        $meta = call_user_func([$this->object, $field->meta->getter]);
+                    }
                     if ($field->isCollection) {
                         if (!($value instanceof Collection)) {
                             $value = new ArrayCollection($value);
@@ -264,26 +263,19 @@ class Encoder
                         foreach ($value->slice(0, $limit) as $object) {
                             $data->add($this->for($object)->getIdentifier());
                         }
-                        if ($total > $limit) {
-                            $meta = new Document\Meta([
-                                'total' => $total,
-                                'limit' => $limit,
-                                'offset' => 0
-                            ]);
-                        }
                     } elseif ($value) {
                         $data = $this->for($value)->getIdentifier();
                     }
-
                     $relationship = new Document\Relationship($field->name, $data);
-                    $relationship->setLinks([
-                        LinkFactory::createRelationshipLink($resourceObject, $relationship, $meta),
-                        LinkFactory::createRelatedLink($resourceObject, $relationship)
-                    ]);
+                    $relationship->addLink($this->linkFactory->getRelationshipLink($relationship, $resourceObject));
+                    $relationship->addLink($this->linkFactory->getRelationLink($relationship, $resourceObject));
+                    if ($meta) {
+                        $relationship->setMeta($meta);
+                    }
                     $resourceObject->addRelationship($relationship);
                     $this->logger->debug("Adding relationship {$name}.");
                 } elseif ($field instanceof Annotation\Attribute) {
-                    if ($value instanceof DateTime) {
+                    if ($value instanceof DateTimeInterface) {
                         // ISO 8601
                         $value = $value->format(DATE_ATOM);
                     }

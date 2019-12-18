@@ -15,8 +15,12 @@ use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\InvalidArgumentException;
-use Slim\Psr7\Factory\UriFactory;
+use JSONAPI\Uri\Fieldset\FieldsetInterface;
+use JSONAPI\Uri\Filtering\FilterInterface;
+use JSONAPI\Uri\Inclusion\InclusionInterface;
+use JSONAPI\Uri\Pagination\PaginationInterface;
+use JSONAPI\Uri\Path\PathInterface;
+use JSONAPI\Uri\Sorting\SortInterface;
 
 /**
  * Class LinkFactory
@@ -25,7 +29,7 @@ use Slim\Psr7\Factory\UriFactory;
  */
 class LinkFactory
 {
-    private const API_URL_ENV = "JSON_API_URL";
+    public const API_URL_ENV = "JSON_API_URL";
 
     public const SELF = 'self';
     public const RELATED = 'related';
@@ -34,84 +38,111 @@ class LinkFactory
     public const NEXT = 'next';
     public const PREV = 'prev';
 
-    private static $url = '';
+    private string $url = 'http://localhost';
 
-    /**
-     * @return string
-     * @throws InvalidArgumentException
-     */
-    public static function getAPIUrl(): string
+    public function __construct()
     {
-        if (!self::$url) {
-            $uriFactory = new UriFactory();
-            $url = getenv(self::API_URL_ENV);
-            if (!$url || !filter_var($url, FILTER_VALIDATE_URL)) {
-                throw new InvalidArgumentException("Invalid URL passed from ENV");
-            }
-            $uri = $uriFactory->createUri(getenv(self::API_URL_ENV));
-            self::$url = preg_replace('/\/$/', '', (string)$uri);
-        }
-        return self::$url;
+        $this->url = getenv(self::API_URL_ENV) ?? 'http://localhost';
     }
 
     /**
      * @param ResourceObjectIdentifier $resource
-     * @param Relationship             $relationship
-     *
      * @param Meta|null                $meta
      *
      * @return Link
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
      */
-    public static function createRelationshipLink(
-        ResourceObjectIdentifier $resource,
+    public function getResourceLinkage(ResourceObjectIdentifier $resource, Meta $meta = null): Link
+    {
+        return new Link(self::SELF, $this->url . '/' . $resource->getType() . '/' . $resource->getId(), $meta);
+    }
+
+    /**
+     * @param Relationship             $relationship
+     * @param ResourceObjectIdentifier $identifier
+     * @param Meta|null                $meta
+     *
+     * @return Link
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    public function getRelationshipLink(
         Relationship $relationship,
+        ResourceObjectIdentifier $identifier,
         Meta $meta = null
-    ) {
+    ): Link {
         return new Link(
             self::SELF,
-            (self::createSelfLink($resource))->getData() . '/relationships/' . $relationship->getKey(),
+            $this->getResourceLinkage($identifier)->getData() . '/relationships/' . $relationship->getKey(),
             $meta
         );
     }
 
     /**
-     * @param ResourceObjectIdentifier $resource
+     * @param Relationship             $relationship
+     * @param ResourceObjectIdentifier $identifier
      * @param Meta|null                $meta
      *
      * @return Link
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
      */
-    public static function createSelfLink(ResourceObjectIdentifier $resource, Meta $meta = null): Link
-    {
-        $url = self::getAPIUrl() . '/' . $resource->getType() . '/' . $resource->getId();
-        return new Link(self::SELF, $url, $meta);
+    public function getRelationLink(
+        Relationship $relationship,
+        ResourceObjectIdentifier $identifier,
+        Meta $meta = null
+    ): Link {
+        return new Link(
+            self::RELATED,
+            $this->getResourceLinkage($identifier)->getData() . '/' . $relationship->getKey(),
+            $meta
+        );
     }
 
     /**
-     * @param ResourceObjectIdentifier $resource
-     * @param Relationship             $relationship
-     *
-     * @param Meta|null                $meta
+     * @param string              $type
+     * @param PathInterface       $path
+     * @param FilterInterface     $filter
+     * @param InclusionInterface  $inclusion
+     * @param FieldsetInterface   $fieldset
+     * @param PaginationInterface $pagination
+     * @param SortInterface       $sort
      *
      * @return Link
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
      */
-    public static function createRelatedLink(
-        ResourceObjectIdentifier $resource,
-        Relationship $relationship,
-        Meta $meta = null
+    public function getDocumentLink(
+        string $type,
+        PathInterface $path,
+        FilterInterface $filter,
+        InclusionInterface $inclusion,
+        FieldsetInterface $fieldset,
+        PaginationInterface $pagination,
+        SortInterface $sort
     ): Link {
-        $url = self::getAPIUrl()
-            . '/' . $resource->getType()
-            . '/' . $resource->getId()
-            . '/' . $relationship->getKey();
-        return new Link(self::RELATED, $url, $meta);
+        $link = $this->url . (string)$path;
+        $mark = '?';
+        if (strlen((string)$filter)) {
+            $link .= $mark . $filter;
+            $mark = '&';
+        }
+        if (strlen((string)$inclusion)) {
+            $link .= $mark . $inclusion;
+            $mark = '&';
+        }
+        if (strlen((string)$fieldset)) {
+            $link .= $mark . $fieldset;
+            $mark = '&';
+        }
+        if (strlen((string)$pagination)) {
+            $link .= $mark . $pagination;
+            $mark = '&';
+        }
+        if (strlen((string)$sort)) {
+            $link .= $mark . $sort;
+        }
+        return new Link($type, $link);
     }
 }

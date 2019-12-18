@@ -22,10 +22,15 @@ class Resource
      * @var string
      * @Required
      */
-    public $type;
+    public string $type;
 
     /**
      * @var bool
      */
-    public $public = true;
+    public bool $readOnly = false;
+
+    /**
+     * @var \JSONAPI\Annotation\Meta
+     */
+    public ?Meta $meta = null;
 }

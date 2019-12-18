@@ -9,7 +9,7 @@ namespace JSONAPI\Exception\Document;
  */
 class ForbiddenCharacter extends DocumentException
 {
-    protected $code = 21;
+    protected $code = 521;
     protected $message = "Parameter %s contains forbidden character(s).";
 
     public function __construct(string $parameterName)

@@ -10,6 +10,7 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\LinksTrait;
 
@@ -18,26 +19,23 @@ use JSONAPI\LinksTrait;
  *
  * @package JSONAPI\Document
  */
-class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLinks
+class ResourceObject extends ResourceObjectIdentifier implements HasLinks
 {
     use LinksTrait;
 
     /**
-     * @var ArrayCollection | Field[]
+     * @var Collection|Field[]
      */
-    private $fields;
+    private Collection $fields;
 
     /**
      * ResourceObject constructor.
      *
      * @param ResourceObjectIdentifier $resourceIdentifier
-     *
-     * @throws ForbiddenDataType
      */
     public function __construct(ResourceObjectIdentifier $resourceIdentifier)
     {
         parent::__construct($resourceIdentifier->type, $resourceIdentifier->id);
-        $this->meta = $resourceIdentifier->meta;
         $this->fields = new ArrayCollection();
     }
 
@@ -106,7 +104,9 @@ class ResourceObject extends ResourceObjectIdentifier implements HasMeta, HasLin
         if ($this->getRelationships()) {
             $ret['relationships'] = $this->getRelationships();
         }
-        $ret['links'] = $this->links;
+        if($this->hasLinks()){
+            $ret['links'] = $this->getLinks();
+        }
         return $ret;
     }
 

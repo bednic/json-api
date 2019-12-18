@@ -7,7 +7,7 @@ use Exception;
 /**
  * Class ExpressionToken
  *
- * @package POData\UriProcessor\QueryProcessor\ExpressionParser
+ * @package JSONAPI\Uri\Filtering
  * @codeCoverageIgnore
  */
 class ExpressionToken

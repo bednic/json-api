@@ -10,17 +10,17 @@ class DtoValue implements JsonConvertible
     /**
      * @var string
      */
-    private $stringProperty = 'string-value';
+    private string $stringProperty = 'string-value';
 
     /**
      * @var int
      */
-    private $intProperty = 1234;
+    private int $intProperty = 1234;
 
     /**
      * @var bool
      */
-    private $boolProperty = true;
+    private bool $boolProperty = true;
 
     /**
      * @return string

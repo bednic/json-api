@@ -1,13 +1,20 @@
 <?php
 
-namespace JSONAPI\Test;
+namespace JSONAPI\Annotation;
 
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
-use JSONAPI\Exception\Driver\ReserveWordException;
+use JSONAPI\Exception\Driver\DriverException;
+use JSONAPI\Exception\Driver\ReservedWord;
+use JSONAPI\Test\BadAnnotationPlacement;
+use JSONAPI\Test\GettersExample;
+use JSONAPI\Test\NotResource;
+use JSONAPI\Test\PropsExample;
+use JSONAPI\Test\ReserveWords;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\NullLogger;
 
 /**
  * Class AnnotationDriverTest
@@ -22,47 +29,62 @@ class AnnotationDriverTest extends TestCase
     {
         $driver = new AnnotationDriver();
         $this->assertInstanceOf(AnnotationDriver::class, $driver);
+        $driver = new AnnotationDriver(new NullLogger());
+        $this->assertInstanceOf(AnnotationDriver::class, $driver);
         return $driver;
     }
 
-    /**
-     * @depends testConstruct
-     */
-    public function testGetClassMetadata(AnnotationDriver $driver)
+    public function testBadAnnotationPlacementException()
     {
         $this->expectException(AnnotationMisplace::class);
-        $annotationMisplace = new BadAnnotationPlacement();
-        $driver->getClassMetadata(get_class($annotationMisplace));
+        $driver = new AnnotationDriver();
+        $driver->getClassMetadata(get_class(new BadAnnotationPlacement()));
     }
 
-    /**
-     * @depends testConstruct
-     */
-    public function testClassNotExists(AnnotationDriver $driver)
+    public function testClassNotExistsException()
     {
         $this->expectException(ClassNotExist::class);
+        $driver = new AnnotationDriver();
         $driver->getClassMetadata('NonExistingClass');
     }
 
-    /**
-     * @depends testConstruct
-     */
-    public function testClassNotResource(AnnotationDriver $driver)
+    public function testClassNotResource()
     {
         $this->expectException(ClassNotResource::class);
-        $notResource = new NotResource();
-        $driver->getClassMetadata(get_class($notResource));
+        $driver = new AnnotationDriver();
+        $driver->getClassMetadata(get_class(new NotResource()));
+    }
+
+    public function testCheckReservedNamesException()
+    {
+        $this->expectException(ReservedWord::class);
+        $driver = new AnnotationDriver();
+        $driver->getClassMetadata(get_class(new ReserveWords()));
     }
 
     /**
-     * @depends testConstruct
+     * @dataProvider classProvider
      */
-    public function testCheckReservedNames(AnnotationDriver $driver)
+    public function testGetClassMetadata($instace)
     {
-        $this->expectException(ReserveWordException::class);
-        $ref = new \ReflectionClass($driver);
-        $method = $ref->getMethod('checkReservedNames');
-        $method->setAccessible(true);
-        $method->invokeArgs($driver, ['type']);
+        $driver = new AnnotationDriver();
+        $metadata = $driver->getClassMetadata(get_class($instace));
+        $this->assertNotEmpty($metadata->getClassName());
+        $this->assertInstanceOf(Id::class, $metadata->getId());
+        $this->assertInstanceOf(Resource::class, $metadata->getResource());
+        $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('stringProperty'));
+        $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('intProperty'));
+        $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('arrayProperty'));
+        $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('boolProperty'));
+        $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('dtoProperty'));
+        $this->assertInstanceOf(Relationship::class, $metadata->getRelationship('relation'));
+        $this->assertInstanceOf(Relationship::class, $metadata->getRelationship('collection'));
+    }
+
+    public function classProvider(){
+        return [
+            [new PropsExample('test')],
+            [new GettersExample('test')]
+        ];
     }
 }

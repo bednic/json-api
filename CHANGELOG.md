@@ -1,3 +1,4 @@
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -5,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-
+<!--
 ### Added
 
 ### Changed
@@ -15,6 +16,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed 
+
+### Security
+
+## [4.0.0]
+-->
+### Added
+* `Annotation\Resource::readOnly` marks resource as read only, for easier handle of routing
+* `Document::setResource($object)` replace `::setData()` method to better recognition of collection and single resource
+* `Document::setCollection(iterable $collection, int $total)` first argument is filtered and limited collection, second
+  argument is total count of filtered collection, without limitation. It's used for pagination
+* `Document::setFilterParser` sets parser of `filter` URI parameter
+* `Document::setPaginationParser` sets parser of `page` URI parameter
+* `Document::getFilter` returns filter
+* `Document::getPagination` returns pagination
+* `Document::getPath` returns path information, like is it collection, is it relationship etc
+* `Document::getInclusion` returns inclusion collection contains tree hierarchy of included resources
+* `Document::getSort` returns information about sorting
+* `Document::getFieldset` return fieldset
+* `Document::loadRequestData` servers for middleware purpose, to parse requested body and fill up document data
+* `DriverInterface` to abstract future new drivers
+* `UriPartInterface` it's used for mark class as URI compatible and there is expectation serialization to string returns
+  URI compatible string to be coupled as part of URL
+
+### Changed
+* Library now requires 7.4 PHP version
+* `PsrJsonApiMiddleware` now returns document as parsed body
+* `Driver\Driver` renamed to `Driver\AnnotationDriver`
+* Exceptions are now categorised to 4 main categories
+    * Document (DocumentException)
+    * Driver (DriverException)
+    * Http (BadRequest)
+    * Metadata (MetadataException)
+
+  and there are some common exception like `InvalidArgumentException` and `JsonApiException`
+* `ClassMetadata` now do not accept ReflectionClass object but just classname of parsed class.
+* `LinkProvider` is now `LinkFactory`
+* `LinkTrait::addLink(Link $link)` not return bool if link was actually added or not
+
+### Deprecated 
+
+### Fixed
+
+### Removed 
+* `Query` class is now decoupled to more transparent hierarchy, it more reflect JSON API standard hierarchy
+* `VoidFilterParser` is removed and replaced by `CriteriaFilterParser` by default
+* `Document::createFromRequest()` method was refactored and replaced by `::loadRequestData`
 
 ### Security
 
@@ -342,7 +389,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/3.1.1...3.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.0.0...4.x
+[4.0.0]: https://gitlab.com/bednic/json-api/compare/3.1.1...4.0.0
 [3.1.0]: https://gitlab.com/bednic/json-api/compare/3.1.0...3.1.1
 [3.1.0]: https://gitlab.com/bednic/json-api/compare/3.0.1...3.1.0
 [3.0.1]: https://gitlab.com/bednic/json-api/compare/3.0.0...3.0.1

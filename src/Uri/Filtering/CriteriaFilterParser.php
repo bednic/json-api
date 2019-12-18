@@ -6,19 +6,17 @@ use DateTime;
 use Doctrine\Common\Collections\Criteria;
 use Doctrine\Common\Collections\Expr\Expression;
 use Exception;
-use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Uri\Filter;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\Exception\Http\BadRequest;
 
 /**
- * Class UriParser
+ * Class CriteriaFilterParser
  *
- * @package JSONAPI\Query\Filter
+ * @package JSONAPI\Uri\Filtering
  */
-class CriteriaFilterParser implements Filter, UriParser
+class CriteriaFilterParser implements FilterInterface, FilterParserInterface
 {
 
-    private $functions = [
+    private array $functions = [
         Constants::FN_CONTAINS,
         Constants::FN_ENDS_WITH,
         Constants::FN_STARTS_WITH,
@@ -29,12 +27,12 @@ class CriteriaFilterParser implements Filter, UriParser
     /**
      * @var ExpressionLexer
      */
-    private $lexer;
+    private ?ExpressionLexer $lexer = null;
 
     /**
      * @var Criteria
      */
-    private $criteria;
+    private Criteria $criteria;
 
     /**
      * UriParser constructor.
@@ -47,17 +45,21 @@ class CriteriaFilterParser implements Filter, UriParser
     /**
      * @param string $data
      *
-     * @throws ExpressionException
-     * @throws InvalidArgumentException
+     * @return FilterInterface
+     * @throws BadRequest
      */
-    public function parse($data): void
+    public function parse($data): FilterInterface
     {
-        if (!is_string($data)) {
-            throw new InvalidArgumentException("Parameter query must be a string.");
+        try{
+        if ($data && is_string($data)) {
+            $this->lexer = new ExpressionLexer($data);
+            $exp = $this->parseExpression();
+            $this->criteria->where($exp);
         }
-        $this->lexer = new ExpressionLexer($data);
-        $exp = $this->parseExpression();
-        $this->criteria->where($exp);
+        return $this;
+        }catch (ExpressionException $exception){
+            throw new BadRequest($exception->getMessage(), $exception->getCode(), $exception);
+        }
     }
 
     /**
@@ -257,8 +259,8 @@ class CriteriaFilterParser implements Filter, UriParser
         return $this->criteria;
     }
 
-    public function __toString()
+    public function __toString(): string
     {
-        return 'filter=' . $this->lexer->getExpressionText();
+        return urlencode($this->lexer ? 'filter=' . $this->lexer->getExpressionText() : '');
     }
 }

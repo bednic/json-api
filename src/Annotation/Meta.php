@@ -7,9 +7,13 @@ namespace JSONAPI\Annotation;
  *
  * @package JSONAPI\Annotation
  * @Annotation
- * @Target({"METHOD", "PROPERTY"})
+ * @Target({"ANNOTATION"})
  */
-class Meta extends Common
+class Meta
 {
-
+    /**
+     * @var string
+     * @Required
+     */
+    public string $getter;
 }

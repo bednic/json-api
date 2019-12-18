@@ -5,7 +5,7 @@ namespace JSONAPI\Uri\Filtering;
 /**
  * Class Constants
  *
- * @package JSONAPI\Query\Filter
+ * @package JSONAPI\Uri\Filtering
  * @codeCoverageIgnore
  */
 class Constants

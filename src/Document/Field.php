@@ -16,7 +16,7 @@ abstract class Field implements JsonSerializable
     /**
      * @var string
      */
-    protected $key;
+    protected string $key;
     /**
      * @var mixed
      */

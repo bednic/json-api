@@ -13,4 +13,9 @@ interface HasMeta
      * @param Meta $meta
      */
     public function setMeta(Meta $meta): void;
+
+    /**
+     * @return Meta
+     */
+    public function getMeta(): Meta;
 }

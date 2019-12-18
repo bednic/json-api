@@ -21,9 +21,9 @@ class Id
     /**
      * @var string
      */
-    public $property;
+    public ?string $property = null;
     /**
      * @var string
      */
-    public $getter = null;
+    public ?string $getter = null;
 }

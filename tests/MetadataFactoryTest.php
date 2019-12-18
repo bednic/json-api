@@ -1,55 +1,23 @@
 <?php
 
-/**
- * Created by IntelliJ IDEA.
- * User: tomas
- * Date: 24.04.2019
- * Time: 12:59
- */
+namespace JSONAPI\Metadata;
 
-namespace JSONAPI\Test;
-
-use JSONAPI\Exception\Driver\ClassNotExist;
-use JSONAPI\Exception\FactoryException;
-use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Metadata\ClassMetadata;
-use JSONAPI\Metadata\MetadataFactory;
+use Doctrine\Common\Cache\ArrayCache;
+use JSONAPI\Driver\AnnotationDriver;
+use JSONAPI\Test\GettersExample;
 use PHPUnit\Framework\TestCase;
+use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 
-/**
- * Class MetadataFactoryTest
- *
- * @package JSONAPI\Test
- */
 class MetadataFactoryTest extends TestCase
 {
-
-    public function testBadPath()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        new MetadataFactory(__DIR__ . '/non-existing/resource');
-    }
-
-    public function testConstruct()
-    {
-        $factory = new MetadataFactory(__DIR__ . '/resources/');
-        $this->assertInstanceOf(MetadataFactory::class, $factory);
-        return $factory;
-    }
-
-    public function testExceptionBadPath()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        new MetadataFactory('');
-    }
-
     /**
      * @depends testConstruct
      */
-    public function testExceptionClassIsNotResource(MetadataFactory $factory)
+    public function testGetMetadataByClass(MetadataFactory $factory)
     {
-        $this->expectException(ClassNotExist::class);
-        $factory->getMetadataByClass('NonExistingClass');
+        $metadata = $factory->getMetadataByClass(GettersExample::class);
+        $this->assertInstanceOf(ClassMetadata::class, $metadata);
+        $this->assertEquals(GettersExample::class, $metadata->getClassName());
     }
 
     /**
@@ -57,23 +25,19 @@ class MetadataFactoryTest extends TestCase
      */
     public function testGetMetadataClassByType(MetadataFactory $factory)
     {
-        $this->assertInstanceOf(ClassMetadata::class, $factory->getMetadataClassByType('resource'));
+        $metadata = $factory->getMetadataClassByType('getter');
+        $this->assertInstanceOf(ClassMetadata::class, $metadata);
+        $this->assertEquals('getter', $metadata->getResource()->type);
     }
 
-    /**
-     * @depends testConstruct
-     */
-    public function testGetClassByType(MetadataFactory $factory)
+    public function testConstruct()
     {
-        $this->assertEquals(ObjectExample::class, $factory->getClassByType('resource'));
-    }
-
-    /**
-     * @depends testConstruct
-     */
-    public function testGetMetadataByClass(MetadataFactory $factory)
-    {
-        $this->assertInstanceOf(ClassMetadata::class, $factory->getMetadataByClass(ObjectExample::class));
+        $factory = new MetadataFactory(
+            __DIR__ . '/resources',
+            new SimpleCacheAdapter(new ArrayCache())
+        );
+        $this->assertInstanceOf(MetadataFactory::class, $factory);
+        return $factory;
     }
 
     /**
@@ -81,6 +45,7 @@ class MetadataFactoryTest extends TestCase
      */
     public function testGetAllMetadata(MetadataFactory $factory)
     {
-        $this->assertCount(2, $factory->getAllMetadata());
+        $this->assertIsArray($factory->getAllMetadata());
+        $this->assertGreaterThan(0, $factory->getAllMetadata());
     }
 }

@@ -16,14 +16,6 @@ This library only provides data and wrappers to create valid JSON API document. 
 
 ```php
 <?php
-/**
- * Created by IntelliJ IDEA.
- * User: tomas
- * Date: 24.04.2019
- * Time: 12:47
- */
-
-namespace App;
 
 // Don't forget use Annotations, otherwise you get exception
 use \JSONAPI\Annotation as API;
@@ -34,8 +26,6 @@ use \JSONAPI\Annotation as API;
 
 /**
  * Class Common
- *
- * @package JSONAPI
  */
 abstract class Common
 {
@@ -58,7 +48,6 @@ abstract class Common
 /**
  * Class ObjectExample
  *
- * @package App
  * @API\Resource("resource")
  */
 class ObjectExample extends Common
@@ -135,7 +124,6 @@ class ObjectExample extends Common
 /**
  * Class RelationExample
  *
- * @package App
  * @API\Resource("resource-relation")
  */
 class RelationExample extends Common
@@ -163,28 +151,51 @@ class RelationExample extends Common
         $this->object = $object;
     }
 }
-
-/*
- *  Then we need setup few things
- */
-
-// Create factory, best way is to do it through DI Container
-$factory = new \JSONAPI\Metadata\MetadataFactory('/path/to/your/resources');
-
-// Your object which you want to serialize
-$object = new \App\ObjectExample();
-
-// Make Document instance
-$document = new \JSONAPI\Document\Document($factory);
-
-// Set your data
-$document->setData($object);
-
-// Your HTTP Response 
-$response->sendJson($document);
 ```
 
-> Response 
+> Then just return document from your controller
+
+```php
+<?php
+
+class Controller {
+
+    public function getResource(\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Message\ResponseInterface $response): \Psr\Http\Message\ResponseInterface
+    {
+        // Make Document instance
+        /** @var \Psr\Http\Message\ServerRequestInterface $request */
+        /** @var \JSONAPI\Metadata\MetadataFactory $factory */
+        $document = new \JSONAPI\Document\Document($factory, $request);
+        
+        // Your object which you want to serialize
+        $object = new ObjectExample();
+        $meta = new \JSONAPI\Document\Meta([
+            'count' => 1
+        ]);
+        // Set your data
+        $document->setResource($object);
+        $document->setMeta($meta);
+        $response->getBody()->write(json_encode($document));
+        return $response; 
+    }
+    
+    public function createResource(\Psr\Http\Message\ServerRequestInterface $request, \Psr\Http\Message\ResponseInterface $response): \Psr\Http\Message\ResponseInterface
+    {
+        /** @var \JSONAPI\Document\Document $document */
+        $document = $request->getParsedBody();    
+        $data = $document->getData();
+        // ...data handling
+        /** @var ObjectExample $createdObject */
+        $createdObject;
+        $document->setResource($createdObject);
+        $response->getBody()->write(json_encode($document));
+        return $response;
+    }
+}
+
+```
+
+> Response example
  
  ```json
 {
@@ -237,85 +248,10 @@ $response->sendJson($document);
             }
         }
     ],
-    "links": {
-        "self": "http://unit.test.org/resource/uuid"
-    },
     "meta": {
         "count": 1
     }
 }
-```
-
-> To handle request data, you can use Document::createFromRequest to retrieve data, 
-like Resources, then handle them in your model.
-
-```php
-<?php
-/** @var \JSONAPI\Document\Document $document */
-$document = \JSONAPI\Document\Document::createFromRequest(
-    \Psr\Http\Message\ServerRequestInterface $request,
- \JSONAPI\Metadata\MetadataFactory $factory
-);
-
-/** @var \JSONAPI\Document\Resource|\JSONAPI\Document\Resource[] $resource */
-$resource = $document->getData();
-
-```
-> A little help with handling request/response you can use PsrJsonApiMiddleware. 
-Which provides header check for right content-type and parsing json body to ServerRequestInterface::parsedBody.
-Furthermore consume BadRequest exception and return 4xx based on exception to client. 
-It's compatible with PSR7 standard.
-
-```php
-<?php
-$middleware = new \JSONAPI\Middleware\PsrJsonApiMiddleware(
-    \JSONAPI\Metadata\MetadataFactory $factory,
-    \Psr\Log\LoggerInterface $logger
-    
-);
-$route->add($middleware);
-```
-
-## Exception Handling
-
-For now, it takes care of exceptions inherited from BadRequest. More fatal exception which are usually equal 
-Server Internal Error are not consumed by middleware. It's on you to handle these type of exception. Every exception 
-thrown by this library are inherited from JsonApiException and considered like Server Internal Error so ::getStatus 
-return 500. You can consume these exception and still send valid JSON API Document, just use 
-Error::fromException(JsonApiException $exception), or create own Error instance and set all useful data. Then you can add
-errors to Document instance ::addError() and send it to client. This belong to error handlers and as there isn't PSR 
-standard for exception handlers, you have to do it by self. 
-
-### Example
-```php
-<?php
-// Some exception
-$exception = new \JSONAPI\Exception\Encoder\EncoderException("Bad thing happened");
-
-// You need factory instance for document
-$factory = new \JSONAPI\Metadata\MetadataFactory('/resources');
-
-// Create new Document
-$document = new \JSONAPI\Document\Document($factory);
-
-// Create Error from exception
-$error = \JSONAPI\Document\Error::fromException($exception);
-
-// Set error to document
-$document->addError($error);
-
-// Or create own Error
-$myOwnError = new \JSONAPI\Document\Error();
-
-// Set some useful information
-$myOwnError->setTitle("Bad day");
-$myOwnError->setDetail("Someone split my coffee!");
-
-// You can add multiple errors to Document
-$document->addError($myOwnError);
-
-// Send it to client
-$response->sendJson($document);
 ```
 
 ## Issues

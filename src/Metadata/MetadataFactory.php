@@ -9,18 +9,18 @@
 
 namespace JSONAPI\Metadata;
 
-use Doctrine\Common\Annotations\AnnotationException;
-use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Cache\Cache;
-use Doctrine\Common\Util\ClassUtils;
+use JSONAPI\DoctrineProxyTrait;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Exception\Driver\AnnotationMisplace;
+use JSONAPI\Driver\DriverInterface;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Exception\Metadata\ResourceTypeNotFound;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Psr\SimpleCache\CacheInterface;
+use Psr\SimpleCache\InvalidArgumentException as CacheException;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 
@@ -31,78 +31,133 @@ use RecursiveIteratorIterator;
  */
 class MetadataFactory
 {
+    use DoctrineProxyTrait;
+
     /**
      * @var string
      */
-    private $path;
+    private string $path;
     /**
-     * @var Cache|null
+     * @var CacheInterface
      */
-    private $cache;
+    private CacheInterface $cache;
     /**
-     * @var AnnotationDriver|null
+     * @var DriverInterface
      */
-    private $driver;
+    private DriverInterface $driver;
     /**
      * @var LoggerInterface
      */
-    private $logger;
+    private LoggerInterface $logger;
     /**
      * @var array
      */
-    private $typeToClassMap = [];
+    private array $typeToClassMap = [];
     /**
      * @var array
      */
-    private $metadata = [];
+    private array $metadata = [];
 
     /**
      * MetadataFactory constructor.
      *
      * @param string               $pathToObjects
-     * @param Cache|null           $cache
+     * @param DriverInterface      $driver
+     * @param CacheInterface       $cache
      * @param LoggerInterface|null $logger
      *
-     * @throws AnnotationException
-     * @throws ClassNotExist
-     * @throws ClassNotResource
      * @throws DriverException
      * @throws InvalidArgumentException
      */
-    public function __construct(string $pathToObjects, Cache $cache = null, LoggerInterface $logger = null)
-    {
+    public function __construct(
+        string $pathToObjects,
+        CacheInterface $cache,
+        DriverInterface $driver = null,
+        LoggerInterface $logger = null
+    ) {
         if (!is_dir($pathToObjects)) {
-            throw new InvalidArgumentException("Path to object is not directory.");
+            throw new InvalidArgumentException("PathInterface to object is not directory.");
         }
-        $this->driver = new AnnotationDriver($logger);
+
         $this->path = $pathToObjects;
-        $this->cache = $cache ?? new ArrayCache();
+        $this->cache = $cache;
+        $this->driver = $driver ?? new AnnotationDriver($logger);
         $this->logger = $logger ?? new NullLogger();
         $this->load();
     }
 
     /**
-     * @throws ClassNotExist
-     * @throws ClassNotResource
+     * @param string $className
+     *
+     * @return ClassMetadata
      * @throws DriverException
+     * @throws InvalidArgumentException
+     */
+    public function getMetadataByClass(string $className): ClassMetadata
+    {
+        $className = self::clearDoctrineProxyPrefix($className);
+        try {
+            if ($this->cache->has(slashToDot($className))) {
+                return $this->cache->get(slashToDot($className));
+            } else {
+                $classMetadata = $this->driver->getClassMetadata($className);
+                $this->cache->set(slashToDot($className), $classMetadata);
+                return $classMetadata;
+            }
+        } catch (CacheException $e) {
+            throw new InvalidArgumentException($e->getMessage(), 51, $e);
+        }
+    }
+
+    /**
+     * @param string $resourceType
+     *
+     * @return ClassMetadata
+     * @throws DriverException
+     * @throws InvalidArgumentException
+     * @throws ResourceTypeNotFound
+     */
+    public function getMetadataClassByType(string $resourceType): ClassMetadata
+    {
+        if ($className = $this->typeToClassMap[$resourceType]) {
+            return $this->getMetadataByClass($className);
+        } else {
+            throw new ResourceTypeNotFound($resourceType);
+        }
+    }
+
+    /**
+     * @return ClassMetadata[]
+     */
+    public function getAllMetadata(): array
+    {
+        return $this->metadata;
+    }
+
+    /**
+     * @throws DriverException
+     * @throws InvalidArgumentException
      */
     private function load(): void
     {
-        if ($this->cache->contains(self::class)) {
-            foreach ($this->cache->fetch(self::class) as $className) {
-                $this->loadMetadata($className);
+        try {
+            if ($this->cache->has(slashToDot(self::class))) {
+                foreach ($this->cache->get(slashToDot(self::class)) as $className) {
+                    $this->loadMetadata($className);
+                }
+            } else {
+                $this->createMetadataCache();
             }
-        } else {
-            $this->createMetadataCache();
+        } catch (CacheException $e) {
+            throw new InvalidArgumentException($e->getMessage(), 51, $e);
         }
     }
 
     /**
      * @param string $className
      *
-     * @throws ClassNotExist
-     * @throws ClassNotResource
      * @throws DriverException
+     * @throws InvalidArgumentException
      */
     private function loadMetadata(string $className)
     {
@@ -111,29 +166,10 @@ class MetadataFactory
         $this->typeToClassMap[$classMetadata->getResource()->type] = $className;
     }
 
-    /**
-     * @param string $className
-     *
-     * @return ClassMetadata
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws DriverException
-     */
-    public function getMetadataByClass(string $className): ClassMetadata
-    {
-        $className = ClassUtils::getRealClass($className);
-        if ($this->cache->contains($className)) {
-            return $this->cache->fetch($className);
-        } else {
-            $classMetadata = $this->driver->getClassMetadata($className);
-            $this->cache->save($className, $classMetadata);
-            return $classMetadata;
-        }
-    }
 
     /**
      * @throws DriverException
+     * @throws InvalidArgumentException
      */
     private function createMetadataCache(): void
     {
@@ -165,38 +201,10 @@ class MetadataFactory
                 // ignored
             }
         }
-        $this->cache->save(self::class, array_keys($this->metadata));
-    }
-
-    /**
-     * @param string $resourceType
-     *
-     * @return ClassMetadata
-     * @throws AnnotationMisplace
-     * @throws ClassNotExist
-     * @throws ClassNotResource
-     * @throws DriverException
-     */
-    public function getMetadataClassByType(string $resourceType): ClassMetadata
-    {
-        return $this->getMetadataByClass($this->getClassByType($resourceType));
-    }
-
-    /**
-     * @param string $resourceType
-     *
-     * @return string
-     */
-    public function getClassByType(string $resourceType): string
-    {
-        return $this->typeToClassMap[$resourceType];
-    }
-
-    /**
-     * @return ClassMetadata[]
-     */
-    public function getAllMetadata(): array
-    {
-        return $this->metadata;
+        try {
+            $this->cache->set(slashToDot(self::class), array_keys($this->metadata));
+        } catch (CacheException $exception) {
+            throw new InvalidArgumentException($exception->getMessage(), 51, $exception);
+        }
     }
 }

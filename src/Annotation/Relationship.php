@@ -16,16 +16,21 @@ namespace JSONAPI\Annotation;
  * @Annotation
  * @Target({"METHOD", "PROPERTY"})
  */
-class Relationship extends Common
+class Relationship extends Field
 {
     /**
      * @var string
      * @Required
      */
-    public $target;
+    public string $target;
 
     /**
      * @var bool
      */
-    public $isCollection;
+    public ?bool $isCollection = null;
+
+    /**
+     * @var \JSONAPI\Annotation\Meta
+     */
+    public ?Meta $meta = null;
 }

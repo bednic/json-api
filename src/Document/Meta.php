@@ -17,7 +17,7 @@ class Meta implements JsonSerializable
     /**
      * @var array
      */
-    private $properties;
+    private array $properties;
 
     /**
      * Meta constructor.

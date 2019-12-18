@@ -2,47 +2,70 @@
 
 namespace JSONAPI\Uri\Inclusion;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Uri\UriParser;
-
-class InclusionParser implements UriParser
+/**
+ * Class InclusionParser
+ *
+ * @package JSONAPI\Uri\Inclusion
+ */
+class InclusionParser implements InclusionInterface
 {
     /**
-     * @var array
+     * @var Inclusion[]
      */
-    private $includes = [];
+    private array $inclusions = [];
+
     /**
      * @todo: remove this and replace it with generating URI part by recursive array walk
      * @var string
      */
-    private $data = '';
+    private string $data = '';
 
 
     /**
      * @param $data
      *
-     * @throws InvalidArgumentException
+     * @return InclusionInterface
      */
-    public function parse($data): void
+    public function parse(string $data): InclusionInterface
     {
-        if (!is_string($data)) {
-            throw new InvalidArgumentException('Parameter query must by string.');
-        }
+
         $this->data = $data;
-        $this->includes = [];
+        $tree = [];
         $t = explode(',', $data);
         foreach ($t as $i) {
-            self::dot2tree($this->includes, $i, []);
+            self::dot2tree($tree, $i, []);
+        }
+        $this->inclusions = [];
+        foreach ($tree as $root => $branch) {
+            $this->inclusions[] = $parent = new Inclusion($root);
+            if ($branch) {
+                $this->makeInclusionTree($parent, $branch);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param Inclusion $parent
+     * @param array     $branch
+     */
+    private function makeInclusionTree(Inclusion $parent, array $branch)
+    {
+        foreach ($branch as $name => $sub) {
+            $child = new Inclusion($name);
+            $parent->addInclusion($child);
+            if ($sub) {
+                $this->makeInclusionTree($child, $sub);
+            }
         }
     }
 
     /**
      * @return array
      */
-    public function getIncludes(): array
+    public function getInclusions(): array
     {
-        return $this->includes;
+        return $this->inclusions;
     }
 
     /**
@@ -62,9 +85,8 @@ class InclusionParser implements UriParser
     /**
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
-        return 'include=' . $this->data;
+        return urlencode(strlen($this->data) ? 'include=' . $this->data : '');
     }
-
 }

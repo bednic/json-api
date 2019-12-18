@@ -5,7 +5,7 @@ namespace JSONAPI\Uri\Filtering;
 /**
  * Class Messages helps to format error messages
  *
- * @package POData\Common
+ * @package JSONAPI\Uri\Filtering
  * @codeCoverageIgnore
  */
 class Messages

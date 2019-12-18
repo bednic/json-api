@@ -14,22 +14,25 @@ namespace JSONAPI\Annotation;
  *
  * @package JSONAPI\Annotation
  */
-class Common
+class Field
 {
     /**
      * @var string
      */
-    public $name;
+    public ?string $name = null;
 
     /**
      * @var string
      */
-    public $property;
+    public ?string $property = null;
 
     /**
      * @var string
      */
-    public $getter = null;
+    public ?string $getter = null;
 
-    public $setter = null;
+    /**
+     * @var string
+     */
+    public ?string $setter = null;
 }

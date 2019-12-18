@@ -4,9 +4,9 @@ namespace JSONAPI\Exception\Http;
 
 use Fig\Http\Message\StatusCodeInterface;
 
-class MethodNotImplemented extends BadRequest
+class MethodNotAllowed extends BadRequest
 {
-    protected $code = 41;
+    protected $code = StatusCodeInterface::STATUS_METHOD_NOT_ALLOWED;
     protected $message = "Method Is Not Implemented";
 
     public function getStatus()

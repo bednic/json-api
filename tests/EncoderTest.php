@@ -1,59 +1,28 @@
 <?php
 
-/**
- * Created by IntelliJ IDEA.
- * User: tomas
- * Date: 24.04.2019
- * Time: 15:54
- */
+namespace JSONAPI\Metadata;
 
-namespace JSONAPI\Test;
-
-use Doctrine\Common\Collections\ArrayCollection;
-use JSONAPI\Document\Relationship;
+use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Document\ResourceObject;
-use JSONAPI\Metadata\Encoder;
-use JSONAPI\Metadata\MetadataFactory;
-use JSONAPI\Uri\Query;
+use JSONAPI\Document\ResourceObjectIdentifier;
+use JSONAPI\Driver\AnnotationDriver;
+use JSONAPI\Test\GettersExample;
+use JSONAPI\Uri\Fieldset\FieldsetParser;
+use JSONAPI\Uri\LinkFactory;
 use PHPUnit\Framework\TestCase;
-use Slim\Psr7\Factory\ServerRequestFactory;
+use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 
-/**
- * Class EncoderTest
- *
- * @package JSONAPI\Test
- */
 class EncoderTest extends TestCase
 {
-    /**
-     * @var MetadataFactory
-     */
-    private static $factory;
-
-    /**
-     * @var Query
-     */
-    private static $query;
-
-    /**
-     * @var ObjectExample
-     */
-    private static $instance;
-
-    public static function setUpBeforeClass(): void
-    {
-        $request = ServerRequestFactory::createFromGlobals();
-        self::$query = new Query($request);
-        self::$factory = new MetadataFactory(__DIR__ . '/resources/');
-        $relation = new RelationExample();
-        $instance = new ObjectExample();
-        $instance->setRelations([$relation]);
-        self::$instance = $instance;
-    }
 
     public function testConstruct()
     {
-        $encoder = new Encoder(self::$factory, self::$query);
+        $fieldset = (new FieldsetParser())->parse([]);
+        $metadataFactory = new MetadataFactory(
+            __DIR__ . '/resources',
+            new SimpleCacheAdapter(new ArrayCache())
+        );
+        $encoder = new Encoder($metadataFactory, $fieldset, new LinkFactory());
         $this->assertInstanceOf(Encoder::class, $encoder);
         return $encoder;
     }
@@ -61,36 +30,39 @@ class EncoderTest extends TestCase
     /**
      * @depends testConstruct
      */
-    public function testGetType(Encoder $encoder)
+    public function testIdentify(Encoder $encoder)
     {
-        $resource = $encoder->encode(self::$instance);
-        $this->assertEquals('resource', $resource->getType());
+        $object = new GettersExample('id');
+        $identifier = $encoder->identify($object);
+        $this->assertInstanceOf(ResourceObjectIdentifier::class, $identifier);
     }
-
     /**
      * @depends testConstruct
      */
     public function testEncode(Encoder $encoder)
     {
-        /** @var ResourceObject $resource */
-        $resource = $encoder->encode(self::$instance);
+        $object = new GettersExample('id');
+        $resource = $encoder->encode($object);
         $this->assertInstanceOf(ResourceObject::class, $resource);
-
-        /** @var Relationship $relation */
-        $relation = $resource->getRelationship('relations');
-        $this->assertInstanceOf(Relationship::class, $relation);
-        $this->assertEquals(
-            trim(file_get_contents(__DIR__ . '/resources/resource.json')),
-            json_encode($resource)
-        );
     }
 
     /**
      * @depends testConstruct
      */
-    public function testGetId(Encoder $encoder)
+    public function testSetRelationshipLimit(Encoder $encoder)
     {
-        $resource = $encoder->encode(self::$instance);
-        $this->assertEquals('uuid', $resource->getId());
+        $encoder->setRelationshipLimit(100);
+        $this->expectException(\TypeError::class);
+        $encoder->setRelationshipLimit('asdf');
+    }
+
+    /**
+     * @depends testConstruct
+     */
+    public function testGetRelationshipLimit(Encoder $encoder)
+    {
+        $encoder->setRelationshipLimit(1);
+        $this->assertIsInt($encoder->getRelationshipLimit());
+        $this->assertEquals(1, $encoder->getRelationshipLimit());
     }
 }

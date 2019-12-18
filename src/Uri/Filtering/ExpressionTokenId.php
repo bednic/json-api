@@ -7,7 +7,7 @@ use MyCLabs\Enum\Enum;
 /**
  * Class ExpressionTokenId
  *
- * @package JSONAPI\Query\Filter
+ * @package JSONAPI\Uri\Filtering
  * @method static ExpressionTokenId UNKNOWN()
  * @method static ExpressionTokenId END()
  * @method static ExpressionTokenId EQUAL()

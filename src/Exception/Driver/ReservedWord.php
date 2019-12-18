@@ -2,8 +2,8 @@
 
 namespace JSONAPI\Exception\Driver;
 
-class ReserveWordException extends DriverException
+class ReservedWord extends DriverException
 {
-    protected $code = 14;
+    protected $code = 536;
     protected $message = "Field names [id, name] are reserved. Please use different field names.";
 }

@@ -27,37 +27,20 @@ class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
     use MetaTrait;
 
     /**
-     * @var ResourceObjectIdentifier|Collection<ResourceObjectIdentifier>
-     */
-    protected $data;
-
-    /**
-     * Relationship constructor.
-     *
-     * @param string                                                        $key
-     * @param ResourceObjectIdentifier|Collection<ResourceObjectIdentifier> $data
-     * @param array                                                         $links
-     * @param Meta|null                                                     $meta
-     *
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     */
-    public function __construct(string $key, $data, array $links = [], Meta $meta = null)
-    {
-        parent::__construct($key, $data);
-        $this->links = $links;
-        $this->setMeta($meta ?? new Meta());
-    }
-
-    /**
      * @return array|mixed
      */
     public function jsonSerialize()
     {
-        return [
-            'data' => $this->getData(),
-            'links' => $this->links
+        $ret = [
+            'data' => $this->getData()
         ];
+        if($this->hasLinks()){
+            $ret['links'] = $this->getLinks();
+        }
+        if(!$this->getMeta()->isEmpty()){
+            $ret['meta'] = $this->getMeta();
+        }
+        return $ret;
     }
 
     /**

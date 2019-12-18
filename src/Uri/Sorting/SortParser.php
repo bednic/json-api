@@ -2,62 +2,61 @@
 
 namespace JSONAPI\Uri\Fieldset;
 
-use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\Uri\Sorting\SortInterface;
 
 /**
  * Class SortParser
  *
  * @package JSONAPI\Uri\Fieldset
  */
-class SortParser implements UriParser
+class SortParser implements SortInterface
 {
     /**
      * @var array
      */
-    private $sort = [];
+    private array $sort = [];
 
     /**
-     * @param $data
+     * @param string $data
      *
-     * @throws InvalidArgumentException
+     * @return SortInterface
      */
-    public function parse($data): void
+    public function parse(string $data): SortInterface
     {
-        if (!is_string($data)) {
-            throw new InvalidArgumentException('Parameter $query must be string.');
-        }
+        //@todo: this should be able to parse field and relation.field
         $this->sort = [];
-        preg_match_all('/((?P<sort>-?)(?P<field>[a-zA-Z0-9]+))/', $data, $matches);
+        preg_match_all('/((?P<sort>-?)(?P<field>[a-zA-Z0-9.]+))/', $data, $matches);
         foreach ($matches['field'] as $i => $field) {
-            $this->sort[$field] = $matches['sort'][$i] ? 'DESC' : 'ASC';
+            $this->sort[$field] = $matches['sort'][$i] ? SortInterface::DESC : SortInterface::ASC;
         }
+        return $this;
     }
 
     /**
-     * @return array
+     * @return array associative array contains field as key and order as value
+     * @example [
+     *      "fieldA" => "DESC",
+     *      "fieldB" => "ASC"
+     * ]
      */
-    public function getFieldsSort(): array
+    public function getOrder(): array
     {
         return $this->sort;
     }
 
     /**
-     * @param string $field
-     *
-     * @return string|null
+     * @return string
      */
-    public function getSortForField(string $field): ?string
+    public function __toString(): string
     {
-        return isset($this->sort[$field]) ? $this->sort[$field] : null;
-    }
 
-    public function __toString()
-    {
-        $str = '';
-        foreach ($this->sort as $field => $sort) {
-            $str .= (strlen($str) > 0 ? ',' : '') . ($sort === 'DESC' ? '-' : '') . $field;
+        if (count($this->sort) > 0) {
+            $str = '';
+            foreach ($this->sort as $field => $sort) {
+                $str .= (strlen($str) > 0 ? ',' : '') . ($sort === 'DESC' ? '-' : '') . $field;
+            }
+            return urlencode('sort=' . $str);
         }
-        return 'sort=' . $str;
+        return '';
     }
 }

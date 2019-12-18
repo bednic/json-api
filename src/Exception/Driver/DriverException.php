@@ -11,6 +11,6 @@ use JSONAPI\Exception\JsonApiException;
  */
 class DriverException extends JsonApiException
 {
-    protected $code = 10;
-    protected $message = "Unknown Driver exception";
+    protected $code = 530;
+    protected $message = "Unknown DriverInterface Exception";
 }

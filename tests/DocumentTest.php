@@ -1,360 +1,312 @@
 <?php
 
-namespace JSONAPI\Test;
+namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use JSONAPI\Document\Attribute;
-use JSONAPI\Document\Document;
-use JSONAPI\Document\Error;
-use JSONAPI\Document\Link;
-use JSONAPI\Document\Meta;
-use JSONAPI\Document\Relationship;
-use JSONAPI\Document\ResourceObject;
-use JSONAPI\Document\ResourceObjectIdentifier;
-use JSONAPI\Exception\Document\BadRequest;
-use JSONAPI\Exception\Document\NotFound;
-use JSONAPI\Exception\InvalidArgumentException;
+use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Collections\Criteria;
+use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
-use JSONAPI\Uri\Query;
-use JSONAPI\Test\resources\DtoValue;
+use JSONAPI\Test\GettersExample;
+use JSONAPI\Uri\Fieldset\FieldsetInterface;
+use JSONAPI\Uri\Fieldset\SortParser;
+use JSONAPI\Uri\Filtering\CriteriaFilterParser;
+use JSONAPI\Uri\Filtering\FilterInterface;
+use JSONAPI\Uri\Inclusion\InclusionInterface;
+use JSONAPI\Uri\Pagination\LimitOffsetPagination;
+use JSONAPI\Uri\Pagination\PagePagination;
+use JSONAPI\Uri\Pagination\PaginationInterface;
+use JSONAPI\Uri\Path\PathInterface;
+use JSONAPI\Uri\Sorting\SortInterface;
 use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
-use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
-/**
- * Class DocumentTest
- *
- * @package JSONAPI\Test
- */
 class DocumentTest extends TestCase
 {
-    /**
-     * @var MetadataFactory
-     */
-    private static $factory;
 
-    /**
-     * @var Schema
-     */
-    private static $schema;
-
-    /**
-     * @var Validator
-     */
-    private static $validator;
-
-    private static $query;
+    private static MetadataFactory $factory;
+    private static Schema $schema;
+    private static Validator $validator;
 
     public static function setUpBeforeClass(): void
     {
-        self::$factory = new MetadataFactory(__DIR__ . '/resources/');
+        $cache = new SimpleCacheAdapter(new ArrayCache());
+        self::$factory = new MetadataFactory(__DIR__ . '/resources/', $cache);
         self::$schema = Schema::fromJsonString(file_get_contents(__DIR__ . '/../schema.json'));
         self::$validator = new Validator();
-        self::$query = new Query(ServerRequestFactory::createFromGlobals());
     }
 
-    public function testConstruct()
+    public function testSetCollection()
     {
-        $document = new Document(self::$factory, self::$query);
-        $this->assertInstanceOf(Document::class, $document);
-        return $document;
+        $_SERVER["REQUEST_URI"] = "/getter";
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $resource1 = new GettersExample('1');
+        $resource2 = new GettersExample('2');
+        $collection = [$resource1, $resource2];
+        $document->setCollection($collection, 2);
+        $this->assertTrue($this->isValidJsonApiDocument($document));
     }
 
-    public function testAddMeta()
+    public function testGetFieldset()
     {
-        $document = new Document(self::$factory, self::$query);
-        $document->setMeta(new Meta(['count' => 1]));
-        $json = json_decode(json_encode($document), true);
-        $this->assertArrayHasKey('meta', $json);
-        $this->assertEquals(1, $json['meta']['count']);
-    }
-
-    public function testRelationships()
-    {
-        $_SERVER["REQUEST_URI"] = "/resource/uuid/relationships/relations";
-        $relations[] = new RelationExample('id1');
-        $relations[] = new RelationExample('id2');
-        $document = new Document(self::$factory, self::$query);
-        $document->setData($relations);
-        $json = json_decode(json_encode($document), true);
-        $this->assertArrayHasKey('data', $json);
-        $this->assertArrayHasKey('links', $json);
-        $this->assertArrayHasKey('self', $json['links']);
-        $this->assertArrayHasKey('related', $json['links']);
-        $this->assertEquals('http://unit.test.org/resource/uuid/relationships/relations', $json['links']['self']);
-        $this->assertEquals('http://unit.test.org/resource/uuid/relations', $json['links']['related']);
-        $this->assertCount(2, $json['data']);
-        $this->assertEquals('id1', $json['data'][0]['id']);
-        $this->assertEquals('id2', $json['data'][1]['id']);
-    }
-
-    public function testRelations()
-    {
-        $_SERVER["REQUEST_URI"] = "/resource/uuid/relations";
-        $relations[] = new RelationExample('id1');
-        $relations[] = new RelationExample('id2');
-        $document = new Document(self::$factory, self::$query);
-        $document->setData($relations);
-        $json = json_decode(json_encode($document), true);
-        $this->assertArrayHasKey('data', $json);
-        $this->assertArrayHasKey('links', $json);
-        $this->assertArrayHasKey('self', $json['links']);
-        $this->assertEquals('http://unit.test.org/resource/uuid/relations', $json['links']['self']);
-    }
-
-    public function testCollection()
-    {
-        $_SERVER["REQUEST_URI"] = "/resource";
-        $document = new Document(self::$factory, self::$query);
-        $collection = [];
-        $collection[] = new ObjectExample('id1');
-        $collection[] = new ObjectExample('id2');
-        $document->setData($collection);
-        $this->assertIsArray($document->getData());
-        $this->assertCount(2, $document->getData());
+        $_SERVER["REQUEST_URI"] = "/resource?fields[resource]=publicProperty,readOnlyProperty";
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(FieldsetInterface::class, $document->getFieldset());
+        $this->assertTrue($document->getFieldset()->showField('resource', 'publicProperty'));
+        $this->assertTrue($document->getFieldset()->showField('resource', 'readOnlyProperty'));
+        $this->assertFalse($document->getFieldset()->showField('resource', 'privateProperty'));
+        $this->assertTrue($document->getFieldset()->showField('random', 'property'));
+        $this->assertTrue($this->isValidJsonApiDocument($document));
     }
 
     public function testToString()
     {
-        $document = new Document(self::$factory, self::$query);
-        $this->assertEquals((string)$document, json_encode($document));
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertTrue(is_string($document->__toString()));
+        $this->assertTrue($this->isValidJsonApiDocument($document));
     }
 
-
-    public function testAddLink()
+    public function testGetInclusion()
     {
-        $document = new Document(self::$factory, self::$query);
-        $document->addLink(new Link('own', 'http://my-own.link.com'));
-        $document->setLinks([
-            new Link('link1', 'http://link1.com')
-        ]);
-        $json = json_decode(json_encode($document), true);
-        $this->assertArrayHasKey('links', $json);
-        $this->assertEquals('http://my-own.link.com', $json['links']['own']);
-        $this->assertEquals('http://link1.com', $json['links']['link1']);
+        $_SERVER["REQUEST_URI"] = "/resource?include=relations";
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(InclusionInterface::class, $document->getInclusion());
+        $this->assertIsArray($document->getInclusion()->getInclusions());
+        $this->assertCount(1, $document->getInclusion()->getInclusions());
+        $this->assertEquals('relations', $document->getInclusion()->getInclusions()[0]->getRelationName());
+        $this->assertFalse($document->getInclusion()->getInclusions()[0]->hasInclusions());
+        $this->assertEmpty($document->getInclusion()->getInclusions()[0]->getInclusions());
+        $this->assertTrue($this->isValidJsonApiDocument($document));
     }
 
-    public function testOwnError()
+    public function testGetFilter()
     {
-        $error = new Error();
-        $error->setId('my-id');
-        $error->setTitle('Title');
-        $error->setCode('code123');
-        $error->setStatus(500);
-        $error->setDetail('Some detailed information about error');
-        $error->setSource([
-            'pointer' => '/data/attributes/my-attribute'
-        ]);
-        $document = new Document(self::$factory, self::$query);
-        $document->addError($error);
-        $json = json_decode(json_encode($document), true);
-        $this->assertArrayHasKey('errors', $json);
-        $this->assertEquals('my-id', $json['errors'][0]['id']);
+        $_SERVER["REQUEST_URI"] = "/resource?filter=publicProperty eq 'public-value'";
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(FilterInterface::class, $document->getFilter());
+        $this->assertInstanceOf(Criteria::class, $document->getFilter()->getCondition());
+        $expr = Criteria::create()->where(Criteria::expr()->eq('publicProperty', 'public-value'));
+        $this->assertEquals($expr, $document->getFilter()->getCondition());
+        $this->assertTrue($this->isValidJsonApiDocument($document));
     }
 
-    public function testErrorFromException()
+    public function testGetPagination()
     {
-        $document = new Document(self::$factory, self::$query);
-        try {
-            throw new BadRequest("Test exception");
-        } catch (BadRequest $exception) {
-            $error = Error::fromException($exception);
-            $document->addError($error);
-            $json = json_decode(json_encode($document), true);
-            $this->assertArrayHasKey('errors', $json);
-            $this->assertArrayNotHasKey('data', $json);
-        }
+        $_SERVER["REQUEST_URI"] = "/resource?page[offset]=10&page[limit]=5";
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(PaginationInterface::class, $document->getPagination());
+        $this->assertInstanceOf(LimitOffsetPagination::class, $document->getPagination());
+        $document->getPagination()->setTotal(100);
+        $this->assertEquals(10, $document->getPagination()->getOffset());
+        $this->assertEquals(5, $document->getPagination()->getLimit());
+        $this->assertInstanceOf(PaginationInterface::class, $document->getPagination()->first());
+        $this->assertEquals(0, $document->getPagination()->first()->getOffset());
+        $this->assertEquals(5, $document->getPagination()->first()->getLimit());
+        $this->assertInstanceOf(PaginationInterface::class, $document->getPagination()->last());
+        $this->assertEquals(95, $document->getPagination()->last()->getOffset());
+        $this->assertEquals(5, $document->getPagination()->last()->getLimit());
+        $this->assertInstanceOf(PaginationInterface::class, $document->getPagination()->prev());
+        $this->assertEquals(5, $document->getPagination()->prev()->getOffset());
+        $this->assertEquals(5, $document->getPagination()->prev()->getLimit());
+        $this->assertInstanceOf(PaginationInterface::class, $document->getPagination()->next());
+        $this->assertEquals(15, $document->getPagination()->next()->getOffset());
+        $this->assertEquals(5, $document->getPagination()->next()->getLimit());
+        $this->assertTrue($this->isValidJsonApiDocument($document));
     }
 
-    public function testCreateFromRequestSingle()
+    public function testGetData()
     {
-        $single = [
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $object = new GettersExample('uuid');
+        $document->setResource($object);
+        $this->assertTrue($this->isValidJsonApiDocument($document));
+        $resource = $document->getData();
+        $this->assertEquals($object->getId(), $resource->getId());
+    }
+
+    public function testConstruct()
+    {
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(Document::class, $document);
+        $this->assertTrue($this->isValidJsonApiDocument($document));
+    }
+
+    public function testLoadRequestData()
+    {
+        $body = [
             'data' => [
                 'id' => 'uuid',
-                'type' => 'resource',
+                'type' => 'prop',
                 'attributes' => [
-                    'publicProperty' => 'public',
-                    'privateProperty' => 'private',
-                    'readOnlyProperty' => 'read-only',
+                    'stringProperty' => 'string',
+                    'intProperty' => '1',
+                    'arrayProperty' => [4, 5, 6],
                     'dtoProperty' => [
-                        'stringProperty' => 'asdf',
+                        'stringProperty' => 'string',
                         'intProperty' => 123,
                         'boolProperty' => false
                     ]
                 ],
                 'relationships' => [
-                    'relations' => [
+                    'collection' => [
                         'data' => [
                             [
                                 'id' => 'rel1',
-                                'type' => 'resource-relation'
+                                'type' => 'relation'
                             ],
                             [
                                 'id' => 'rel2',
-                                'type' => 'resource-relation'
+                                'type' => 'relation'
                             ]
                         ],
-                        'links' => [
-                            'self' => 'http://unit.test.org/resource/uuid/relationships/relations',
-                            'related' => 'http://unit.test.org/resource/uuid/relations'
+                    ],
+                    'relation' => [
+                        'data' => [
+                            'id' => 'rel1',
+                            'type' => 'relation'
                         ]
                     ]
                 ]
-            ],
-            'links' => [
-                'self' => 'http://unit.test.org/resource/uuid'
             ]
         ];
+        $body = json_decode(json_encode($body));
+        $_SERVER["REQUEST_URI"] = "/prop/uuid";
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $document->loadRequestData($body);
+        $this->assertInstanceOf(ResourceObject::class, $document->getData());
+        $this->assertEquals('uuid', $document->getData()->getId());
+        $this->assertEquals('prop', $document->getData()->getType());
+        $this->assertEquals('string', $document->getData()->getAttribute('stringProperty')->getData());
+    }
 
-        /** @var ServerRequestInterface $request */
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getParsedBody')
-            ->willReturn(json_decode(json_encode($single)));
-        $request->method('getHeader')
-            ->with('Content-Type')
-            ->willReturn([Document::MEDIA_TYPE]);
+    public function testSetFilterParser()
+    {
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $goodParser = new CriteriaFilterParser();
+        $document->setFilterParser($goodParser);
+        $badParser = new SortParser();
+        $this->expectException(\TypeError::class);
+        $document->setFilterParser($badParser);
+    }
 
-        $document = Document::createFromRequest($request, self::$factory);
+    public function testGetSort()
+    {
+        $_SERVER['REQUEST_URI'] = '/resource?sort=publicProperty';
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(SortInterface::class, $document->getSort());
+        $this->assertIsArray($document->getSort()->getOrder());
+        $this->assertEquals(SortInterface::ASC, $document->getSort()->getOrder()['publicProperty']);
+        $this->assertTrue($this->isValidJsonApiDocument($document));
+    }
+
+    public function testGetPath()
+    {
+        $_SERVER['REQUEST_URI'] = '/resource/id/relationships/relations';
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(PathInterface::class, $document->getPath());
+        //todo: own unit test, it does not belong here
+        //        $this->assertEquals('resource', $document->getPath()->getResourceType());
+        //        $this->assertEquals('id', $document->getPath()->getId());
+        //        $this->assertEquals('resource-relation', $document->getPath()->getRelationshipType());
+        //        $this->assertEquals('resource-relation', $document->getPath()->getPrimaryResourceType());
+        //        $this->assertTrue($document->getPath()->isRelationship());
+        //        $this->assertTrue($this->isValidJsonApiDocument($document));
+    }
+
+    public function testAddLink()
+    {
+        $_SERVER['REQUEST_URI'] = '/resource';
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $link = new Link('foo', 'http://bar.com');
+        $document->addLink($link);
+        $data = $document->jsonSerialize();
+        $this->assertEquals('http://bar.com', $data['links']['foo']->getData());
+        $this->assertTrue($this->isValidJsonApiDocument($document));
+    }
+
+    public function testAddError()
+    {
+        $_SERVER['REQUEST_URI'] = '/resource';
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $error = new Error();
+        $error->setTitle("Test Error");
+        $error->setId("unique-id");
+        $document->addError($error);
+        $data = $document->jsonSerialize();
+        $this->assertCount(1, $data['errors']);
+        $this->assertInstanceOf(Error::class, $data['errors'][0]);
+        $this->assertTrue($this->isValidJsonApiDocument($document));
+    }
+
+    public function testGetEncoder()
+    {
+        $_SERVER['REQUEST_URI'] = '/resource';
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(Encoder::class, $document->getEncoder());
+        $this->assertTrue($this->isValidJsonApiDocument($document));
+    }
+
+    public function testJsonSerialize()
+    {
+        $_SERVER['REQUEST_URI'] = '/resource';
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $this->assertInstanceOf(\JsonSerializable::class, $document);
+        $this->assertIsArray($document->jsonSerialize());
+        $this->assertNotEmpty(json_encode($document));
+        $this->assertTrue($this->isValidJsonApiDocument($document));
+    }
+
+    public function testSetResource()
+    {
+        $_SERVER['REQUEST_URI'] = '/getter/uuid';
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $object = new GettersExample('uuid');
+        $document->setResource($object);
         $resource = $document->getData();
-        $this->assertInstanceOf(Document::class, $document);
-        $this->assertInstanceOf(ResourceObject::class, $resource);
-        $this->assertEquals('uuid', $resource->getId());
-        $this->assertEquals('resource', $resource->getType());
-        $relationship = $resource->getRelationship('relations');
-        $this->assertInstanceOf(Relationship::class, $relationship);
-        $this->assertContainsOnlyInstancesOf(ResourceObjectIdentifier::class, $relationship->getData());
-        $this->assertTrue($relationship->isCollection());
-        $this->assertEquals('rel1', $relationship->getData()[0]->getId());
-        $this->assertEquals('rel2', $relationship->getData()[1]->getId());
-        $attribute = $resource->getAttribute('publicProperty');
-        $this->assertInstanceOf(Attribute::class, $attribute);
-        $this->assertEquals('public', $attribute->getData());
-        $this->assertEquals('publicProperty', $attribute->getKey());
-        /** @var DtoValue $dto */
-        $dto = $resource->getAttribute('dtoProperty')->getData();
-        $this->assertInstanceOf(DtoValue::class, $dto);
-        $this->assertEquals('asdf', $dto->getStringProperty());
-        $this->assertEquals(123, $dto->getIntProperty());
-        $this->assertEquals(false, $dto->isBoolProperty());
+        $this->assertEquals($object->getId(), $resource->getId());
+        $this->assertTrue($this->isValidJsonApiDocument($document));
     }
 
-    public function testCreateFromRequestCollection()
+    public function testSetPaginationParser()
     {
-        $collection = [
-            'data' => [
-                [
-                    'id' => 'uuid1',
-                    'type' => 'resource',
-                    'attributes' => [
-                        'publicProperty' => 'public',
-                        'privateProperty' => 'private',
-                        'readOnlyProperty' => 'read-only'
-                    ],
-                    'relationships' => [
-                        'relations' => [
-                            'data' => [
-                                [
-                                    'id' => 'rel1',
-                                    'type' => 'resource-relation'
-                                ],
-                                [
-                                    'id' => 'rel2',
-                                    'type' => 'resource-relation'
-                                ]
-                            ],
-                            'links' => [
-                                'self' => 'http://unit.test.org/resource/uuid1/relationships/relations',
-                                'related' => 'http://unit.test.org/resource/uuid1/relations'
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    'id' => 'uuid2',
-                    'type' => 'resource',
-                    'attributes' => [
-                        'publicProperty' => 'public',
-                        'privateProperty' => 'private',
-                        'readOnlyProperty' => 'read-only'
-                    ],
-                    'relationships' => [
-                        'relations' => [
-                            'data' => [
-                                [
-                                    'id' => 'rel3',
-                                    'type' => 'resource-relation'
-                                ],
-                                [
-                                    'id' => 'rel4',
-                                    'type' => 'resource-relation'
-                                ]
-                            ],
-                            'links' => [
-                                'self' => 'http://unit.test.org/resource/uuid2/relationships/relations',
-                                'related' => 'http://unit.test.org/resource/uuid2/relations'
-                            ]
-                        ]
-                    ]
-                ]
-            ],
-            'links' => [
-                'self' => 'http://unit.test.org/resource'
-            ]
-        ];
-
-        /** @var ServerRequestInterface $request */
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request->method('getParsedBody')
-            ->willReturn(json_decode(json_encode($collection)));
-        $request->method('getHeader')
-            ->with('Content-Type')
-            ->willReturn([Document::MEDIA_TYPE]);
-
-        $document = Document::createFromRequest($request, self::$factory);
-        $resources = $document->getData();
-        $this->assertInstanceOf(Document::class, $document);
-        $this->assertContainsOnlyInstancesOf(ResourceObject::class, $resources);
-        $this->assertCount(2, $resources);
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $goodParser = new LimitOffsetPagination();
+        $document->setPaginationParser($goodParser);
+        $goodParser = new PagePagination();
+        $document->setPaginationParser($goodParser);
+        $this->expectException(\TypeError::class);
+        $badParser = new \stdClass();
+        $document->setPaginationParser($badParser);
     }
 
-    public function testDataSingle()
+    private function isValidJsonApiDocument(Document $document)
     {
-        $resource = new ObjectExample('uuid');
-        $relation1 = new RelationExample('rel1');
-        $relation2 = new RelationExample('rel2');
-        $resource->setRelations([$relation1, $relation2]);
-        $document = new Document(self::$factory, self::$query);
-        $document->setData($resource);
-        $this->assertTrue(self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema)
-            ->isValid());
-    }
-
-    public function testNotFound()
-    {
-        $this->expectException(NotFound::class);
-        $_SERVER["REQUEST_URI"] = "/resource/no-id";
-        $document = new Document(self::$factory, self::$query);
-        $document->setData(null);
-    }
-
-    public function testEmptyData()
-    {
-        $_SERVER["REQUEST_URI"] = "/resource";
-        $document = new Document(self::$factory, self::$query);
-        $document->setData([]);
-        $this->assertIsArray($document->getData());
-        $this->assertTrue(self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema)
-            ->isValid());
-    }
-
-    public function testNonIterableCollection()
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $_SERVER["REQUEST_URI"] = "/resource";
-        $document = new Document(self::$factory, self::$query);
-        $document->setData(null);
+        ini_set('xdebug.var_display_max_depth', 10);
+        $data = json_decode(json_encode($document));
+        $result = self::$validator->schemaValidation($data, self::$schema);
+        if (!$result->isValid()) {
+            var_dump($result->getFirstError()->keyword());
+        }
+        return $result->isValid();
     }
 }

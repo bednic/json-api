@@ -1,1 +1,19 @@
-{"data": {"type": "resource", "id": "uuid", "attributes": {"publicProperty": "public-value", "privateProperty": "private-value", "readOnlyProperty": "read-only-value"}, "relationships": {"relations": {"data": [{"type": "resource-relation", "id": "relation-uuid"}]}}}}
+{
+    "data": {
+        "type": "getter",
+        "id": "uuid",
+        "attributes": {
+            "stringProperty": "string",
+            "intProperty": 1,
+            "boolProperty": true
+        },
+        "relationships": {
+            "relation": {
+                "data": {
+                    "type": "relation",
+                    "id": "id"
+                }
+            }
+        }
+    }
+}

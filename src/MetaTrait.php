@@ -5,9 +5,9 @@ namespace JSONAPI;
 use JSONAPI\Document\Meta;
 
 /**
- * Trait MetaImpl
+ * Trait MetaTrait
  *
- * @package JSONAPI\Utils
+ * @package JSONAPI
  */
 trait MetaTrait
 {
@@ -15,7 +15,7 @@ trait MetaTrait
     /**
      * @var Meta
      */
-    protected $meta = null;
+    protected ?Meta $meta = null;
 
     /**
      * @param Meta $meta
@@ -23,5 +23,16 @@ trait MetaTrait
     public function setMeta(Meta $meta): void
     {
         $this->meta = $meta;
+    }
+
+    /**
+     * @return Meta
+     */
+    public function getMeta(): Meta
+    {
+        if ($this->meta === null) {
+            $this->meta = new Meta();
+        }
+        return $this->meta;
     }
 }

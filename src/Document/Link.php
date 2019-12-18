@@ -4,7 +4,6 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\MetaTrait;
 
 /**
@@ -26,7 +25,7 @@ class Link extends Field implements HasMeta
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    public function __construct(string $key, string $uri, Meta $meta = null)
+    public function __construct(string $key, ?string $uri, Meta $meta = null)
     {
         parent::__construct($key, $uri);
         if ($meta) {
@@ -50,13 +49,13 @@ class Link extends Field implements HasMeta
      * @param string $data
      *
      * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
      */
     protected function setData($data): void
     {
-        if (!filter_var($data, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException("Data are not valid URL.");
+        if (filter_var($data, FILTER_VALIDATE_URL) || is_null($data)) {
+            parent::setData($data);
+        } else {
+            throw new ForbiddenDataType("Data are not valid URL.");
         }
-        parent::setData($data);
     }
 }

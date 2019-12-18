@@ -16,35 +16,10 @@ namespace JSONAPI\Annotation;
  * @Annotation
  * @Target({"METHOD", "PROPERTY"})
  */
-class Attribute extends Common
+class Attribute extends Field
 {
     /**
      * @var string
      */
-    public $type = null;
-
-    /**
-     * @var string
-     */
-    public $of = null;
-
-    /**
-     * Returns if Attribute is on property
-     *
-     * @return bool
-     */
-    public function isProperty(): bool
-    {
-        return !!$this->property;
-    }
-
-    /**
-     * Return true if attribute has getter but not setter, thus is read-only
-     *
-     * @return bool
-     */
-    public function isReadOnly(): bool
-    {
-        return ($this->getter && !$this->setter);
-    }
+    public ?string $type = null;
 }

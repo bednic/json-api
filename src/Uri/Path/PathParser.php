@@ -1,36 +1,47 @@
 <?php
 
-
 namespace JSONAPI\Uri\Path;
 
-
+use Fig\Http\Message\RequestMethodInterface;
+use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\MetadataFactory;
-use JSONAPI\Uri\UriParser;
 
-class PathParser implements UriParser
+/**
+ * Class PathParser
+ *
+ * @package JSONAPI\Uri\Path
+ */
+class PathParser implements PathInterface
 {
     /**
      * @var MetadataFactory
      */
-    private $factory;
+    private MetadataFactory $factory;
+
     /**
      * @var string
      */
-    private $resource;
+    private string $resource = '';
+
     /**
-     * @var string
+     * @var string|null
      */
-    private $id;
+    private ?string $id = null;
+
     /**
-     * @var string
+     * @var string|null
      */
-    private $relation;
+    private ?string $relationshipField = null;
+
     /**
      * @var bool
      */
-    private $relationship;
+    private bool $isRelationship = false;
+
+    private string $method;
 
     /**
      * PathParser constructor.
@@ -43,34 +54,49 @@ class PathParser implements UriParser
     }
 
     /**
-     * @param $data
+     * @param string $data
+     * @param string $method
      *
+     * @return PathInterface
      * @throws BadRequest
-     * @throws InvalidArgumentException
      */
-    public function parse($data): void
+    public function parse(string $data, string $method): PathInterface
     {
-        if (!is_string($data)) {
-            throw new InvalidArgumentException("Parameter query must be a string.");
+
+        if (
+            !in_array(
+                $method,
+                [
+                RequestMethodInterface::METHOD_GET,
+                RequestMethodInterface::METHOD_POST,
+                RequestMethodInterface::METHOD_PUT,
+                RequestMethodInterface::METHOD_PATCH
+                ]
+            )
+        ) {
+            throw new BadRequest("Request method $method is not supported.");
         }
-        $pattern = '/^\/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
+        $this->method = $method;
+        $pattern = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
+
         if (preg_match($pattern, $data, $matches)) {
             $this->resource = $matches['resource'];
             $this->id = isset($matches['id']) ? $matches['id'] : null;
-            if (isset($matches['relationship'])) {
-                $this->relationship = true;
-                $this->relation = $matches['relationship'];
-            } elseif (isset($matches['related'])) {
-                $this->relationship = false;
-                $this->relation = $matches['related'];
+            if (isset($matches['relationship']) && strlen($matches['relationship']) > 0) {
+                $this->isRelationship = true;
+                $this->relationshipField = $matches['relationship'];
+            } elseif (isset($matches['related']) && strlen($matches['related']) > 0) {
+                $this->isRelationship = false;
+                $this->relationshipField = $matches['related'];
             }
         } else {
             throw new BadRequest("Invalid URL");
         }
+        return $this;
     }
 
-    public function getResource(): string
+    public function getResourceType(): string
     {
         return $this->resource;
     }
@@ -85,10 +111,24 @@ class PathParser implements UriParser
 
     /**
      * @return string
+     * @throws DriverException
+     * @throws InvalidArgumentException
+     * @throws MetadataException
      */
-    public function getRelation(): ?string
+    public function getRelationshipType(): ?string
     {
-        return $this->relation;
+        if ($this->relationshipField) {
+            return $this->factory
+                ->getMetadataByClass(
+                    $this->factory
+                        ->getMetadataClassByType($this->resource)
+                        ->getRelationship($this->relationshipField)
+                        ->target
+                )
+                ->getResource()
+                ->type;
+        }
+        return null;
     }
 
     /**
@@ -96,58 +136,60 @@ class PathParser implements UriParser
      */
     public function isRelationship(): bool
     {
-        return $this->relationship;
+        return $this->isRelationship;
     }
 
     /**
      * @return string
-     * @throws \JSONAPI\Exception\Driver\AnnotationMisplace
-     * @throws \JSONAPI\Exception\Driver\ClassNotExist
-     * @throws \JSONAPI\Exception\Driver\ClassNotResource
-     * @throws \JSONAPI\Exception\Driver\DriverException
+     * @throws DriverException
+     * @throws InvalidArgumentException
+     * @throws MetadataException
      */
-    public function getPrimaryDataType(): string
+    public function getPrimaryResourceType(): string
     {
-        $metadata = $this->factory->getMetadataClassByType($this->getResource());
-        if ($name = $this->getRelation()) {
-            return $this->factory->getMetadataByClass($metadata->getRelationship($name)->target)->getResource()->type;
-        }
-        return $metadata->getResource()->type;
+        return $this->getRelationshipType() ?? $this->factory->getMetadataClassByType(
+            $this->getResourceType()
+        )->getResource()->type;
     }
 
     /**
      * Method returns if endpoint represents collection
      *
      * @return bool
-     * @throws \JSONAPI\Exception\Driver\AnnotationMisplace
-     * @throws \JSONAPI\Exception\Driver\ClassNotExist
-     * @throws \JSONAPI\Exception\Driver\ClassNotResource
-     * @throws \JSONAPI\Exception\Driver\DriverException
+     * @throws DriverException
+     * @throws InvalidArgumentException
+     * @throws MetadataException
      */
     public function isCollection(): bool
     {
-        if (!empty($this->getRelation())) {
+        if ($this->getRelationshipType()) {
             return $this->factory
-                ->getMetadataClassByType($this->getResource())
-                ->getRelationship($this->getRelation())
+                ->getMetadataClassByType($this->getResourceType())
+                ->getRelationship($this->getRelationshipType())
                 ->isCollection;
         }
-        if (!empty($this->getId())) {
+        if ($this->getId()) {
+            return false;
+        }
+        if ($this->method === RequestMethodInterface::METHOD_POST) {
             return false;
         }
         return true;
     }
 
-    public function __toString()
+    /**
+     * @return string
+     */
+    public function __toString(): string
     {
         $str = '/' . $this->resource;
         if ($this->id) {
             $str .= '/' . $this->id;
-            if ($this->relation) {
-                if ($this->relationship) {
+            if ($this->relationshipField) {
+                if ($this->isRelationship) {
                     $str .= '/relationships';
                 }
-                $str .= '/' . $this->relation;
+                $str .= '/' . $this->relationshipField;
             }
         }
         return $str;
