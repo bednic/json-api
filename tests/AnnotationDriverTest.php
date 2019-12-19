@@ -81,7 +81,8 @@ class AnnotationDriverTest extends TestCase
         $this->assertInstanceOf(Relationship::class, $metadata->getRelationship('collection'));
     }
 
-    public function classProvider(){
+    public function classProvider()
+    {
         return [
             [new PropsExample('test')],
             [new GettersExample('test')]

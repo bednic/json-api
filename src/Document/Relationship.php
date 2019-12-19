@@ -34,10 +34,10 @@ class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
         $ret = [
             'data' => $this->getData()
         ];
-        if($this->hasLinks()){
+        if ($this->hasLinks()) {
             $ret['links'] = $this->getLinks();
         }
-        if(!$this->getMeta()->isEmpty()){
+        if (!$this->getMeta()->isEmpty()) {
             $ret['meta'] = $this->getMeta();
         }
         return $ret;

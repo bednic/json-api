@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Exception\Driver;
-
 
 class BadMethodSignature extends DriverException
 {

@@ -104,7 +104,7 @@ class ResourceObject extends ResourceObjectIdentifier implements HasLinks
         if ($this->getRelationships()) {
             $ret['relationships'] = $this->getRelationships();
         }
-        if($this->hasLinks()){
+        if ($this->hasLinks()) {
             $ret['links'] = $this->getLinks();
         }
         return $ret;

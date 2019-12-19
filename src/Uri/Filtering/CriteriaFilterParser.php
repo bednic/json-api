@@ -50,14 +50,14 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
      */
     public function parse($data): FilterInterface
     {
-        try{
-        if ($data && is_string($data)) {
-            $this->lexer = new ExpressionLexer($data);
-            $exp = $this->parseExpression();
-            $this->criteria->where($exp);
-        }
-        return $this;
-        }catch (ExpressionException $exception){
+        try {
+            if ($data && is_string($data)) {
+                $this->lexer = new ExpressionLexer($data);
+                $exp = $this->parseExpression();
+                $this->criteria->where($exp);
+            }
+            return $this;
+        } catch (ExpressionException $exception) {
             throw new BadRequest($exception->getMessage(), $exception->getCode(), $exception);
         }
     }

@@ -75,7 +75,7 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
             'type' => $this->type,
             'id' => $this->id
         ];
-        if(!$this->getMeta()->isEmpty()){
+        if (!$this->getMeta()->isEmpty()) {
             $ret['meta'] = $this->getMeta();
         }
         return $ret;
