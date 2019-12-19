@@ -32,9 +32,11 @@ class DocumentTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        $cache = new SimpleCacheAdapter(new ArrayCache());
-        self::$factory = new MetadataFactory(__DIR__ . '/resources/', $cache);
-        self::$schema = Schema::fromJsonString(file_get_contents(__DIR__ . '/../schema.json'));
+        self::$factory = new MetadataFactory(
+            __DIR__ . '/resources/',
+            new SimpleCacheAdapter(new ArrayCache())
+        );
+        self::$schema = Schema::fromJsonString(file_get_contents(__DIR__ . '/resources/schema.json'));
         self::$validator = new Validator();
     }
 

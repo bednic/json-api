@@ -6,10 +6,10 @@ use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
-use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Driver\ReservedWord;
 use JSONAPI\Test\BadAnnotationPlacement;
 use JSONAPI\Test\GettersExample;
+use JSONAPI\Test\MetaExample;
 use JSONAPI\Test\NotResource;
 use JSONAPI\Test\PropsExample;
 use JSONAPI\Test\ReserveWords;
@@ -60,6 +60,17 @@ class AnnotationDriverTest extends TestCase
         $this->expectException(ReservedWord::class);
         $driver = new AnnotationDriver();
         $driver->getClassMetadata(get_class(new ReserveWords()));
+    }
+
+    public function testMetaAnnotation()
+    {
+        $driver = new AnnotationDriver();
+        $resource = new MetaExample('test');
+        $metadata = $driver->getClassMetadata(get_class($resource));
+        $this->assertInstanceOf(Meta::class, $metadata->getResource()->meta);
+        $this->assertEquals('getMeta', $metadata->getResource()->meta->getter);
+        $this->assertInstanceOf(Meta::class, $metadata->getRelationship('relation')->meta);
+        $this->assertEquals('getRelationMeta', $metadata->getRelationship('relation')->meta->getter);
     }
 
     /**
