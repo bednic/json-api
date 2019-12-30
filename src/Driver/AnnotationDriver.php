@@ -219,7 +219,6 @@ class AnnotationDriver implements DriverInterface
                     }
                     if ($attribute->type === 'array' && $attribute->of === null) {
                         $attribute->of = $this->tryGetArrayType($reflectionMethod);
-                        var_dump($attribute->of);
                     }
                     $attributes->set($attribute->name, $attribute);
 
