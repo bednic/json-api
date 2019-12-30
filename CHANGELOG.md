@@ -38,6 +38,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * `DriverInterface` to abstract future new drivers
 * `UriPartInterface` it's used for mark class as URI compatible and there is expectation serialization to string returns
   URI compatible string to be coupled as part of URL
+* `Annotation\Attribute::of` contains array item data type, it's not mandatory, but serve as information for OpenAPI
+  schema generator. 
 
 ### Changed
 * Library now requires 7.4 PHP version

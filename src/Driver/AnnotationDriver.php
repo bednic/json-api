@@ -135,7 +135,11 @@ class AnnotationDriver implements DriverInterface
                 if (!$attribute->property) {
                     $attribute->property = $reflectionProperty->getName();
                 }
-                $attribute->type = $reflectionProperty->getType() ? $reflectionProperty->getType()->getName() : null;
+                if (!$attribute->type) {
+                    $attribute->type = $reflectionProperty->getType() ?
+                        $reflectionProperty->getType()->getName() : null;
+                }
+
                 $attributes->set($attribute->name, $attribute);
                 $this->logger->debug('Found resource attribute ' . $attribute->name);
             }
@@ -197,10 +201,10 @@ class AnnotationDriver implements DriverInterface
                         );
                     }
                     $attribute->getter = $reflectionMethod->getName();
-
                     if (!$attribute->name) {
                         $attribute->name = $this->getName($reflectionMethod);
                     }
+                    $this->checkReservedNames($attribute->name);
 
                     if ($attribute->setter === null) {
                         $attribute->setter = $this->getSetter($reflectionClass, $attribute);
@@ -213,7 +217,10 @@ class AnnotationDriver implements DriverInterface
                             $attribute->type = $this->getSetterParameterType($reflectionClass, $attribute);
                         }
                     }
-                    $this->checkReservedNames($attribute->name);
+                    if ($attribute->type === 'array' && $attribute->of === null) {
+                        $attribute->of = $this->tryGetArrayType($reflectionMethod);
+                        var_dump($attribute->of);
+                    }
                     $attributes->set($attribute->name, $attribute);
 
                     $this->logger->debug('Found resource attribute ' . $attribute->name);
@@ -348,5 +355,24 @@ class AnnotationDriver implements DriverInterface
         if (in_array(strtolower($name), ['type', 'id'])) {
             throw new ReservedWord();
         }
+    }
+
+    /**
+     * @param ReflectionMethod|ReflectionProperty $reflection
+     *
+     * @return mixed|null
+     */
+    private function tryGetArrayType($reflection): ?string
+    {
+        if (
+            preg_match(
+                '~@return ((null|array)\|)*?((?P<type>\w+)\[\])(\|(null|array))*?~',
+                $reflection->getDocComment(),
+                $match
+            )
+        ) {
+            return $match['type'];
+        }
+        return null;
     }
 }

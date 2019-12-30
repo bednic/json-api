@@ -22,4 +22,10 @@ class Attribute extends Field
      * @var string
      */
     public ?string $type = null;
+
+    /**
+     * In case of type=array, this represents items data type
+     * @var string
+     */
+    public ?string $of = null;
 }

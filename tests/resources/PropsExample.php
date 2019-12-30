@@ -34,7 +34,7 @@ class PropsExample
 
     /**
      * @var array
-     * @API\Attribute
+     * @API\Attribute(of="int")
      */
     public array $arrayProperty = [1, 2, 3];
 

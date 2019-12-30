@@ -35,7 +35,6 @@
         "doctrine/collections": "^1.6",
         "fig/http-message-util": "^1.1",
         "myclabs/php-enum": "^1.7",
-        "opis/json-schema": "^1.0",
         "psr/http-factory": "^1.0",
         "psr/http-server-middleware": "^1.0",
         "psr/log": "^1.1",
@@ -43,6 +42,7 @@
     },
     "require-dev": {
         "doctrine/cache": "^1.8",
+        "opis/json-schema": "^1.0",
         "phpunit/phpunit": "^8",
         "roave/doctrine-simplecache": "^2.3",
         "slim/psr7": "^0.6.0",

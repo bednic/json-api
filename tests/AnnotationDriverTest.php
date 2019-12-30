@@ -13,6 +13,7 @@ use JSONAPI\Test\MetaExample;
 use JSONAPI\Test\NotResource;
 use JSONAPI\Test\PropsExample;
 use JSONAPI\Test\ReserveWords;
+use JSONAPI\Test\resources\DtoValue;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 
@@ -84,10 +85,16 @@ class AnnotationDriverTest extends TestCase
         $this->assertInstanceOf(Id::class, $metadata->getId());
         $this->assertInstanceOf(Resource::class, $metadata->getResource());
         $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('stringProperty'));
+        $this->assertEquals('string', $metadata->getAttribute('stringProperty')->type);
         $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('intProperty'));
+        $this->assertEquals('int', $metadata->getAttribute('intProperty')->type);
         $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('arrayProperty'));
+        $this->assertEquals('array', $metadata->getAttribute('arrayProperty')->type);
+        $this->assertEquals('int', $metadata->getAttribute('arrayProperty')->of);
         $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('boolProperty'));
+        $this->assertEquals('bool', $metadata->getAttribute('boolProperty')->type);
         $this->assertInstanceOf(Attribute::class, $metadata->getAttribute('dtoProperty'));
+        $this->assertEquals(DtoValue::class, $metadata->getAttribute('dtoProperty')->type);
         $this->assertInstanceOf(Relationship::class, $metadata->getRelationship('relation'));
         $this->assertInstanceOf(Relationship::class, $metadata->getRelationship('collection'));
     }

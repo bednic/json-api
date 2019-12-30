@@ -37,7 +37,7 @@ class GettersExample
     private int $intProperty = 1;
 
     /**
-     * @var array
+     * @var int[]
      */
     private array $arrayProperty = [1, 2, 3];
 
@@ -129,8 +129,10 @@ class GettersExample
     }
 
     /**
+     * Return array property value
+     *
      * @API\Attribute
-     * @return array
+     * @return int[]
      */
     public function getArrayProperty(): array
     {
