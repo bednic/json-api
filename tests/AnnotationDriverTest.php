@@ -77,10 +77,10 @@ class AnnotationDriverTest extends TestCase
     /**
      * @dataProvider classProvider
      */
-    public function testGetClassMetadata($instace)
+    public function testGetClassMetadata($instance)
     {
         $driver = new AnnotationDriver();
-        $metadata = $driver->getClassMetadata(get_class($instace));
+        $metadata = $driver->getClassMetadata(get_class($instance));
         $this->assertNotEmpty($metadata->getClassName());
         $this->assertInstanceOf(Id::class, $metadata->getId());
         $this->assertInstanceOf(Resource::class, $metadata->getResource());

@@ -3,10 +3,14 @@
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Cache\ArrayCache;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Criteria;
+use JSONAPI\Exception\Document\InclusionOverflow;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Test\DummyRelation;
 use JSONAPI\Test\GettersExample;
+use JSONAPI\Test\PropsExample;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\Fieldset\SortParser;
 use JSONAPI\Uri\Filtering\CriteriaFilterParser;
@@ -301,6 +305,20 @@ class DocumentTest extends TestCase
         $document->setPaginationParser($badParser);
     }
 
+    public function testSetMaxIncludedItems()
+    {
+        $this->expectException(InclusionOverflow::class);
+        $request = ServerRequestFactory::createFromGlobals();
+        $document = new Document(self::$factory, $request);
+        $document->setMaxIncludedItems(1);
+        $resource = new GettersExample('uuid');
+        $resource->setCollection(new ArrayCollection([
+            new DummyRelation('1'),
+            new DummyRelation('2'),
+        ]));
+        $document->setResource($resource);
+    }
+
     private function isValidJsonApiDocument(Document $document)
     {
         ini_set('xdebug.var_display_max_depth', 10);
@@ -311,4 +329,6 @@ class DocumentTest extends TestCase
         }
         return $result->isValid();
     }
+
+
 }

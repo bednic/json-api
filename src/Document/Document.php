@@ -11,6 +11,7 @@ namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\Document\DocumentException;
+use JSONAPI\Exception\Document\InclusionOverflow;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\Conflict;
@@ -91,6 +92,11 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      * @var ResourceObject[]
      */
     private array $included = [];
+
+    /**
+     * @var int
+     */
+    private int $maxIncludedItems = 250;
 
     /**
      * Helper map of existing resources
@@ -184,15 +190,15 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             $key = self::getKey($resource);
             $this->data = $resource;
             $this->keymap[$key] = true;
-            $this->setIncludes($this->inclusionParser->getInclusions(), $object);
+            $this->setIncludes($this->getInclusion()->getInclusions(), $object);
             $this->addLink($this->linkFactory->getDocumentLink(
                 LinkFactory::SELF,
                 $this->getPath(),
-                $this->getFilter(),
+                null,
                 $this->getInclusion(),
                 $this->getFieldset(),
-                $this->getPagination(),
-                $this->getSort()
+                null,
+                null
             ));
         }
     }
@@ -223,7 +229,7 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             if (!isset($this->keymap[$key])) {
                 $this->data[] = $this->getResourceObject($object, $metadata);
                 $this->keymap[$key] = true;
-                $this->setIncludes($this->inclusionParser->getInclusions(), $object);
+                $this->setIncludes($this->getInclusion()->getInclusions(), $object);
             }
         }
         $path = $this->getPath();
@@ -294,6 +300,14 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     public function getData()
     {
         return $this->data;
+    }
+
+    /**
+     * @param int $maxIncludedItems
+     */
+    public function setMaxIncludedItems(int $maxIncludedItems): void
+    {
+        $this->maxIncludedItems = $maxIncludedItems;
     }
 
     /**
@@ -513,28 +527,40 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             if (!empty($data)) {
                 if ($relationship->isCollection) {
                     foreach ($data as $item) {
-                        $relation = $this->encoder->encode($item);
-                        $key = self::getKey($relation);
-                        if (isset($key)) {
-                            $this->included[] = $relation;
-                            $this->keymap[$key] = true;
-                            if ($inclusion->hasInclusions()) {
-                                $this->setIncludes($inclusion->getInclusions(), $item);
-                            }
-                        }
+                        $this->addInclusion($item, $inclusion);
                     }
                 } else {
-                    $relation = $this->encoder->encode($data);
-                    $key = self::getKey($relation);
-                    if (!isset($this->keymap[$key])) {
-                        $this->included[] = $relation;
-                        $this->keymap[$key] = true;
-                        if ($inclusion->hasInclusions()) {
-                            $this->setIncludes($inclusion->getInclusions(), $data);
-                        }
-                    }
+                    $this->addInclusion($data, $inclusion);
                 }
             }
+        }
+    }
+
+    /**
+     * @param           $item
+     * @param Inclusion $inclusion
+     *
+     * @throws BadRequest
+     * @throws CacheException
+     * @throws DocumentException
+     * @throws DriverException
+     * @throws InvalidArgumentException
+     * @throws MetadataException
+     */
+    private function addInclusion($item, Inclusion $inclusion)
+    {
+        if (count($this->included) < $this->maxIncludedItems) {
+            $relation = $this->encoder->encode($item);
+            $key = self::getKey($relation);
+            if (!isset($this->keymap[$key])) {
+                $this->included[] = $relation;
+                $this->keymap[$key] = true;
+                if ($inclusion->hasInclusions()) {
+                    $this->setIncludes($inclusion->getInclusions(), $item);
+                }
+            }
+        } else {
+            throw new InclusionOverflow($this->maxIncludedItems);
         }
     }
 

@@ -101,13 +101,13 @@ class LinkFactory
     }
 
     /**
-     * @param string              $type
-     * @param PathInterface       $path
-     * @param FilterInterface     $filter
-     * @param InclusionInterface  $inclusion
-     * @param FieldsetInterface   $fieldset
-     * @param PaginationInterface $pagination
-     * @param SortInterface       $sort
+     * @param string                   $type
+     * @param PathInterface            $path
+     * @param FilterInterface|null     $filter
+     * @param InclusionInterface|null  $inclusion
+     * @param FieldsetInterface|null   $fieldset
+     * @param PaginationInterface|null $pagination
+     * @param SortInterface|null       $sort
      *
      * @return Link
      * @throws ForbiddenCharacter
@@ -116,11 +116,11 @@ class LinkFactory
     public function getDocumentLink(
         string $type,
         PathInterface $path,
-        FilterInterface $filter,
-        InclusionInterface $inclusion,
-        FieldsetInterface $fieldset,
-        PaginationInterface $pagination,
-        SortInterface $sort
+        ?FilterInterface $filter,
+        ?InclusionInterface $inclusion,
+        ?FieldsetInterface $fieldset,
+        ?PaginationInterface $pagination,
+        ?SortInterface $sort
     ): Link {
         $link = $this->url . (string)$path;
         $mark = '?';

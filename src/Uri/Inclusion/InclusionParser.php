@@ -28,18 +28,19 @@ class InclusionParser implements InclusionInterface
      */
     public function parse(string $data): InclusionInterface
     {
-
-        $this->data = $data;
-        $tree = [];
-        $t = explode(',', $data);
-        foreach ($t as $i) {
-            self::dot2tree($tree, $i, []);
-        }
         $this->inclusions = [];
-        foreach ($tree as $root => $branch) {
-            $this->inclusions[] = $parent = new Inclusion($root);
-            if ($branch) {
-                $this->makeInclusionTree($parent, $branch);
+        $this->data = $data;
+        if (strlen($data) > 0) {
+            $tree = [];
+            $t = explode(',', $data);
+            foreach ($t as $i) {
+                self::dot2tree($tree, $i, []);
+            }
+            foreach ($tree as $root => $branch) {
+                $this->inclusions[] = $parent = new Inclusion($root);
+                if ($branch) {
+                    $this->makeInclusionTree($parent, $branch);
+                }
             }
         }
         return $this;
