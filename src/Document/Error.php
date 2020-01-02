@@ -15,6 +15,7 @@ use JSONAPI\Exception\JsonApiException;
 use JSONAPI\LinksTrait;
 use JSONAPI\MetaTrait;
 use JsonSerializable;
+use Throwable;
 
 /**
  * Class Error
@@ -53,11 +54,11 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     private $source;
 
     /**
-     * @param Exception $exception
+     * @param Throwable $exception
      *
      * @return Error
      */
-    public static function fromException(Exception $exception)
+    public static function fromException(Throwable $exception)
     {
         $self = new static();
         $self->setTitle(get_class($exception));

@@ -9,13 +9,11 @@
 
 namespace JSONAPI\Middleware;
 
-use Exception;
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Metadata\MetadataFactory;
-use JsonException;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -25,6 +23,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use stdClass;
+use Throwable;
 
 /**
  * Class PsrJsonApiMiddleware
@@ -99,7 +98,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $document->loadRequestData($this->getBody());
             }
             $response = $handler->handle($request->withParsedBody($document));
-        } catch (Exception $exception) {
+        } catch (Throwable $exception) {
             $document = new Document($this->metadataFactory, $request, $this->logger);
             $error = Error::fromException($exception);
             $document->addError($error);
@@ -112,7 +111,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
 
     /**
      * @return stdClass
-     * @throws JsonException
+     * @throws \JsonException
      */
     private function getBody(): stdClass
     {
