@@ -213,7 +213,7 @@ class Encoder
         $encoder = $this->for($object);
         $resource = new ResourceObject($encoder->getIdentifier());
         $encoder->setFields($resource);
-        $resource->addLink($this->linkFactory->getResourceLinkage($resource));
+        $resource->addLink($this->linkFactory->getResourceLink($resource));
         return $resource;
     }
 
@@ -269,6 +269,7 @@ class Encoder
                     $relationship = new Document\Relationship($field->name, $data);
                     $relationship->addLink($this->linkFactory->getRelationshipLink($relationship, $resourceObject));
                     $relationship->addLink($this->linkFactory->getRelationLink($relationship, $resourceObject));
+                    //todo: links? next, prev ...
                     if ($meta) {
                         $relationship->setMeta($meta);
                     }

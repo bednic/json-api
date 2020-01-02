@@ -53,7 +53,7 @@ class LinkFactory
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    public function getResourceLinkage(ResourceObjectIdentifier $resource, Meta $meta = null): Link
+    public function getResourceLink(ResourceObjectIdentifier $resource, Meta $meta = null): Link
     {
         return new Link(self::SELF, $this->url . '/' . $resource->getType() . '/' . $resource->getId(), $meta);
     }
@@ -74,7 +74,7 @@ class LinkFactory
     ): Link {
         return new Link(
             self::SELF,
-            $this->getResourceLinkage($identifier)->getData() . '/relationships/' . $relationship->getKey(),
+            $this->getResourceLink($identifier)->getData() . '/relationships/' . $relationship->getKey(),
             $meta
         );
     }
@@ -95,7 +95,7 @@ class LinkFactory
     ): Link {
         return new Link(
             self::RELATED,
-            $this->getResourceLinkage($identifier)->getData() . '/' . $relationship->getKey(),
+            $this->getResourceLink($identifier)->getData() . '/' . $relationship->getKey(),
             $meta
         );
     }

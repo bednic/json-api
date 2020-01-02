@@ -41,6 +41,9 @@ class PathParser implements PathInterface
      */
     private bool $isRelationship = false;
 
+    /**
+     * @var string
+     */
     private string $method;
 
     /**
