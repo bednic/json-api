@@ -132,6 +132,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      */
     public function __toString(): string
     {
-        return urlencode('page[offset]=' . $this->getOffset() . '&page[limit]=' . $this->getLimit());
+        return rawurlencode('page[offset]') . '=' . $this->getOffset() . '&' . rawurlencode('page[limit]')
+            . '=' . $this->getLimit();
     }
 }

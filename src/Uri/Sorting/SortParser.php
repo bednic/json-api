@@ -49,14 +49,12 @@ class SortParser implements SortInterface
      */
     public function __toString(): string
     {
-
+        $str = '';
         if (count($this->sort) > 0) {
-            $str = '';
             foreach ($this->sort as $field => $sort) {
                 $str .= (strlen($str) > 0 ? ',' : '') . ($sort === 'DESC' ? '-' : '') . $field;
             }
-            return urlencode('sort=' . $str);
         }
-        return '';
+        return $str;
     }
 }

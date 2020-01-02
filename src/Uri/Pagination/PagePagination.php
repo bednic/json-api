@@ -23,6 +23,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface
 
     /**
      * Total pages count
+     *
      * @var int
      */
     private int $total;
@@ -41,6 +42,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface
 
     /**
      * Sets total pages count
+     *
      * @param int $total
      */
     public function setTotal(int $total): void
@@ -140,7 +142,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface
      */
     public function __toString(): string
     {
-        return urlencode('page[' . self::PAGE_NUMBER_KEY . ']=' . $this->getNumber()
-            . '&page[' . self::PAGE_SIZE_KEY . ']=' . $this->getSize());
+        return rawurlencode('page[' . self::PAGE_NUMBER_KEY . ']') . '=' . $this->getNumber()
+            . '&' . rawurlencode('page[' . self::PAGE_SIZE_KEY . ']') . '=' . $this->getSize();
     }
 }

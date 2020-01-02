@@ -45,8 +45,9 @@ class FieldsetParser implements FieldsetInterface
     {
         $str = '';
         foreach ($this->fields as $type => $fields) {
-            $str .= (strlen($str) > 0 ? '&' : '') . "fields[$type]=" . implode(',', $fields);
+            $str .= (strlen($str) > 0 ? '&' : '') . rawurlencode('fields[' . $type . ']') . '='
+                . implode(',', $fields);
         }
-        return urlencode($str);
+        return $str;
     }
 }

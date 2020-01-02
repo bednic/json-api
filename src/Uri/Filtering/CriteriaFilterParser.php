@@ -261,6 +261,6 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
 
     public function __toString(): string
     {
-        return urlencode($this->lexer ? 'filter=' . $this->lexer->getExpressionText() : '');
+        return $this->lexer ? 'filter=' . rawurlencode($this->lexer->getExpressionText()) : '';
     }
 }

@@ -87,6 +87,6 @@ class InclusionParser implements InclusionInterface
      */
     public function __toString(): string
     {
-        return urlencode(strlen($this->data) ? 'include=' . $this->data : '');
+        return strlen($this->data) ? 'include=' . $this->data : '';
     }
 }
