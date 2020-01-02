@@ -11,14 +11,11 @@ namespace JSONAPI\Middleware;
 
 use Exception;
 use Fig\Http\Message\RequestMethodInterface;
-use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Metadata\MetadataFactory;
 use JsonException;
-use Opis\JsonSchema\Schema;
-use Opis\JsonSchema\Validator;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
