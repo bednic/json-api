@@ -185,6 +185,15 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             $this->data = $resource;
             $this->keymap[$key] = true;
             $this->setIncludes($this->inclusionParser->getInclusions(), $object);
+            $this->addLink($this->linkFactory->getDocumentLink(
+                LinkFactory::SELF,
+                $this->getPath(),
+                $this->getFilter(),
+                $this->getInclusion(),
+                $this->getFieldset(),
+                $this->getPagination(),
+                $this->getSort()
+            ));
         }
     }
 
