@@ -91,7 +91,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      */
     public function next(): ?PaginationInterface
     {
-        if ($this->getOffset() < $this->total) {
+        if ($this->getOffset() + $this->getLimit() <= $this->total) {
             return new static($this->getOffset() + $this->getLimit(), $this->getLimit());
         }
         return null;
