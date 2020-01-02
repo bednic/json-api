@@ -10,7 +10,6 @@ use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Test\DummyRelation;
 use JSONAPI\Test\GettersExample;
-use JSONAPI\Test\PropsExample;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\Fieldset\SortParser;
 use JSONAPI\Uri\Filtering\CriteriaFilterParser;
@@ -224,13 +223,6 @@ class DocumentTest extends TestCase
         $request = ServerRequestFactory::createFromGlobals();
         $document = new Document(self::$factory, $request);
         $this->assertInstanceOf(PathInterface::class, $document->getPath());
-        //todo: own unit test, it does not belong here
-        //        $this->assertEquals('resource', $document->getPath()->getResourceType());
-        //        $this->assertEquals('id', $document->getPath()->getId());
-        //        $this->assertEquals('resource-relation', $document->getPath()->getRelationshipType());
-        //        $this->assertEquals('resource-relation', $document->getPath()->getPrimaryResourceType());
-        //        $this->assertTrue($document->getPath()->isRelationship());
-        //        $this->assertTrue($this->isValidJsonApiDocument($document));
     }
 
     public function testAddLink()
@@ -329,6 +321,4 @@ class DocumentTest extends TestCase
         }
         return $result->isValid();
     }
-
-
 }

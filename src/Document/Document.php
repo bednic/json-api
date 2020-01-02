@@ -16,6 +16,7 @@ use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\Conflict;
 use JSONAPI\Exception\Http\NotFound;
+use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\JsonDeserializable;
@@ -94,9 +95,11 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     private array $included = [];
 
     /**
+     * It's LimitOffsetPagination::limit * Encoder::relationshipLimit
+     *
      * @var int
      */
-    private int $maxIncludedItems = 250;
+    private int $maxIncludedItems = 625;
 
     /**
      * Helper map of existing resources
@@ -303,7 +306,9 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param int $maxIncludedItems
+     * @param int $maxIncludedItems Should by positive integer.
+     *                              Disable limit by passing -1,
+     *                              Disable inclusion by passing 0
      */
     public function setMaxIncludedItems(int $maxIncludedItems): void
     {
@@ -549,7 +554,13 @@ class Document implements JsonSerializable, HasLinks, HasMeta
      */
     private function addInclusion($item, Inclusion $inclusion)
     {
-        if (count($this->included) < $this->maxIncludedItems) {
+        if ($this->maxIncludedItems === 0) {
+            throw new UnsupportedParameter(UriPartInterface::INCLUSION_PART_KEY);
+        }
+        if (
+            $this->maxIncludedItems < 0
+            || count($this->included) < $this->maxIncludedItems
+        ) {
             $relation = $this->encoder->encode($item);
             $key = self::getKey($relation);
             if (!isset($this->keymap[$key])) {

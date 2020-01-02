@@ -40,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   URI compatible string to be coupled as part of URL
 * `Annotation\Attribute::of` contains array item data type, it's not mandatory, but serve as information for OpenAPI
   schema generator. 
+* `Document::setMaxIncludedItems` by this method is now possible to limit max included resources in compound document.
+  By this feature you can ensure performance. If you want to disable this feature, just pass `-1`. If you want disable 
+  inclusion just pass `0` and `BadRequest` will be thrown if someone send `include` parameter.
 
 ### Changed
 * Library now requires 7.4 PHP version

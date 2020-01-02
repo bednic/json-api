@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Exception\Document;
-
 
 class InclusionOverflow extends DocumentException
 {

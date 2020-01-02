@@ -10,6 +10,7 @@
 namespace JSONAPI\Document;
 
 use Fig\Http\Message\StatusCodeInterface;
+use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\LinksTrait;
 use JSONAPI\MetaTrait;
@@ -63,12 +64,16 @@ class Error implements JsonSerializable, HasLinks, HasMeta
         $self->setTitle(get_class($exception));
         $self->setCode($exception->getCode());
         $self->setDetail($exception->getMessage());
-        $self->setSource([
+        $source = [
             'location' => $exception->getFile() . ':' . $exception->getLine()
-        ]);
+        ];
         if ($exception instanceof JsonApiException) {
             $self->setStatus($exception->getStatus());
+            if ($exception instanceof UnsupportedParameter) {
+                $source['parameter'] = $exception->getParameter();
+            }
         }
+        $self->setSource($source);
         return $self;
     }
 
