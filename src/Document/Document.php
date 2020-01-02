@@ -469,6 +469,11 @@ class Document implements JsonSerializable, HasLinks, HasMeta
         return $resource;
     }
 
+    /**
+     * @param ResourceObjectIdentifier $resource
+     *
+     * @return string
+     */
     private static function getKey(ResourceObjectIdentifier $resource): string
     {
         return $resource->getType() . $resource->getId();
