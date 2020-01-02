@@ -6,7 +6,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 putenv("JSON_API_URL=http://unit.test.org");
 
-$_SERVER["REQUEST_URI"] = '/getter/uuid?filter=attribute eq value&include=relations,test.inclusion.parser,test.unit&fields[resource]=publicProperty,privateProperty,relations&sort=-publicProperty,privateProperty&page[offset]=10&page[limit]=20';
+$_SERVER["REQUEST_URI"] = "/getter/uuid?filter=attribute eq 'value'&include=relations,test.inclusion.parser,test.unit&fields[resource]=publicProperty,privateProperty,relations&sort=-publicProperty,privateProperty&page[offset]=10&page[limit]=20";
 $_SERVER["HTTP_HOST"] = "unit.test.org";
 $_SERVER["REQUEST_SCHEME"] = "http";
 $_SERVER["REQUEST_METHOD"] = "GET";

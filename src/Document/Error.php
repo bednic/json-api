@@ -9,7 +9,6 @@
 
 namespace JSONAPI\Document;
 
-use Exception;
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\LinksTrait;
@@ -64,6 +63,9 @@ class Error implements JsonSerializable, HasLinks, HasMeta
         $self->setTitle(get_class($exception));
         $self->setCode($exception->getCode());
         $self->setDetail($exception->getMessage());
+        $self->setSource([
+            'location' => $exception->getFile() . ':' . $exception->getLine()
+        ]);
         if ($exception instanceof JsonApiException) {
             $self->setStatus($exception->getStatus());
         }
@@ -139,8 +141,8 @@ class Error implements JsonSerializable, HasLinks, HasMeta
     {
         $ret = [
             'id' => $this->id,
-            'status' => (string) $this->status,
-            'code' => (string) $this->code,
+            'status' => (string)$this->status,
+            'code' => (string)$this->code,
             'title' => $this->title,
             'detail' => $this->detail,
         ];
