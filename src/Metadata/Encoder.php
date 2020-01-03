@@ -245,7 +245,7 @@ class Encoder
                     try {
                         $value = $this->ref->getProperty($field->property)->getValue($this->object);
                     } catch (ReflectionException $exception) {
-                        throw new MetadataException("Unknown Metadata Exception",540, $exception);
+                        throw new MetadataException("Unknown Metadata Exception", 540, $exception);
                     }
                 }
                 if ($field instanceof Annotation\Relationship) {
@@ -266,7 +266,6 @@ class Encoder
                         foreach ($value->slice(0, $limit) as $object) {
                             $data->add($this->for($object)->getIdentifier());
                         }
-
                     } elseif ($value) {
                         $data = $this->for($value)->getIdentifier();
                     }
