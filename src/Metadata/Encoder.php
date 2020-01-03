@@ -25,6 +25,8 @@ use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\LinkFactory;
+use JSONAPI\Uri\Path\PathInterface;
+use JSONAPI\Uri\Path\PathParser;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -243,12 +245,12 @@ class Encoder
                     try {
                         $value = $this->ref->getProperty($field->property)->getValue($this->object);
                     } catch (ReflectionException $exception) {
-                        throw new MetadataException($exception->getMessage(), 60, $exception);
+                        throw new MetadataException("Unknown Metadata Exception",540, $exception);
                     }
                 }
                 if ($field instanceof Annotation\Relationship) {
                     $data = null;
-                    $meta = null;
+                    $meta = new Document\Meta();
                     if ($field->meta) {
                         $meta = call_user_func([$this->object, $field->meta->getter]);
                     }
@@ -259,20 +261,19 @@ class Encoder
                         /** @var Collection $value */
                         $data = new ArrayCollection();
                         $total = $value->count();
+                        $meta->setProperty('total', $total);
                         $limit = min($this->relationshipLimit, $total);
                         foreach ($value->slice(0, $limit) as $object) {
                             $data->add($this->for($object)->getIdentifier());
                         }
+
                     } elseif ($value) {
                         $data = $this->for($value)->getIdentifier();
                     }
                     $relationship = new Document\Relationship($field->name, $data);
                     $relationship->addLink($this->linkFactory->getRelationshipLink($relationship, $resourceObject));
                     $relationship->addLink($this->linkFactory->getRelationLink($relationship, $resourceObject));
-                    //todo: links? next, prev ...
-                    if ($meta) {
-                        $relationship->setMeta($meta);
-                    }
+                    $relationship->setMeta($meta);
                     $resourceObject->addRelationship($relationship);
                     $this->logger->debug("Adding relationship {$name}.");
                 } elseif ($field instanceof Annotation\Attribute) {
