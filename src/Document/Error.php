@@ -65,7 +65,8 @@ class Error implements JsonSerializable, HasLinks, HasMeta
         $self->setCode($exception->getCode());
         $self->setDetail($exception->getMessage());
         $source = [
-            'location' => $exception->getFile() . ':' . $exception->getLine()
+            'location' => $exception->getFile() . ':' . $exception->getLine(),
+            'trace' => $exception->getTrace()
         ];
         if ($exception instanceof JsonApiException) {
             $self->setStatus($exception->getStatus());

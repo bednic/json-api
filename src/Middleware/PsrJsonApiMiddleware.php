@@ -99,6 +99,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             }
             $response = $handler->handle($request->withParsedBody($document));
         } catch (Throwable $exception) {
+            $this->logger->error($exception->getMessage());
             $document = new Document($this->metadataFactory, $request, $this->logger);
             $error = Error::fromException($exception);
             $document->addError($error);
