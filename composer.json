@@ -54,7 +54,11 @@
             "src/"
         ],
         "files": [
-            "src/Annotation/Annotations.php"
+            "src/Metadata/Resource.php",
+            "src/Metadata/Id.php",
+            "src/Metadata/Meta.php",
+            "src/Metadata/Attribute.php",
+            "src/Metadata/Relationship.php"
         ],
         "psr-4": {
             "JSONAPI\\": "src/"
@@ -62,7 +66,8 @@
     },
     "autoload-dev": {
         "classmap": [
-            "tests/"
+            "tests/",
+            "test-resources/"
         ],
         "psr-4": {
             "JSONAPI\\Test\\": "tests/"

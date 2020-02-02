@@ -10,14 +10,9 @@
 namespace JSONAPI\Metadata;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use JSONAPI\Annotation;
-use JSONAPI\Annotation\Attribute;
-use JSONAPI\Annotation\Id;
-use JSONAPI\Annotation\Meta;
-use JSONAPI\Annotation\Relationship;
-use JSONAPI\Annotation\Resource;
+use JSONAPI\Exception\Metadata\NameUsedAlready;
+use JSONAPI\Metadata;
 use JSONAPI\Exception\Metadata\AttributeNotFound;
-use JSONAPI\Exception\Metadata\MetaNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 
 /**
@@ -31,48 +26,71 @@ final class ClassMetadata
      * @var string
      */
     private string $className;
+    /**
+     * @var string
+     */
+    private string $type;
+    /**
+     * @var bool
+     */
+    private bool $readOnly;
 
     /**
-     * @var Id
+     * @var Metadata\Id
      */
-    private Id $id;
+    private Metadata\Id $id;
 
     /**
-     * @var Resource
+     * @var ArrayCollection|Field[]
      */
-    private Annotation\Resource $resource;
-
+    private ArrayCollection $fields;
     /**
-     * @var Attribute[]|ArrayCollection
+     * @var Meta|null
      */
-    private ArrayCollection $attributes;
-
-    /**
-     * @var Relationship[]|ArrayCollection
-     */
-    private ArrayCollection $relationships;
+    private ?Meta $meta;
 
     /**
      * ClassMetadata constructor.
      *
-     * @param string              $className
-     * @param Id                  $id
-     * @param Annotation\Resource $resource
-     * @param ArrayCollection     $attributes
-     * @param ArrayCollection     $relationships
+     * @param string         $className
+     * @param string         $type
+     * @param Metadata\Id    $id
+     * @param Attribute[]    $attributes
+     * @param Relationship[] $relationships
+     * @param bool           $readOnly
+     * @param Meta|null      $resourceMeta
+     *
+     * @throws NameUsedAlready
      */
     public function __construct(
         string $className,
-        Id $id,
-        Annotation\Resource $resource,
-        ArrayCollection $attributes,
-        ArrayCollection $relationships
+        string $type,
+        Metadata\Id $id,
+        iterable $attributes,
+        iterable $relationships,
+        bool $readOnly = false,
+        ?Meta $resourceMeta = null
     ) {
+        $this->fields = new ArrayCollection();
         $this->className = $className;
         $this->id = $id;
-        $this->resource = $resource;
-        $this->attributes = $attributes;
-        $this->relationships = $relationships;
+        $this->type = $type;
+        $this->readOnly = $readOnly;
+        $this->meta = $resourceMeta;
+        $this->fields->set('id', $id);
+        $this->fields->set('type', $type);
+        foreach ($attributes as $attribute) {
+            if ($this->fields->containsKey($attribute->name)) {
+                throw new NameUsedAlready($attribute->name);
+            }
+            $this->fields->set($attribute->name, $attribute);
+        }
+        foreach ($relationships as $relationship) {
+            if ($this->fields->containsKey($relationship->name)) {
+                throw new NameUsedAlready($relationship->name);
+            }
+            $this->fields->set($relationship->name, $relationship);
+        }
     }
 
     /**
@@ -91,20 +109,34 @@ final class ClassMetadata
         return $this->id;
     }
 
-    /**
-     * @return Annotation\Resource
-     */
-    public function getResource(): Annotation\Resource
+
+    public function getType(): string
     {
-        return $this->resource;
+        return $this->type;
     }
 
     /**
-     * @return Attribute[]|ArrayCollection
+     * @return bool
      */
-    public function getAttributes(): ArrayCollection
+    public function isReadOnly(): bool
     {
-        return $this->attributes;
+        return $this->readOnly;
+    }
+
+    /**
+     * @return Meta|null
+     */
+    public function getMeta(): ?Meta
+    {
+        return $this->meta;
+    }
+
+    /**
+     * @return Attribute[]
+     */
+    public function getAttributes(): array
+    {
+        return $this->fields->filter(fn($i) => $i instanceof Attribute)->toArray();
     }
 
     /**
@@ -115,18 +147,18 @@ final class ClassMetadata
      */
     public function getAttribute(string $name): Attribute
     {
-        if ($this->attributes->containsKey($name)) {
-            return $this->attributes->get($name);
+        if ($this->hasAttribute($name)) {
+            return $this->fields->get($name);
         }
-        throw new AttributeNotFound($name, $this->getResource()->type);
+        throw new AttributeNotFound($name, $this->type);
     }
 
     /**
-     * @return Relationship[]|ArrayCollection
+     * @return Relationship[]
      */
-    public function getRelationships(): ArrayCollection
+    public function getRelationships(): array
     {
-        return $this->relationships;
+        return $this->fields->filter(fn($i) => $i instanceof Relationship)->toArray();
     }
 
     /**
@@ -137,10 +169,10 @@ final class ClassMetadata
      */
     public function getRelationship(string $name): Relationship
     {
-        if ($this->relationships->containsKey($name)) {
-            return $this->relationships->get($name);
+        if ($this->hasRelationship($name)) {
+            return $this->fields->get($name);
         }
-        throw new RelationNotFound($name, $this->getResource()->type);
+        throw new RelationNotFound($name, $this->getType());
     }
 
     /**
@@ -148,9 +180,9 @@ final class ClassMetadata
      *
      * @return bool
      */
-    public function isRelationship(string $fieldName): bool
+    public function hasRelationship(string $fieldName): bool
     {
-        return $this->relationships->containsKey($fieldName);
+        return $this->fields->filter(fn($i) => $i instanceof Relationship)->containsKey($fieldName);
     }
 
     /**
@@ -158,8 +190,8 @@ final class ClassMetadata
      *
      * @return bool
      */
-    public function isAttribute(string $fieldName): bool
+    public function hasAttribute(string $fieldName): bool
     {
-        return $this->attributes->containsKey($fieldName);
+        return $this->fields->filter(fn($i) => $i instanceof Attribute)->containsKey($fieldName);
     }
 }

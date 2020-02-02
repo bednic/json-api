@@ -7,11 +7,6 @@ use JSONAPI\Uri\UriPartInterface;
 interface PaginationInterface extends UriPartInterface
 {
     /**
-     * @param $total
-     */
-    public function setTotal(int $total): void;
-
-    /**
      * @return PaginationInterface|null
      */
     public function next(): ?PaginationInterface;
@@ -22,9 +17,9 @@ interface PaginationInterface extends UriPartInterface
     public function prev(): ?PaginationInterface;
 
     /**
-     * @return PaginationInterface|null
+     * @return PaginationInterface
      */
-    public function first(): ?PaginationInterface;
+    public function first(): PaginationInterface;
 
     /**
      * @return PaginationInterface|null

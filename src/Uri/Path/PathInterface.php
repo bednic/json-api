@@ -26,22 +26,10 @@ interface PathInterface extends UriPartInterface
      * Returns field of relationship
      * @return string|null
      */
-    public function getRelationshipType(): ?string;
+    public function getRelationshipName(): ?string;
 
     /**
      * @return bool
      */
     public function isRelationship(): bool;
-
-    /**
-     * Return true if path points to collection
-     * @return bool
-     */
-    public function isCollection(): bool;
-
-    /**
-     * Return primary data Resource type
-     * @return string
-     */
-    public function getPrimaryResourceType(): string;
 }

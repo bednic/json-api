@@ -10,7 +10,7 @@ namespace JSONAPI\Exception\Metadata;
 class InvalidField extends MetadataException
 {
     protected $code = 542;
-    protected $message = "Field %s is not Attribute nor Relationship";
+    protected $message = "FieldMetadata %s is not AttributeMetadata nor Relationship";
 
     /**
      * InvalidField constructor.

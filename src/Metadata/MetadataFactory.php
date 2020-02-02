@@ -10,13 +10,11 @@
 namespace JSONAPI\Metadata;
 
 use JSONAPI\DoctrineProxyTrait;
-use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Driver\DriverInterface;
+use JSONAPI\Driver\Driver;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Exception\Metadata\ResourceTypeNotFound;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
@@ -42,9 +40,9 @@ class MetadataFactory
      */
     private CacheInterface $cache;
     /**
-     * @var DriverInterface
+     * @var Driver
      */
-    private DriverInterface $driver;
+    private Driver $driver;
     /**
      * @var LoggerInterface
      */
@@ -62,26 +60,26 @@ class MetadataFactory
      * MetadataFactory constructor.
      *
      * @param string               $pathToObjects
-     * @param DriverInterface      $driver
      * @param CacheInterface       $cache
+     * @param Driver               $driver
      * @param LoggerInterface|null $logger
      *
+     * @throws CacheException
      * @throws DriverException
      * @throws InvalidArgumentException
      */
-    public function __construct(
+    private function __construct(
         string $pathToObjects,
         CacheInterface $cache,
-        DriverInterface $driver = null,
+        Driver $driver,
         LoggerInterface $logger = null
     ) {
         if (!is_dir($pathToObjects)) {
-            throw new InvalidArgumentException("PathInterface to object is not directory.");
+            throw new InvalidArgumentException("Argument pathToObjects is not directory.");
         }
-
         $this->path = $pathToObjects;
         $this->cache = $cache;
-        $this->driver = $driver ?? new AnnotationDriver($logger);
+        $this->driver = $driver;
         $this->logger = $logger ?? new NullLogger();
         $this->load();
     }
@@ -90,86 +88,60 @@ class MetadataFactory
      * @param string $className
      *
      * @return ClassMetadata
+     * @throws CacheException
      * @throws DriverException
-     * @throws InvalidArgumentException
      */
-    public function getMetadataByClass(string $className): ClassMetadata
+    private function getMetadataByClass(string $className): ClassMetadata
     {
         $className = self::clearDoctrineProxyPrefix($className);
-        try {
-            if ($this->cache->has(slashToDot($className))) {
-                return $this->cache->get(slashToDot($className));
-            } else {
-                $classMetadata = $this->driver->getClassMetadata($className);
-                $this->cache->set(slashToDot($className), $classMetadata);
-                return $classMetadata;
-            }
-        } catch (CacheException $e) {
-            throw new InvalidArgumentException($e->getMessage(), 51, $e);
-        }
-    }
-
-    /**
-     * @param string $resourceType
-     *
-     * @return ClassMetadata
-     * @throws DriverException
-     * @throws InvalidArgumentException
-     * @throws ResourceTypeNotFound
-     */
-    public function getMetadataClassByType(string $resourceType): ClassMetadata
-    {
-        if ($className = $this->typeToClassMap[$resourceType]) {
-            return $this->getMetadataByClass($className);
+        if ($this->cache->has(slashToDot($className))) {
+            return $this->cache->get(slashToDot($className));
         } else {
-            throw new ResourceTypeNotFound($resourceType);
+            $classMetadata = $this->driver->getClassMetadata($className);
+            $this->cache->set(slashToDot($className), $classMetadata);
+            return $classMetadata;
         }
     }
 
     /**
      * @return ClassMetadata[]
      */
-    public function getAllMetadata(): array
+    private function getAllMetadata(): array
     {
         return $this->metadata;
     }
 
     /**
+     * @throws CacheException
      * @throws DriverException
-     * @throws InvalidArgumentException
      */
     private function load(): void
     {
-        try {
-            if ($this->cache->has(slashToDot(self::class))) {
-                foreach ($this->cache->get(slashToDot(self::class)) as $className) {
-                    $this->loadMetadata($className);
-                }
-            } else {
-                $this->createMetadataCache();
+        if ($this->cache->has(slashToDot(self::class))) {
+            foreach ($this->cache->get(slashToDot(self::class)) as $className) {
+                $this->loadMetadata($className);
             }
-        } catch (CacheException $e) {
-            throw new InvalidArgumentException($e->getMessage(), 51, $e);
+        } else {
+            $this->createMetadataCache();
         }
     }
 
     /**
      * @param string $className
      *
+     * @throws CacheException
      * @throws DriverException
-     * @throws InvalidArgumentException
      */
     private function loadMetadata(string $className)
     {
         $classMetadata = $this->getMetadataByClass($className);
         $this->metadata[$className] = $classMetadata;
-        $this->typeToClassMap[$classMetadata->getResource()->type] = $className;
+        $this->typeToClassMap[$classMetadata->getType()] = $className;
     }
 
-
     /**
+     * @throws CacheException
      * @throws DriverException
-     * @throws InvalidArgumentException
      */
     private function createMetadataCache(): void
     {
@@ -201,10 +173,31 @@ class MetadataFactory
                 // ignored
             }
         }
-        try {
-            $this->cache->set(slashToDot(self::class), array_keys($this->metadata));
-        } catch (CacheException $exception) {
-            throw new InvalidArgumentException($exception->getMessage(), 51, $exception);
+        $this->cache->set(slashToDot(self::class), array_keys($this->metadata));
+    }
+
+    /**
+     * @param string               $pathToObjects
+     * @param CacheInterface       $cache
+     * @param Driver               $driver
+     * @param LoggerInterface|null $logger
+     *
+     * @return MetadataRepository
+     * @throws CacheException
+     * @throws DriverException
+     * @throws InvalidArgumentException
+     */
+    public static function create(
+        string $pathToObjects,
+        CacheInterface $cache,
+        Driver $driver,
+        LoggerInterface $logger = null
+    ): MetadataRepository {
+        $self = new static($pathToObjects, $cache, $driver, $logger);
+        $repository = new MetadataRepository();
+        foreach ($self->getAllMetadata() as $metadata) {
+            $repository->add($metadata);
         }
+        return $repository;
     }
 }

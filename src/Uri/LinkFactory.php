@@ -9,12 +9,16 @@
 
 namespace JSONAPI\Uri;
 
+use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
 use JSONAPI\Document\Relationship;
+use JSONAPI\Document\ResourceCollection;
+use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
+use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\Filtering\FilterInterface;
 use JSONAPI\Uri\Inclusion\InclusionInterface;
@@ -38,66 +42,65 @@ class LinkFactory
     public const NEXT = 'next';
     public const PREV = 'prev';
 
-    private string $url = 'http://localhost';
-
-    public function __construct()
+    private static function getBaseUrl(): string
     {
-        $this->url = getenv(self::API_URL_ENV) ?? 'http://localhost';
+        return getenv(self::API_URL_ENV) ?? (
+                ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://'
+                . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ':'
+                . ($_SERVER['SERVER_PORT'] ?? '80')
+            );
+    }
+
+    /**
+     * @param ResourceObject $resource
+     * @param Meta|null      $meta
+     *
+     * @return ResourceObject
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    public static function setResourceLink(ResourceObject $resource, Meta $meta = null): ResourceObject
+    {
+        $resource->setLink(new Link(self::SELF, self::getResourceLink($resource), $meta));
+        return $resource;
     }
 
     /**
      * @param ResourceObjectIdentifier $resource
-     * @param Meta|null                $meta
      *
-     * @return Link
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
+     * @return string
      */
-    public function getResourceLink(ResourceObjectIdentifier $resource, Meta $meta = null): Link
+    private static function getResourceLink(ResourceObjectIdentifier $resource): string
     {
-        return new Link(self::SELF, $this->url . '/' . $resource->getType() . '/' . $resource->getId(), $meta);
+        $url = self::getBaseUrl();
+        return $url . '/' . $resource->getType() . '/' . $resource->getId();
     }
 
     /**
-     * @param Relationship             $relationship
-     * @param ResourceObjectIdentifier $identifier
-     * @param Meta|null                $meta
+     * @param Relationship   $relationship
+     * @param ResourceObject $resource
+     * @param Meta|null      $meta
      *
-     * @return Link
+     * @return Relationship
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    public function getRelationshipLink(
+    public static function setRelationshipLinks(
         Relationship $relationship,
-        ResourceObjectIdentifier $identifier,
+        ResourceObject $resource,
         Meta $meta = null
-    ): Link {
-        return new Link(
+    ): Relationship {
+        $relationship->setLink(new Link(
             self::SELF,
-            $this->getResourceLink($identifier)->getData() . '/relationships/' . $relationship->getKey(),
+            self::getResourceLink($resource) . '/relationships/' . $relationship->getKey(),
             $meta
-        );
-    }
-
-    /**
-     * @param Relationship             $relationship
-     * @param ResourceObjectIdentifier $identifier
-     * @param Meta|null                $meta
-     *
-     * @return Link
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     */
-    public function getRelationLink(
-        Relationship $relationship,
-        ResourceObjectIdentifier $identifier,
-        Meta $meta = null
-    ): Link {
-        return new Link(
+        ));
+        $relationship->setLink(new Link(
             self::RELATED,
-            $this->getResourceLink($identifier)->getData() . '/' . $relationship->getKey(),
+            self::getResourceLink($resource) . '/' . $relationship->getKey(),
             $meta
-        );
+        ));
+        return $relationship;
     }
 
     /**
@@ -113,7 +116,7 @@ class LinkFactory
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    public function getDocumentLink(
+    private static function createDocumentLink(
         string $type,
         PathInterface $path,
         ?FilterInterface $filter,
@@ -122,7 +125,8 @@ class LinkFactory
         ?PaginationInterface $pagination,
         ?SortInterface $sort
     ): Link {
-        $link = $this->url . (string)$path;
+        $url = self::getBaseUrl();
+        $link = $url . (string)$path;
         $mark = '?';
         if (strlen((string)$filter)) {
             $link .= $mark . $filter;
@@ -144,5 +148,90 @@ class LinkFactory
             $link .= $mark . $sort;
         }
         return new Link($type, $link);
+    }
+
+    /**
+     * @param Document  $document
+     * @param UriParser $parser
+     *
+     * @return Document
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws BadRequest
+     */
+    public static function setDocumentLinks(Document $document, UriParser $parser): Document
+    {
+        $path = $parser->getPath();
+        $filter = $parser->getFilter();
+        $inclusion = $parser->getInclusion();
+        $fieldset = $parser->getFieldset();
+        $sort = $parser->getSort();
+        $pagination = $parser->getPagination();
+        if ($document->getData() instanceof ResourceCollection) {
+            $document->setLink(self::createDocumentLink(
+                LinkFactory::SELF,
+                $path,
+                $filter,
+                $inclusion,
+                $fieldset,
+                $pagination,
+                $sort
+            ));
+            if ($first = $pagination->first()) {
+                $document->setLink(self::createDocumentLink(
+                    LinkFactory::FIRST,
+                    $path,
+                    $filter,
+                    $inclusion,
+                    $fieldset,
+                    $first,
+                    $sort
+                ));
+            }
+            if ($last = $pagination->last()) {
+                $document->setLink(self::createDocumentLink(
+                    LinkFactory::LAST,
+                    $path,
+                    $filter,
+                    $inclusion,
+                    $fieldset,
+                    $last,
+                    $sort
+                ));
+            }
+            if ($prev = $pagination->prev()) {
+                $document->setLink(self::createDocumentLink(
+                    LinkFactory::PREV,
+                    $path,
+                    $filter,
+                    $inclusion,
+                    $fieldset,
+                    $prev,
+                    $sort
+                ));
+            }
+            if ($next = $pagination->next()) {
+                $document->setLink(self::createDocumentLink(
+                    LinkFactory::NEXT,
+                    $path,
+                    $filter,
+                    $inclusion,
+                    $fieldset,
+                    $next,
+                    $sort
+                ));
+            }
+        } else {
+            $document->setLink(self::createDocumentLink(
+                LinkFactory::SELF,
+                $parser->getPath(),
+                null,
+                $parser->getInclusion(),
+                $parser->getFieldset(),
+                null,
+                null
+            ));
+        }
+        return $document;
     }
 }

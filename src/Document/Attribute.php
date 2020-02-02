@@ -10,7 +10,7 @@
 namespace JSONAPI\Document;
 
 /**
- * Class Attribute
+ * Class AttributeMetadata
  *
  * @package JSONAPI\Document
  */

@@ -12,21 +12,21 @@ namespace JSONAPI\Metadata;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\Annotation;
 use JSONAPI\DoctrineProxyTrait;
 use JSONAPI\Document;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
+use JSONAPI\Exception\Document\ReservedWord;
+use JSONAPI\Exception\Driver\ClassNotExist;
+use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Exception\Metadata\InvalidField;
-use JSONAPI\Exception\Metadata\MetadataException;
+use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\LinkFactory;
-use JSONAPI\Uri\Path\PathInterface;
-use JSONAPI\Uri\Path\PathParser;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -37,20 +37,25 @@ use ReflectionException;
  *
  * @package JSONAPI
  */
-class Encoder
+final class Encoder
 {
     use DoctrineProxyTrait;
 
     /**
-     * @var MetadataFactory
+     * @var MetadataRepository
      */
-    private MetadataFactory $metadataFactory;
+    private MetadataRepository $repository;
 
 
     /**
      * @var LoggerInterface
      */
     private LoggerInterface $logger;
+
+    /**
+     * @var ResourceObjectIdentifier|ResourceObject
+     */
+    private ResourceObjectIdentifier $resource;
 
     /**
      * @var object
@@ -78,27 +83,19 @@ class Encoder
     private FieldsetInterface $fieldset;
 
     /**
-     * @var LinkFactory
-     */
-    private LinkFactory $linkFactory;
-
-    /**
      * Encoder constructor.
      *
-     * @param MetadataFactory   $metadataFactory
-     * @param FieldsetInterface $fieldset
-     * @param LinkFactory       $linkFactory
-     * @param LoggerInterface   $logger
+     * @param MetadataRepository $metadataRepository
+     * @param FieldsetInterface  $fieldset
+     * @param LoggerInterface    $logger
      */
     public function __construct(
-        MetadataFactory $metadataFactory,
+        MetadataRepository $metadataRepository,
         FieldsetInterface $fieldset,
-        LinkFactory $linkFactory,
         LoggerInterface $logger = null
     ) {
-        $this->metadataFactory = $metadataFactory;
+        $this->repository = $metadataRepository;
         $this->fieldset = $fieldset;
-        $this->linkFactory = $linkFactory;
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -118,137 +115,163 @@ class Encoder
         $this->relationshipLimit = $relationshipLimit;
     }
 
+
     /**
      * @param $object
      *
      * @return ResourceObjectIdentifier
-     * @throws DriverException
+     * @throws ClassNotExist
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
+     * @throws MetadataNotFound
      */
-    public function identify($object): ResourceObjectIdentifier
+    public function getIdentifier($object): ResourceObjectIdentifier
     {
-        $encoder = $this->for($object);
-        return $encoder->getIdentifier();
-    }
-
-    /**
-     * @param $object
-     *
-     * @return Encoder
-     * @throws DriverException
-     * @throws InvalidArgumentException
-     */
-    private function for($object): Encoder
-    {
-        $encoder = clone $this;
-        try {
-            $className = self::clearDoctrineProxyPrefix(get_class($object));
-            $this->logger->debug("Init encoding of {$className}.");
-            $encoder->object = $object;
-            $encoder->metadata = $this->metadataFactory->getMetadataByClass($className);
-            $encoder->ref = new ReflectionClass($className);
-        } catch (ReflectionException $exception) { //NOSONAR
-        }
-        return $encoder;
-    }
-
-    /**
-     * @return ResourceObjectIdentifier
-     * @throws ForbiddenDataType
-     */
-    private function getIdentifier(): ResourceObjectIdentifier
-    {
-        $identifier = new ResourceObjectIdentifier($this->getType(), $this->getId());
-        $this->setMeta($identifier);
-        return $identifier;
-    }
-
-    /**
-     * @return string
-     */
-    private function getType(): string
-    {
-        return $this->metadata->getResource()->type;
-    }
-
-    /**
-     * @return string|null
-     */
-    private function getId(): ?string
-    {
-        try {
-            if ($this->metadata->getId()->getter != null) {
-                return (string)call_user_func([$this->object, $this->metadata->getId()->getter]);
-            } else {
-                return (string)$this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
-            }
-        } catch (ReflectionException $e) {
-            return null;
-        }
-    }
-
-    /**
-     * @param ResourceObjectIdentifier $identifier
-     */
-    private function setMeta(ResourceObjectIdentifier $identifier)
-    {
-        if ($meta = $this->metadata->getResource()->meta) {
-            $meta = call_user_func([$this->object, $meta->getter]);
-            $identifier->setMeta($meta);
-        }
+        return $this->for($object)->createIdentifier()->setMeta()->resource;
     }
 
     /**
      * @param $object
      *
      * @return ResourceObject
-     * @throws DriverException
+     * @throws ClassNotExist
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
-     * @throws MetadataException
+     * @throws InvalidField
+     * @throws MetadataNotFound
+     * @throws ReservedWord
      */
-    public function encode($object): ResourceObject
+    public function getResource($object): ResourceObject
     {
-        $encoder = $this->for($object);
-        $resource = new ResourceObject($encoder->getIdentifier());
-        $encoder->setFields($resource);
-        $resource->addLink($this->linkFactory->getResourceLink($resource));
-        return $resource;
+        return $this->for($object)->createResource()->setMeta()->setFields()->setLinks()->resource;
     }
 
     /**
-     * @param ResourceObject $resourceObject
-     *
-     * @throws DriverException
+     * @return $this
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws InvalidArgumentException
-     * @throws InvalidField
-     * @throws MetadataException
      */
-    private function setFields(Document\ResourceObject $resourceObject): void
+    private function createIdentifier(): self
+    {
+        $this->resource = new ResourceObjectIdentifier($this->getType(), $this->getId());
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function createResource(): self
+    {
+        $this->resource = new ResourceObject($this->getType(), $this->getId());
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function setLinks(): self
+    {
+        LinkFactory::setResourceLink($this->resource);
+        return $this;
+    }
+
+    /**
+     * @param $object
+     *
+     * @return Encoder
+     * @throws ClassNotExist
+     * @throws MetadataNotFound
+     */
+    private function for($object): Encoder
+    {
+        $encoder = clone $this;
+        $className = self::clearDoctrineProxyPrefix(get_class($object));
+        try {
+            $this->logger->debug("Init encoding of {$className}.");
+            $encoder->object = $object;
+            $encoder->metadata = $this->repository->getByClass($className);
+            $encoder->ref = new ReflectionClass($className);
+        } catch (ReflectionException $exception) {
+            throw new ClassNotExist($className);
+        }
+        return $encoder;
+    }
+
+    /**
+     * @return Document\Type
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function getType(): Document\Type
+    {
+        return new Document\Type($this->metadata->getType());
+    }
+
+    /**
+     * @return Document\Id
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function getId(): Document\Id
+    {
+        $value = null;
+        if ($this->metadata->getId()->property != null) {
+            try {
+                $value = (string)$this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
+            } catch (ReflectionException $ignored) {
+                // NO SONAR
+            }
+        } else {
+            $value = (string)call_user_func([$this->object, $this->metadata->getId()->getter]);
+        }
+        return new Document\Id($value);
+    }
+
+    /**
+     * @return $this
+     */
+    private function setMeta(): self
+    {
+        if ($meta = $this->metadata->getMeta()) {
+            $meta = call_user_func([$this->object, $meta->getter]);
+            $this->resource->setMeta($meta);
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws ClassNotExist
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws InvalidField
+     * @throws MetadataNotFound
+     * @throws ReservedWord
+     */
+    private function setFields(): self
     {
         foreach (
             array_merge(
-                $this->metadata->getAttributes()->toArray(),
-                $this->metadata->getRelationships()->toArray()
+                $this->metadata->getAttributes(),
+                $this->metadata->getRelationships()
             ) as $name => $field
         ) {
-            if ($this->fieldset->showField($resourceObject->getType(), $name)) {
+            if ($this->fieldset->showField($this->resource->getType(), $name)) {
                 $value = null;
                 if ($field->getter != null) {
                     $value = call_user_func([$this->object, $field->getter]);
                 } else {
                     try {
                         $value = $this->ref->getProperty($field->property)->getValue($this->object);
-                    } catch (ReflectionException $exception) {
-                        throw new MetadataException("Unknown Metadata Exception", 540, $exception);
+                    } catch (ReflectionException $ignored) {
+                        // NO SONAR Can't happen
                     }
                 }
-                if ($field instanceof Annotation\Relationship) {
+                if ($field instanceof Relationship) {
                     $data = null;
                     $meta = new Document\Meta();
                     if ($field->meta) {
@@ -264,28 +287,28 @@ class Encoder
                         $meta->setProperty('total', $total);
                         $limit = min($this->relationshipLimit, $total);
                         foreach ($value->slice(0, $limit) as $object) {
-                            $data->add($this->for($object)->getIdentifier());
+                            $data->add($this->getIdentifier($object));
                         }
                     } elseif ($value) {
-                        $data = $this->for($value)->getIdentifier();
+                        $data = $this->getIdentifier($value);
                     }
                     $relationship = new Document\Relationship($field->name, $data);
-                    $relationship->addLink($this->linkFactory->getRelationshipLink($relationship, $resourceObject));
-                    $relationship->addLink($this->linkFactory->getRelationLink($relationship, $resourceObject));
+                    LinkFactory::setRelationshipLinks($relationship, $this->resource);
                     $relationship->setMeta($meta);
-                    $resourceObject->addRelationship($relationship);
+                    $this->resource->addRelationship($relationship);
                     $this->logger->debug("Adding relationship {$name}.");
-                } elseif ($field instanceof Annotation\Attribute) {
+                } elseif ($field instanceof Attribute) {
                     if ($value instanceof DateTimeInterface) {
                         // ISO 8601
                         $value = $value->format(DATE_ATOM);
                     }
                     $this->logger->debug("Adding attribute {$name}.");
-                    $resourceObject->addAttribute(new Document\Attribute($name, $value));
+                    $this->resource->addAttribute(new Document\Attribute($name, $value));
                 } else {
                     throw new InvalidField($name);
                 }
             }
         }
+        return $this;
     }
 }

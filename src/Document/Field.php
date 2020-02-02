@@ -7,12 +7,13 @@ use JSONAPI\Exception\Document\ForbiddenDataType;
 use JsonSerializable;
 
 /**
- * Class Field
+ * Class FieldMetadata
  *
  * @package JSONAPI\Document
  */
 abstract class Field implements JsonSerializable
 {
+
     /**
      * @var string
      */
@@ -23,7 +24,7 @@ abstract class Field implements JsonSerializable
     protected $data;
 
     /**
-     * Field constructor.
+     * FieldMetadata constructor.
      *
      * @param string $key
      * @param        $data
@@ -52,10 +53,31 @@ abstract class Field implements JsonSerializable
      */
     protected function setKey(string $key): void
     {
-        if (!preg_match("/(^[a-zA-Z0-9])(([a-zA-Z-_]+)([a-zA-Z0-9]))?$/", $key)) {
+        if (!preg_match("/(^[a-zA-Z0-9])(([a-zA-Z0-9-_]*)([a-zA-Z0-9]))$/", $key)) {
             throw new ForbiddenCharacter($key);
         }
         $this->key = $key;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getData()
+    {
+        return $this->data;
+    }
+
+    /**
+     * @param mixed $data
+     *
+     * @throws ForbiddenDataType
+     */
+    protected function setData($data): void
+    {
+        if (!in_array(gettype($data), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
+            throw new ForbiddenDataType(gettype($data));
+        }
+        $this->data = $data;
     }
 
     /**
@@ -69,26 +91,5 @@ abstract class Field implements JsonSerializable
     public function jsonSerialize()
     {
         return $this->getData();
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    /**
-     * @param $data
-     *
-     * @throws ForbiddenDataType
-     */
-    protected function setData($data): void
-    {
-        if (!in_array(gettype($data), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
-            throw new ForbiddenDataType(gettype($data));
-        }
-        $this->data = $data;
     }
 }

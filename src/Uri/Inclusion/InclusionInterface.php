@@ -15,4 +15,9 @@ interface InclusionInterface extends UriPartInterface
      * @return Inclusion[]
      */
     public function getInclusions(): array;
+
+    /**
+     * @return bool
+     */
+    public function hasInclusions(): bool;
 }

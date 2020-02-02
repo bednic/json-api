@@ -9,9 +9,10 @@
 
 namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use JSONAPI\Exception\Document\ForbiddenDataType;
+use JSONAPI\Exception\Document\ReservedWord;
+use JSONAPI\Exception\Metadata\AttributeNotFound;
+use JSONAPI\Exception\Metadata\InvalidField;
+use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\LinksTrait;
 
 /**
@@ -19,72 +20,84 @@ use JSONAPI\LinksTrait;
  *
  * @package JSONAPI\Document
  */
-class ResourceObject extends ResourceObjectIdentifier implements HasLinks
+class ResourceObject extends ResourceObjectIdentifier implements HasLinks, PrimaryData
 {
     use LinksTrait;
 
     /**
-     * @var Collection|Field[]
-     */
-    private Collection $fields;
-
-    /**
-     * ResourceObject constructor.
-     *
-     * @param ResourceObjectIdentifier $resourceIdentifier
-     */
-    public function __construct(ResourceObjectIdentifier $resourceIdentifier)
-    {
-        parent::__construct($resourceIdentifier->type, $resourceIdentifier->id);
-        $this->fields = new ArrayCollection();
-    }
-
-    /**
      * @param Attribute $attribute
+     *
+     * @throws ReservedWord
      */
     public function addAttribute(Attribute $attribute)
     {
-        $this->fields->set($attribute->getKey(), $attribute);
+        $this->addField($attribute);
     }
 
     /**
-     * Function return Attribute or null if doesn't exist
+     * Function return AttributeMetadata or null if doesn't exist
      *
      * @param string $key
      *
-     * @return Attribute|null
+     * @return mixed
+     * @throws AttributeNotFound
      */
-    public function getAttribute(string $key): ?Attribute
+    public function getAttribute(string $key)
     {
-        $attribute = $this->fields->get($key);
-        if ($attribute instanceof Attribute) {
-            return $this->fields->get($key);
+        if (!$this->fields->containsKey($key) || !($this->fields->get($key) instanceof Attribute)) {
+            throw new AttributeNotFound($key, $this->getType());
         }
-        return null;
+        return $this->fields->get($key)->getData();
     }
 
     /**
      * @param Relationship $relationship
+     *
+     * @throws ReservedWord
      */
     public function addRelationship(Relationship $relationship)
     {
-        $this->fields->set($relationship->getKey(), $relationship);
+        $this->addField($relationship);
     }
 
     /**
-     * Returns Relationship or null if doesn't exist
-     *
      * @param string $key
      *
-     * @return Relationship | null
+     * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
+     * @throws RelationNotFound
      */
-    public function getRelationship(string $key): ?Relationship
+    public function getRelationship(string $key)
     {
-        $relationship = $this->fields->get($key);
-        if ($relationship instanceof Relationship) {
-            return $this->fields->get($key);
+        if (!$this->fields->containsKey($key) || !($this->fields->get($key) instanceof Relationship)) {
+            throw new RelationNotFound($key, $this->getType());
         }
-        return null;
+        return $this->fields->get($key)->getData();
+    }
+
+    /**
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        return $this->fields->filter(function ($element) {
+            return $element instanceof Attribute;
+        })->map(function ($element) {
+            /** @var Relationship $element */
+            return $element->getData();
+        })->toArray();
+    }
+
+    /**
+     * @return array
+     */
+    public function getRelationships(): array
+    {
+        return $this->fields->filter(function ($element) {
+            return $element instanceof Relationship;
+        })->map(function ($element) {
+            /** @var Relationship $element */
+            return $element->getData();
+        })->toArray();
     }
 
     /**
@@ -108,25 +121,5 @@ class ResourceObject extends ResourceObjectIdentifier implements HasLinks
             $ret['links'] = $this->getLinks();
         }
         return $ret;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAttributes(): array
-    {
-        return $this->fields->filter(function ($element) {
-            return $element instanceof Attribute;
-        })->toArray();
-    }
-
-    /**
-     * @return array
-     */
-    public function getRelationships(): array
-    {
-        return $this->fields->filter(function ($element) {
-            return $element instanceof Relationship;
-        })->toArray();
     }
 }

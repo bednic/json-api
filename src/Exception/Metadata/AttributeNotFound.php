@@ -5,7 +5,7 @@ namespace JSONAPI\Exception\Metadata;
 class AttributeNotFound extends MetadataException
 {
     protected $code = 541;
-    protected $message = "Attribute name %s does not exist on Resource %s.";
+    protected $message = "AttributeMetadata name %s does not exist on ResourceMetadata %s.";
 
     /**
      * RelationNotFound constructor.

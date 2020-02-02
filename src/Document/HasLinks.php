@@ -12,7 +12,7 @@ interface HasLinks
     /**
      * @param Link $link
      */
-    public function addLink(Link $link): void;
+    public function setLink(Link $link): void;
 
     /**
      * @return array

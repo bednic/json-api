@@ -10,7 +10,7 @@ namespace JSONAPI\Uri\Inclusion;
 class Inclusion
 {
     /**
-     * @var string Resource type
+     * @var string ResourceMetadata type
      */
     private string $relationName;
 
