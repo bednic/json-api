@@ -27,28 +27,11 @@ class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
     use MetaTrait;
 
     /**
-     * @return array|mixed
-     */
-    public function jsonSerialize()
-    {
-        $ret = [
-            'data' => $this->getData()
-        ];
-        if ($this->hasLinks()) {
-            $ret['links'] = $this->getLinks();
-        }
-        if (!$this->getMeta()->isEmpty()) {
-            $ret['meta'] = $this->getMeta();
-        }
-        return $ret;
-    }
-
-    /**
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      */
     public function getData()
     {
-        if ($this->isCollection()) {
+        if ($this->data instanceof Collection) {
             return $this->data->toArray();
         }
         return $this->data;
@@ -69,10 +52,19 @@ class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @return bool
+     * @return array|mixed
      */
-    public function isCollection(): bool
+    public function jsonSerialize()
     {
-        return $this->data instanceof Collection;
+        $ret = [
+            'data' => $this->getData()
+        ];
+        if ($this->hasLinks()) {
+            $ret['links'] = $this->getLinks();
+        }
+        if (!$this->getMeta()->isEmpty()) {
+            $ret['meta'] = $this->getMeta();
+        }
+        return $ret;
     }
 }

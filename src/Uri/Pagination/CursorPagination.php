@@ -9,7 +9,7 @@ namespace JSONAPI\Uri\Pagination;
  *
  * @package JSONAPI\Uri\PaginationInterface
  */
-abstract class CursorPagination implements PaginationInterface
+abstract class CursorPagination implements PaginationInterface, PaginationParserInterface
 {
     /**
      * @var string
@@ -20,11 +20,6 @@ abstract class CursorPagination implements PaginationInterface
      * @return mixed
      */
     abstract public function getCursor(): string;
-
-    public function setTotal(int $total): void
-    {
-        // does nothing, cause cursor doesn't use total
-    }
 
     /**
      * @param array $data

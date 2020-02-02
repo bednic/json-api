@@ -9,7 +9,9 @@
 
 namespace JSONAPI\Document;
 
-use JSONAPI\Exception\Document\ForbiddenDataType;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use JSONAPI\Exception\Document\ReservedWord;
 use JSONAPI\MetaTrait;
 use JsonSerializable;
 
@@ -18,30 +20,30 @@ use JsonSerializable;
  *
  * @package JSONAPI\Document
  */
-class ResourceObjectIdentifier implements JsonSerializable, HasMeta
+class ResourceObjectIdentifier implements JsonSerializable, HasMeta, PrimaryData
 {
     use MetaTrait;
 
     /**
-     * @var string
+     * @var Collection|Field[]
      */
-    protected string $type;
-
-    /**
-     * @var string|int|null
-     */
-    protected ?string $id;
+    protected Collection $fields;
 
     /**
      * ResourceObjectIdentifier constructor.
      *
-     * @param string      $type
-     * @param string|null $id
+     * @param Type $type
+     * @param Id   $id
      */
-    public function __construct(string $type, ?string $id)
+    public function __construct(Type $type, Id $id)
     {
-        $this->type = $type;
-        $this->id = $id;
+        $this->fields = new ArrayCollection();
+        try {
+            $this->addField($type);
+            $this->addField($id);
+        } catch (ReservedWord $ignored) {
+            // NO-SONAR
+        }
     }
 
     /**
@@ -49,7 +51,10 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
      */
     public function getId(): ?string
     {
-        return $this->id;
+        if ($this->fields->get('id') !== null) {
+            return $this->fields->get('id')->getData();
+        }
+        return null;
     }
 
     /**
@@ -57,9 +62,21 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
      */
     public function getType(): string
     {
-        return $this->type;
+        return $this->fields->get('type')->getData();
     }
 
+    /**
+     * @param Field $field
+     *
+     * @throws ReservedWord
+     */
+    protected function addField(Field $field): void
+    {
+        if ($this->fields->containsKey($field->getKey())) {
+            throw new ReservedWord($field->getKey());
+        }
+        $this->fields->set($field->getKey(), $field);
+    }
 
     /**
      * Specify data which should be serialized to JSON
@@ -72,8 +89,8 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta
     public function jsonSerialize()
     {
         $ret = [
-            'type' => $this->type,
-            'id' => $this->id
+            'type' => $this->fields->get('type'),
+            'id' => $this->fields->get('id')
         ];
         if (!$this->getMeta()->isEmpty()) {
             $ret['meta'] = $this->getMeta();

@@ -36,7 +36,7 @@ abstract class Common
     protected $id;
 
     /**
-     * @API\Id
+     * IdMetadata
      * @return string
      */
     public function getId(): string
@@ -48,13 +48,13 @@ abstract class Common
 /**
  * Class ObjectExample
  *
- * @API\Resource("resource")
+ * ResourceMetadata("resource")
  */
 class ObjectExample extends Common
 {
     protected $id = 'uuid';
     /**
-     * @API\Attribute
+     * AttributeMetadata
      * @var string
      */
     public $publicProperty = 'public-value';
@@ -75,7 +75,7 @@ class ObjectExample extends Common
     private $relations = [];
 
     /**
-     * @API\Attribute
+     * AttributeMetadata
      * @return string
      */
     public function getPrivateProperty(): string
@@ -92,7 +92,7 @@ class ObjectExample extends Common
     }
 
     /**
-     * @API\Attribute(setter=false)
+     * AttributeMetadata(setter=false)
      * @return string
      */
     public function getReadOnlyProperty(): string
@@ -124,7 +124,7 @@ class ObjectExample extends Common
 /**
  * Class RelationExample
  *
- * @API\Resource("resource-relation")
+ * ResourceMetadata("resource-relation")
  */
 class RelationExample extends Common
 {

@@ -2,12 +2,7 @@
 
 namespace JSONAPI\Uri\Path;
 
-use Fig\Http\Message\RequestMethodInterface;
-use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
-use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Exception\Metadata\MetadataException;
-use JSONAPI\Metadata\MetadataFactory;
 
 /**
  * Class PathParser
@@ -16,10 +11,7 @@ use JSONAPI\Metadata\MetadataFactory;
  */
 class PathParser implements PathInterface
 {
-    /**
-     * @var MetadataFactory
-     */
-    private MetadataFactory $factory;
+
 
     /**
      * @var string
@@ -34,7 +26,7 @@ class PathParser implements PathInterface
     /**
      * @var string|null
      */
-    private ?string $relationshipField = null;
+    private ?string $relationship = null;
 
     /**
      * @var bool
@@ -42,56 +34,36 @@ class PathParser implements PathInterface
     private bool $isRelationship = false;
 
     /**
-     * @var string
-     */
-    private string $method;
-
-    /**
      * PathParser constructor.
-     *
-     * @param MetadataFactory $metadataFactory
      */
-    public function __construct(MetadataFactory $metadataFactory)
+    public function __construct()
     {
-        $this->factory = $metadataFactory;
     }
 
     /**
      * @param string $data
-     * @param string $method
      *
      * @return PathInterface
      * @throws BadRequest
      */
-    public function parse(string $data, string $method): PathInterface
+    public function parse(string $data): PathInterface
     {
-
-        if (
-            !in_array(
-                $method,
-                [
-                RequestMethodInterface::METHOD_GET,
-                RequestMethodInterface::METHOD_POST,
-                RequestMethodInterface::METHOD_PUT,
-                RequestMethodInterface::METHOD_PATCH
-                ]
-            )
-        ) {
-            throw new BadRequest("Request method $method is not supported.");
-        }
-        $this->method = $method;
+        $resourceKey = 'resource';
+        $idKey = 'id';
+        $relationshipKey = 'relationship';
+        $relatedKey = 'related';
         $pattern = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
 
         if (preg_match($pattern, $data, $matches)) {
-            $this->resource = $matches['resource'];
-            $this->id = isset($matches['id']) ? $matches['id'] : null;
-            if (isset($matches['relationship']) && strlen($matches['relationship']) > 0) {
+            $this->resource = $matches[$resourceKey];
+            $this->id = isset($matches[$idKey]) ? $matches[$idKey] : null;
+            if (isset($matches[$relationshipKey]) && strlen($matches[$relationshipKey]) > 0) {
                 $this->isRelationship = true;
-                $this->relationshipField = $matches['relationship'];
-            } elseif (isset($matches['related']) && strlen($matches['related']) > 0) {
+                $this->relationship = $matches[$relationshipKey];
+            } elseif (isset($matches[$relatedKey]) && strlen($matches[$relatedKey]) > 0) {
                 $this->isRelationship = false;
-                $this->relationshipField = $matches['related'];
+                $this->relationship = $matches[$relatedKey];
             }
         } else {
             throw new BadRequest("Invalid URL");
@@ -99,6 +71,9 @@ class PathParser implements PathInterface
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function getResourceType(): string
     {
         return $this->resource;
@@ -113,28 +88,6 @@ class PathParser implements PathInterface
     }
 
     /**
-     * @return string
-     * @throws DriverException
-     * @throws InvalidArgumentException
-     * @throws MetadataException
-     */
-    public function getRelationshipType(): ?string
-    {
-        if ($this->relationshipField) {
-            return $this->factory
-                ->getMetadataByClass(
-                    $this->factory
-                        ->getMetadataClassByType($this->resource)
-                        ->getRelationship($this->relationshipField)
-                        ->target
-                )
-                ->getResource()
-                ->type;
-        }
-        return null;
-    }
-
-    /**
      * @return bool
      */
     public function isRelationship(): bool
@@ -143,41 +96,13 @@ class PathParser implements PathInterface
     }
 
     /**
-     * @return string
-     * @throws DriverException
-     * @throws InvalidArgumentException
-     * @throws MetadataException
-     */
-    public function getPrimaryResourceType(): string
-    {
-        return $this->getRelationshipType() ?? $this->factory->getMetadataClassByType(
-            $this->getResourceType()
-        )->getResource()->type;
-    }
-
-    /**
      * Method returns if endpoint represents collection
      *
-     * @return bool
-     * @throws DriverException
-     * @throws InvalidArgumentException
-     * @throws MetadataException
+     * @return string|null
      */
-    public function isCollection(): bool
+    public function getRelationshipName(): ?string
     {
-        if ($this->getRelationshipType()) {
-            return $this->factory
-                ->getMetadataClassByType($this->getResourceType())
-                ->getRelationship($this->getRelationshipType())
-                ->isCollection;
-        }
-        if ($this->getId()) {
-            return false;
-        }
-        if ($this->method === RequestMethodInterface::METHOD_POST) {
-            return false;
-        }
-        return true;
+        return $this->relationship;
     }
 
     /**
@@ -188,11 +113,11 @@ class PathParser implements PathInterface
         $str = '/' . $this->resource;
         if ($this->id) {
             $str .= '/' . $this->id;
-            if ($this->relationshipField) {
+            if ($this->relationship) {
                 if ($this->isRelationship) {
                     $str .= '/relationships';
                 }
-                $str .= '/' . $this->relationshipField;
+                $str .= '/' . $this->relationship;
             }
         }
         return $str;

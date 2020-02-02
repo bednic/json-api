@@ -5,7 +5,7 @@ namespace JSONAPI\Exception\Driver;
 /**
  * Class MethodNotExist
  *
- * @package JSONAPI\Exception\Driver
+ * @package JSONAPI\Exception\AnnotationDriver
  */
 class MethodNotExist extends DriverException
 {

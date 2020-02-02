@@ -70,6 +70,15 @@ class InclusionParser implements InclusionInterface
     }
 
     /**
+     * @return bool
+     */
+    public function hasInclusions(): bool
+    {
+        return count($this->inclusions) > 0;
+    }
+
+
+    /**
      * @param $arr
      * @param $path
      * @param $value

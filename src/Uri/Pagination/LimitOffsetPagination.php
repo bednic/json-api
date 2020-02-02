@@ -7,7 +7,7 @@ namespace JSONAPI\Uri\Pagination;
  *
  * @package JSONAPI\Query
  */
-class LimitOffsetPagination implements PaginationInterface, PaginationParserInterface
+class LimitOffsetPagination implements PaginationInterface, PaginationParserInterface, UseTotalCount
 {
 
     /**
@@ -21,9 +21,11 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     private int $limit;
 
     /**
-     * @var int
+     * Total items, e.g. in database. It's used for calculating last
+     *
+     * @var int|null
      */
-    private int $total;
+    private ?int $total = null;
 
     /**
      * LimitOffsetPagination constructor.
@@ -91,10 +93,16 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      */
     public function next(): ?PaginationInterface
     {
-        if ($this->getOffset() + $this->getLimit() <= $this->total) {
-            return new static($this->getOffset() + $this->getLimit(), $this->getLimit());
+        $static = null;
+        if ($this->total !== null) {
+            if ($this->getOffset() + $this->getLimit() <= $this->total) {
+                $static = new static($this->getOffset() + $this->getLimit(), $this->getLimit());
+                $static->setTotal($this->total);
+            }
+        } else {
+            $static = new static($this->getOffset() + $this->getLimit(), $this->getLimit());
         }
-        return null;
+        return $static;
     }
 
     /**
@@ -103,17 +111,24 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     public function prev(): ?PaginationInterface
     {
         if ($this->getOffset() - $this->getLimit() >= 0) {
-            return new static($this->getOffset() - $this->getLimit(), $this->getLimit());
+            $static = new static($this->getOffset() - $this->getLimit(), $this->getLimit());
+            if ($this->total !== null) {
+                $static->setTotal($this->total);
+            }
         }
         return null;
     }
 
     /**
-     * @return PaginationInterface|null
+     * @return PaginationInterface
      */
-    public function first(): ?PaginationInterface
+    public function first(): PaginationInterface
     {
-        return new static(0, $this->getLimit());
+        $static = new static(0, $this->getLimit());
+        if ($this->total !== null) {
+            $static->setTotal($this->total);
+        }
+        return $static;
     }
 
     /**
@@ -121,8 +136,10 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      */
     public function last(): ?PaginationInterface
     {
-        if (is_int($this->total)) {
-            return new static(max(0, $this->total - $this->getLimit()), $this->getLimit());
+        if ($this->total !== null) {
+            $static = new static(max(0, $this->total - $this->getLimit()), $this->getLimit());
+            $static->setTotal($this->total);
+            return $static;
         }
         return null;
     }

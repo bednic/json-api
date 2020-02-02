@@ -908,7 +908,7 @@ class Messages
      */
     public static function uriProcessorResourceNotFound($segment)
     {
-        return "Resource not found for the segment '$segment'";
+        return "ResourceMetadata not found for the segment '$segment'";
     }
 
     /**
@@ -927,7 +927,7 @@ class Messages
      * Format a message to show error when IDSMP::getDerivedTypes returns a
      * type which is not null or array of ResourceType
      *
-     * @param string $resourceTypeName Resource type name
+     * @param string $resourceTypeName ResourceMetadata type name
      *
      * @return string The formatted message
      */
