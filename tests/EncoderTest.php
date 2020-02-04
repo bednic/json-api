@@ -9,12 +9,15 @@
 
 namespace JSONAPI\Test;
 
+use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Uri\Fieldset\FieldsetParser;
 use JSONAPI\Uri\Query;
+use JSONAPI\Uri\SparseFieldset;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
@@ -31,7 +34,7 @@ class EncoderTest extends TestCase
     private static $factory;
 
     /**
-     * @var Query
+     * @var SparseFieldset
      */
     private static $query;
 
@@ -43,7 +46,7 @@ class EncoderTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         $request = ServerRequestFactory::createFromGlobals();
-        self::$query = new Query($request);
+        self::$query = new FieldsetParser();
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
         $relation = new RelationExample();
         $instance = new ObjectExample();

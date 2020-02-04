@@ -46,26 +46,26 @@ class DocumentTest extends TestCase
      */
     private static $validator;
 
-    private static $query;
+    private static $request;
 
     public static function setUpBeforeClass(): void
     {
         self::$factory = new MetadataFactory(__DIR__ . '/resources/');
         self::$schema = Schema::fromJsonString(file_get_contents(__DIR__ . '/../schema.json'));
         self::$validator = new Validator();
-        self::$query = new Query(ServerRequestFactory::createFromGlobals());
+        self::$request = ServerRequestFactory::createFromGlobals();
     }
 
     public function testConstruct()
     {
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $this->assertInstanceOf(Document::class, $document);
         return $document;
     }
 
     public function testAddMeta()
     {
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $document->setMeta(new Meta(['count' => 1]));
         $json = json_decode(json_encode($document), true);
         $this->assertArrayHasKey('meta', $json);
@@ -75,9 +75,10 @@ class DocumentTest extends TestCase
     public function testRelationships()
     {
         $_SERVER["REQUEST_URI"] = "/resource/uuid/relationships/relations";
+        $request = ServerRequestFactory::createFromGlobals();
         $relations[] = new RelationExample('id1');
         $relations[] = new RelationExample('id2');
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, $request);
         $document->setData($relations);
         $json = json_decode(json_encode($document), true);
         $this->assertArrayHasKey('data', $json);
@@ -96,7 +97,7 @@ class DocumentTest extends TestCase
         $_SERVER["REQUEST_URI"] = "/resource/uuid/relations";
         $relations[] = new RelationExample('id1');
         $relations[] = new RelationExample('id2');
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $document->setData($relations);
         $json = json_decode(json_encode($document), true);
         $this->assertArrayHasKey('data', $json);
@@ -108,7 +109,7 @@ class DocumentTest extends TestCase
     public function testCollection()
     {
         $_SERVER["REQUEST_URI"] = "/resource";
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $collection = [];
         $collection[] = new ObjectExample('id1');
         $collection[] = new ObjectExample('id2');
@@ -119,14 +120,14 @@ class DocumentTest extends TestCase
 
     public function testToString()
     {
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $this->assertEquals((string)$document, json_encode($document));
     }
 
 
     public function testAddLink()
     {
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $document->addLink(new Link('own', 'http://my-own.link.com'));
         $document->setLinks([
             new Link('link1', 'http://link1.com')
@@ -148,7 +149,7 @@ class DocumentTest extends TestCase
         $error->setSource([
             'pointer' => '/data/attributes/my-attribute'
         ]);
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $document->addError($error);
         $json = json_decode(json_encode($document), true);
         $this->assertArrayHasKey('errors', $json);
@@ -157,7 +158,7 @@ class DocumentTest extends TestCase
 
     public function testErrorFromException()
     {
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         try {
             throw new BadRequest("Test exception");
         } catch (BadRequest $exception) {
@@ -326,7 +327,7 @@ class DocumentTest extends TestCase
         $relation1 = new RelationExample('rel1');
         $relation2 = new RelationExample('rel2');
         $resource->setRelations([$relation1, $relation2]);
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $document->setData($resource);
         $this->assertTrue(self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema)
             ->isValid());
@@ -336,14 +337,14 @@ class DocumentTest extends TestCase
     {
         $this->expectException(NotFound::class);
         $_SERVER["REQUEST_URI"] = "/resource/no-id";
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $document->setData(null);
     }
 
     public function testEmptyData()
     {
         $_SERVER["REQUEST_URI"] = "/resource";
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $document->setData([]);
         $this->assertIsArray($document->getData());
         $this->assertTrue(self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema)
@@ -354,7 +355,7 @@ class DocumentTest extends TestCase
     {
         $this->expectException(InvalidArgumentException::class);
         $_SERVER["REQUEST_URI"] = "/resource";
-        $document = new Document(self::$factory, self::$query);
+        $document = new Document(self::$factory, self::$request);
         $document->setData(null);
     }
 }
