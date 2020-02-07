@@ -127,6 +127,6 @@ class ResourceCollection implements PrimaryData, IteratorAggregate, Countable, J
      */
     public function jsonSerialize()
     {
-        return $this->data;
+        return array_values($this->data);
     }
 }

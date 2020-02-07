@@ -15,6 +15,7 @@ use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\InvalidArgumentException;
+use JSONAPI\Exception\Metadata\MetadataException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
@@ -67,6 +68,7 @@ class MetadataFactory
      * @throws CacheException
      * @throws DriverException
      * @throws InvalidArgumentException
+     * @throws MetadataException
      */
     private function __construct(
         string $pathToObjects,
@@ -90,6 +92,7 @@ class MetadataFactory
      * @return ClassMetadata
      * @throws CacheException
      * @throws DriverException
+     * @throws MetadataException
      */
     private function getMetadataByClass(string $className): ClassMetadata
     {
@@ -114,6 +117,7 @@ class MetadataFactory
     /**
      * @throws CacheException
      * @throws DriverException
+     * @throws MetadataException
      */
     private function load(): void
     {
@@ -131,6 +135,7 @@ class MetadataFactory
      *
      * @throws CacheException
      * @throws DriverException
+     * @throws MetadataException
      */
     private function loadMetadata(string $className)
     {
@@ -142,6 +147,7 @@ class MetadataFactory
     /**
      * @throws CacheException
      * @throws DriverException
+     * @throws MetadataException
      */
     private function createMetadataCache(): void
     {
@@ -186,6 +192,7 @@ class MetadataFactory
      * @throws CacheException
      * @throws DriverException
      * @throws InvalidArgumentException
+     * @throws MetadataException
      */
     public static function create(
         string $pathToObjects,

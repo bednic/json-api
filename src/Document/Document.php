@@ -53,9 +53,9 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     private array $errors = [];
 
     /**
-     * @var PrimaryData
+     * @var PrimaryData|null
      */
-    private PrimaryData $data;
+    private ?PrimaryData $data = null;
 
     /**
      * @var ResourceCollection
@@ -71,9 +71,9 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param PrimaryData $data
+     * @param PrimaryData|null $data
      */
-    public function setData(PrimaryData $data): void
+    public function setData(?PrimaryData $data): void
     {
         if (count($this->errors) > 0) {
             return;
@@ -82,9 +82,9 @@ class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @return PrimaryData
+     * @return PrimaryData|null
      */
-    public function getData(): PrimaryData
+    public function getData(): ?PrimaryData
     {
         return $this->data;
     }
@@ -119,9 +119,9 @@ class Document implements JsonSerializable, HasLinks, HasMeta
             $ret["errors"] = $this->errors;
         } else {
             $ret['data'] = $this->data;
-        }
-        if (count($this->included) > 0) {
-            $ret["included"] = $this->included;
+            if ($this->included->count() > 0) {
+                $ret["included"] = $this->included;
+            }
         }
         if ($this->hasLinks()) {
             $ret["links"] = $this->links;

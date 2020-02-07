@@ -75,20 +75,20 @@ class ResourceObject extends ResourceObjectIdentifier implements HasLinks, Prima
     }
 
     /**
-     * @return array
+     * @return Attribute[]
      */
     public function getAttributes(): array
     {
         return $this->fields->filter(function ($element) {
             return $element instanceof Attribute;
         })->map(function ($element) {
-            /** @var Relationship $element */
-            return $element->getData();
+            /** @var Attribute $element */
+            return $element;
         })->toArray();
     }
 
     /**
-     * @return array
+     * @return Relationship[]
      */
     public function getRelationships(): array
     {
@@ -96,7 +96,7 @@ class ResourceObject extends ResourceObjectIdentifier implements HasLinks, Prima
             return $element instanceof Relationship;
         })->map(function ($element) {
             /** @var Relationship $element */
-            return $element->getData();
+            return $element;
         })->toArray();
     }
 

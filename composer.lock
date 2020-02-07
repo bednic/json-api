@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "0df19586fb0bf77f47db110319dfd558",
+    "content-hash": "224474c09f4a43526a850946576c5a5b",
     "packages": [
         {
             "name": "bednic/tools",

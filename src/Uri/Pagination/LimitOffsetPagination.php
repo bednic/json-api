@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\Uri\Pagination;
 
 /**
@@ -115,6 +117,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
             if ($this->total !== null) {
                 $static->setTotal($this->total);
             }
+            return $static;
         }
         return null;
     }

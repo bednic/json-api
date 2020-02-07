@@ -43,6 +43,8 @@ class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterfa
      * @depends testConstruct
      * @covers  \JSONAPI\Middleware\PsrJsonApiMiddleware::process
      * @covers  \JSONAPI\Middleware\PsrJsonApiMiddleware::getBody
+     * @covers \JSONAPI\Middleware\PsrJsonApiMiddleware::loadRequestData
+     * @covers \JSONAPI\Middleware\PsrJsonApiMiddleware::jsonToResourceObject
      */
     public function testProcess(PsrJsonApiMiddleware $middleware)
     {
