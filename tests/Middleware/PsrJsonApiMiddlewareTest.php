@@ -69,11 +69,11 @@ namespace JSONAPI\Test\Middleware {
         public function handle(ServerRequestInterface $request): ResponseInterface
         {
             if (
-            in_array($request->getMethod(), [
+                in_array($request->getMethod(), [
                 RequestMethodInterface::METHOD_POST,
                 RequestMethodInterface::METHOD_PATCH,
                 RequestMethodInterface::METHOD_DELETE
-            ])
+                ])
             ) {
                 $this->assertInstanceOf(Document::class, $request->getParsedBody());
             }

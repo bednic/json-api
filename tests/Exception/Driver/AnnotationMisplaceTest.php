@@ -14,7 +14,7 @@ class AnnotationMisplaceTest extends TestCase
 
     public function testConstruct()
     {
-        $e = new AnnotationMisplace('someMethod','MyClass');
+        $e = new AnnotationMisplace('someMethod', 'MyClass');
         $this->assertInstanceOf(AnnotationMisplace::class, $e);
         $this->assertStringContainsString('someMethod', $e->getMessage());
         $this->assertStringContainsString('MyClass', $e->getMessage());

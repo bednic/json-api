@@ -2,7 +2,6 @@
 
 namespace JSONAPI\Test\Driver;
 
-
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\Id;

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Schema;
-
 
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\Id;
@@ -129,5 +127,4 @@ class ResourceSchema
     {
         return $this->meta;
     }
-
 }

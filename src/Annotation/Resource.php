@@ -1,8 +1,6 @@
 <?php
 
-
 namespace JSONAPI\Annotation;
-
 
 /**
  * Class ResourceMetadata
@@ -30,5 +28,6 @@ final class Resource
     public ?Meta $meta = null;
 
     public function __construct()
-    {}
+    {
+    }
 }

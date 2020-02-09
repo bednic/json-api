@@ -19,7 +19,7 @@ class BadMethodSignatureTest extends TestCase
 
     public function testConstruct()
     {
-        $e = new BadMethodSignature('someMethod','MyClass');
+        $e = new BadMethodSignature('someMethod', 'MyClass');
         $this->assertInstanceOf(BadMethodSignature::class, $e);
         $this->assertStringContainsString('someMethod', $e->getMessage());
         $this->assertStringContainsString('MyClass', $e->getMessage());
