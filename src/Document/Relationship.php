@@ -21,7 +21,7 @@ use JsonSerializable;
  *
  * @package JSONAPI\Document
  */
-class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
+final class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
 {
     use LinksTrait;
     use MetaTrait;

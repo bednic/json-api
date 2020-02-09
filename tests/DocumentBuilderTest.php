@@ -28,6 +28,11 @@ use Psr\Log\NullLogger;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
+/**
+ * Class DocumentBuilderTest
+ *
+ * @package JSONAPI\Test
+ */
 class DocumentBuilderTest extends TestCase
 {
     private static MetadataRepository $mr;

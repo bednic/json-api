@@ -1,7 +1,8 @@
 <?php
 
-namespace JSONAPI\Uri\Pagination;
+namespace JSONAPI\Test\Uri\Pagination;
 
+use JSONAPI\Uri\Pagination\PagePagination;
 use PHPUnit\Framework\TestCase;
 
 class PagePaginationTest extends TestCase

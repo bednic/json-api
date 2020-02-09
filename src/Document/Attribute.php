@@ -14,7 +14,7 @@ namespace JSONAPI\Document;
  *
  * @package JSONAPI\Document
  */
-class Attribute extends Field
+final class Attribute extends Field
 {
 
 }

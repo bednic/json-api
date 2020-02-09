@@ -11,7 +11,7 @@ use JSONAPI\MetaTrait;
  *
  * @package JSONAPI\Document
  */
-class Link extends Field implements HasMeta
+final class Link extends Field implements HasMeta
 {
     use MetaTrait;
 

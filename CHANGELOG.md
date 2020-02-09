@@ -11,62 +11,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 
-### Removed 
+### Removed
 
 ### Security
 
 ## [4.0.0]
 -->
 ### Added
-* `Annotation\Resource::readOnly` marks resource as read only, for easier handle of routing
-* `Document::setResource($object)` replace `::setData()` method to better recognition of collection and single resource
-* `Document::setCollection(iterable $collection, int $total)` first argument is filtered and limited collection, second
-  argument is total count of filtered collection, without limitation. It's used for pagination
-* `Document::setFilterParser` sets parser of `filter` URI parameter
-* `Document::setPaginationParser` sets parser of `page` URI parameter
-* `Document::getFilter` returns filter
-* `Document::getPagination` returns pagination
-* `Document::getPath` returns path information, like is it collection, is it relationship etc
-* `Document::getInclusion` returns inclusion collection contains tree hierarchy of included resources
-* `Document::getSort` returns information about sorting
-* `Document::getFieldset` return fieldset
-* `Document::loadRequestData` servers for middleware purpose, to parse requested body and fill up document data
-* `DriverInterface` to abstract future new drivers
-* `UriPartInterface` it's used for mark class as URI compatible and there is expectation serialization to string returns
-  URI compatible string to be coupled as part of URL
-* `Annotation\Attribute::of` contains array item data type, it's not mandatory, but serve as information for OpenAPI
-  schema generator. 
-* `Document::setMaxIncludedItems` by this method is now possible to limit max included resources in compound document.
-  By this feature you can ensure performance. If you want to disable this feature, just pass `-1`. If you want disable 
-  inclusion just pass `0` and `BadRequest` will be thrown if someone send `include` parameter.
 
 ### Changed
-* Library now requires 7.4 PHP version
-* `PsrJsonApiMiddleware` now returns document as parsed body
-* `Driver\Driver` renamed to `Driver\AnnotationDriver`
-* Exceptions are now categorised to 4 main categories
-    * Document (DocumentException)
-    * Driver (DriverException)
-    * Http (BadRequest)
-    * Metadata (MetadataException)
 
-  and there are some common exception like `InvalidArgumentException` and `JsonApiException`
-* `ClassMetadata` now do not accept ReflectionClass object but just classname of parsed class.
-* `LinkProvider` is now `LinkFactory`
-* `LinkTrait::addLink(Link $link)` not return bool if link was actually added or not
-
-### Deprecated 
+### Deprecated
 
 ### Fixed
 
-### Removed 
-* `Query` class is now decoupled to more transparent hierarchy, it more reflect JSON API standard hierarchy
-* `VoidFilterParser` is removed and replaced by `CriteriaFilterParser` by default
-* `Document::createFromRequest()` method was refactored and replaced by `::loadRequestData`
+### Removed
 
 ### Security
 
@@ -77,13 +40,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * It was possible have Attribute or Relationship named as `type` or `id`. Now it's fixed.
 * Fix getter detection. Return type of method is now optional, not required.
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -92,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * JSON API schema validation for tests
 * `CriteriaFilterParser` advanced filter inspired by OData semantic
-* `Annotation\Attribute::of` property, which is used for declare type of array items. 
+* `Annotation\Attribute::of` property, which is used for declare type of array items.
 This will be used primary for OpenAPI schema
 * `ClassMetadata::getShortClassName` return class short name
 * `Annotation\Meta` is used for meta information of ResourceObject
@@ -101,7 +64,7 @@ This will be used primary for OpenAPI schema
 * `CriteriaFilterParserTest`
 
 ### Changed
-* Now we can return Relationships collections as `Doctrine\Common\Collections\Collection` (preferred) 
+* Now we can return Relationships collections as `Doctrine\Common\Collections\Collection` (preferred)
   or as `array` (old way)
 * Determination of attribute data type is now resolved in sequence:
     1. Try get type from return type of function
@@ -115,8 +78,8 @@ This will be used primary for OpenAPI schema
 * `AnnotationDriver` inconsistencies. There is rule, that if `Annotation\Attribute` is on getter method,
   then `Attribute::proptery` is empty, so we can decide if we work with object property, or object getter.
   At some points of algorithm this rule was broken.
- 
-### Removed 
+
+### Removed
 
 ### Security
 
@@ -127,11 +90,11 @@ This will be used primary for OpenAPI schema
 ### Changed
 * `JsonDeserializable::jsonDeserialize` is now type free, cause sometimes we need serialize non-array data
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -143,12 +106,12 @@ This will be used primary for OpenAPI schema
     about filtering, we should be too. So now it's possible define own parser which will parse filter value
 * `Pagination` interface
     * This interface is focused to extract pagination strategy out of library. Cause JSON-API is agnostic
-    about pagination strategy. So you can now define own strategy for pagination. Now we support page-based, 
+    about pagination strategy. So you can now define own strategy for pagination. Now we support page-based,
     offset-based and cursor-based, but all only throw interface. Only offset-based strategy is implemented
 
 * `LimitOffsetPaginationParser` offset-based pagination implementation
 * `VoidFilterParser` default filter parser, just pass filter without modification
-* `MethodNotImplemented` is supposed to be thrown when method in `Filter` or `Pagination` is not implemented 
+* `MethodNotImplemented` is supposed to be thrown when method in `Filter` or `Pagination` is not implemented
 it's standard server error, not uri error.
 * `Encoder::relationshipLimit` this tells to encoder to limit relationships, so it's not that huge on response
 * `Document::getEncoder()` expose `Encoder` out
@@ -159,12 +122,12 @@ it's standard server error, not uri error.
 * `Query::getFilter` now returns `Filter` interface
 * `Query::getPagination` now returns `Pagination` interface
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * Primary link now contains query string, like ?filter etc.
 
-### Removed 
+### Removed
 * Default filtering is removed, see `Filter` interface
 
 ### Security
@@ -172,19 +135,19 @@ it's standard server error, not uri error.
 ## [2.4.0]
 
 ### Added
-* <code>JsonDeserializable</code> interface - marks object as json deserializable, 
+* <code>JsonDeserializable</code> interface - marks object as json deserializable,
   so it's possible create instance of object from plain json
-* <code>JsonConvertible</code> interface - merge JsonSerializable and JsonDeserializable together. 
+* <code>JsonConvertible</code> interface - merge JsonSerializable and JsonDeserializable together.
 
 ### Changed
 * JSONAPI\Utils\LinksImpl => JSONAPI\LinksTrait
 * JSONAPI\Utils\MetaImpl => JSONAPI\MetaTrait
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 
-### Removed 
+### Removed
 * JSONAPI\Utils
 
 ### Security
@@ -195,13 +158,13 @@ it's standard server error, not uri error.
 
 ### Changed
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * AnnotationDriver::isGetter return bad state if getter return same class as is caller class.
   Historical reason cause fluent setters. Now check removed, cause Parent->Children object relations.
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -211,12 +174,12 @@ it's standard server error, not uri error.
 
 ### Changed
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * fix issue [#9](https://gitlab.com/bednic/json-api/issues/9)
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -226,13 +189,13 @@ it's standard server error, not uri error.
 
 ### Changed
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * JsonApiMiddleware throw UnsupportedMediaType even for get, when it's not necessary.
   Now middleware check Content-Type only when it's POST or PATCH, so body is expected.
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -242,13 +205,13 @@ it's standard server error, not uri error.
 
 ### Changed
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * URL parsing bug, don't recognize camelCase member names
 * Fix Document::setData bad behaviour on empty data
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -264,7 +227,7 @@ it's standard server error, not uri error.
 
 ### Fixed
 * Fix Document::isCollection bad resolving
-* Fix Driver, now only property annotations has Annotation::property non-empty. 
+* Fix Driver, now only property annotations has Annotation::property non-empty.
   So when is Annotation::property filled up, then it means  it is property annotation, but if you annotation method then
   it get privilege and will be used. In standard case it means, that if is Annotation::setter filled up, then
   annotations are on methods, if Annotation::property is filled up then annotations are  on props.
@@ -273,7 +236,7 @@ it's standard server error, not uri error.
 * Primary data links when relationships are returned
 * Request data parsing, when ResourceObjectIdentifiers are provided
 
-### Removed 
+### Removed
 * QueryFactory
 
 ### Security
@@ -284,7 +247,7 @@ it's standard server error, not uri error.
 
 ### Changed
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * Request does not contain json body. Added parsing to PsrJsonApiMiddleware.
@@ -292,7 +255,7 @@ it's standard server error, not uri error.
 * Fix return type from ResourceIdentifier::getId() should be always string or null;
 * Fixed README
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -303,15 +266,15 @@ it's standard server error, not uri error.
 ### Changed
 * Whole error handling is reworked. Idea is that BadRequest exception are sent to user. But other JsonApiExceptions
   are Internal Server Error, so you should handle them by self. Exceptions are categorised by purpose. [See](/src/Exception)
-* PsrJsonApiMiddleware now send PSR7 compatible Response with valid Document contains information about BadRequest error 
-  in case of exception. 
+* PsrJsonApiMiddleware now send PSR7 compatible Response with valid Document contains information about BadRequest error
+  in case of exception.
 * Query::path is now private and you can access it by getter ::getPath().
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -319,18 +282,18 @@ it's standard server error, not uri error.
 
 ### Added
 * HttpException, NotFoundException for handle HTTP errors
-* Slim\Psr7 library for handling JSON API implementation 
+* Slim\Psr7 library for handling JSON API implementation
   requirement around headers and HTTP responses, like NotFound, BadRequest, UnsupportedMediaType etc...
 
 ### Changed
 * UnsupportedMediaTypeException now inherit from HttpException
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * Some enchantments to Query class to fix some vulnerabilities
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -338,20 +301,20 @@ it's standard server error, not uri error.
 
 ### Added
 * LinkProvider::createRelatedLink() create related resource link
-* LinkProvider::createSelfLink() create self link 
+* LinkProvider::createSelfLink() create self link
 
 ### Changed
 * DocumentException::PRIMARY_DATA_TYPE_MISMATCH to ::RESOURCE_TYPE_MISMATCH
 * DocumentException::FORBIDDEN_VALUE_TYPE to ::FORBIDDEN_DATA_TYPE
 * API_ENV_URL to JSON_API_URL
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * Query ignores URL with query part
 * Fixed some linkage mistakes
 
-### Removed 
+### Removed
 
 ### Security
 
@@ -373,17 +336,17 @@ it's standard server error, not uri error.
 * class LinkProvider is now member of \JSONAPI\Query namespace
 * Error::fromException(JsonApiException $exception) replace __constructor(\Throwable) and accept only JsonApiException class
 * ::getPrimaryDataType() moved from Query\Path to Document
-* Annotation Common::setter now accept only string, cause boolean is not necessary. 
+* Annotation Common::setter now accept only string, cause boolean is not necessary.
   If you want disable setter, just use empty string
 * Path::__construct() now throw exception if you set relationships and related at same time.
 
-### Deprecated 
+### Deprecated
 
 ### Fixed
 * LinkProvider::createPrimaryDataLink(), returns bad uri, when new resource was created
 * Path::__toString(), return bad link, when relationships is as primary data
 
-### Removed 
+### Removed
 * Document::create()
 * Document::getIncludes()
 * Document::setIncludes()

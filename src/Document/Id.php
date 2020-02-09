@@ -9,7 +9,7 @@ use JSONAPI\Exception\Document\ForbiddenDataType;
  *
  * @package JSONAPI\Document
  */
-class Id extends Field
+final class Id extends Field
 {
 
     public function __construct(?string $id)

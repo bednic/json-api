@@ -1,18 +1,13 @@
 <?php
 
-namespace JSONAPI\Driver;
+namespace JSONAPI\Test\Driver;
 
-use JSONAPI\Exception\Driver\AnnotationMisplace;
-use JSONAPI\Exception\Driver\ClassNotExist;
-use JSONAPI\Exception\Driver\ClassNotResource;
-use JSONAPI\Exception\Metadata\NameUsedAlready;
+
+use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\Id;
 use JSONAPI\Metadata\Meta;
 use JSONAPI\Metadata\Relationship;
-use JSONAPI\Test\Resources\Invalid\BadAnnotationPlacement;
-use JSONAPI\Test\Resources\Invalid\NotResource;
-use JSONAPI\Test\Resources\Invalid\ReserveWords;
 use JSONAPI\Test\Resources\Valid\DtoValue;
 use JSONAPI\Test\Resources\Valid\GettersExample;
 use JSONAPI\Test\Resources\Valid\MetaExample;
@@ -24,7 +19,6 @@ use Psr\Log\NullLogger;
  * Class AnnotationDriverTest
  *
  * @package JSONAPI\Test
- * @runTestsInSeparateProcesses
  */
 class AnnotationDriverTest extends TestCase
 {
@@ -36,34 +30,6 @@ class AnnotationDriverTest extends TestCase
         $driver = new AnnotationDriver(new NullLogger());
         $this->assertInstanceOf(AnnotationDriver::class, $driver);
         return $driver;
-    }
-
-    public function testBadAnnotationPlacementException()
-    {
-        $this->expectException(AnnotationMisplace::class);
-        $driver = new AnnotationDriver();
-        $driver->getClassMetadata(get_class(new BadAnnotationPlacement()));
-    }
-
-    public function testClassNotExistsException()
-    {
-        $this->expectException(ClassNotExist::class);
-        $driver = new AnnotationDriver();
-        $driver->getClassMetadata('NonExistingClass');
-    }
-
-    public function testClassNotResource()
-    {
-        $this->expectException(ClassNotResource::class);
-        $driver = new AnnotationDriver();
-        $driver->getClassMetadata(get_class(new NotResource()));
-    }
-
-    public function testCheckReservedNamesException()
-    {
-        $this->expectException(NameUsedAlready::class);
-        $driver = new AnnotationDriver();
-        $driver->getClassMetadata(get_class(new ReserveWords()));
     }
 
     public function testMetaAnnotation()

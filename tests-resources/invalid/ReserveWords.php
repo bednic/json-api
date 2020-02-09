@@ -2,7 +2,7 @@
 
 namespace JSONAPI\Test\Resources\Invalid;
 
-use JSONAPI\Metadata as API;
+use JSONAPI\Annotation as API;
 
 /**
  * Class ReserveWords

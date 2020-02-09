@@ -11,7 +11,12 @@ namespace JSONAPI\Test\Resources\Valid;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\Metadata as API;
+use JSONAPI\Annotation as API;
+use JSONAPI\Metadata\Attribute;
+use JSONAPI\Metadata\Id;
+use JSONAPI\Metadata\Relationship;
+use JSONAPI\Schema\Resource;
+use JSONAPI\Schema\ResourceSchema;
 
 /**
  * Class GettersExample
@@ -19,7 +24,7 @@ use JSONAPI\Metadata as API;
  * @package JSONAPI
  * @API\Resource("getter")
  */
-class GettersExample
+class GettersExample implements Resource
 {
     /**
      * @var string
@@ -212,5 +217,25 @@ class GettersExample
     public function setCollection(Collection $collection): void
     {
         $this->collection = $collection;
+    }
+
+    public static function getSchema(): ResourceSchema
+    {
+        return new ResourceSchema(
+            __CLASS__,
+            'getter',
+            Id::createByMethod('getId'),
+            [
+                Attribute::createByMethod('getStringProperty'),
+                Attribute::createByMethod('getIntProperty'),
+                Attribute::createByMethod('getArrayProperty','int'),
+                Attribute::createByMethod('isBoolProperty'),
+                Attribute::createByMethod('getDtoProperty'),
+            ],
+            [
+                Relationship::createByMethod('getRelation',DummyRelation::class),
+                Relationship::createByMethod('getCollection', DummyRelation::class)
+            ]
+        );
     }
 }

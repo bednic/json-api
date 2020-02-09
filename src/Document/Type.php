@@ -10,7 +10,7 @@ use JSONAPI\Exception\Document\ForbiddenDataType;
  *
  * @package JSONAPI\Document
  */
-class Type extends Field
+final class Type extends Field
 {
     /**
      * Type constructor.

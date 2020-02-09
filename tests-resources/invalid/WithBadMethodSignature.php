@@ -1,21 +1,22 @@
 <?php
 
+
 namespace JSONAPI\Test\Resources\Invalid;
 
-use JSONAPI\Metadata as API;
+use JSONAPI\Annotation as API;
 
 /**
- * Class BadAnnotationPlacement
+ * Class WithBadMethodSignature
  *
- * @package JSONAPI\Test\exceptions
- * @API\Resource("test")
+ * @package JSONAPI\Test\Resources\Invalid
+ * @API\Resource("bad-signature")
  */
-class BadAnnotationPlacement
+class WithBadMethodSignature
 {
-
     private $property;
 
     /**
+     * @API\Attribute
      * @return mixed
      */
     public function getProperty()
@@ -25,10 +26,9 @@ class BadAnnotationPlacement
 
     /**
      * @param mixed $property
-     *
-     * @API\Attribute
+     * @param       $anotherArgument
      */
-    public function setProperty($property): void
+    public function setProperty($property, $anotherArgument): void
     {
         $this->property = $property;
     }

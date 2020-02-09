@@ -12,7 +12,7 @@ namespace JSONAPI\Metadata;
 /**
  * Class Common
  *
- * @package JSONAPI\Annotation
+ * @package JSONAPI\Metadata
  */
 abstract class Field
 {

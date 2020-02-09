@@ -4,7 +4,12 @@ namespace JSONAPI\Test\Resources\Valid;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\Metadata as API;
+use JSONAPI\Annotation as API;
+use JSONAPI\Metadata\Attribute;
+use JSONAPI\Metadata\Id;
+use JSONAPI\Metadata\Relationship;
+use JSONAPI\Schema\Resource;
+use JSONAPI\Schema\ResourceSchema;
 
 /**
  * Class PropsExample
@@ -12,7 +17,7 @@ use JSONAPI\Metadata as API;
  * @package JSONAPI\Test
  * @API\Resource(type="prop")
  */
-class PropsExample
+class PropsExample implements Resource
 {
     /**
      * @var string
@@ -75,5 +80,25 @@ class PropsExample
             new DummyRelation('relation3')
         ]);
         $this->dtoProperty = new DtoValue();
+    }
+
+    public static function getSchema(): ResourceSchema
+    {
+        return new ResourceSchema(
+            __CLASS__,
+            'prop',
+            Id::createByProperty('getId'),
+            [
+                Attribute::createByProperty('stringProperty'),
+                Attribute::createByProperty('intProperty'),
+                Attribute::createByProperty('arrayProperty','int'),
+                Attribute::createByProperty('boolProperty'),
+                Attribute::createByProperty('dtoProperty'),
+            ],
+            [
+                Relationship::createByProperty('relation',DummyRelation::class),
+                Relationship::createByProperty('collection', DummyRelation::class)
+            ]
+        );
     }
 }

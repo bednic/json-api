@@ -14,7 +14,7 @@ use Traversable;
  *
  * @package JSONAPI\Document\PrimaryData
  */
-class ResourceCollection implements PrimaryData, IteratorAggregate, Countable, JsonSerializable
+final class ResourceCollection implements PrimaryData, IteratorAggregate, Countable, JsonSerializable
 {
     /**
      * @var ResourceObject[]|ResourceObjectIdentifier[]

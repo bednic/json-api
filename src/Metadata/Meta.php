@@ -6,10 +6,8 @@ namespace JSONAPI\Metadata;
  * Class MetaMetadata
  *
  * @package JSONAPI\Metadata
- * @Annotation
- * @Target({"ANNOTATION"})
  */
-final class Meta
+class Meta
 {
     /**
      * @var string

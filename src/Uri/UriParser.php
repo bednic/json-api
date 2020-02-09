@@ -118,10 +118,13 @@ final class UriParser
 
     /**
      * @param MetadataRepository $metadata
+     *
+     * @return UriParser
      */
-    public function setMetadata(MetadataRepository $metadata): void
+    public function setMetadata(MetadataRepository $metadata): self
     {
         $this->metadata = $metadata;
+        return $this;
     }
 
     /**
@@ -180,6 +183,8 @@ final class UriParser
     }
 
     /**
+     * @uses \JSONAPI\Uri\UriParser::$metadata
+     *
      * @return bool
      * @throws BadRequest
      * @throws MissingDependency

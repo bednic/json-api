@@ -13,10 +13,8 @@ namespace JSONAPI\Metadata;
  * Class IdMetadata
  *
  * @package JSONAPI\Metadata
- * @Annotation
- * @Target({"METHOD", "PROPERTY"})
  */
-final class Id
+class Id
 {
     /**
      * @var string
@@ -26,6 +24,13 @@ final class Id
      * @var string
      */
     public ?string $getter = null;
+
+    /**
+     * Id constructor.
+     */
+    private function __construct()
+    {
+    }
 
     /**
      * @param string $property

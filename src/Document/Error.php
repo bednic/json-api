@@ -22,7 +22,7 @@ use Throwable;
  *
  * @package JSONAPI\Document
  */
-class Error implements JsonSerializable, HasLinks, HasMeta
+final class Error implements JsonSerializable, HasLinks, HasMeta
 {
     use LinksTrait;
     use MetaTrait;

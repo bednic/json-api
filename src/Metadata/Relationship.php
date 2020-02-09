@@ -12,11 +12,9 @@ namespace JSONAPI\Metadata;
 /**
  * Class Relationship
  *
- * @package JSONAPI\Annotation
- * @Annotation
- * @Target({"METHOD", "PROPERTY"})
+ * @package JSONAPI\Metadata
  */
-final class Relationship extends Field
+class Relationship extends Field
 {
     /**
      * @var string
@@ -33,6 +31,11 @@ final class Relationship extends Field
      * @var \JSONAPI\Metadata\Meta
      */
     public ?Meta $meta = null;
+
+    /**
+     * Relationship constructor.
+     */
+    private function __construct(){}
 
     /**
      * @param string      $property

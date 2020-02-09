@@ -9,7 +9,10 @@
 
 namespace JSONAPI\Test\Resources\Valid;
 
-use JSONAPI\Metadata as API;
+use JSONAPI\Annotation as API;
+use JSONAPI\Metadata\Id;
+use JSONAPI\Schema\Resource;
+use JSONAPI\Schema\ResourceSchema;
 
 /**
  * Class DummyRelation
@@ -17,7 +20,7 @@ use JSONAPI\Metadata as API;
  * @package JSONAPI\Test
  * @API\Resource("relation")
  */
-class DummyRelation
+class DummyRelation implements Resource
 {
     /**
      * @var string
@@ -28,5 +31,12 @@ class DummyRelation
     public function __construct(string $id)
     {
         $this->id = $id;
+    }
+
+    public static function getSchema(): ResourceSchema
+    {
+        return new ResourceSchema(
+            __CLASS__, 'relation', Id::createByProperty('id')
+        );
     }
 }

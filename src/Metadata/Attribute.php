@@ -10,13 +10,11 @@
 namespace JSONAPI\Metadata;
 
 /**
- * Class AttributeMetadata
+ * Class Attribute
  *
- * @package JSONAPI\Annotation
- * @Annotation
- * @Target({"METHOD", "PROPERTY"})
+ * @package JSONAPI\Metadata
  */
-final class Attribute extends Field
+class Attribute extends Field
 {
     /**
      * @var string
@@ -30,6 +28,10 @@ final class Attribute extends Field
      */
     public ?string $of = null;
 
+    private function __construct()
+    {
+    }
+
     /**
      * @param string      $property
      * @param string|null $name
@@ -40,9 +42,9 @@ final class Attribute extends Field
      */
     public static function createByProperty(
         string $property,
+        string $of = null,
         string $name = null,
-        string $type = null,
-        string $of = null
+        string $type = null
     ): self {
         $self = new static();
         $self->property = $property;

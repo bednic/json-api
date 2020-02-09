@@ -2,8 +2,12 @@
 
 namespace JSONAPI\Test\Resources\Valid;
 
+use JSONAPI\Annotation as API;
 use JSONAPI\Document\Meta;
-use JSONAPI\Metadata as API;
+use JSONAPI\Metadata\Id;
+use JSONAPI\Metadata\Relationship;
+use JSONAPI\Schema\Resource;
+use JSONAPI\Schema\ResourceSchema;
 
 /**
  * Class MetaExample
@@ -11,7 +15,7 @@ use JSONAPI\Metadata as API;
  * @package JSONAPI\Test
  * @API\Resource(type="meta", meta=@API\Meta(getter="getMeta"))
  */
-class MetaExample
+class MetaExample implements Resource
 {
     /**
      * @var string
@@ -64,5 +68,24 @@ class MetaExample
         return new Meta([
             'for' => DummyRelation::class
         ]);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getSchema(): ResourceSchema
+    {
+        return new ResourceSchema(
+            __CLASS__,
+            'meta',
+            Id::createByMethod('getId'),
+            [],
+            [
+                Relationship::createByMethod('getRelation', DummyRelation::class, null, null, false,
+                    \JSONAPI\Metadata\Meta::create('getRelationMeta'))
+            ],
+            false,
+            \JSONAPI\Metadata\Meta::create('getMeta')
+        );
     }
 }

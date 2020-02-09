@@ -11,7 +11,7 @@ use JsonSerializable;
  *
  * @package JSONAPI\Document
  */
-class Meta implements JsonSerializable
+final class Meta implements JsonSerializable
 {
 
     /**

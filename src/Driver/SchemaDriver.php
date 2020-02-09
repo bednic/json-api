@@ -15,7 +15,8 @@ use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\Field;
 use JSONAPI\Metadata\Relationship;
-use JSONAPI\Schema\Schema;
+use JSONAPI\Schema\Resource;
+use JSONAPI\Schema\ResourceSchema;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -55,16 +56,20 @@ class SchemaDriver extends Driver
     {
         try {
             $ref = new ReflectionClass($className);
-            if ($ref->implementsInterface(Schema::class)) {
-                /** @var $className Schema */
-                $resourceClass = $className::getClassName();
-                $type = $className::getType();
-                $id = $className::getId();
-                $meta = $className::getResourceMeta();
-                $readOnly = $className::isReadOnly();
-                $attributes = $this->parseAttributes($ref, $className::getAttributes());
-                $relationships = $this->parseRelationships($ref, $className::getRelationships());
-                return new ClassMetadata($resourceClass, $type, $id, $attributes, $relationships, $readOnly, $meta);
+            if ($ref->implementsInterface(Resource::class)) {
+                /** @var Resource $className */
+                $classMetadata = $className::getSchema();
+                $attributes = $this->parseAttributes($ref, $classMetadata->getAttributes());
+                $relationships = $this->parseRelationships($ref, $classMetadata->getRelationships());
+                return new ClassMetadata(
+                    $classMetadata->getClassName(),
+                    $classMetadata->getType(),
+                    $classMetadata->getId(),
+                    $attributes,
+                    $relationships,
+                    $classMetadata->isReadOnly(),
+                    $classMetadata->getMeta()
+                );
             }
             throw new ClassNotResource($className);
         } catch (ReflectionException $reflectionException) {

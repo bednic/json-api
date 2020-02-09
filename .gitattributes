@@ -1,5 +1,6 @@
-/docker export-ignore
+/resources export-ignore
 /tests export-ignore
+/tests-resources export-ignore
 /vendor export-ignore
 /.* export-ignore
 /*.xml export-ignore

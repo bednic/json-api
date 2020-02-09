@@ -11,7 +11,6 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ReservedWord;
 use JSONAPI\Exception\Metadata\AttributeNotFound;
-use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\LinksTrait;
 
@@ -20,7 +19,7 @@ use JSONAPI\LinksTrait;
  *
  * @package JSONAPI\Document
  */
-class ResourceObject extends ResourceObjectIdentifier implements HasLinks, PrimaryData
+final class ResourceObject extends ResourceObjectIdentifier implements HasLinks, PrimaryData
 {
     use LinksTrait;
 

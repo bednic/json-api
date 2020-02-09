@@ -39,7 +39,7 @@ use Psr\Log\NullLogger;
  *
  * @package JSONAPI\Document
  */
-class Document implements JsonSerializable, HasLinks, HasMeta
+final class Document implements JsonSerializable, HasLinks, HasMeta
 {
     use LinksTrait;
     use MetaTrait;
