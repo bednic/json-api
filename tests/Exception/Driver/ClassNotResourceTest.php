@@ -11,7 +11,7 @@ class ClassNotResourceTest extends TestCase
 {
     protected $runTestInSeparateProcess = true;
 
-    public function test__construct()
+    public function testConstruct()
     {
         $e = new ClassNotResource('MyClass');
         $this->assertInstanceOf(ClassNotResource::class, $e);

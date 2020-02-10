@@ -10,7 +10,7 @@ class ClassNotExistTest extends TestCase
 {
     protected $runTestInSeparateProcess = true;
 
-    public function test__construct()
+    public function testConstruct()
     {
         $e = new ClassNotExist('MyClass');
         $this->assertInstanceOf(ClassNotExist::class, $e);

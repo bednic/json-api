@@ -11,7 +11,7 @@ class NameUsedAlreadyTest extends TestCase
 {
     protected $runTestInSeparateProcess = true;
 
-    public function test__construct()
+    public function testConstruct()
     {
         $e = new NameUsedAlready('someName');
         $this->assertInstanceOf(NameUsedAlready::class, $e);
