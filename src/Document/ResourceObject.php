@@ -1,17 +1,12 @@
 <?php
 
-/**
- * Created by IntelliJ IDEA.
- * User: tomas
- * Date: 04.02.2019
- * Time: 14:57
- */
+declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
+use Doctrine\Common\Collections\Collection;
+use JSONAPI\Exception\Document\FieldNotSet;
 use JSONAPI\Exception\Document\ReservedWord;
-use JSONAPI\Exception\Metadata\AttributeNotFound;
-use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\LinksTrait;
 
 /**
@@ -34,22 +29,6 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
     }
 
     /**
-     * Function return AttributeMetadata or null if doesn't exist
-     *
-     * @param string $key
-     *
-     * @return mixed
-     * @throws AttributeNotFound
-     */
-    public function getAttribute(string $key)
-    {
-        if (!$this->fields->containsKey($key) || !($this->fields->get($key) instanceof Attribute)) {
-            throw new AttributeNotFound($key, $this->getType());
-        }
-        return $this->fields->get($key)->getData();
-    }
-
-    /**
      * @param Relationship $relationship
      *
      * @throws ReservedWord
@@ -60,43 +39,56 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
     }
 
     /**
+     * Returns Attribute value
+     *
+     * @param string $key
+     *
+     * @return mixed
+     * @throws FieldNotSet
+     */
+    public function getAttribute(string $key)
+    {
+        if (!$this->getAttributes()->containsKey($key)) {
+            throw new FieldNotSet($key);
+        }
+        return $this->fields->get($key)->getData();
+    }
+
+
+    /**
+     * Reruns Relationship value
+     *
      * @param string $key
      *
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
-     * @throws RelationNotFound
+     * @throws FieldNotSet
      */
     public function getRelationship(string $key)
     {
-        if (!$this->fields->containsKey($key) || !($this->fields->get($key) instanceof Relationship)) {
-            throw new RelationNotFound($key, $this->getType());
+        if (!$this->getRelationships()->containsKey($key)) {
+            throw new FieldNotSet($key);
         }
         return $this->fields->get($key)->getData();
     }
 
     /**
-     * @return Attribute[]
+     * @return Collection
      */
-    public function getAttributes(): array
+    private function getAttributes(): Collection
     {
         return $this->fields->filter(function ($element) {
             return $element instanceof Attribute;
-        })->map(function ($element) {
-            /** @var Attribute $element */
-            return $element;
-        })->toArray();
+        });
     }
 
     /**
-     * @return Relationship[]
+     * @return Collection
      */
-    public function getRelationships(): array
+    private function getRelationships(): Collection
     {
         return $this->fields->filter(function ($element) {
             return $element instanceof Relationship;
-        })->map(function ($element) {
-            /** @var Relationship $element */
-            return $element;
-        })->toArray();
+        });
     }
 
     /**
@@ -110,11 +102,11 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
     public function jsonSerialize()
     {
         $ret = parent::jsonSerialize();
-        if ($this->getAttributes()) {
-            $ret['attributes'] = $this->getAttributes();
+        if ($this->getAttributes()->count() > 0) {
+            $ret['attributes'] = $this->getAttributes()->toArray();
         }
-        if ($this->getRelationships()) {
-            $ret['relationships'] = $this->getRelationships();
+        if ($this->getRelationships()->count() > 0) {
+            $ret['relationships'] = $this->getRelationships()->toArray();
         }
         if ($this->hasLinks()) {
             $ret['links'] = $this->getLinks();

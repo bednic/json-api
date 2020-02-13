@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\Uri\Fieldset;
 
 use JSONAPI\Uri\Sorting\SortInterface;

@@ -9,6 +9,7 @@
 
     <!-- inherit rules from: -->
     <rule ref="PSR12"/>
+    <rule ref="Generic.PHP.RequireStrictTypes"/>
 
     <!-- Paths to check -->
     <file>src</file>

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\Uri;
 
 use Fig\Http\Message\RequestMethodInterface;

@@ -1,11 +1,6 @@
 <?php
 
-/**
- * Created by IntelliJ IDEA.
- * User: tomas
- * Date: 16.04.2019
- * Time: 14:35
- */
+declare(strict_types=1);
 
 namespace JSONAPI\Document;
 

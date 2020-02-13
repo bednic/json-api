@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\Exception\Metadata;
 
 use JSONAPI\Exception\JsonApiException;

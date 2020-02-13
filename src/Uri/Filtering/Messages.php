@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\Uri\Filtering;
 
 /**
@@ -85,7 +87,7 @@ class Messages
      */
     public static function expressionParserOperatorNotSupportNull($operator, $pos)
     {
-        return "The operator '$operator' at position $pos is not supported for the 'null' literal; only equality 
+        return "The operator '$operator' at position $pos is not supported for the 'null' literal; only equality
         checks are supported";
     }
 
@@ -130,7 +132,7 @@ class Messages
         $protoTypes,
         $position
     ) {
-        return "No applicable function found for '$functionName' at position $position with the specified arguments. 
+        return "No applicable function found for '$functionName' at position $position with the specified arguments.
         The functions considered are: $protoTypes";
     }
 
@@ -208,7 +210,7 @@ class Messages
      */
     public static function configurationMaxResultAndPageSizeMutuallyExclusive()
     {
-        return 'Specification of \'entity set page size\' is mutually exclusive with the specification 
+        return 'Specification of \'entity set page size\' is mutually exclusive with the specification
         of \'maximum result per collection\' in configuration';
     }
 
@@ -248,7 +250,7 @@ class Messages
      */
     public static function configurationCountNotAccepted()
     {
-        return 'The ability of the data service to return row count information is disabled. 
+        return 'The ability of the data service to return row count information is disabled.
         To enable this functionality, set the ServiceConfiguration.AcceptCountRequests property to true.';
     }
 
@@ -309,7 +311,7 @@ class Messages
      */
     public static function resourceTypeMissingKeyPropertiesForEntity($entityName)
     {
-        return "The entity type '$entityName' does not have any key properties. 
+        return "The entity type '$entityName' does not have any key properties.
         Please make sure the key properties are defined for this entity type";
     }
 
@@ -332,7 +334,7 @@ class Messages
      */
     public static function resourceTypeKeyPropertiesOnlyOnEntityTypes()
     {
-        return 'Key properties can only be added to ResourceType instances 
+        return 'Key properties can only be added to ResourceType instances
         with a ResourceTypeKind equal to \'EntityType\'';
     }
 
@@ -344,7 +346,7 @@ class Messages
      */
     public static function resourceTypeETagPropertiesOnlyOnEntityTypes()
     {
-        return 'ETag properties can only be added to ResourceType instances 
+        return 'ETag properties can only be added to ResourceType instances
         with a ResourceTypeKind equal to \'EntityType\'';
     }
 
@@ -359,7 +361,7 @@ class Messages
      */
     public static function resourceTypePropertyWithSameNameAlreadyExists($propertyName, $resourceTypeName)
     {
-        return "Property with same name '$propertyName' already exists in type '$resourceTypeName'. 
+        return "Property with same name '$propertyName' already exists in type '$resourceTypeName'.
         Please make sure that there is no property with the same name defined in one of the ancestor types";
     }
 
@@ -404,7 +406,7 @@ class Messages
      */
     public static function resourceTypeNamedStreamWithSameNameAlreadyExists($namedStreamName, $resourceTypeName)
     {
-        return "Named stream with the name '$namedStreamName' already exists in type '$resourceTypeName'. 
+        return "Named stream with the name '$namedStreamName' already exists in type '$resourceTypeName'.
         Please make sure that there is no named stream with the same name defined in one of the ancestor types";
     }
 
@@ -417,7 +419,7 @@ class Messages
      */
     public static function resourcePropertyInvalidKindParameter($argumentName)
     {
-        return "The argument '$argumentName' is not a valid ResourcePropertyKind enum value 
+        return "The argument '$argumentName' is not a valid ResourcePropertyKind enum value
         or valid combination of ResourcePropertyKind enum values";
     }
 
@@ -433,7 +435,7 @@ class Messages
         $resourcePropertyKindArgName,
         $resourceTypeArgName
     ) {
-        return "The '$resourcePropertyKindArgName' parameter does not match with the type of the resource type 
+        return "The '$resourcePropertyKindArgName' parameter does not match with the type of the resource type
         in parameter '$resourceTypeArgName'";
     }
 
@@ -445,7 +447,7 @@ class Messages
      */
     public static function resourceSetContainerMustBeAssociatedWithEntityType()
     {
-        return 'The ResourceTypeKind property of a ResourceType instance associated 
+        return 'The ResourceTypeKind property of a ResourceType instance associated
         with a ResourceSet must be equal to \'EntityType\'';
     }
 
@@ -468,7 +470,7 @@ class Messages
      */
     public static function providersWrapperInvalidExpressionProviderInstance()
     {
-        return 'The value returned by IQueryProvider::getExpressionProvider 
+        return 'The value returned by IQueryProvider::getExpressionProvider
         method must be an implementation of IExpressionProvider';
     }
 
@@ -536,8 +538,8 @@ class Messages
         $resourceTypeName,
         $resourcePropertyName
     ) {
-        return "IDSMP::GetResourceSet retruns invalid instance of ResourceSet when invoked with params 
-        {ResourceSet with name $resourceSetName, ResourceType with name $resourceTypeName, 
+        return "IDSMP::GetResourceSet retruns invalid instance of ResourceSet when invoked with params
+        {ResourceSet with name $resourceSetName, ResourceType with name $resourceTypeName,
         ResourceProperty with name $resourcePropertyName}.";
     }
 
@@ -562,7 +564,7 @@ class Messages
      */
     public static function queryProviderResultCountMissing($methodName, QueryType $queryType)
     {
-        return "The implementation of the method $methodName must return a QueryResult instance with a count 
+        return "The implementation of the method $methodName must return a QueryResult instance with a count
         for queries of type $queryType.";
     }
 
@@ -576,7 +578,7 @@ class Messages
      */
     public static function queryProviderResultsMissing($methodName, QueryType $queryType)
     {
-        return "The implementation of the method $methodName must return a QueryResult instance 
+        return "The implementation of the method $methodName must return a QueryResult instance
         with an array of results for queries of type $queryType.";
     }
 
@@ -591,7 +593,7 @@ class Messages
      */
     public static function providersWrapperIDSQPMethodReturnsUnExpectedType($entityTypeName, $methodName)
     {
-        return 'The implementation of the method ' . $methodName . ' must return an instance of type 
+        return 'The implementation of the method ' . $methodName . ' must return an instance of type
         described by resource set\'s type(' . $entityTypeName . ') or null if resource does not exists';
     }
 
@@ -658,7 +660,7 @@ class Messages
      */
     public static function keyDescriptorMissingKeys($segment, $expectedKeys)
     {
-        return "Missing keys in key predicate for the segment '$segment'. 
+        return "Missing keys in key predicate for the segment '$segment'.
         The key predicate expect the keys '$expectedKeys'";
     }
 
@@ -675,7 +677,7 @@ class Messages
      */
     public static function keyDescriptorInCompatibleKeyType($segment, $keyProperty, $expectedType, $actualType)
     {
-        return "Syntax error in the segment '$segment'. The value of key property '$keyProperty' 
+        return "Syntax error in the segment '$segment'. The value of key property '$keyProperty'
         should be of type " . $expectedType . ", given " . $actualType;
     }
 
@@ -698,7 +700,7 @@ class Messages
         $expectedType,
         $actualType
     ) {
-        return "Syntax error in the segment '$segment'. The value of key property '$keyProperty' at 
+        return "Syntax error in the segment '$segment'. The value of key property '$keyProperty' at
         position $position should be of type " . $expectedType . ", given " . $actualType;
     }
 
@@ -746,7 +748,7 @@ class Messages
      */
     public static function segmentParserKeysMustBeNamed($segment)
     {
-        return "Segments with multiple key values must specify them in 'name=value' form. 
+        return "Segments with multiple key values must specify them in 'name=value' form.
         For the segment $segment use named keys";
     }
 
@@ -761,8 +763,8 @@ class Messages
      */
     public static function segmentParserMustBeLeafSegment($leafSegment)
     {
-        return "The request URI is not valid. The segment '$leafSegment' must be the last 
-        segment in the URI because it is one of the following: \$batch, \$value, \$metadata, \$count, a bag property, 
+        return "The request URI is not valid. The segment '$leafSegment' must be the last
+        segment in the URI because it is one of the following: \$batch, \$value, \$metadata, \$count, a bag property,
         a named media resource, or a service operation that does not return a value.";
     }
 
@@ -775,7 +777,7 @@ class Messages
      */
     public static function segmentParserNoSegmentAllowedAfterPostLinkSegment($postPostLinkSegment)
     {
-        return "The request URI is not valid. The segment '$postPostLinkSegment' is not valid. 
+        return "The request URI is not valid. The segment '$postPostLinkSegment' is not valid.
         Since the uri contains the \$links segment, there must be only one segment specified after that.";
     }
 
@@ -793,8 +795,8 @@ class Messages
         $segment,
         $primitivePropertySegment
     ) {
-        return "The segment '$segment' in the request URI is not valid. Since the 
-        segment '$primitivePropertySegment' refers to a primitive type property, the only supported 
+        return "The segment '$segment' in the request URI is not valid. Since the
+        segment '$primitivePropertySegment' refers to a primitive type property, the only supported
         value from the next segment is '\$value'.";
     }
 
@@ -807,8 +809,8 @@ class Messages
      */
     public static function segmentParserCannotQueryCollection($collectionSegment)
     {
-        return "The request URI is not valid. Since the segment '$collectionSegment' 
-        refers to a collection, this must be the last segment in the request URI. 
+        return "The request URI is not valid. Since the segment '$collectionSegment'
+        refers to a collection, this must be the last segment in the request URI.
         All intermediate segments must refer to a single resource.";
     }
 
@@ -821,7 +823,7 @@ class Messages
      */
     public static function segmentParserCountCannotFollowSingleton($segment)
     {
-        return "The request URI is not valid, since the segment '$segment' refers to a singleton, 
+        return "The request URI is not valid, since the segment '$segment' refers to a singleton,
         and the segment '\$count' can only follow a resource collection.";
     }
 
@@ -835,7 +837,7 @@ class Messages
      */
     public static function segmentParserLinkSegmentMustBeFollowedByEntitySegment($segment)
     {
-        return "The request URI is not valid. The segment '$segment' must refer to a navigation property 
+        return "The request URI is not valid. The segment '$segment' must refer to a navigation property
         since the previous segment identifier is '\$links'.";
     }
 
@@ -846,7 +848,7 @@ class Messages
      */
     public static function segmentParserMissingSegmentAfterLink()
     {
-        return "The request URI is not valid. There must a segment specified after the '\$links' segment and the 
+        return "The request URI is not valid. There must a segment specified after the '\$links' segment and the
         segment must refer to a entity resource.";
     }
 
@@ -895,7 +897,7 @@ class Messages
      */
     public static function segmentParserCountCannotBeApplied($segment)
     {
-        return "The request URI is not valid, \$count cannot be applied to the segment '$segment' 
+        return "The request URI is not valid, \$count cannot be applied to the segment '$segment'
         since \$count can only follow a resource segment.";
     }
 
@@ -951,7 +953,7 @@ class Messages
         $derivedTypeName
     ) {
         return "Named streams are not supported on derived entity types. Entity Set '$entitySetName' has a instance
-         of type '$derivedTypeName', which is an derived entity type and has named streams. Please remove all named 
+         of type '$derivedTypeName', which is an derived entity type and has named streams. Please remove all named
          streams from type '$derivedTypeName'.";
     }
 
@@ -966,7 +968,7 @@ class Messages
      */
     public static function metadataResourceTypeSetBagOfComplexTypeWithDerivedTypes($complexTypeName)
     {
-        return "Complex type '$complexTypeName' has derived types and is used as the item type in a bag. Only bags 
+        return "Complex type '$complexTypeName' has derived types and is used as the item type in a bag. Only bags
         containing complex types without derived types are supported.";
     }
 
@@ -995,7 +997,7 @@ class Messages
         $navigationPropertyName,
         $resourceTypeName
     ) {
-        return "No visible ResourceAssociationSet found for navigation property '$navigationPropertyName' on type 
+        return "No visible ResourceAssociationSet found for navigation property '$navigationPropertyName' on type
         '$resourceTypeName'. There must be at least one ResourceAssociationSet for each navigation property.";
     }
 
@@ -1007,7 +1009,7 @@ class Messages
      */
     public static function expandedProjectionNodeArgumentTypeShouldBeProjection()
     {
-        return 'The argument to ExpandedProjectionNode::addNode should be either ProjectionNode or 
+        return 'The argument to ExpandedProjectionNode::addNode should be either ProjectionNode or
         ExpandedProjectionNode';
     }
 
@@ -1040,7 +1042,7 @@ class Messages
      */
     public static function expandProjectionParserExpandCanOnlyAppliedToEntity($resourceTypeName, $propertyName)
     {
-        return "Error in the expand clause. Expand path can contain only navigation property, the property 
+        return "Error in the expand clause. Expand path can contain only navigation property, the property
         '$propertyName' defined in '$resourceTypeName' is not a navigation property";
     }
 
@@ -1059,7 +1061,7 @@ class Messages
         $resourceTypeName,
         $primitvePropertyName
     ) {
-        return "Property '$primitvePropertyName' on type '$resourceTypeName' is of primitive type and cannot be used 
+        return "Property '$primitvePropertyName' on type '$resourceTypeName' is of primitive type and cannot be used
         as a navigation property.";
     }
 
@@ -1077,7 +1079,7 @@ class Messages
         $resourceTypeName,
         $complextTypeName
     ) {
-        return "select doesn't support selection of properties of complex type. The property '$complextTypeName' 
+        return "select doesn't support selection of properties of complex type. The property '$complextTypeName'
         on type '$resourceTypeName' is a complex type.";
     }
 
@@ -1093,7 +1095,7 @@ class Messages
      */
     public static function expandProjectionParserBagPropertyAsInnerSelectSegment($resourceTypeName, $bagPropertyName)
     {
-        return "The selection from property '$bagPropertyName' on type '$resourceTypeName' is not valid. The select 
+        return "The selection from property '$bagPropertyName' on type '$resourceTypeName' is not valid. The select
         query option does not support selection items from a bag property.";
     }
 
@@ -1119,7 +1121,7 @@ class Messages
      */
     public static function expandProjectionParserPropertyWithoutMatchingExpand($propertyName)
     {
-        return 'Only navigation properties specified in expand option can be travered in select option,In order 
+        return 'Only navigation properties specified in expand option can be travered in select option,In order
         to treaverse the navigation property \'' . $propertyName . '\', it should be first expanded';
     }
 
@@ -1196,7 +1198,7 @@ class Messages
      */
     public static function orderByParserPrimitiveAsIntermediateSegment($propertyName)
     {
-        return "The primitive property '$propertyName' cannnot be used as intermediate segment, it should 
+        return "The primitive property '$propertyName' cannnot be used as intermediate segment, it should
         be last segment";
     }
 
@@ -1388,7 +1390,7 @@ class Messages
         $skipToken,
         $expectedCount
     ) {
-        return "The number of keys '$skipTokenValuesCount' in skip token with value '$skipToken' did not match the 
+        return "The number of keys '$skipTokenValuesCount' in skip token with value '$skipToken' did not match the
         number of ordering constraints '$expectedCount' for the resource type.";
     }
 
@@ -1424,7 +1426,7 @@ class Messages
         $position,
         $typeProvidedInSkipTokenName
     ) {
-        return "The skiptoken value '$skipToken' contain a value of type '$typeProvidedInSkipTokenName' at position 
+        return "The skiptoken value '$skipToken' contain a value of type '$typeProvidedInSkipTokenName' at position
         $position which is not compatible with the type '$expectedTypeName' of corresponding orderby constraint.";
     }
 
@@ -1485,7 +1487,7 @@ class Messages
      */
     public static function requestVersionTooLow($requestedVersion, $requiredVersion)
     {
-        return "Request version '$requestedVersion' is not supported for the request payload. The only supported 
+        return "Request version '$requestedVersion' is not supported for the request payload. The only supported
         version is '$requiredVersion'.";
     }
 
@@ -1669,7 +1671,7 @@ class Messages
      */
     public static function queryProcessorSkipTokenCannotBeAppliedForNonPagedResourceSet($resourceSetName)
     {
-        return "\$skiptoken cannot be applied to the resource set '$resourceSetName', since paging is not 
+        return "\$skiptoken cannot be applied to the resource set '$resourceSetName', since paging is not
         enabled for this resource set";
     }
 
@@ -1696,7 +1698,7 @@ class Messages
     public static function configurationProjectionsNotAccepted()
     {
         return 'The ability to use the $select query option to define a projection in a data service query is
-         disabled. To enable this functionality, call ServiceConfiguration::setAcceptProjectionRequests method 
+         disabled. To enable this functionality, call ServiceConfiguration::setAcceptProjectionRequests method
          with argument as true.';
     }
 
@@ -1708,7 +1710,7 @@ class Messages
      */
     public static function providersWrapperNull()
     {
-        return 'For custom providers, GetService should not return null for both IMetadataProvider and 
+        return 'For custom providers, GetService should not return null for both IMetadataProvider and
         IQueryProvider types.';
     }
 
@@ -1780,7 +1782,7 @@ class Messages
      */
     public static function streamProviderWrapperMustImplementIStreamProviderToSupportStreaming()
     {
-        return 'To support streaming, the data service must implement IServiceProvider::GetService() to return an 
+        return 'To support streaming, the data service must implement IServiceProvider::GetService() to return an
         implementation of IStreamProvider or IStreamProvider2';
     }
 
@@ -1791,7 +1793,7 @@ class Messages
      */
     public static function streamProviderWrapperMaxProtocolVersionMustBeV3OrAboveToSupportNamedStreams()
     {
-        return 'To support named streams, the MaxProtocolVersion of the data service must be set to 
+        return 'To support named streams, the MaxProtocolVersion of the data service must be set to
         ProtocolVersion.V3 or above.';
     }
 
@@ -1803,7 +1805,7 @@ class Messages
      */
     public static function streamProviderWrapperMustImplementStreamProvider2ToSupportNamedStreams()
     {
-        return 'To support named streams, the data service must implement IServiceProvider.GetService() to return 
+        return 'To support named streams, the data service must implement IServiceProvider.GetService() to return
         an implementation of IStreamProvider2 or the data source must implement IStreamProvider2.';
     }
 
@@ -1867,7 +1869,7 @@ class Messages
      */
     public static function badQueryNullKeysAreNotSupported($resourceTypeName, $keyName)
     {
-        return "The serialized resource of type $resourceTypeName has a null value in key member '$keyName'. 
+        return "The serialized resource of type $resourceTypeName has a null value in key member '$keyName'.
         Null values are not supported in key members.";
     }
 
@@ -1882,7 +1884,7 @@ class Messages
      */
     public static function objectModelSerializerFailedToAccessProperty($propertyName, $parentObjectName)
     {
-        return "objectModelSerializer failed to access or initialize the property $propertyName of $parentObjectName, 
+        return "objectModelSerializer failed to access or initialize the property $propertyName of $parentObjectName,
         Please contact provider";
     }
 
@@ -1896,7 +1898,7 @@ class Messages
      */
     public static function objectModelSerializerLoopsNotAllowedInComplexTypes($complexPropertyName)
     {
-        return 'A circular loop was detected while serializing the property \'' . $complexPropertyName . '\'. 
+        return 'A circular loop was detected while serializing the property \'' . $complexPropertyName . '\'.
         You must make sure that loops are not present in properties that return a bag or complex type.';
     }
 
@@ -1971,7 +1973,7 @@ class Messages
      */
     public static function httpProcessUtilityEscapeCharWithoutQuotes($parameterName)
     {
-        return "Value for MIME type parameter '$parameterName' is incorrect because it contained escape characters 
+        return "Value for MIME type parameter '$parameterName' is incorrect because it contained escape characters
         even though it was not quoted.";
     }
 
@@ -1985,7 +1987,7 @@ class Messages
      */
     public static function httpProcessUtilityEscapeCharAtEnd($parameterName)
     {
-        return "Value for MIME type parameter '$parameterName' is incorrect because it terminated with escape 
+        return "Value for MIME type parameter '$parameterName' is incorrect because it terminated with escape
         character. Escape characters must always be followed by a character in a parameter value.";
     }
 
@@ -2058,7 +2060,7 @@ class Messages
      */
     public static function bothIfMatchAndIfNoneMatchHeaderSpecified()
     {
-        return "Both If-Match and If-None-Match HTTP headers cannot be specified at the same time. Please specify 
+        return "Both If-Match and If-None-Match HTTP headers cannot be specified at the same time. Please specify
         either one of the headers or none of them.";
     }
 
@@ -2070,7 +2072,7 @@ class Messages
      */
     public static function eTagNotAllowedForNonExistingResource()
     {
-        return 'The resource targeted by the request does not exists, eTag header is not allowed for non-existing 
+        return 'The resource targeted by the request does not exists, eTag header is not allowed for non-existing
         resource.';
     }
 
@@ -2084,7 +2086,7 @@ class Messages
      */
     public static function badRequestInvalidUriForMediaResource($uri)
     {
-        return "The URI '$uri' is not valid. The segment before '\$value' must be a Media Link Entry or a 
+        return "The URI '$uri' is not valid. The segment before '\$value' must be a Media Link Entry or a
         primitive property.";
     }
 
@@ -2155,7 +2157,7 @@ class Messages
      */
     public static function hostRequestUriIsNotBasedOnRelativeUriInConfig($requestUri, $relativeUri)
     {
-        return 'The request uri ' . $requestUri . ' is not valid as it is not based on the configured 
+        return 'The request uri ' . $requestUri . ' is not valid as it is not based on the configured
         relative uri ' . $relativeUri;
     }
 

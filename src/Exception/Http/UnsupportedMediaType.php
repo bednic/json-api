@@ -1,11 +1,6 @@
 <?php
 
-/**
- * Created by IntelliJ IDEA.
- * User: tomas
- * Date: 24.02.2019
- * Time: 19:47
- */
+declare(strict_types=1);
 
 namespace JSONAPI\Exception\Http;
 

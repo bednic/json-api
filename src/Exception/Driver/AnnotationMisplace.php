@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\Exception\Driver;
 
 class AnnotationMisplace extends DriverException
