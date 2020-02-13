@@ -76,15 +76,18 @@ final class UriParser
      * @param ServerRequestInterface         $request
      * @param FilterParserInterface|null     $filterParser     Default is CriteriaFilterParser
      * @param PaginationParserInterface|null $paginationParser Default is LimitOffsetPagination
+     * @param MetadataRepository|null        $metadataRepository
      * @param LoggerInterface|null           $logger
      */
     public function __construct(
         ServerRequestInterface $request,
         FilterParserInterface $filterParser = null,
         PaginationParserInterface $paginationParser = null,
+        MetadataRepository $metadataRepository = null,
         LoggerInterface $logger = null
     ) {
         $this->request = $request;
+        $this->metadata = $metadataRepository;
         $this->logger = $logger ?? new NullLogger();
         $this->fieldsetParser = new FieldsetParser();
         $this->filterParser = $filterParser ?? new CriteriaFilterParser();
@@ -183,13 +186,13 @@ final class UriParser
     }
 
     /**
-     * @uses \JSONAPI\Uri\UriParser::$metadata
-     *
      * @return bool
      * @throws BadRequest
      * @throws MissingDependency
      * @throws MetadataNotFound
      * @throws RelationNotFound
+     * @uses \JSONAPI\Uri\UriParser::$metadata
+     *
      */
     public function isCollection(): bool
     {

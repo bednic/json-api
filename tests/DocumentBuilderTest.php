@@ -6,19 +6,11 @@ namespace JSONAPI\Test;
 
 use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Document\Document;
-use JSONAPI\Document\Id;
-use JSONAPI\Document\ResourceCollection;
-use JSONAPI\Document\ResourceObject;
-use JSONAPI\Document\ResourceObjectIdentifier;
-use JSONAPI\Document\Type;
 use JSONAPI\DocumentBuilder;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Test\Resources\Valid\GettersExample;
-use JSONAPI\Uri\Filtering\CriteriaFilterParser;
-use JSONAPI\Uri\Pagination\LimitOffsetPagination;
-use JSONAPI\Uri\Pagination\PagePagination;
 use JSONAPI\Uri\UriParser;
 use Opis\JsonSchema\ISchema;
 use Opis\JsonSchema\Schema;
@@ -51,38 +43,14 @@ class DocumentBuilderTest extends TestCase
         self::$schema = Schema::fromJsonString(file_get_contents(RESOURCES . '/schema.json'));
     }
 
-    public function testGetUriParser()
-    {
-
-        $request = ServerRequestFactory::createFromGlobals();
-        $this->assertInstanceOf(UriParser::class, DocumentBuilder::create(self::$mr, $request)->getUriParser());
-    }
-
     public function testCreate()
     {
-
         $request = ServerRequestFactory::createFromGlobals();
-        $db = DocumentBuilder::create(self::$mr, $request);
+        $db = DocumentBuilder::create(self::$mr, new UriParser($request));
         $this->assertInstanceOf(DocumentBuilder::class, $db);
-        $db = DocumentBuilder::create(self::$mr, $request, null, null, null);
+        $db = DocumentBuilder::create(self::$mr, new UriParser($request), null);
         $this->assertInstanceOf(DocumentBuilder::class, $db);
-        $db = DocumentBuilder::create(
-            self::$mr,
-            $request,
-            new NullLogger(),
-            new CriteriaFilterParser(),
-            new LimitOffsetPagination()
-        );
-        $this->assertInstanceOf(DocumentBuilder::class, $db);
-        $db = DocumentBuilder::create(
-            self::$mr,
-            $request,
-            new NullLogger(),
-            new CriteriaFilterParser(),
-            new PagePagination(),
-            -1,
-            25
-        );
+        $db = DocumentBuilder::create(self::$mr, new UriParser($request), new NullLogger(), 666, 666);
         $this->assertInstanceOf(DocumentBuilder::class, $db);
     }
 
@@ -92,7 +60,7 @@ class DocumentBuilderTest extends TestCase
         $request = ServerRequestFactory::createFromGlobals();
         $this->assertInstanceOf(
             DocumentBuilder::class,
-            DocumentBuilder::create(self::$mr, $request)->setTotalItems(10)
+            DocumentBuilder::create(self::$mr, new UriParser($request))->setTotalItems(10)
         );
     }
 
@@ -102,7 +70,10 @@ class DocumentBuilderTest extends TestCase
         $single = new GettersExample('uuid');
         $this->assertInstanceOf(
             DocumentBuilder::class,
-            DocumentBuilder::create(self::$mr, $request)->setData($single)
+            DocumentBuilder::create(
+                self::$mr,
+                new UriParser($request)
+            )->setData($single)
         );
 
         $_SERVER['REQUEST_URI'] = 'getter';
@@ -110,7 +81,7 @@ class DocumentBuilderTest extends TestCase
         $collection = [new GettersExample('uuid')];
         $this->assertInstanceOf(
             DocumentBuilder::class,
-            DocumentBuilder::create(self::$mr, $request)->setData($collection)
+            DocumentBuilder::create(self::$mr, new UriParser($request))->setData($collection)
         );
     }
 
@@ -118,14 +89,14 @@ class DocumentBuilderTest extends TestCase
     {
         $request = ServerRequestFactory::createFromGlobals();
         $single = new GettersExample('uuid');
-        $doc = DocumentBuilder::create(self::$mr, $request)->setData($single)->build();
+        $doc = DocumentBuilder::create(self::$mr, new UriParser($request))->setData($single)->build();
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));
 
         $_SERVER['REQUEST_URI'] = 'getter';
         $request = ServerRequestFactory::createFromGlobals();
         $collection = [new GettersExample('uuid')];
-        $doc = DocumentBuilder::create(self::$mr, $request)->setData($collection)->build();
+        $doc = DocumentBuilder::create(self::$mr, new UriParser($request))->setData($collection)->build();
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));
     }

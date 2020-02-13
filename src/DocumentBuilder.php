@@ -13,13 +13,10 @@ use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\MissingDependency;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\Filtering\FilterParserInterface;
 use JSONAPI\Uri\Inclusion\Inclusion;
 use JSONAPI\Uri\LinkFactory;
-use JSONAPI\Uri\Pagination\PaginationParserInterface;
 use JSONAPI\Uri\Pagination\UseTotalCount;
 use JSONAPI\Uri\UriParser;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\InvalidArgumentException as CacheException;
@@ -40,74 +37,54 @@ class DocumentBuilder
     /**
      * DocumentBuilder constructor.
      *
-     * @param MetadataRepository             $metadata
-     * @param ServerRequestInterface         $request
-     * @param LoggerInterface|null           $logger
-     * @param FilterParserInterface|null     $filterParser      Default is CriteriaFilterParser
-     * @param PaginationParserInterface|null $paginationParser  LimitOffsetPagination
-     * @param int                            $maxIncludedItems  Should by positive integer.
+     * @param MetadataRepository   $metadata
+     * @param UriParser            $uriParser
+     * @param LoggerInterface|null $logger
+     * @param int                  $maxIncludedItems            Should by positive integer.
      *                                                          Disable limit by passing -1.
-     * @param int                            $relationshipLimit How many relationship object identifiers should be
+     * @param int                  $relationshipLimit           How many relationship object identifiers should be
      *                                                          included in relationship collection.
      */
     private function __construct(
         MetadataRepository $metadata,
-        ServerRequestInterface $request,
+        UriParser $uriParser,
         LoggerInterface $logger = null,
-        FilterParserInterface $filterParser = null,
-        PaginationParserInterface $paginationParser = null,
         int $maxIncludedItems = 625,
         int $relationshipLimit = 25
     ) {
         $this->logger = $logger ?? new NullLogger();
         $this->metadata = $metadata;
-        $this->uri = new UriParser($request, $filterParser, $paginationParser, $logger);
+        $this->uri = $uriParser;
         $this->uri->setMetadata($this->metadata);
         $this->encoder = new Encoder($this->metadata, $this->uri->getFieldset(), $this->logger);
         $this->encoder->setRelationshipLimit($relationshipLimit);
         $this->maxIncludedItems = $maxIncludedItems;
-        $this->document = $request->getParsedBody() ?? new Document();
+        $this->document = new Document();
     }
 
     /**
-     * @param MetadataRepository             $metadata
-     * @param ServerRequestInterface         $request
-     * @param LoggerInterface|null           $logger
-     * @param FilterParserInterface|null     $filterParser
-     * @param PaginationParserInterface|null $paginationParser
-     * @param int                            $maxIncludedItems
-     * @param int                            $relationshipLimit
+     * @param MetadataRepository   $metadata
+     * @param UriParser            $uriParser
+     * @param LoggerInterface|null $logger
+     * @param int                  $maxIncludedItems
+     * @param int                  $relationshipLimit
      *
      * @return DocumentBuilder
      */
     public static function create(
         MetadataRepository $metadata,
-        ServerRequestInterface $request,
+        UriParser $uriParser,
         LoggerInterface $logger = null,
-        FilterParserInterface $filterParser = null,
-        PaginationParserInterface $paginationParser = null,
         int $maxIncludedItems = 625,
         int $relationshipLimit = 25
     ): self {
         return new self(
             $metadata,
-            $request,
+            $uriParser,
             $logger,
-            $filterParser,
-            $paginationParser,
             $maxIncludedItems,
             $relationshipLimit
         );
-    }
-
-    /**
-     * Helper method, should help to not initialize unnecessary instance of UriParser
-     *
-     * @return UriParser
-     */
-    public function getUriParser(): UriParser
-    {
-        return $this->uri;
     }
 
     /**

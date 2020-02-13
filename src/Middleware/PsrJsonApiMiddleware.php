@@ -22,15 +22,10 @@ use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Document\Type;
 use JSONAPI\Exception\Document\DocumentException;
-use JSONAPI\Exception\Document\ForbiddenCharacter;
-use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\Document\ReservedWord;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\Conflict;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Exception\Metadata\MetadataException;
-use JSONAPI\Exception\Metadata\MetadataNotFound;
-use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Exception\MissingDependency;
 use JSONAPI\JsonDeserializable;
 use JSONAPI\Metadata\ClassMetadata;
@@ -120,8 +115,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                     throw new UnsupportedMediaType();
                 }
                 $document = new Document();
-                $uriParser = new UriParser($request, null, null, $this->logger);
-                $uriParser->setMetadata($this->repository);
+                $uriParser = new UriParser($request, null, null, $this->repository, $this->logger);
                 $document->setData($this->loadRequestData($this->getBody(), $uriParser));
                 $request = $request->withParsedBody($document);
             }
