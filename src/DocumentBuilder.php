@@ -88,9 +88,16 @@ class DocumentBuilder
         PaginationParserInterface $paginationParser = null,
         int $maxIncludedItems = 625,
         int $relationshipLimit = 25
-    ):self {
-        return new self($metadata, $request, $logger, $filterParser, $paginationParser, $maxIncludedItems,
-            $relationshipLimit);
+    ): self {
+        return new self(
+            $metadata,
+            $request,
+            $logger,
+            $filterParser,
+            $paginationParser,
+            $maxIncludedItems,
+            $relationshipLimit
+        );
     }
 
     /**

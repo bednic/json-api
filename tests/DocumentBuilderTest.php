@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace JSONAPI\Test;
 
@@ -90,22 +90,28 @@ class DocumentBuilderTest extends TestCase
     {
 
         $request = ServerRequestFactory::createFromGlobals();
-        $this->assertInstanceOf(DocumentBuilder::class,
-            DocumentBuilder::create(self::$mr, $request)->setTotalItems(10));
+        $this->assertInstanceOf(
+            DocumentBuilder::class,
+            DocumentBuilder::create(self::$mr, $request)->setTotalItems(10)
+        );
     }
 
     public function testSetData()
     {
         $request = ServerRequestFactory::createFromGlobals();
         $single = new GettersExample('uuid');
-        $this->assertInstanceOf(DocumentBuilder::class,
-            DocumentBuilder::create(self::$mr, $request)->setData($single));
+        $this->assertInstanceOf(
+            DocumentBuilder::class,
+            DocumentBuilder::create(self::$mr, $request)->setData($single)
+        );
 
         $_SERVER['REQUEST_URI'] = 'getter';
         $request = ServerRequestFactory::createFromGlobals();
         $collection = [new GettersExample('uuid')];
-        $this->assertInstanceOf(DocumentBuilder::class,
-            DocumentBuilder::create(self::$mr, $request)->setData($collection));
+        $this->assertInstanceOf(
+            DocumentBuilder::class,
+            DocumentBuilder::create(self::$mr, $request)->setData($collection)
+        );
     }
 
     public function testBuild()
