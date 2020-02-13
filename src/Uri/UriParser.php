@@ -6,6 +6,7 @@ namespace JSONAPI\Uri;
 
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Exception\Http\BadRequest;
+use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Exception\MissingDependency;
@@ -71,6 +72,12 @@ final class UriParser
      * @var MetadataRepository|null
      */
     private ?MetadataRepository $metadata = null;
+    /**
+     * Enables inclusion support
+     *
+     * @var bool
+     */
+    public static bool $inclusionEnabled = true;
 
     /**
      * UriParser constructor.
@@ -80,6 +87,8 @@ final class UriParser
      * @param PaginationParserInterface|null $paginationParser Default is LimitOffsetPagination
      * @param MetadataRepository|null        $metadataRepository
      * @param LoggerInterface|null           $logger
+     *
+     * @throws BadRequest
      */
     public function __construct(
         ServerRequestInterface $request,
@@ -88,6 +97,7 @@ final class UriParser
         MetadataRepository $metadataRepository = null,
         LoggerInterface $logger = null
     ) {
+        $this->check($request);
         $this->request = $request;
         $this->metadata = $metadataRepository;
         $this->logger = $logger ?? new NullLogger();
@@ -97,6 +107,20 @@ final class UriParser
         $this->paginationParser = $paginationParser ?? new LimitOffsetPagination();
         $this->pathParser = new PathParser();
         $this->sortParser = new SortParser();
+    }
+
+    /**
+     * Checks if request is valid else throw bad request exception
+     *
+     * @param ServerRequestInterface $request
+     *
+     * @throws BadRequest
+     */
+    private function check(ServerRequestInterface $request)
+    {
+        if (!self::$inclusionEnabled && in_array(UriPartInterface::INCLUSION_PART_KEY, $request->getQueryParams())) {
+            throw new UnsupportedParameter(UriPartInterface::INCLUSION_PART_KEY);
+        }
     }
 
     /**

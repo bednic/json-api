@@ -11,6 +11,7 @@ namespace JSONAPI\Exception\Http;
  */
 class UnsupportedParameter extends BadRequest
 {
+    protected $message = 'Paramter %s is not supported.';
     /**
      * @var string
      */
@@ -23,7 +24,7 @@ class UnsupportedParameter extends BadRequest
      */
     public function __construct(string $parameter)
     {
-        parent::__construct(parent::getMessage(), parent::getCode());
+        parent::__construct(sprintf($this->message, $parameter));
         $this->parameter = $parameter;
     }
 
