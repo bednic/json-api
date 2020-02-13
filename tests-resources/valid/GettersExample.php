@@ -18,6 +18,7 @@ use JSONAPI\Metadata\Id;
 use JSONAPI\Metadata\Relationship;
 use JSONAPI\Schema\Resource;
 use JSONAPI\Schema\ResourceSchema;
+use JSONAPI\Annotation as API;
 
 /**
  * Class GettersExample
