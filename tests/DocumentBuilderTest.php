@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace JSONAPI\Test;
 
@@ -55,19 +55,18 @@ class DocumentBuilderTest extends TestCase
     {
 
         $request = ServerRequestFactory::createFromGlobals();
-        $db = new DocumentBuilder(self::$mr, $request);
-        $this->assertInstanceOf(UriParser::class, $db->getUriParser());
+        $this->assertInstanceOf(UriParser::class, DocumentBuilder::create(self::$mr, $request)->getUriParser());
     }
 
-    public function testConstruct()
+    public function testCreate()
     {
 
         $request = ServerRequestFactory::createFromGlobals();
-        $db = new DocumentBuilder(self::$mr, $request);
+        $db = DocumentBuilder::create(self::$mr, $request);
         $this->assertInstanceOf(DocumentBuilder::class, $db);
-        $db = new DocumentBuilder(self::$mr, $request, null, null, null);
+        $db = DocumentBuilder::create(self::$mr, $request, null, null, null);
         $this->assertInstanceOf(DocumentBuilder::class, $db);
-        $db = new DocumentBuilder(
+        $db = DocumentBuilder::create(
             self::$mr,
             $request,
             new NullLogger(),
@@ -75,7 +74,7 @@ class DocumentBuilderTest extends TestCase
             new LimitOffsetPagination()
         );
         $this->assertInstanceOf(DocumentBuilder::class, $db);
-        $db = new DocumentBuilder(
+        $db = DocumentBuilder::create(
             self::$mr,
             $request,
             new NullLogger(),
@@ -91,41 +90,40 @@ class DocumentBuilderTest extends TestCase
     {
 
         $request = ServerRequestFactory::createFromGlobals();
-        $db = new DocumentBuilder(self::$mr, $request);
-        $this->assertInstanceOf(DocumentBuilder::class, $db->setTotalItems(10));
+        $this->assertInstanceOf(DocumentBuilder::class,
+            DocumentBuilder::create(self::$mr, $request)->setTotalItems(10));
     }
 
     public function testSetData()
     {
         $request = ServerRequestFactory::createFromGlobals();
         $single = new GettersExample('uuid');
-        $db = new DocumentBuilder(self::$mr, $request);
-        $this->assertInstanceOf(DocumentBuilder::class, $db->setData($single));
+        $this->assertInstanceOf(DocumentBuilder::class,
+            DocumentBuilder::create(self::$mr, $request)->setData($single));
 
         $_SERVER['REQUEST_URI'] = 'getter';
         $request = ServerRequestFactory::createFromGlobals();
         $collection = [new GettersExample('uuid')];
-        $db = new DocumentBuilder(self::$mr, $request);
-        $this->assertInstanceOf(DocumentBuilder::class, $db->setData($collection));
+        $this->assertInstanceOf(DocumentBuilder::class,
+            DocumentBuilder::create(self::$mr, $request)->setData($collection));
     }
 
     public function testBuild()
     {
         $request = ServerRequestFactory::createFromGlobals();
         $single = new GettersExample('uuid');
-        $db = new DocumentBuilder(self::$mr, $request);
-        $doc = $db->setData($single)->build();
+        $doc = DocumentBuilder::create(self::$mr, $request)->setData($single)->build();
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));
 
         $_SERVER['REQUEST_URI'] = 'getter';
         $request = ServerRequestFactory::createFromGlobals();
         $collection = [new GettersExample('uuid')];
-        $db = new DocumentBuilder(self::$mr, $request);
-        $doc = $db->setData($collection)->build();
+        $doc = DocumentBuilder::create(self::$mr, $request)->setData($collection)->build();
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));
     }
+
     private function isValid(Document $document): bool
     {
         $result = self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema);

@@ -50,7 +50,7 @@ class DocumentBuilder
      * @param int                            $relationshipLimit How many relationship object identifiers should be
      *                                                          included in relationship collection.
      */
-    public function __construct(
+    private function __construct(
         MetadataRepository $metadata,
         ServerRequestInterface $request,
         LoggerInterface $logger = null,
@@ -67,6 +67,30 @@ class DocumentBuilder
         $this->encoder->setRelationshipLimit($relationshipLimit);
         $this->maxIncludedItems = $maxIncludedItems;
         $this->document = $request->getParsedBody() ?? new Document();
+    }
+
+    /**
+     * @param MetadataRepository             $metadata
+     * @param ServerRequestInterface         $request
+     * @param LoggerInterface|null           $logger
+     * @param FilterParserInterface|null     $filterParser
+     * @param PaginationParserInterface|null $paginationParser
+     * @param int                            $maxIncludedItems
+     * @param int                            $relationshipLimit
+     *
+     * @return DocumentBuilder
+     */
+    public static function create(
+        MetadataRepository $metadata,
+        ServerRequestInterface $request,
+        LoggerInterface $logger = null,
+        FilterParserInterface $filterParser = null,
+        PaginationParserInterface $paginationParser = null,
+        int $maxIncludedItems = 625,
+        int $relationshipLimit = 25
+    ):self {
+        return new self($metadata, $request, $logger, $filterParser, $paginationParser, $maxIncludedItems,
+            $relationshipLimit);
     }
 
     /**
