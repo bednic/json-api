@@ -10,8 +10,8 @@ use JSONAPI\Exception\Document\DocumentException;
 use JSONAPI\Exception\Document\InclusionOverflow;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
-use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Exception\Metadata\MetadataException;
+use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Exception\MissingDependency;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataRepository;
@@ -21,7 +21,6 @@ use JSONAPI\Uri\Pagination\UseTotalCount;
 use JSONAPI\Uri\UriParser;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Psr\SimpleCache\InvalidArgumentException as CacheException;
 
 class DocumentBuilder
 {
@@ -94,11 +93,9 @@ class DocumentBuilder
      *
      * @return $this
      * @throws BadRequest
-     * @throws CacheException
      * @throws DocumentException
      * @throws DriverException
      * @throws MissingDependency
-     * @throws InvalidArgumentException
      * @throws MetadataException
      */
     public function setData($data): self
@@ -163,33 +160,40 @@ class DocumentBuilder
      * @param Inclusion[] $inclusions
      *
      * @throws BadRequest
-     * @throws CacheException
-     * @throws DocumentException
-     * @throws DriverException
-     * @throws InvalidArgumentException
-     * @throws MetadataException
+     * @throws Exception\Document\ForbiddenCharacter
+     * @throws Exception\Document\ForbiddenDataType
+     * @throws Exception\Document\ReservedWord
+     * @throws Exception\Document\ResourceTypeMismatch
+     * @throws Exception\Driver\ClassNotExist
+     * @throws Exception\Metadata\InvalidField
+     * @throws Exception\Metadata\MetadataNotFound
+     * @throws InclusionOverflow
      */
     private function fetchInclusions(object $object, array $inclusions): void
     {
         $classMetadata = $this->metadata->getByClass(self::clearDoctrineProxyPrefix(get_class($object)));
         foreach ($inclusions as $sub) {
-            $relationship = $classMetadata->getRelationship($sub->getRelationName());
-            $data = null;
-            if ($relationship->property) {
-                $data = $object->{$relationship->property};
-            } elseif ($relationship->getter) {
-                $data = call_user_func([$object, $relationship->getter]);
-            }
-            if (!empty($data)) {
-                if ($relationship->isCollection) {
-                    foreach ($data as $item) {
-                        $this->addInclusion($item);
-                        $this->fetchInclusions($item, $sub->getInclusions());
-                    }
-                } else {
-                    $this->addInclusion($data);
-                    $this->fetchInclusions($data, $sub->getInclusions());
+            try {
+                $relationship = $classMetadata->getRelationship($sub->getRelationName());
+                $data = null;
+                if ($relationship->property) {
+                    $data = $object->{$relationship->property};
+                } elseif ($relationship->getter) {
+                    $data = call_user_func([$object, $relationship->getter]);
                 }
+                if (!empty($data)) {
+                    if ($relationship->isCollection) {
+                        foreach ($data as $item) {
+                            $this->addInclusion($item);
+                            $this->fetchInclusions($item, $sub->getInclusions());
+                        }
+                    } else {
+                        $this->addInclusion($data);
+                        $this->fetchInclusions($data, $sub->getInclusions());
+                    }
+                }
+            } catch (RelationNotFound $relationNotFound) {
+                throw new BadRequest("URL malformed around '{$sub->getRelationName()}'.");
             }
         }
     }
@@ -197,9 +201,13 @@ class DocumentBuilder
     /**
      * @param object $item
      *
-     * @throws DocumentException
-     * @throws DriverException
-     * @throws MetadataException
+     * @throws Exception\Document\ForbiddenCharacter
+     * @throws Exception\Document\ForbiddenDataType
+     * @throws Exception\Document\ReservedWord
+     * @throws Exception\Document\ResourceTypeMismatch
+     * @throws Exception\Driver\ClassNotExist
+     * @throws Exception\Metadata\InvalidField
+     * @throws Exception\Metadata\MetadataNotFound
      * @throws InclusionOverflow
      */
     private function addInclusion(object $item): void
