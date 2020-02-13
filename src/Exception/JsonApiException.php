@@ -16,10 +16,11 @@ abstract class JsonApiException extends Exception
 {
     protected $code = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
     protected $message = "Internal Server Error.";
+
     /**
      * @return int
      */
-    public function getStatus()
+    public function getStatus(): int
     {
         return StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
     }

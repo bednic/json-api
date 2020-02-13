@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\LinksTrait;
 use JSONAPI\MetaTrait;

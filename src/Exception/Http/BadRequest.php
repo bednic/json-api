@@ -17,7 +17,10 @@ class BadRequest extends JsonApiException
     protected $code = StatusCodeInterface::STATUS_BAD_REQUEST;
     protected $message = "Bad Request";
 
-    public function getStatus()
+    /**
+     * @return int
+     */
+    public function getStatus(): int
     {
         return StatusCodeInterface::STATUS_BAD_REQUEST;
     }

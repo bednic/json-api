@@ -14,6 +14,12 @@ class PropertyNotExist extends DriverException
     protected $code = 536;
     protected $message = "Property %s does not exist on class %s";
 
+    /**
+     * PropertyNotExist constructor.
+     *
+     * @param string $propertyName
+     * @param string $className
+     */
     public function __construct(string $propertyName, string $className)
     {
         $message = sprintf($this->message, $propertyName, $className);

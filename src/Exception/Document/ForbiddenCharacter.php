@@ -14,6 +14,11 @@ class ForbiddenCharacter extends DocumentException
     protected $code = 521;
     protected $message = "Parameter %s contains forbidden character(s).";
 
+    /**
+     * ForbiddenCharacter constructor.
+     *
+     * @param string $parameterName
+     */
     public function __construct(string $parameterName)
     {
         $message = sprintf($this->message, $parameterName);

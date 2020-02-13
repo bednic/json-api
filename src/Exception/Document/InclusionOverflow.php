@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Document;
 
+/**
+ * Class InclusionOverflow
+ *
+ * @package JSONAPI\Exception\Document
+ */
 class InclusionOverflow extends DocumentException
 {
     protected $code = 525;

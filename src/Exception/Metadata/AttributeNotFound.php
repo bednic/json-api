@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Metadata;
 
+/**
+ * Class AttributeNotFound
+ *
+ * @package JSONAPI\Exception\Metadata
+ */
 class AttributeNotFound extends MetadataException
 {
     protected $code = 541;

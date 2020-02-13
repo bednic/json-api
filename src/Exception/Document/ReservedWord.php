@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Document;
 
+/**
+ * Class ReservedWord
+ *
+ * @package JSONAPI\Exception\Document
+ */
 class ReservedWord extends DocumentException
 {
     protected $code = 524;

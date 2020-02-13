@@ -18,7 +18,6 @@ use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\Field;
 use JSONAPI\Metadata\Relationship;
 use JSONAPI\Schema\Resource;
-use JSONAPI\Schema\ResourceSchema;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;

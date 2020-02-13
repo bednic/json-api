@@ -14,6 +14,12 @@ class MethodNotExist extends DriverException
     protected $code = 535;
     protected $message = "Method %s does not exist on class %s";
 
+    /**
+     * MethodNotExist constructor.
+     *
+     * @param string $methodName
+     * @param string $className
+     */
     public function __construct(string $methodName, string $className)
     {
         $message = sprintf($this->message, $methodName, $className);

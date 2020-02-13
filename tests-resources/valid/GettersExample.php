@@ -7,11 +7,12 @@
  * Time: 12:47
  */
 
+declare(strict_types=1);
+
 namespace JSONAPI\Test\Resources\Valid;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\Annotation as API;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\Id;
 use JSONAPI\Metadata\Relationship;
@@ -228,12 +229,12 @@ class GettersExample implements Resource
             [
                 Attribute::createByMethod('getStringProperty'),
                 Attribute::createByMethod('getIntProperty'),
-                Attribute::createByMethod('getArrayProperty','int'),
+                Attribute::createByMethod('getArrayProperty', 'int'),
                 Attribute::createByMethod('isBoolProperty'),
                 Attribute::createByMethod('getDtoProperty'),
             ],
             [
-                Relationship::createByMethod('getRelation',DummyRelation::class),
+                Relationship::createByMethod('getRelation', DummyRelation::class),
                 Relationship::createByMethod('getCollection', DummyRelation::class)
             ]
         );

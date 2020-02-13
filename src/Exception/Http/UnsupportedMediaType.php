@@ -16,7 +16,11 @@ class UnsupportedMediaType extends BadRequest
 
     protected $code = StatusCodeInterface::STATUS_UNSUPPORTED_MEDIA_TYPE;
     protected $message = "Unsupported Media Type";
-    public function getStatus()
+
+    /**
+     * @return int
+     */
+    public function getStatus(): int
     {
         return StatusCodeInterface::STATUS_UNSUPPORTED_MEDIA_TYPE;
     }

@@ -4,30 +4,9 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use JSONAPI\Exception\Document\DocumentException;
-use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\LinksTrait;
 use JSONAPI\MetaTrait;
-use JSONAPI\Uri\Fieldset\FieldsetInterface;
-use JSONAPI\Uri\Fieldset\FieldsetParser;
-use JSONAPI\Uri\Fieldset\SortParser;
-use JSONAPI\Uri\Filtering\CriteriaFilterParser;
-use JSONAPI\Uri\Filtering\FilterInterface;
-use JSONAPI\Uri\Filtering\FilterParserInterface;
-use JSONAPI\Uri\Inclusion\InclusionInterface;
-use JSONAPI\Uri\Inclusion\InclusionParser;
-use JSONAPI\Uri\LinkFactory;
-use JSONAPI\Uri\Pagination\LimitOffsetPagination;
-use JSONAPI\Uri\Pagination\PaginationInterface;
-use JSONAPI\Uri\Pagination\PaginationParserInterface;
-use JSONAPI\Uri\Path\PathInterface;
-use JSONAPI\Uri\Path\PathParser;
-use JSONAPI\Uri\Sorting\SortInterface;
-use JSONAPI\Uri\UriPartInterface;
 use JsonSerializable;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 /**
  * Class Document

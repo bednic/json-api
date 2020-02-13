@@ -6,6 +6,11 @@ namespace JSONAPI\Exception\Document;
 
 use JSONAPI\Exception\JsonApiException;
 
+/**
+ * Class DocumentException
+ *
+ * @package JSONAPI\Exception\Document
+ */
 class DocumentException extends JsonApiException
 {
     protected $code = 520;

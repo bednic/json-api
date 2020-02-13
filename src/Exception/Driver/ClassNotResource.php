@@ -4,11 +4,21 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Driver;
 
+/**
+ * Class ClassNotResource
+ *
+ * @package JSONAPI\Exception\Driver
+ */
 class ClassNotResource extends DriverException
 {
     protected $code = 544;
     protected $message = "Class %s is not ResourceMetadata.";
 
+    /**
+     * ClassNotResource constructor.
+     *
+     * @param string $className
+     */
     public function __construct(string $className)
     {
         $message = sprintf($this->message, $className);

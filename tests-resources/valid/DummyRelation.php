@@ -7,6 +7,8 @@
  * Time: 12:51
  */
 
+declare(strict_types=1);
+
 namespace JSONAPI\Test\Resources\Valid;
 
 use JSONAPI\Annotation as API;

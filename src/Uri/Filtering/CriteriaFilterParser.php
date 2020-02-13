@@ -148,7 +148,7 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
                     $this->lexer->nextToken(); // value
                 }
                 if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM())) {
-                    $this->err(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
+                    throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
                 }
                 $this->lexer->nextToken(); // and, or, END
                 if (
@@ -159,7 +159,7 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
                 }
                 return Criteria::expr()->{$fn}($field, ...$params);
             }
-            return $this->err(Messages::expressionParserUnknownFunction(
+            throw new ExpressionException(Messages::expressionParserUnknownFunction(
                 $this->lexer->getExpressionText(),
                 $this->lexer->getPosition()
             ));
@@ -167,7 +167,7 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
             $field = $this->lexer->getCurrentToken()->text;
             $this->lexer->nextToken();
             if (!$this->lexer->getCurrentToken()->isComparisonOperator()) {
-                $this->err(Messages::expressionErrorComparisonOperatorExpected(
+                throw new ExpressionException(Messages::expressionErrorComparisonOperatorExpected(
                     $this->lexer->getCurrentToken()->text,
                     $this->lexer->getPosition()
                 ));
@@ -189,7 +189,7 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
     private function validateValue(ExpressionToken $token)
     {
         if (!$token->isKeyValueToken()) {
-            $this->err(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
+            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
         $value = $token->text;
         if ($token->id->equals(ExpressionTokenId::NULL_LITERAL())) {
@@ -198,7 +198,7 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
             try {
                 $value = new DateTime(trim($value, 'datetime\''));
             } catch (Exception $e) {
-                $this->err(Messages::syntaxError());
+                throw new ExpressionException(Messages::syntaxError());
             }
         } elseif ($token->id->equals(ExpressionTokenId::STRING_LITERAL())) {
             $value = trim($value, '\'');
@@ -208,16 +208,6 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
             $value = filter_var($value, FILTER_VALIDATE_FLOAT);
         }
         return $value;
-    }
-
-    /**
-     * @param $msg
-     *
-     * @throws ExpressionException
-     */
-    private function err($msg)
-    {
-        throw new ExpressionException($msg);
     }
 
     /**
@@ -241,7 +231,7 @@ class CriteriaFilterParser implements FilterInterface, FilterParserInterface
         $value = $this->validateValue($this->lexer->getCurrentToken());
         $this->lexer->nextToken();
         if (!$this->lexer->getCurrentToken()->isComparisonOperator()) {
-            $this->err(Messages::expressionErrorComparisonOperatorExpected(
+            throw new ExpressionException(Messages::expressionErrorComparisonOperatorExpected(
                 $this->lexer->getCurrentToken()->text,
                 $this->lexer->getPosition()
             ));

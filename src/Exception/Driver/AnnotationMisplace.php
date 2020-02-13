@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Driver;
 
+/**
+ * Class AnnotationMisplace
+ *
+ * @package JSONAPI\Exception\Driver
+ */
 class AnnotationMisplace extends DriverException
 {
     protected $code = 531;
@@ -11,6 +16,12 @@ class AnnotationMisplace extends DriverException
     It should start with 'get', 'is' or 'has' and have some return type.
     Method %s on resource %s doesn't seems like getter.";
 
+    /**
+     * AnnotationMisplace constructor.
+     *
+     * @param string $methodName
+     * @param string $className
+     */
     public function __construct(string $methodName, string $className)
     {
         $message = sprintf($this->message, $methodName, $className);

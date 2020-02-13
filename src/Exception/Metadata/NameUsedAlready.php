@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Metadata;
 
+/**
+ * Class NameUsedAlready
+ *
+ * @package JSONAPI\Exception\Metadata
+ */
 class NameUsedAlready extends MetadataException
 {
     protected $code = 545;
