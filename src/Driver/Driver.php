@@ -9,7 +9,6 @@ use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\BadMethodSignature;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Driver\MethodNotExist;
-use JSONAPI\Exception\JsonApiException;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\ClassMetadata;

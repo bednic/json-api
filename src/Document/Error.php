@@ -66,7 +66,9 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
         if ($exception instanceof JsonApiException) {
             $self->setStatus($exception->getStatus());
             if ($exception instanceof UnsupportedParameter) {
-                $source['parameter'] = $exception->getParameter();
+                $source = [
+                    'parameter' => $exception->getParameter()
+                ];
             }
         }
         $self->setSource($source);
