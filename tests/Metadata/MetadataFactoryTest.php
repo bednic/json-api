@@ -18,13 +18,13 @@ class MetadataFactoryTest extends TestCase
     public function testCreate()
     {
         $repository = MetadataFactory::create(
-            RESOURCES . '/valid',
+            [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new AnnotationDriver()
         );
         $this->assertInstanceOf(MetadataRepository::class, $repository);
         $repository = MetadataFactory::create(
-            RESOURCES . '/valid',
+            [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new SchemaDriver()
         );

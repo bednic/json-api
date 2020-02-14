@@ -22,7 +22,7 @@ class EncoderTest extends TestCase
     {
         $fieldset = (new FieldsetParser())->parse([]);
         $metadata = MetadataFactory::create(
-            RESOURCES . '/valid',
+            [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new AnnotationDriver()
         );

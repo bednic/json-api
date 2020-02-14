@@ -26,7 +26,7 @@ namespace JSONAPI\Test\Middleware {
         public function testConstruct()
         {
             $mf = MetadataFactory::create(
-                RESOURCES . '/valid',
+                [RESOURCES . '/valid'],
                 new SimpleCacheAdapter(new ArrayCache()),
                 new AnnotationDriver()
             );

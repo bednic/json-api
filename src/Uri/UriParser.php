@@ -74,10 +74,14 @@ final class UriParser
     private ?MetadataRepository $metadata = null;
     /**
      * Enables inclusion support
-     *
      * @var bool
      */
     public static bool $inclusionEnabled = true;
+    /**
+     * Enables sort support
+     * @var bool
+     */
+    public static bool $sortEnabled = true;
 
     /**
      * UriParser constructor.
@@ -120,6 +124,9 @@ final class UriParser
     {
         if (!self::$inclusionEnabled && in_array(UriPartInterface::INCLUSION_PART_KEY, $request->getQueryParams())) {
             throw new UnsupportedParameter(UriPartInterface::INCLUSION_PART_KEY);
+        }
+        if (!self::$sortEnabled && in_array(UriPartInterface::SORT_PART_KEY, $request->getQueryParams())) {
+            throw new UnsupportedParameter(UriPartInterface::SORT_PART_KEY);
         }
     }
 

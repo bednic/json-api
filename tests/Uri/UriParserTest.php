@@ -30,7 +30,7 @@ class UriParserTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         self::$mr = MetadataFactory::create(
-            RESOURCES . '/valid',
+            [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new SchemaDriver()
         );

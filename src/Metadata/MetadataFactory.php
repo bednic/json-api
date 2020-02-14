@@ -28,9 +28,9 @@ class MetadataFactory
     use DoctrineProxyTrait;
 
     /**
-     * @var string
+     * @var string[]
      */
-    private string $path;
+    private array $paths = [];
     /**
      * @var CacheInterface
      */
@@ -55,7 +55,7 @@ class MetadataFactory
     /**
      * MetadataFactory constructor.
      *
-     * @param string               $pathToObjects
+     * @param array                $paths
      * @param CacheInterface       $cache
      * @param Driver               $driver
      * @param LoggerInterface|null $logger
@@ -66,15 +66,12 @@ class MetadataFactory
      * @throws MetadataException
      */
     private function __construct(
-        string $pathToObjects,
+        array $paths,
         CacheInterface $cache,
         Driver $driver,
         LoggerInterface $logger = null
     ) {
-        if (!is_dir($pathToObjects)) {
-            throw new InvalidArgumentException("Argument pathToObjects is not directory.");
-        }
-        $this->path = $pathToObjects;
+        $this->paths = $paths;
         $this->cache = $cache;
         $this->driver = $driver;
         $this->logger = $logger ?? new NullLogger();
@@ -112,6 +109,7 @@ class MetadataFactory
     /**
      * @throws CacheException
      * @throws DriverException
+     * @throws InvalidArgumentException
      * @throws MetadataException
      */
     private function load(): void
@@ -142,43 +140,49 @@ class MetadataFactory
     /**
      * @throws CacheException
      * @throws DriverException
+     * @throws InvalidArgumentException
      * @throws MetadataException
      */
     private function createMetadataCache(): void
     {
-        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->path));
-        $it->rewind();
-        while ($it->valid()) {
-            /** @var $it RecursiveDirectoryIterator */
-            if (!$it->isDot()) {
-                $file = $it->key();
-                if (
-                    is_file($file)
-                    && (
-                        isset(pathinfo($file)["extension"])
-                        && pathinfo($file)["extension"] === "php"
-                    )
-                ) {
-                    require_once $file;
-                }
+        foreach ($this->paths as $path) {
+            if (!is_dir($path)) {
+                throw new InvalidArgumentException("Path '$path' is not directory.");
             }
-            $it->next();
-        }
+            $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+            $it->rewind();
+            while ($it->valid()) {
+                /** @var $it RecursiveDirectoryIterator */
+                if (!$it->isDot()) {
+                    $file = $it->key();
+                    if (
+                        is_file($file)
+                        && (
+                            isset(pathinfo($file)["extension"])
+                            && pathinfo($file)["extension"] === "php"
+                        )
+                    ) {
+                        require_once $file;
+                    }
+                }
+                $it->next();
+            }
 
-        foreach (get_declared_classes() as $className) {
-            try {
-                $this->loadMetadata($className);
-            } catch (ClassNotResource $exception) {
-                // ignored
-            } catch (ClassNotExist $exception) {
-                // ignored
+            foreach (get_declared_classes() as $className) {
+                try {
+                    $this->loadMetadata($className);
+                } catch (ClassNotResource $ignored) {
+                    // NO-SONAR
+                } catch (ClassNotExist $ignored) {
+                    // NO-SONAR
+                }
             }
         }
         $this->cache->set(slashToDot(self::class), array_keys($this->metadata));
     }
 
     /**
-     * @param string               $pathToObjects
+     * @param array                $paths
      * @param CacheInterface       $cache
      * @param Driver               $driver
      * @param LoggerInterface|null $logger
@@ -190,12 +194,12 @@ class MetadataFactory
      * @throws MetadataException
      */
     public static function create(
-        string $pathToObjects,
+        array $paths,
         CacheInterface $cache,
         Driver $driver,
         LoggerInterface $logger = null
     ): MetadataRepository {
-        $self = new static($pathToObjects, $cache, $driver, $logger);
+        $self = new static($paths, $cache, $driver, $logger);
         $repository = new MetadataRepository();
         foreach ($self->getAllMetadata() as $metadata) {
             $repository->add($metadata);
