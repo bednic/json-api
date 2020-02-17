@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace JSONAPI\Document;
 
@@ -26,9 +26,11 @@ final class Id extends Field
      */
     public function setData($id): void
     {
-        if (!is_string($id)) {
+        if (is_string($id) || is_null($id)) {
+            $this->data = $id;
+        } else {
             throw new ForbiddenDataType(gettype($id));
         }
-        $this->data = $id;
+
     }
 }
