@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace JSONAPI\Test\Document;
 
@@ -17,7 +17,6 @@ class IdTest extends TestCase
         $this->assertEquals('id', $id->getData());
         $id->setData(null);
         $this->assertNull($id->getData());
-
     }
 
     public function testConstruct()

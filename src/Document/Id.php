@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
@@ -31,6 +31,5 @@ final class Id extends Field
         } else {
             throw new ForbiddenDataType(gettype($id));
         }
-
     }
 }
