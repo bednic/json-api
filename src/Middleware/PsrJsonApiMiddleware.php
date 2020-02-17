@@ -128,41 +128,47 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     }
 
     /**
-     * @return stdClass
+     * @return stdClass|null
      * @throws \JsonException
      */
-    private function getBody(): stdClass
+    private function getBody(): ?stdClass
     {
-        $body = new stdClass();
         if ($data = file_get_contents('php://input')) {
-            $body = json_decode($data, false, 512, JSON_THROW_ON_ERROR);
+            return json_decode($data, false, 512, JSON_THROW_ON_ERROR);
         }
-        return $body;
+        return null;
     }
 
     /**
-     * @param stdClass  $body
-     * @param UriParser $uri
+     * @param stdClass|null $body
+     * @param UriParser     $uri
      *
-     * @return PrimaryData
+     * @return PrimaryData|null
      * @throws BadRequest
      * @throws DocumentException
      * @throws MissingDependency
      * @throws MetadataException
      */
-    private function loadRequestData(stdClass $body, UriParser $uri): PrimaryData
+    private function loadRequestData(?stdClass $body, UriParser $uri): ?PrimaryData
     {
-        $data = null;
-        $type = $uri->getPrimaryResourceType();
-        $metadata = $this->repository->getByType($type);
         if ($uri->isCollection()) {
             $data = new ResourceCollection();
-            foreach ($body->data as $object) {
-                $resource = $this->jsonToResourceObject($object, $metadata, $uri->getPath());
-                $data->add($resource);
+            if ($body) {
+                $type = $uri->getPrimaryResourceType();
+                $metadata = $this->repository->getByType($type);
+                $data = new ResourceCollection();
+                foreach ($body->data as $object) {
+                    $resource = $this->jsonToResourceObject($object, $metadata, $uri->getPath());
+                    $data->add($resource);
+                }
             }
         } else {
-            $data = $body->data ? $this->jsonToResourceObject($body->data, $metadata, $uri->getPath()) : null;
+            $data = null;
+            if ($body) {
+                $type = $uri->getPrimaryResourceType();
+                $metadata = $this->repository->getByType($type);
+                $data = $this->jsonToResourceObject($body->data, $metadata, $uri->getPath());
+            }
         }
         return $data;
     }
