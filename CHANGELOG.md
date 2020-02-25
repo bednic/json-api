@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-<!--
+
 ### Added
 
 ### Changed
@@ -20,16 +20,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ## [4.0.0]
--->
+This version brings new big feature and that is Schema driven metadata mapping. So now, if you don't like
+`Doctrine\Annotations`, you can use another technique how to map class metadata.
+Some things change radically to achieve more strict way to work with several data domains, like URI, data from request,
+JSON-API Document itself. I focused to bring more freedom for work with Document. But you can still
+use DocumentBuilder which works similar like Document before. But now you can easily create Document by yourself just
+with Encoder and MetadataRepository.
+
+In future I'll focus to separate inclusion fetching from DocumentBuilder to make possible use it out of box.
+Next great feature will be OpenAPI schema generation and if all goes well, improving CriteriaFilterParser.
+
 ### Added
+* `DocumentBuilder` builder for creating Documents. This is probably temporary solution before
+decomposing inclusion parsing
+* `ResourceCollection` for handling collection of resources, can by typed for primary data,
+or non-typed for included resources
+* Schema Driven mapping, so now you can define class metadata without annotations,
+all smart features such as type guessing, setter guessing etc. still works
+    * `Schema\Resource` interface marks object as resource
+    * `Schema\ResourceSchema` class works as DTO (Data Transfer Object) for metadata
+* `UriParser` class, contains all URI handlers, such as filter, pagination, sort etc
+* `PsrJsonApiMiddleware` no returns `Document` as parsed body, but only if request method can have content
 
 ### Changed
+* `Filter` and `Pagination` interface moved to own namespaces
+* `LinkFactory` now works as filler [see](src/Uri/LinkFactory.php)
 
 ### Deprecated
+* `Document::getPagination` moved to `UriParser`
+* `Document::getFilter` moved to `UriParser`
 
 ### Fixed
 
 ### Removed
+* `UriParser` interface
 
 ### Security
 

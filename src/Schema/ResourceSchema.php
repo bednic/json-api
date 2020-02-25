@@ -14,7 +14,7 @@ use JSONAPI\Metadata\Relationship;
  *
  * @package JSONAPI\Schema
  */
-class ResourceSchema
+final class ResourceSchema
 {
     /**
      * @var string
