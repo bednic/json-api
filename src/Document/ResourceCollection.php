@@ -28,7 +28,7 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
      *
      * @var string|null
      */
-    private static ?string $type = null;
+    private ?string $type = null;
 
     /**
      * ResourceCollection constructor.
@@ -38,7 +38,7 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
      */
     public function __construct(string $type = null)
     {
-        self::$type = $type;
+        $this->type = $type;
     }
 
     /**
@@ -48,10 +48,10 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
      */
     public function add(ResourceObjectIdentifier $resource)
     {
-        if (!is_null(self::$type) && $resource->getType() !== self::$type) {
-            throw new ResourceTypeMismatch($resource->getType(), self::$type);
+        if (!is_null($this->type) && $resource->getType() !== $this->type) {
+            throw new ResourceTypeMismatch($resource->getType(), $this->type);
         }
-        $key = self::key($resource);
+        $key = $this->key($resource);
         if (!array_key_exists($key, $this->data)) {
             $this->data[$key] = $resource;
         }
@@ -84,7 +84,7 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
      */
     public function remove(ResourceObjectIdentifier $resource): bool
     {
-        $key = self::key($resource);
+        $key = $this->key($resource);
         if (array_key_exists($key, $this->data)) {
             unset($this->data[$key]);
             return true;
@@ -114,7 +114,7 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
         return new ArrayIterator($this->data);
     }
 
-    private static function key(ResourceObjectIdentifier $resource): string
+    private function key(ResourceObjectIdentifier $resource): string
     {
         return $resource->getType() . $resource->getId();
     }

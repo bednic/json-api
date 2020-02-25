@@ -61,6 +61,7 @@ class DocumentBuilder
         $this->encoder->setRelationshipLimit($relationshipLimit);
         $this->maxIncludedItems = $maxIncludedItems;
         $this->document = new Document();
+        $this->included = new ResourceCollection();
     }
 
     /**
@@ -152,6 +153,7 @@ class DocumentBuilder
     public function build(): Document
     {
         LinkFactory::setDocumentLinks($this->document, $this->uri);
+        $this->document->setIncludes($this->included);
         return $this->document;
     }
 

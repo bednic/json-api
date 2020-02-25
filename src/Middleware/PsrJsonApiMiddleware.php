@@ -156,7 +156,6 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             if ($body) {
                 $type = $uri->getPrimaryResourceType();
                 $metadata = $this->repository->getByType($type);
-                $data = new ResourceCollection();
                 foreach ($body->data as $object) {
                     $resource = $this->jsonToResourceObject($object, $metadata, $uri->getPath());
                     $data->add($resource);

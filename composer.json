@@ -76,8 +76,8 @@
     },
     "archive": {
         "exclude": [
-            "/docker",
-            "/test",
+            "/resources",
+            "/tests",
             "/vendor",
             ".*",
             "*.xml",
