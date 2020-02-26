@@ -30,6 +30,9 @@ with Encoder and MetadataRepository.
 In future I'll focus to separate inclusion fetching from DocumentBuilder to make possible use it out of box.
 Next great feature will be OpenAPI schema generation and if all goes well, improving CriteriaFilterParser.
 
+I'll write some examples and use cases into Wiki later. For now if you want to see how to use it look
+at [test-resources](/tests-resources/valid)
+
 ### Added
 * `DocumentBuilder` builder for creating Documents. This is probably temporary solution before
 decomposing inclusion parsing
@@ -39,16 +42,22 @@ or non-typed for included resources
 all smart features such as type guessing, setter guessing etc. still works
     * `Schema\Resource` interface marks object as resource
     * `Schema\ResourceSchema` class works as DTO (Data Transfer Object) for metadata
+    * `SchemaDriver`
 * `UriParser` class, contains all URI handlers, such as filter, pagination, sort etc
 * `PsrJsonApiMiddleware` no returns `Document` as parsed body, but only if request method can have content
+* `PrimaryData` interface mark object as primary data, it can be Resource, ResourceIdentifier
+or Collection of Resources or ResourceIdentifiers
+* `MetadataRepository` contains storing techniques from `MetadataFactory`
 
 ### Changed
 * `Filter` and `Pagination` interface moved to own namespaces
 * `LinkFactory` now works as filler [see](src/Uri/LinkFactory.php)
+* `MetadataFactory` now works as factory only and generate `MetadataRepository`
 
 ### Deprecated
 * `Document::getPagination` moved to `UriParser`
 * `Document::getFilter` moved to `UriParser`
+* `Document::getEncoder` now you must create encoder by yourself
 
 ### Fixed
 
