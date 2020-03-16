@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace JSONAPI\Uri;
 
@@ -28,7 +28,13 @@ use JSONAPI\Uri\Sorting\SortInterface;
  */
 class LinkFactory
 {
-    public const API_URL_ENV = "JSON_API_URL";
+    public static string $ENDPOINT = '';
+
+    /**
+     * @var string
+     * @deprecated
+     */
+    private const API_URL_ENV = "JSON_API_URL";
 
     public const SELF = 'self';
     public const RELATED = 'related';
@@ -39,11 +45,15 @@ class LinkFactory
 
     private static function getBaseUrl(): string
     {
-        return getenv(self::API_URL_ENV) ?? (
-                ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://'
-                . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ':'
-                . ($_SERVER['SERVER_PORT'] ?? '80')
-            );
+        if (getenv(self::API_URL_ENV) && filter_var(getenv(self::API_URL_ENV), FILTER_VALIDATE_URL)) {
+            return getenv(self::API_URL_ENV);
+        }
+        if (filter_var(self::$ENDPOINT, FILTER_VALIDATE_URL)) {
+            return self::$ENDPOINT;
+        }
+        return ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://'
+            . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ':'
+            . ($_SERVER['SERVER_PORT'] ?? '80');
     }
 
     /**

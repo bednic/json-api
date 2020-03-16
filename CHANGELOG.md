@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Deprecated
+* environment variable JSON_API_URL, now use LinkFactory::$ENDPOINT = 'http://your.api.com/endpoint'
 
 ### Fixed
 
 ### Removed
+
 
 ### Security
 

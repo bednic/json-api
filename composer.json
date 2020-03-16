@@ -84,5 +84,11 @@
             "*.properties",
             "composer.lock"
         ]
+    },
+    "scripts": {
+        "lint": [
+            "phpcbf -q",
+            "phpcs"
+        ]
     }
 }

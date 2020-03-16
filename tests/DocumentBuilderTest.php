@@ -11,6 +11,7 @@ use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Test\Resources\Valid\GettersExample;
+use JSONAPI\Uri\LinkFactory;
 use JSONAPI\Uri\UriParser;
 use Opis\JsonSchema\ISchema;
 use Opis\JsonSchema\Schema;
@@ -97,6 +98,8 @@ class DocumentBuilderTest extends TestCase
         $request = ServerRequestFactory::createFromGlobals();
         $collection = [new GettersExample('uuid')];
         $doc = DocumentBuilder::create(self::$mr, new UriParser($request))->setData($collection)->build();
+        $self = $doc->getLinks()[LinkFactory::SELF];
+        $this->assertStringContainsString('http://unit.test.org/api', (string) $self->getData());
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));
     }
