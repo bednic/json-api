@@ -111,7 +111,15 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 }
                 $document = new Document();
                 $uriParser = new UriParser($request, null, null, $this->repository, $this->logger);
-                $document->setData($this->loadRequestData($this->getBody(), $uriParser));
+                if ($request->getBody()->getSize() > 0) {
+                    $document->setData(
+                        $this->loadRequestData(
+                            json_decode($request->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR),
+                            $uriParser
+                        )
+                    );
+                }
+
                 $request = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
@@ -125,18 +133,6 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 ->withBody($this->streamFactory->createStream(json_encode($document)));
         }
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
-    }
-
-    /**
-     * @return stdClass|null
-     * @throws \JsonException
-     */
-    private function getBody(): ?stdClass
-    {
-        if ($data = file_get_contents('php://input')) {
-            return json_decode($data, false, 512, JSON_THROW_ON_ERROR);
-        }
-        return null;
     }
 
     /**
