@@ -21,6 +21,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+## [4.1.0]
+
+### Added
+
+### Changed
+
+### Deprecated
+* environment variable `JSON_API_URL`, now use LinkFactory::$ENDPOINT = 'http://your.api.com/endpoint'
+
+### Fixed
+* `PsrJsonApiMiddleware` implementation, it rely on php://input which is not right way
+
+### Removed
+
+
+### Security
+
 ## [4.0.0]
 This version brings new big feature and that is Schema driven metadata mapping. So now, if you don't like
 `Doctrine\Annotations`, you can use another technique how to map class metadata.
@@ -392,7 +409,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.0.0...4.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.1.0...4.x
+[4.1.0]: https://gitlab.com/bednic/json-api/compare/4.0.0...4.1.0
 [4.0.0]: https://gitlab.com/bednic/json-api/compare/3.1.1...4.0.0
 [3.1.0]: https://gitlab.com/bednic/json-api/compare/3.1.0...3.1.1
 [3.1.0]: https://gitlab.com/bednic/json-api/compare/3.0.1...3.1.0
