@@ -40,7 +40,6 @@ namespace JSONAPI\Test\Middleware {
         /**
          * @depends testConstruct
          * @covers  \JSONAPI\Middleware\PsrJsonApiMiddleware::process
-         * @covers  \JSONAPI\Middleware\PsrJsonApiMiddleware::getBody
          * @covers  \JSONAPI\Middleware\PsrJsonApiMiddleware::loadRequestData
          * @covers  \JSONAPI\Middleware\PsrJsonApiMiddleware::jsonToResourceObject
          */
