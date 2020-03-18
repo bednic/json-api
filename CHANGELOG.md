@@ -5,6 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [Unreleased]
 
 ### Added
@@ -12,14 +13,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 ### Deprecated
-* environment variable JSON_API_URL, now use LinkFactory::$ENDPOINT = 'http://your.api.com/endpoint'
 
 ### Fixed
 
 ### Removed
 
 
+## [4.1.1]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+* body parsing in `PsrJsonApiMiddleware`, add `::rewind` before reading body stream.
+
+### Removed
+
 ### Security
+
 
 ## [4.1.0]
 
@@ -409,7 +423,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.1.0...4.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.1.1...4.x
+[4.1.1]: https://gitlab.com/bednic/json-api/compare/4.1.0...4.1.1
 [4.1.0]: https://gitlab.com/bednic/json-api/compare/4.0.0...4.1.0
 [4.0.0]: https://gitlab.com/bednic/json-api/compare/3.1.1...4.0.0
 [3.1.0]: https://gitlab.com/bednic/json-api/compare/3.1.0...3.1.1
