@@ -112,6 +112,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $document = new Document();
                 $uriParser = new UriParser($request, null, null, $this->repository, $this->logger);
                 if ($request->getBody()->getSize() > 0) {
+                    $request->getBody()->rewind();
                     $document->setData(
                         $this->loadRequestData(
                             json_decode($request->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR),
