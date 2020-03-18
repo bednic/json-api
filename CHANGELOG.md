@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+* `MetadataFacory` now doesn't throw `\Psr\SimpleCache\InvalidArgumentException` when invalid class name is served.
+Instead it throws `ClassNotExist` exception.
 
 ### Deprecated
 

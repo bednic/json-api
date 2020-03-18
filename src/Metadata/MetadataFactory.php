@@ -60,7 +60,6 @@ class MetadataFactory
      * @param Driver               $driver
      * @param LoggerInterface|null $logger
      *
-     * @throws CacheException
      * @throws DriverException
      * @throws InvalidArgumentException
      * @throws MetadataException
@@ -82,19 +81,22 @@ class MetadataFactory
      * @param string $className
      *
      * @return ClassMetadata
-     * @throws CacheException
      * @throws DriverException
      * @throws MetadataException
      */
     private function getMetadataByClass(string $className): ClassMetadata
     {
-        $className = self::clearDoctrineProxyPrefix($className);
-        if ($this->cache->has(slashToDot($className))) {
-            return $this->cache->get(slashToDot($className));
-        } else {
-            $classMetadata = $this->driver->getClassMetadata($className);
-            $this->cache->set(slashToDot($className), $classMetadata);
-            return $classMetadata;
+        try {
+            $className = self::clearDoctrineProxyPrefix($className);
+            if ($this->cache->has(slashToDot($className))) {
+                return $this->cache->get(slashToDot($className));
+            } else {
+                $classMetadata = $this->driver->getClassMetadata($className);
+                $this->cache->set(slashToDot($className), $classMetadata);
+                return $classMetadata;
+            }
+        } catch (CacheException $exception) {
+            throw new ClassNotResource($className);
         }
     }
 
@@ -107,26 +109,28 @@ class MetadataFactory
     }
 
     /**
-     * @throws CacheException
      * @throws DriverException
      * @throws InvalidArgumentException
      * @throws MetadataException
      */
     private function load(): void
     {
-        if ($this->cache->has(slashToDot(self::class))) {
-            foreach ($this->cache->get(slashToDot(self::class)) as $className) {
-                $this->loadMetadata($className);
+        try {
+            if ($this->cache->has(slashToDot(self::class))) {
+                foreach ($this->cache->get(slashToDot(self::class)) as $className) {
+                    $this->loadMetadata($className);
+                }
+            } else {
+                $this->createMetadataCache();
             }
-        } else {
-            $this->createMetadataCache();
+        } catch (CacheException $ignored) {
+            // NO SONAR
         }
     }
 
     /**
      * @param string $className
      *
-     * @throws CacheException
      * @throws DriverException
      * @throws MetadataException
      */
@@ -138,7 +142,6 @@ class MetadataFactory
     }
 
     /**
-     * @throws CacheException
      * @throws DriverException
      * @throws InvalidArgumentException
      * @throws MetadataException
@@ -178,7 +181,11 @@ class MetadataFactory
                 }
             }
         }
-        $this->cache->set(slashToDot(self::class), array_keys($this->metadata));
+        try {
+            $this->cache->set(slashToDot(self::class), array_keys($this->metadata));
+        } catch (CacheException $ignored) {
+            // NO SONAR
+        }
     }
 
     /**
@@ -188,7 +195,6 @@ class MetadataFactory
      * @param LoggerInterface|null $logger
      *
      * @return MetadataRepository
-     * @throws CacheException
      * @throws DriverException
      * @throws InvalidArgumentException
      * @throws MetadataException
