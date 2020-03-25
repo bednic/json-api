@@ -24,33 +24,22 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     private array $data = [];
 
     /**
-     * Resource Type
-     *
-     * @var string|null
-     */
-    private ?string $type = null;
-
-    /**
      * ResourceCollection constructor.
      *
-     * @param string|null $type - Type of accepted resources
-     *
+     * @param array $data
      */
-    public function __construct(string $type = null)
+    public function __construct(array $data = [])
     {
-        $this->type = $type;
+        foreach ($data as $item) {
+            $this->add($item);
+        }
     }
 
     /**
      * @param ResourceObjectIdentifier|ResourceObject $resource
-     *
-     * @throws ResourceTypeMismatch
      */
     public function add(ResourceObjectIdentifier $resource)
     {
-        if (!is_null($this->type) && $resource->getType() !== $this->type) {
-            throw new ResourceTypeMismatch($resource->getType(), $this->type);
-        }
         $key = $this->key($resource);
         if (!array_key_exists($key, $this->data)) {
             $this->data[$key] = $resource;
@@ -117,6 +106,14 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     private function key(ResourceObjectIdentifier $resource): string
     {
         return $resource->getType() . $resource->getId();
+    }
+
+    /**
+     * Erase whole collection
+     */
+    public function reset(): void
+    {
+        $this->data = [];
     }
 
     /**

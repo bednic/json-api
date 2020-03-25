@@ -19,7 +19,8 @@ Instead it throws `ClassNotExist` exception.
 ### Fixed
 
 ### Removed
-
+* `ResourceCollection` type check, in case of inheritance this was unnecessary behavior. So I remove it for good.
+If you doesn't use `ResourceCollection` manually, just don't care.
 
 ## [4.1.1]
 

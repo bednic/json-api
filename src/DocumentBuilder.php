@@ -101,9 +101,9 @@ class DocumentBuilder
      */
     public function setData($data): self
     {
-        $this->included = new ResourceCollection();
+        $this->included->reset();
         if ($this->uri->isCollection()) {
-            $collection = new ResourceCollection($this->uri->getPrimaryResourceType());
+            $collection = new ResourceCollection();
             foreach ($data as $item) {
                 if ($this->uri->getPath()->isRelationship()) {
                     $collection->add($this->encoder->getIdentifier($item));
