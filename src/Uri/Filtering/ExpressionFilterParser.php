@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace JSONAPI\Uri\Filtering;
 
@@ -140,7 +140,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
                 } else {
                     throw new ExpressionException("Only [eq, neq] operator support NULL comparison.");
                 }
-
             } else {
                 $right = $this->parseAdditive();
             }

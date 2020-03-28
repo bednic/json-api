@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\Test\Uri\Filtering;
 
 use Doctrine\ORM\Query\QueryExpressionVisitor;
