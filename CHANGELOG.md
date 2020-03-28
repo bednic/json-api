@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+* `ExpressionFilterParser` improved expression parser. More 'OData like'. Now supports own expression building.
+* `ExpressionBuilder` interface, by this interface you can serve won expression builder ant thus create own filtering
+strategy, based on you database framework.
+* `DoctrineCriteriaExpressionBuilder` is wrapper for `Doctrine\Collection\ExpressionBuilder` and it's default builder.
+* `DoctrineQueryExpressionBuilder` is wrapper for `Doctrine\ORM\Query\Epxr`, require Doctrine ORM installed.
 
 ### Changed
 * `MetadataFacory` now doesn't throw `\Psr\SimpleCache\InvalidArgumentException` when invalid class name is served.
@@ -21,6 +26,8 @@ Instead it throws `ClassNotExist` exception.
 ### Removed
 * `ResourceCollection` type check, in case of inheritance this was unnecessary behavior. So I remove it for good.
 If you doesn't use `ResourceCollection` manually, just don't care.
+* `CriteriaFilterParser` replaced by `ExpressionFilterParser`, and `::getCondition()` now returns comparison
+instead Criteria
 
 ## [4.1.1]
 

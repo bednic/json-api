@@ -14,7 +14,9 @@ use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\Fieldset\FieldsetParser;
 use JSONAPI\Uri\Fieldset\SortParser;
+use JSONAPI\Uri\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
 use JSONAPI\Uri\Filtering\CriteriaFilterParser;
+use JSONAPI\Uri\Filtering\ExpressionFilterParser;
 use JSONAPI\Uri\Filtering\FilterInterface;
 use JSONAPI\Uri\Filtering\FilterParserInterface;
 use JSONAPI\Uri\Inclusion\InclusionInterface;
@@ -106,7 +108,7 @@ final class UriParser
         $this->metadata = $metadataRepository;
         $this->logger = $logger ?? new NullLogger();
         $this->fieldsetParser = new FieldsetParser();
-        $this->filterParser = $filterParser ?? new CriteriaFilterParser();
+        $this->filterParser = $filterParser ?? new ExpressionFilterParser();
         $this->inclusionParser = new InclusionParser();
         $this->paginationParser = $paginationParser ?? new LimitOffsetPagination();
         $this->pathParser = new PathParser();

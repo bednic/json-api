@@ -10,6 +10,7 @@ use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\Filtering\CriteriaFilterParser;
+use JSONAPI\Uri\Filtering\ExpressionFilterParser;
 use JSONAPI\Uri\Filtering\FilterInterface;
 use JSONAPI\Uri\Inclusion\InclusionInterface;
 use JSONAPI\Uri\Pagination\LimitOffsetPagination;
@@ -69,7 +70,7 @@ class UriParserTest extends TestCase
     public function testConstruct()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, new CriteriaFilterParser(), new PagePagination(), self::$mr, new NullLogger());
+        $up = new UriParser($request, new ExpressionFilterParser(), new PagePagination(), self::$mr, new NullLogger());
         $this->assertInstanceOf(UriParser::class, $up);
     }
 
@@ -100,7 +101,7 @@ class UriParserTest extends TestCase
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
         $up = new UriParser($request);
-        $parser = new CriteriaFilterParser();
+        $parser = new ExpressionFilterParser();
         $up->setFilterParser($parser);
     }
 

@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace JSONAPI\Uri\Filtering;
 
@@ -2164,5 +2164,17 @@ class Messages
     public static function expressionErrorComparisonOperatorExpected($literal, $pos)
     {
         return "The comparison literal expected at position {$pos}, but get {$literal} instead.";
+    }
+
+    /**
+     * Message thrown when operand or function is not implemented
+     *
+     * @param string $fnOrOp operand or function string
+     *
+     * @return string
+     */
+    public static function operandOrFunctionNotImplemented($fnOrOp)
+    {
+        return "Operand or function [{$fnOrOp}] not implemented.";
     }
 }

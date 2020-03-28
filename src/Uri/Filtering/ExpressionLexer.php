@@ -469,7 +469,7 @@ class ExpressionLexer
      */
     private static function isInfinityLiteralDouble($text)
     {
-        return strcmp($text, Constants::XML_INFINITY_LITERAL) == 0;
+        return strcmp($text, Constants::KEYWORD_INFINITY) == 0;
     }
 
     /**
@@ -485,7 +485,7 @@ class ExpressionLexer
         return strlen($text) == 4
             && ($text[3] == ExpressionLexer::SINGLE_SUFFIX_LOWER
                 || $text[3] == ExpressionLexer::SINGLE_SUFFIX_UPPER)
-            && strncmp($text, Constants::XML_INFINITY_LITERAL, 3) == 0;
+            && strncmp($text, Constants::KEYWORD_INFINITY, 3) == 0;
     }
 
     /**
@@ -556,7 +556,7 @@ class ExpressionLexer
             if ($tokenText[0] == 'I') {
                 return self::isInfinityLiteralDouble($tokenText);
             } elseif ($tokenText[0] == 'N') {
-                return strncmp($tokenText, Constants::XML_NAN_LITERAL, 3) == 0;
+                return strncmp($tokenText, Constants::KEYWORD_NOT_A_NUMBER, 3) == 0;
             }
         }
 
@@ -578,7 +578,7 @@ class ExpressionLexer
             } elseif ($tokenText[0] == 'N') {
                 return ($tokenText[3] == ExpressionLexer::SINGLE_SUFFIX_LOWER
                         || $tokenText[3] == ExpressionLexer::SINGLE_SUFFIX_UPPER)
-                    && strncmp($tokenText, Constants::XML_NAN_LITERAL, 3) == 0;
+                    && strncmp($tokenText, Constants::KEYWORD_NOT_A_NUMBER, 3) == 0;
             }
         }
 
@@ -682,7 +682,7 @@ class ExpressionLexer
      */
     public function validateToken(ExpressionTokenId $tokenId)
     {
-        if ($this->token->id->equals($tokenId)) {
+        if (!$this->token->id->equals($tokenId)) {
             $this->parseError(
                 Messages::expressionLexerSyntaxError(
                     $this->pos

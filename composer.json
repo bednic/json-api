@@ -42,6 +42,7 @@
     },
     "require-dev": {
         "doctrine/cache": "^1.8",
+        "doctrine/orm": "^2.7",
         "opis/json-schema": "^1.0",
         "phpunit/phpunit": "^8",
         "roave/doctrine-simplecache": "^2.3",

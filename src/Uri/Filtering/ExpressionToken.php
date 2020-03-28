@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace JSONAPI\Uri\Filtering;
 
@@ -35,36 +35,21 @@ class ExpressionToken
      * @return boolean True if this token represent a comparison operator
      *                 False otherwise.
      */
-    public function isComparisonOperator()
+    public function isComparisonOperator(): bool
     {
         return
             $this->id->equals(ExpressionTokenId::IDENTIFIER()) &&
             (
-                strcmp($this->text, Constants::KEYWORD_EQUAL) == 0 ||
-                strcmp($this->text, Constants::KEYWORD_NOT_EQUAL) == 0 ||
-                strcmp($this->text, Constants::KEYWORD_LOWER_THAN) == 0 ||
-                strcmp($this->text, Constants::KEYWORD_GREATER_THAN) == 0 ||
-                strcmp($this->text, Constants::KEYWORD_LOWER_THAN_OR_EQUAL) == 0 ||
-                strcmp($this->text, Constants::KEYWORD_GREATER_THAN_OR_EQUAL) == 0
+                strcmp($this->text, Constants::LOGICAL_EQUAL) === 0 ||
+                strcmp($this->text, Constants::LOGICAL_NOT_EQUAL) === 0 ||
+                strcmp($this->text, Constants::LOGICAL_LOWER_THAN) === 0 ||
+                strcmp($this->text, Constants::LOGICAL_LOWER_THAN_OR_EQUAL) === 0 ||
+                strcmp($this->text, Constants::LOGICAL_GREATER_THAN) === 0 ||
+                strcmp($this->text, Constants::LOGICAL_GREATER_THAN_OR_EQUAL) === 0 ||
+                strcmp($this->text, Constants::LOGICAL_HAS) === 0 ||
+                strcmp($this->text, Constants::LOGICAL_IN) === 0
             );
     }
-
-    /**
-     * Checks whether this token is an equality operator.
-     *
-     * @return boolean True if this token represent a equality operator
-     *                 False otherwise.
-     */
-    public function isEqualityOperator()
-    {
-        return
-            $this->id->equals(ExpressionTokenId::IDENTIFIER()) &&
-            (
-                strcmp($this->text, Constants::KEYWORD_EQUAL) == 0 ||
-                strcmp($this->text, Constants::KEYWORD_NOT_EQUAL) == 0
-            );
-    }
-
     /**
      * Checks whether this token is a valid token for a key value.
      *
@@ -79,6 +64,7 @@ class ExpressionToken
             $this->id->equals(ExpressionTokenId::DATETIME_LITERAL()) ||
             $this->id->equals(ExpressionTokenId::GUID_LITERAL()) ||
             $this->id->equals(ExpressionTokenId::STRING_LITERAL()) ||
+            $this->id->equals(ExpressionTokenId::NULL_LITERAL()) ||
             ExpressionLexer::isNumeric($this->id);
     }
 
@@ -91,7 +77,7 @@ class ExpressionToken
     public function getIdentifier()
     {
         if (!$this->id->equals(ExpressionTokenId::IDENTIFIER())) {
-            throw new Exception(
+            throw new ExpressionException(
                 'Identifier expected at position ' . $this->position
             );
         }
