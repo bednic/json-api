@@ -28,10 +28,12 @@ abstract class CursorPagination implements PaginationInterface, PaginationParser
      *
      * @return PaginationInterface
      */
-    public function parse(array $data): PaginationInterface
+    public function parse(?array $data): PaginationInterface
     {
-        if (isset($data['cursor'])) {
-            $this->cursor = $data['cursor'];
+        if ($data) {
+            if (isset($data['cursor'])) {
+                $this->cursor = $data['cursor'];
+            }
         }
         return $this;
     }

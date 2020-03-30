@@ -56,7 +56,7 @@ class DocumentBuilder
         $this->logger = $logger ?? new NullLogger();
         $this->metadata = $metadata;
         $this->uri = $uriParser;
-        $this->uri->setMetadata($this->metadata);
+        $this->uri->setMetadataRepository($this->metadata);
         $this->encoder = new Encoder($this->metadata, $this->uri->getFieldset(), $this->logger);
         $this->encoder->setRelationshipLimit($relationshipLimit);
         $this->maxIncludedItems = $maxIncludedItems;

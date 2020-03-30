@@ -14,9 +14,9 @@ interface PaginationParserInterface
     public const KEY = 'page';
 
     /**
-     * @param array $data
+     * @param array|null $data
      *
      * @return PaginationInterface
      */
-    public function parse(array $data): PaginationInterface;
+    public function parse(?array $data): PaginationInterface;
 }

@@ -21,13 +21,15 @@ class FieldsetParser implements FieldsetInterface
      *
      * @return FieldsetInterface
      */
-    public function parse(array $data): FieldsetInterface
+    public function parse(?array $data): FieldsetInterface
     {
         $this->fields = [];
-        foreach ($data as $type => $fields) {
-            $this->fields[$type] = array_map(function ($item) {
-                return trim($item);
-            }, explode(',', $fields));
+        if ($data) {
+            foreach ($data as $type => $fields) {
+                $this->fields[$type] = array_map(function ($item) {
+                    return trim($item);
+                }, explode(',', $fields));
+            }
         }
         return $this;
     }

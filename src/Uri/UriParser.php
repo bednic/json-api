@@ -7,6 +7,7 @@ namespace JSONAPI\Uri;
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\UnsupportedParameter;
+use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Exception\MissingDependency;
@@ -73,14 +74,16 @@ final class UriParser
     /**
      * @var MetadataRepository|null
      */
-    private ?MetadataRepository $metadata = null;
+    private ?MetadataRepository $metadataRepository = null;
     /**
      * Enables inclusion support
+     *
      * @var bool
      */
     public static bool $inclusionEnabled = true;
     /**
      * Enables sort support
+     *
      * @var bool
      */
     public static bool $sortEnabled = true;
@@ -105,7 +108,7 @@ final class UriParser
     ) {
         $this->check($request);
         $this->request = $request;
-        $this->metadata = $metadataRepository;
+        $this->metadataRepository = $metadataRepository;
         $this->logger = $logger ?? new NullLogger();
         $this->fieldsetParser = new FieldsetParser();
         $this->filterParser = $filterParser ?? new ExpressionFilterParser();
@@ -155,23 +158,27 @@ final class UriParser
     }
 
     /**
-     * @param MetadataRepository $metadata
+     * @param MetadataRepository $metadataRepository
      *
      * @return UriParser
      */
-    public function setMetadata(MetadataRepository $metadata): self
+    public function setMetadataRepository(MetadataRepository $metadataRepository): self
     {
-        $this->metadata = $metadata;
+        $this->metadataRepository = $metadataRepository;
         return $this;
     }
 
     /**
      * @return FilterInterface
      * @throws BadRequest
+     * @throws MetadataException
+     * @throws MissingDependency
      */
     public function getFilter(): FilterInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::FILTER_PART_KEY] ?? [];
+        $params = $this->request->getQueryParams()[UriPartInterface::FILTER_PART_KEY] ?? null;
+        $classMetadata = $this->getMetadataRepository()->getByType($this->getPrimaryResourceType());
+        $this->filterParser->setMetadata($classMetadata);
         return $this->filterParser->parse($params);
     }
 
@@ -180,7 +187,7 @@ final class UriParser
      */
     public function getPagination(): PaginationInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::PAGINATION_PART_KEY] ?? [];
+        $params = $this->request->getQueryParams()[UriPartInterface::PAGINATION_PART_KEY] ?? null;
         return $this->paginationParser->parse($params);
     }
 
@@ -189,7 +196,7 @@ final class UriParser
      */
     public function getSort(): SortInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::SORT_PART_KEY] ?? '';
+        $params = $this->request->getQueryParams()[UriPartInterface::SORT_PART_KEY] ?? null;
         return $this->sortParser->parse($params);
     }
 
@@ -198,7 +205,7 @@ final class UriParser
      */
     public function getFieldset(): FieldsetInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::FIELDS_PART_KEY] ?? [];
+        $params = $this->request->getQueryParams()[UriPartInterface::FIELDS_PART_KEY] ?? null;
         return $this->fieldsetParser->parse($params);
     }
 
@@ -207,7 +214,7 @@ final class UriParser
      */
     public function getInclusion(): InclusionInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::INCLUSION_PART_KEY] ?? '';
+        $params = $this->request->getQueryParams()[UriPartInterface::INCLUSION_PART_KEY] ?? null;
         return $this->inclusionParser->parse($params);
     }
 
@@ -226,17 +233,14 @@ final class UriParser
      * @throws MissingDependency
      * @throws MetadataNotFound
      * @throws RelationNotFound
-     * @uses \JSONAPI\Uri\UriParser::$metadata
+     * @uses \JSONAPI\Uri\UriParser::$metadataRepository
      *
      */
     public function isCollection(): bool
     {
-        if (is_null($this->metadata)) {
-            throw new MissingDependency("You have to set MetadataRepository first. See method ::setMetadata.");
-        }
         $path = $this->getPath();
         if ($path->getRelationshipName()) {
-            return $this->metadata
+            return $this->getMetadataRepository()
                 ->getByType($path->getResourceType())
                 ->getRelationship($path->getRelationshipName())
                 ->isCollection;
@@ -259,21 +263,19 @@ final class UriParser
      */
     public function getPrimaryResourceType(): string
     {
-        if (is_null($this->metadata)) {
-            throw new MissingDependency("You have to set MetadataRepository first. See method ::setMetadata.");
-        }
+
         $path = $this->getPath();
         if ($path->getRelationshipName()) {
-            return $this->metadata
+            return $this->getMetadataRepository()
                 ->getByClass(
-                    $this->metadata
+                    $this->getMetadataRepository()
                         ->getByType($path->getResourceType())
                         ->getRelationship($path->getRelationshipName())
                         ->target
                 )
                 ->getType();
         } else {
-            return $this->metadata->getByType($path->getResourceType())->getType();
+            return $this->getMetadataRepository()->getByType($path->getResourceType())->getType();
         }
     }
 
@@ -286,14 +288,11 @@ final class UriParser
      */
     public function getRelationshipType(): ?string
     {
-        if (is_null($this->metadata)) {
-            throw new MissingDependency("You have to set MetadataRepository first. See method ::setMetadata.");
-        }
         $path = $this->getPath();
         if ($path->getRelationshipName()) {
-            return $this->metadata
+            return $this->getMetadataRepository()
                 ->getByClass(
-                    $this->metadata
+                    $this->getMetadataRepository()
                         ->getByType($path->getResourceType())
                         ->getRelationship($path->getRelationshipName())
                         ->target
@@ -301,5 +300,17 @@ final class UriParser
                 ->getType();
         }
         return null;
+    }
+
+    /**
+     * @return MetadataRepository|null
+     * @throws MissingDependency
+     */
+    private function getMetadataRepository(): MetadataRepository
+    {
+        if (is_null($this->metadataRepository)) {
+            throw new MissingDependency("You have to set MetadataRepository first. See method ::setMetadata.");
+        }
+        return $this->metadataRepository;
     }
 }

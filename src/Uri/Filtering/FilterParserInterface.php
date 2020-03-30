@@ -9,7 +9,7 @@ use JSONAPI\Exception\Http\BadRequest;
 interface FilterParserInterface
 {
     /**
-     * @param string|array $data
+     * @param string|array|null $data
      *
      * @return FilterInterface
      * @throws BadRequest

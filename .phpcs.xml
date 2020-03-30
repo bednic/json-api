@@ -3,9 +3,9 @@
     <description>JSON-API coding standard</description>
 
     <!-- display progress -->
-    <arg value="ps"/>
+    <arg value="pn"/>
     <!-- use colors in output -->
-    <!--    <arg name="colors"/>-->
+    <!--    <arg name="" value=""/>-->
 
     <!-- inherit rules from: -->
     <rule ref="PSR12"/>

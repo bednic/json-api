@@ -1312,7 +1312,7 @@ class Messages
      */
     public static function failedToAccessProperty($propertyName, $parentObjectName)
     {
-        return "Data Service failed to access or initialize the property $propertyName of $parentObjectName";
+        return "Data Service failed to access or initialize the property [$propertyName] of [$parentObjectName]";
     }
 
     /**

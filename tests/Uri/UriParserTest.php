@@ -43,7 +43,7 @@ class UriParserTest extends TestCase
         $request = ServerRequestFactory::createFromGlobals();
         $up = new UriParser($request);
         $meta = new MetadataRepository();
-        $up->setMetadata($meta);
+        $up->setMetadataRepository($meta);
     }
 
     public function testGetFieldset()
@@ -57,6 +57,7 @@ class UriParserTest extends TestCase
     {
         $request = ServerRequestFactory::createFromGlobals();
         $up = new UriParser($request);
+        $up->setMetadataRepository(self::$mr);
         $this->assertInstanceOf(FilterInterface::class, $up->getFilter());
     }
 
@@ -78,7 +79,7 @@ class UriParserTest extends TestCase
     {
         $request = ServerRequestFactory::createFromGlobals();
         $up = new UriParser($request);
-        $up->setMetadata(self::$mr);
+        $up->setMetadataRepository(self::$mr);
         $this->assertFalse($up->isCollection());
     }
 
@@ -126,7 +127,7 @@ class UriParserTest extends TestCase
         $_SERVER["REQUEST_URI"] = "/getter/uuid/relationships/relation";
         $request = ServerRequestFactory::createFromGlobals();
         $up = new UriParser($request);
-        $up->setMetadata(self::$mr);
+        $up->setMetadataRepository(self::$mr);
         $this->assertEquals('relation', $up->getRelationshipType());
     }
 
@@ -134,7 +135,7 @@ class UriParserTest extends TestCase
     {
         $request = ServerRequestFactory::createFromGlobals();
         $up = new UriParser($request);
-        $up->setMetadata(self::$mr);
+        $up->setMetadataRepository(self::$mr);
         $this->assertEquals('getter', $up->getPrimaryResourceType());
     }
 }

@@ -653,7 +653,7 @@ class ExpressionLexer
      * and returns the text for it
      *
      * @return string The dotted identifier starting at the current identifier
-     * @throws Exception
+     * @throws ExpressionException
      */
     public function readDottedIdentifier()
     {
@@ -677,7 +677,7 @@ class ExpressionLexer
      *
      * @return void
      *
-     * @throws Exception if current token is not of the
+     * @throws ExpressionException if current token is not of the
      *                        specified kind.
      */
     public function validateToken(ExpressionTokenId $tokenId)

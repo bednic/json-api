@@ -7,11 +7,12 @@
  * Time: 12:51
  */
 
-declare(strict_types=1);
+declare(strict_types = 1);
 
 namespace JSONAPI\Test\Resources\Valid;
 
 use JSONAPI\Annotation as API;
+use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\Id;
 use JSONAPI\Schema\Resource;
 use JSONAPI\Schema\ResourceSchema;
@@ -30,6 +31,12 @@ class DummyRelation implements Resource
      */
     public string $id;
 
+    /**
+     * @var string|null
+     * @API\Attribute
+     */
+    public ?string $property = null;
+
     public function __construct(string $id)
     {
         $this->id = $id;
@@ -37,8 +44,8 @@ class DummyRelation implements Resource
 
     public static function getSchema(): ResourceSchema
     {
-        return new ResourceSchema(
-            __CLASS__, 'relation', Id::createByProperty('id')
-        );
+        return new ResourceSchema(__CLASS__, 'relation', Id::createByProperty('id'), [
+            Attribute::createByProperty('property')
+        ]);
     }
 }

@@ -12,6 +12,7 @@ namespace JSONAPI\Uri\Filtering;
  */
 interface ExpressionBuilder
 {
+
     /**
      * @param $left
      * @param $right
@@ -278,4 +279,7 @@ interface ExpressionBuilder
     public function isNull($column);
 
     public function isNotNull($column);
+
+
+    public static function useDotedIdentifier(): bool;
 }

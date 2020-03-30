@@ -62,22 +62,24 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      *
      * @return PaginationInterface
      */
-    public function parse(array $data): PaginationInterface
+    public function parse(?array $data): PaginationInterface
     {
-        if (isset($data['limit'])) {
-            $this->limit = filter_var($data['limit'], FILTER_VALIDATE_INT, [
-                'options' => [
-                    'default' => $this->limit
-                ]
-            ]);
-        }
+        if ($data) {
+            if (isset($data['limit'])) {
+                $this->limit = filter_var($data['limit'], FILTER_VALIDATE_INT, [
+                    'options' => [
+                        'default' => $this->limit
+                    ]
+                ]);
+            }
 
-        if (isset($data['offset'])) {
-            $this->offset = filter_var($data['offset'], FILTER_VALIDATE_INT, [
-                'options' => [
-                    'default' => $this->offset
-                ]
-            ]);
+            if (isset($data['offset'])) {
+                $this->offset = filter_var($data['offset'], FILTER_VALIDATE_INT, [
+                    'options' => [
+                        'default' => $this->offset
+                    ]
+                ]);
+            }
         }
         return $this;
     }

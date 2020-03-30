@@ -132,22 +132,24 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
      *
      * @return PaginationInterface
      */
-    public function parse(array $data): PaginationInterface
+    public function parse(?array $data): PaginationInterface
     {
-        if (isset($data[self::PAGE_NUMBER_KEY])) {
-            $this->number = filter_var($data[self::PAGE_NUMBER_KEY], FILTER_VALIDATE_INT, [
-                'options' => [
-                    'default' => $this->number
-                ]
-            ]);
-        }
+        if ($data) {
+            if (isset($data[self::PAGE_NUMBER_KEY])) {
+                $this->number = filter_var($data[self::PAGE_NUMBER_KEY], FILTER_VALIDATE_INT, [
+                    'options' => [
+                        'default' => $this->number
+                    ]
+                ]);
+            }
 
-        if (isset($data[self::PAGE_SIZE_KEY])) {
-            $this->size = filter_var($data[self::PAGE_SIZE_KEY], FILTER_VALIDATE_INT, [
-                'options' => [
-                    'default' => $this->size
-                ]
-            ]);
+            if (isset($data[self::PAGE_SIZE_KEY])) {
+                $this->size = filter_var($data[self::PAGE_SIZE_KEY], FILTER_VALIDATE_INT, [
+                    'options' => [
+                        'default' => $this->size
+                    ]
+                ]);
+            }
         }
         return $this;
     }
