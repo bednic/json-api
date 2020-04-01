@@ -460,9 +460,9 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseFloat(): float
     {
         $value = $this->lexer->getCurrentToken()->text;
-        if ($value = filter_var($value, FILTER_VALIDATE_FLOAT)) {
+        if (filter_var($value, FILTER_VALIDATE_FLOAT) !== false) {
             $this->lexer->nextToken();
-            return $value;
+            return (float)$value;
         }
         throw new ExpressionException("Not float.");
     }
@@ -496,9 +496,9 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseInteger(): int
     {
         $value = $this->lexer->getCurrentToken()->text;
-        if ($value = filter_var($value, FILTER_VALIDATE_INT)) {
+        if (filter_var($value, FILTER_VALIDATE_INT) !== false) {
             $this->lexer->nextToken();
-            return $value;
+            return (int)$value;
         }
         throw new ExpressionException("Not integer.");
     }
