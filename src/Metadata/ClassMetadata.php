@@ -189,4 +189,14 @@ final class ClassMetadata
     {
         return $this->fields->filter(fn($i) => $i instanceof Attribute)->containsKey($fieldName);
     }
+
+    /**
+     * @param string $fieldName
+     *
+     * @return bool
+     */
+    public function hasField(string $fieldName): bool
+    {
+        return $this->fields->containsKey($fieldName);
+    }
 }

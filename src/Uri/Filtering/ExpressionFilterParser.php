@@ -410,7 +410,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
                 } catch (RelationNotFound $e) {
                     throw new ExpressionException("Relation access to non-relation property {$property}.");
                 }
-            } elseif ($this->metadata->hasRelationship($parts[0]) || $this->metadata->hasAttribute($parts[0])) {
+            } elseif ($this->metadata->hasField($parts[0])) {
                 $property = $this->metadata->getType() . '.' . $parts[0];
             } else {
                 throw new ExpressionException(

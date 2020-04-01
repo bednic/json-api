@@ -11,6 +11,7 @@ namespace JSONAPI\Metadata;
  */
 class Id
 {
+    public static string $name = 'id';
     /**
      * @var string
      */
