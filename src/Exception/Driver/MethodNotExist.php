@@ -17,12 +17,12 @@ class MethodNotExist extends DriverException
     /**
      * MethodNotExist constructor.
      *
-     * @param string $methodName
+     * @param string $name
      * @param string $className
      */
-    public function __construct(string $methodName, string $className)
+    public function __construct(string $name, string $className)
     {
-        $message = sprintf($this->message, $methodName, $className);
+        $message = sprintf($this->message, $name, $className);
         parent::__construct($message);
     }
 }

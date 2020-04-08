@@ -20,6 +20,12 @@ namespace JSONAPI\Test\Middleware {
     use Slim\Psr7\Factory\ServerRequestFactory;
     use Slim\Psr7\Factory\StreamFactory;
 
+    /**
+     * Class PsrJsonApiMiddlewareTest
+     *
+     * @package JSONAPI\Test\Middleware
+     * @coversDefaultClass \JSONAPI\Middleware\PsrJsonApiMiddleware
+     */
     class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterface
     {
 
@@ -84,6 +90,7 @@ namespace JSONAPI\Test\Middleware {
     }
 }
 namespace JSONAPI\Middleware {
+
     function file_get_contents()
     {
         return \file_get_contents(RESOURCES . '/request.json');

@@ -6,7 +6,7 @@ namespace JSONAPI\Driver;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
-use JSONAPI\Exception\Driver\BadMethodSignature;
+use JSONAPI\Exception\Driver\BadSignature;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
@@ -86,7 +86,7 @@ class SchemaDriver extends Driver
      * @throws MethodNotExist
      * @throws PropertyNotExist
      * @throws AnnotationMisplace
-     * @throws BadMethodSignature
+     * @throws BadSignature
      */
     private function parseAttributes(ReflectionClass $reflectionClass, iterable $metadata): ArrayCollection
     {

@@ -6,7 +6,7 @@ namespace JSONAPI\Driver;
 
 use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
-use JSONAPI\Exception\Driver\BadMethodSignature;
+use JSONAPI\Exception\Driver\BadSignature;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Driver\MethodNotExist;
 use JSONAPI\Exception\Metadata\MetadataException;
@@ -81,12 +81,12 @@ abstract class Driver
      * @param ReflectionMethod $setter
      *
      * @return string
-     * @throws BadMethodSignature
+     * @throws BadSignature
      */
     protected function getSetterParameterType(ReflectionMethod $setter): ?string
     {
         if ($setter->getNumberOfRequiredParameters() > 1) {
-            throw new BadMethodSignature($setter->getName(), $setter->class);
+            throw new BadSignature($setter->getName(), $setter->class);
         }
         $parameters = $setter->getParameters();
         $parameter = array_shift($parameters);
@@ -123,10 +123,15 @@ abstract class Driver
      * @param ReflectionProperty|ReflectionMethod $reflection
      *
      * @return bool|null
+     * @throws BadSignature
      */
     protected function isCollection($reflection): ?bool
     {
+
         $type = $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
+        if (is_null($type)) {
+            throw new BadSignature($reflection->getName(), $reflection->getDeclaringClass()->getName());
+        }
         try {
             if (
                 ($type->isBuiltin() && $type->getName() === 'array')
@@ -164,7 +169,7 @@ abstract class Driver
      * @param ReflectionProperty|ReflectionMethod $reflection
      * @param ReflectionClass                     $reflectionClass
      *
-     * @throws BadMethodSignature
+     * @throws BadSignature
      */
     protected function fillUpAttribute(Attribute $attribute, $reflection, ReflectionClass $reflectionClass)
     {
@@ -196,6 +201,7 @@ abstract class Driver
      * @param                      $reflection
      * @param ReflectionClass      $reflectionClass
      *
+     * @throws BadSignature
      * @throws MethodNotExist
      */
     protected function fillUpRelationship(

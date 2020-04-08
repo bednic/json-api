@@ -12,7 +12,7 @@ use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
-use JSONAPI\Exception\Driver\BadMethodSignature;
+use JSONAPI\Exception\Driver\BadSignature;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
@@ -108,7 +108,7 @@ class AnnotationDriver extends Driver
      * @param ArrayCollection  $relationships
      *
      * @throws MethodNotExist
-     * @throws BadMethodSignature
+     * @throws BadSignature
      */
     private function parseProperties(
         ReflectionClass $reflectionClass,
@@ -145,7 +145,7 @@ class AnnotationDriver extends Driver
      * @param ArrayCollection  $attributes
      * @param ArrayCollection  $relationships
      *
-     * @throws BadMethodSignature
+     * @throws BadSignature
      * @throws MethodNotExist
      * @throws AnnotationMisplace
      */

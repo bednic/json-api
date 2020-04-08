@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace JSONAPI\Test\Exception\Driver;
 
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Exception\Driver\BadMethodSignature;
+use JSONAPI\Exception\Driver\BadSignature;
+use JSONAPI\Test\Resources\Invalid\BadRelationshipGetter;
 use JSONAPI\Test\Resources\Invalid\WithBadMethodSignature;
 use PHPUnit\Framework\TestCase;
 
@@ -21,16 +22,23 @@ class BadMethodSignatureTest extends TestCase
 
     public function testConstruct()
     {
-        $e = new BadMethodSignature('someMethod', 'MyClass');
-        $this->assertInstanceOf(BadMethodSignature::class, $e);
+        $e = new BadSignature('someMethod', 'MyClass');
+        $this->assertInstanceOf(BadSignature::class, $e);
         $this->assertStringContainsString('someMethod', $e->getMessage());
         $this->assertStringContainsString('MyClass', $e->getMessage());
     }
 
     public function testUsage()
     {
-        $this->expectException(BadMethodSignature::class);
+        $this->expectException(BadSignature::class);
         $driver = new AnnotationDriver();
         $driver->getClassMetadata(WithBadMethodSignature::class);
+    }
+
+    public function testBadRelationshipGetter()
+    {
+        $this->expectException(BadSignature::class);
+        $driver = new AnnotationDriver();
+        $driver->getClassMetadata(BadRelationshipGetter::class);
     }
 }
