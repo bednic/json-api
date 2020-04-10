@@ -44,7 +44,7 @@ class ExpressionFilterParserTest extends TestCase
         $parser = new ExpressionFilterParser(new DoctrineQueryExpressionBuilder(self::$mr, $up->getPath()));
         $up->setFilterParser($parser);
         $this->assertEquals(
-            "(getter.stringProperty = string AND getter.intProperty IN(1, 2, 3)) OR (getter.boolProperty <> 1 AND relation.property IS NULL)",
+            "(getter.stringProperty = 'string' AND getter.intProperty IN(1, 2, 3)) OR (getter.boolProperty <> true AND relation.property IS NULL)",
             (string)$up->getFilter()->getCondition()
         );
         $this->assertArrayHasKey('relation', $up->getFilter()->getRequiredJoins());

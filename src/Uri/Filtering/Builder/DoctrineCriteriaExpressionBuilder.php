@@ -271,4 +271,12 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     {
         return new Comparison($column, Comparison::NEQ, new Value(null));
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function literal($value)
+    {
+        return $value;
+    }
 }

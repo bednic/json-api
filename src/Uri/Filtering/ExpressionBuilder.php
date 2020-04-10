@@ -284,4 +284,11 @@ interface ExpressionBuilder
      * @return mixed
      */
     public function isNotNull($column);
+
+    /**
+     * @param $value
+     *
+     * @return mixed
+     */
+    public function literal($value);
 }

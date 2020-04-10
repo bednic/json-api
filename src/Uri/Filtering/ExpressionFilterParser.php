@@ -391,28 +391,27 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     # PARSERS
 
     /**
-     * @return bool
+     * @return mixed
      * @throws ExpressionException
      */
-    private function parseBoolean(): bool
+    private function parseBoolean()
     {
-        $ret = true;
-        if ($this->lexer->getCurrentToken()->identifierIs(Constants::KEYWORD_FALSE)) {
-            $ret = false;
-        }
+        $value = strcmp($this->lexer->getCurrentToken()->text, Constants::KEYWORD_TRUE) == 0;
+        $value = $this->exp->literal($value);
         $this->lexer->nextToken();
-        return $ret;
+        return $value;
     }
 
     /**
-     * @return string date in ISO8601 format
+     * @return mixed
      * @throws ExpressionException
      */
-    private function parseDatetime(): string
+    private function parseDatetime()
     {
         $value = $this->lexer->getCurrentToken()->text;
         try {
-            $value = (new DateTime(trim($value, 'datetime\'')))->format(DATE_ISO8601);
+            $value = (new DateTime(trim($value, " \t\n\r\0\x0Bdatetime\'")))->format(DATE_ATOM);
+            $value = $this->exp->literal($value);
         } catch (Exception $e) {
             throw new ExpressionException(Messages::syntaxError());
         }
@@ -421,21 +420,22 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     }
 
     /**
-     * @return float
+     * @return mixed
      * @throws ExpressionException
      */
-    private function parseFloat(): float
+    private function parseFloat()
     {
         $value = $this->lexer->getCurrentToken()->text;
-        if (filter_var($value, FILTER_VALIDATE_FLOAT) !== false) {
+        if (($value = filter_var($value, FILTER_VALIDATE_FLOAT)) !== false) {
+            $value = $this->exp->literal($value);
             $this->lexer->nextToken();
-            return (float)$value;
+            return $value;
         }
-        throw new ExpressionException("Not float.");
+        throw new ExpressionException("$value is not float.");
     }
 
     /**
-     * @return null
+     * @return mixed
      * @throws ExpressionException
      */
     private function parseNull()
@@ -445,28 +445,30 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     }
 
     /**
-     * @return string
+     * @return mixed
      * @throws ExpressionException
      */
-    private function parseString(): string
+    private function parseString()
     {
         $value = $this->lexer->getCurrentToken()->text;
-        $value = trim($value, '\'');
+        $value = trim($value, " \t\n\r\0\x0B\'");
+        $value = $this->exp->literal($value);
         $this->lexer->nextToken();
         return $value;
     }
 
     /**
-     * @return int
+     * @return mixed
      * @throws ExpressionException
      */
-    private function parseInteger(): int
+    private function parseInteger()
     {
         $value = $this->lexer->getCurrentToken()->text;
-        if (filter_var($value, FILTER_VALIDATE_INT) !== false) {
+        if (($value = filter_var($value, FILTER_VALIDATE_INT)) !== false) {
+            $this->exp->literal($value);
             $this->lexer->nextToken();
-            return (int)$value;
+            return $value;
         }
-        throw new ExpressionException("Not integer.");
+        throw new ExpressionException("$value is not integer.");
     }
 }

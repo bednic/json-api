@@ -314,7 +314,16 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
 
     /**
      * @inheritDoc
+     */
+    public function literal($value)
+    {
+        return $this->exp->literal($value);
+    }
+
+    /**
+     * @inheritDoc
      * @throws MetadataException
+     * @throws ExpressionException
      */
     public function parseIdentifier(string $identifier): string
     {
@@ -326,8 +335,10 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
                 $this->joins[$rm->getType()] = $classMetadata->getType() . '.' . $part;
                 $identifier = $classMetadata->getType() . '.' . $part;
                 $classMetadata = $this->metadataRepository->getByClass($classMetadata->getRelationship($part)->target);
-            } elseif ($classMetadata->hasAttribute($part)) {
+            } elseif ($classMetadata->hasAttribute($part) || $part === 'id') {
                 $identifier = $classMetadata->getType() . '.' . $part;
+            } else {
+                throw new ExpressionException(Messages::failedToAccessProperty($part, $classMetadata->getClassName()));
             }
         }
         return $identifier;
