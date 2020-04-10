@@ -9,7 +9,6 @@ use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
-use JSONAPI\Uri\Filtering\CriteriaFilterParser;
 use JSONAPI\Uri\Filtering\ExpressionFilterParser;
 use JSONAPI\Uri\Filtering\FilterInterface;
 use JSONAPI\Uri\Inclusion\InclusionInterface;
@@ -37,63 +36,45 @@ class UriParserTest extends TestCase
         );
     }
 
-    public function testSetMetadata()
-    {
-        $this->expectNotToPerformAssertions();
-        $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
-        $meta = new MetadataRepository();
-        $up->setMetadataRepository($meta);
-    }
-
     public function testGetFieldset()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
+        $up = new UriParser($request, self::$mr);
         $this->assertInstanceOf(FieldsetInterface::class, $up->getFieldset());
     }
 
     public function testGetFilter()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
-        $up->setMetadataRepository(self::$mr);
+        $up = new UriParser($request, self::$mr);
         $this->assertInstanceOf(FilterInterface::class, $up->getFilter());
     }
 
     public function testGetSort()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
+        $up = new UriParser($request, self::$mr);
         $this->assertInstanceOf(SortInterface::class, $up->getSort());
     }
 
     public function testConstruct()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, new ExpressionFilterParser(), new PagePagination(), self::$mr, new NullLogger());
+        $up = new UriParser($request, self::$mr, new ExpressionFilterParser(), new PagePagination(), new NullLogger());
         $this->assertInstanceOf(UriParser::class, $up);
-    }
-
-    public function testIsCollection()
-    {
-        $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
-        $up->setMetadataRepository(self::$mr);
-        $this->assertFalse($up->isCollection());
     }
 
     public function testGetInclusion()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
+        $up = new UriParser($request, self::$mr);
         $this->assertInstanceOf(InclusionInterface::class, $up->getInclusion());
     }
 
     public function testGetPath()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
+        $up = new UriParser($request, self::$mr);
         $this->assertInstanceOf(PathInterface::class, $up->getPath());
     }
 
@@ -101,7 +82,7 @@ class UriParserTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
+        $up = new UriParser($request, self::$mr);
         $parser = new ExpressionFilterParser();
         $up->setFilterParser($parser);
     }
@@ -109,7 +90,7 @@ class UriParserTest extends TestCase
     public function testGetPagination()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
+        $up = new UriParser($request, self::$mr);
         $this->assertInstanceOf(PaginationInterface::class, $up->getPagination());
     }
 
@@ -117,25 +98,8 @@ class UriParserTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
+        $up = new UriParser($request, self::$mr);
         $parser = new LimitOffsetPagination();
         $up->setPaginationParser($parser);
-    }
-
-    public function testGetRelationshipType()
-    {
-        $_SERVER["REQUEST_URI"] = "/getter/uuid/relationships/relation";
-        $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
-        $up->setMetadataRepository(self::$mr);
-        $this->assertEquals('relation', $up->getRelationshipType());
-    }
-
-    public function testGetPrimaryResourceType()
-    {
-        $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request);
-        $up->setMetadataRepository(self::$mr);
-        $this->assertEquals('getter', $up->getPrimaryResourceType());
     }
 }

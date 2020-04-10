@@ -47,11 +47,11 @@ class DocumentBuilderTest extends TestCase
     public function testCreate()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $db = DocumentBuilder::create(self::$mr, new UriParser($request));
+        $db = DocumentBuilder::create(self::$mr, new UriParser($request, self::$mr));
         $this->assertInstanceOf(DocumentBuilder::class, $db);
-        $db = DocumentBuilder::create(self::$mr, new UriParser($request), null);
+        $db = DocumentBuilder::create(self::$mr, new UriParser($request, self::$mr), null);
         $this->assertInstanceOf(DocumentBuilder::class, $db);
-        $db = DocumentBuilder::create(self::$mr, new UriParser($request), new NullLogger(), 666, 666);
+        $db = DocumentBuilder::create(self::$mr, new UriParser($request, self::$mr), new NullLogger(), 666, 666);
         $this->assertInstanceOf(DocumentBuilder::class, $db);
     }
 
@@ -61,7 +61,7 @@ class DocumentBuilderTest extends TestCase
         $request = ServerRequestFactory::createFromGlobals();
         $this->assertInstanceOf(
             DocumentBuilder::class,
-            DocumentBuilder::create(self::$mr, new UriParser($request))->setTotalItems(10)
+            DocumentBuilder::create(self::$mr, new UriParser($request, self::$mr))->setTotalItems(10)
         );
     }
 
@@ -73,7 +73,7 @@ class DocumentBuilderTest extends TestCase
             DocumentBuilder::class,
             DocumentBuilder::create(
                 self::$mr,
-                new UriParser($request)
+                new UriParser($request, self::$mr)
             )->setData($single)
         );
 
@@ -82,7 +82,7 @@ class DocumentBuilderTest extends TestCase
         $collection = [new GettersExample('uuid')];
         $this->assertInstanceOf(
             DocumentBuilder::class,
-            DocumentBuilder::create(self::$mr, new UriParser($request))->setData($collection)
+            DocumentBuilder::create(self::$mr, new UriParser($request, self::$mr))->setData($collection)
         );
     }
 
@@ -90,14 +90,14 @@ class DocumentBuilderTest extends TestCase
     {
         $request = ServerRequestFactory::createFromGlobals();
         $single = new GettersExample('uuid');
-        $doc = DocumentBuilder::create(self::$mr, new UriParser($request))->setData($single)->build();
+        $doc = DocumentBuilder::create(self::$mr, new UriParser($request, self::$mr))->setData($single)->build();
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));
 
         $_SERVER['REQUEST_URI'] = 'getter';
         $request = ServerRequestFactory::createFromGlobals();
         $collection = [new GettersExample('uuid')];
-        $doc = DocumentBuilder::create(self::$mr, new UriParser($request))->setData($collection)->build();
+        $doc = DocumentBuilder::create(self::$mr, new UriParser($request, self::$mr))->setData($collection)->build();
         $self = $doc->getLinks()[LinkFactory::SELF];
         $this->assertStringContainsString('http://unit.test.org/api', (string) $self->getData());
         $this->assertInstanceOf(Document::class, $doc);

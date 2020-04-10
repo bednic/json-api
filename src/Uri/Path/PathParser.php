@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri\Path;
 
+use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Exception\Http\BadRequest;
+use JSONAPI\Metadata\MetadataRepository;
 
 /**
  * Class PathParser
@@ -13,8 +15,6 @@ use JSONAPI\Exception\Http\BadRequest;
  */
 class PathParser implements PathInterface
 {
-
-
     /**
      * @var string
      */
@@ -34,12 +34,27 @@ class PathParser implements PathInterface
      * @var bool
      */
     private bool $isRelationship = false;
+    /**
+     * @var MetadataRepository
+     */
+    private MetadataRepository $metadataRepository;
+    /**
+     * @var string
+     */
+    private string $method;
 
     /**
      * PathParser constructor.
+     *
+     * @param MetadataRepository $metadataRepository
+     * @param string             $method
      */
-    public function __construct()
-    {
+    public function __construct(
+        MetadataRepository $metadataRepository,
+        string $method = RequestMethodInterface::METHOD_GET
+    ) {
+        $this->metadataRepository = $metadataRepository;
+        $this->method = $method;
     }
 
     /**
@@ -123,5 +138,41 @@ class PathParser implements PathInterface
             }
         }
         return $str;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getPrimaryResourceType(): string
+    {
+        if ($this->getRelationshipName()) {
+            return $this->metadataRepository
+                ->getByClass(
+                    $this->metadataRepository
+                        ->getByType($this->getResourceType())
+                        ->getRelationship($this->getRelationshipName())
+                        ->target
+                )
+                ->getType();
+        } else {
+            return $this->metadataRepository->getByType($this->getResourceType())->getType();
+        }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isCollection(): bool
+    {
+        if ($this->getRelationshipName()) {
+            return $this->metadataRepository
+                ->getByType($this->getResourceType())
+                ->getRelationship($this->getRelationshipName())
+                ->isCollection;
+        }
+        if ($this->getId() || (strtoupper($this->method) === RequestMethodInterface::METHOD_POST)) {
+            return false;
+        }
+        return true;
     }
 }

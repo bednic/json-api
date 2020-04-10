@@ -1,30 +1,22 @@
 <?php
 
-/**
- * Created by IntelliJ IDEA.
- * User: tomas
- * Date: 24.04.2019
- * Time: 12:51
- */
-
-declare(strict_types = 1);
 
 namespace JSONAPI\Test\Resources\Valid;
 
-use JSONAPI\Annotation as API;
+
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\Id;
-use JSONAPI\Metadata\Relationship;
 use JSONAPI\Schema\Resource;
 use JSONAPI\Schema\ResourceSchema;
+use JSONAPI\Annotation as API;
 
 /**
- * Class DummyRelation
+ * Class ThirdLevel
  *
- * @package JSONAPI\Test
- * @API\Resource("relation")
+ * @package JSONAPI\Test\Resources\Valid
+ * @API\Resource("third")
  */
-class DummyRelation implements Resource
+class ThirdLevel implements Resource
 {
     /**
      * @var string
@@ -38,26 +30,18 @@ class DummyRelation implements Resource
      */
     public ?string $property = null;
 
-    /**
-     * @var ThirdLevel
-     * @API\Relationship(target=PropsExample::class)
-     */
-    public ThirdLevel $example;
-
     public function __construct(string $id)
     {
         $this->id = $id;
-        $this->example = new ThirdLevel('ex1');
     }
 
     public static function getSchema(): ResourceSchema
     {
         return new ResourceSchema(
             __CLASS__,
-            'relation',
+            'third',
             Id::createByProperty('id'),
             [Attribute::createByProperty('property')],
-            [Relationship::createByProperty('example', PropsExample::class)]
         );
     }
 }

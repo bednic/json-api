@@ -278,8 +278,10 @@ interface ExpressionBuilder
      */
     public function isNull($column);
 
+    /**
+     * @param $column
+     *
+     * @return mixed
+     */
     public function isNotNull($column);
-
-
-    public static function useDotedIdentifier(): bool;
 }

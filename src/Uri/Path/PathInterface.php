@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri\Path;
 
+use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Uri\UriPartInterface;
 
 /**
@@ -26,6 +27,7 @@ interface PathInterface extends UriPartInterface
 
     /**
      * Returns field of relationship
+     *
      * @return string|null
      */
     public function getRelationshipName(): ?string;
@@ -34,4 +36,16 @@ interface PathInterface extends UriPartInterface
      * @return bool
      */
     public function isRelationship(): bool;
+
+    /**
+     * @return string
+     * @throws MetadataException
+     */
+    public function getPrimaryResourceType(): string;
+
+    /**
+     * @return bool
+     * @throws MetadataException
+     */
+    public function isCollection(): bool;
 }

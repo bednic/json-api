@@ -56,7 +56,6 @@ class DocumentBuilder
         $this->logger = $logger ?? new NullLogger();
         $this->metadata = $metadata;
         $this->uri = $uriParser;
-        $this->uri->setMetadataRepository($this->metadata);
         $this->encoder = new Encoder($this->metadata, $this->uri->getFieldset(), $this->logger);
         $this->encoder->setRelationshipLimit($relationshipLimit);
         $this->maxIncludedItems = $maxIncludedItems;
@@ -96,13 +95,12 @@ class DocumentBuilder
      * @throws BadRequest
      * @throws DocumentException
      * @throws DriverException
-     * @throws MissingDependency
      * @throws MetadataException
      */
     public function setData($data): self
     {
         $this->included->reset();
-        if ($this->uri->isCollection()) {
+        if ($this->uri->getPath()->isCollection()) {
             $collection = new ResourceCollection();
             foreach ($data as $item) {
                 if ($this->uri->getPath()->isRelationship()) {
@@ -206,7 +204,6 @@ class DocumentBuilder
      * @throws Exception\Document\ForbiddenCharacter
      * @throws Exception\Document\ForbiddenDataType
      * @throws Exception\Document\ReservedWord
-     * @throws Exception\Document\ResourceTypeMismatch
      * @throws Exception\Driver\ClassNotExist
      * @throws Exception\Metadata\InvalidField
      * @throws Exception\Metadata\MetadataNotFound

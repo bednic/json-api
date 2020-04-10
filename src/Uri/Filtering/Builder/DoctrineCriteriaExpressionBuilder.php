@@ -271,9 +271,4 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     {
         return new Comparison($column, Comparison::NEQ, new Value(null));
     }
-
-    public static function useDotedIdentifier(): bool
-    {
-        return false;
-    }
 }

@@ -6,6 +6,7 @@ namespace JSONAPI\Uri\Filtering\Builder;
 
 use Doctrine\ORM\Query\Expr;
 use JSONAPI\Exception\Http\BadRequest;
+use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Exception\MissingDependency;
@@ -15,6 +16,7 @@ use JSONAPI\Uri\Filtering\Constants;
 use JSONAPI\Uri\Filtering\ExpressionBuilder;
 use JSONAPI\Uri\Filtering\ExpressionException;
 use JSONAPI\Uri\Filtering\Messages;
+use JSONAPI\Uri\Path\PathInterface;
 use JSONAPI\Uri\UriParser;
 
 /**
@@ -22,7 +24,7 @@ use JSONAPI\Uri\UriParser;
  *
  * @package JSONAPI\Uri\Filtering
  */
-class DoctrineQueryExpressionBuilder implements ExpressionBuilder
+class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
 {
 
     /**
@@ -33,8 +35,16 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder
      * @var array
      */
     private array $joins = [];
+    /**
+     * @var MetadataRepository
+     */
+    private MetadataRepository $metadataRepository;
+    /**
+     * @var PathInterface
+     */
+    private PathInterface $path;
 
-    public function __construct()
+    public function __construct(MetadataRepository $metadataRepository, PathInterface $path)
     {
         if (!class_exists('Doctrine\ORM\Query\Expr')) {
             throw new \RuntimeException(
@@ -42,6 +52,8 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder
             );
         }
         $this->exp = new Expr();
+        $this->metadataRepository = $metadataRepository;
+        $this->path = $path;
     }
 
     /**
@@ -300,8 +312,32 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder
         return $this->exp->isNotNull($column);
     }
 
-    public static function useDotedIdentifier(): bool
+    /**
+     * @inheritDoc
+     * @throws MetadataException
+     */
+    public function parseIdentifier(string $identifier): string
     {
-        return true;
+        $classMetadata = $this->metadataRepository->getByType($this->path->getPrimaryResourceType());
+        $parts = [...explode(".", $identifier)];
+        while ($part = array_shift($parts)) {
+            if ($classMetadata->hasRelationship($part)) {
+                $rm = $this->metadataRepository->getByClass($classMetadata->getRelationship($part)->target);
+                $this->joins[$rm->getType()] = $classMetadata->getType() . '.' . $part;
+                $identifier = $classMetadata->getType() . '.' . $part;
+                $classMetadata = $this->metadataRepository->getByClass($classMetadata->getRelationship($part)->target);
+            } elseif ($classMetadata->hasAttribute($part)) {
+                $identifier = $classMetadata->getType() . '.' . $part;
+            }
+        }
+        return $identifier;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getRequiredJoins(): array
+    {
+        return $this->joins;
     }
 }

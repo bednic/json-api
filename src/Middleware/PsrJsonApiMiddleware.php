@@ -26,6 +26,7 @@ use JSONAPI\JsonDeserializable;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Path\PathInterface;
+use JSONAPI\Uri\Path\PathParser;
 use JSONAPI\Uri\UriParser;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -110,13 +111,14 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                     throw new UnsupportedMediaType();
                 }
                 $document = new Document();
-                $uriParser = new UriParser($request, null, null, $this->repository, $this->logger);
                 if ($request->getBody()->getSize() > 0) {
                     $request->getBody()->rewind();
+                    $path = (new PathParser($this->repository, $request->getMethod()))
+                        ->parse($request->getUri()->getPath());
                     $document->setData(
                         $this->loadRequestData(
                             json_decode($request->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR),
-                            $uriParser
+                            $path
                         )
                     );
                 }
@@ -138,32 +140,31 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
 
     /**
      * @param stdClass|null $body
-     * @param UriParser     $uri
+     * @param PathInterface $path
      *
      * @return PrimaryData|null
      * @throws BadRequest
      * @throws DocumentException
-     * @throws MissingDependency
      * @throws MetadataException
      */
-    private function loadRequestData(?stdClass $body, UriParser $uri): ?PrimaryData
+    private function loadRequestData(?stdClass $body, PathInterface $path): ?PrimaryData
     {
-        if ($uri->isCollection()) {
+        if ($path->isCollection()) {
             $data = new ResourceCollection();
             if ($body) {
-                $type = $uri->getPrimaryResourceType();
+                $type = $path->getPrimaryResourceType();
                 $metadata = $this->repository->getByType($type);
                 foreach ($body->data as $object) {
-                    $resource = $this->jsonToResourceObject($object, $metadata, $uri->getPath());
+                    $resource = $this->jsonToResourceObject($object, $metadata, $path);
                     $data->add($resource);
                 }
             }
         } else {
             $data = null;
             if ($body) {
-                $type = $uri->getPrimaryResourceType();
+                $type = $path->getPrimaryResourceType();
                 $metadata = $this->repository->getByType($type);
-                $data = $this->jsonToResourceObject($body->data, $metadata, $uri->getPath());
+                $data = $this->jsonToResourceObject($body->data, $metadata, $path);
             }
         }
         return $data;

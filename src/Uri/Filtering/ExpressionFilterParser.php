@@ -12,6 +12,7 @@ use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Exception\MissingDependency;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Uri\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
+use JSONAPI\Uri\Filtering\Builder\UseDottedIdentifier;
 
 /**
  * Class ExpressionFilterParser
@@ -35,12 +36,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      * @var mixed
      */
     private $condition;
-    /**
-     * @var ClassMetadata
-     */
-    private ClassMetadata $metadata;
-
-    private array $joins;
 
     /**
      * ExpressionFilterParser constructor.
@@ -52,19 +47,12 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         $this->exp = $exp ?? new DoctrineCriteriaExpressionBuilder();
     }
 
-    /**
-     * Set metadata of primary resource
-     *
-     * @param ClassMetadata $metadata
-     */
-    public function setMetadata(ClassMetadata $metadata): void
+    public function getRequiredJoins(): array
     {
-        $this->metadata = $metadata;
-    }
-
-    public function getRequiredJoins()
-    {
-        return $this->joins;
+        if ($this->exp instanceof UseDottedIdentifier) {
+            return $this->exp->getRequiredJoins();
+        }
+        return [];
     }
 
     /**
@@ -81,13 +69,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     public function parse($data): FilterInterface
     {
         try {
-            $this->joins = [];
-            if (!isset($this->metadata)) {
-                throw new MissingDependency(
-                    'Please provide ClassMetadata of primary resource by ::setMetadata(ClassMetadata $metadata)
-                     before parsing.'
-                );
-            }
             if ($data && is_string($data)) {
                 $this->lexer = new ExpressionLexer($data);
                 $this->condition = $this->parseExpression();
@@ -401,22 +382,8 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parsePropertyAccess()
     {
         $property = $this->lexer->readDottedIdentifier();
-        if ($this->exp::useDotedIdentifier()) {
-            $parts = [...explode(".", $property)];
-            if (isset($parts[1])) {
-                try {
-                    $relationship = $this->metadata->getRelationship($parts[0]);
-                    $this->joins[$relationship->name] = $relationship->target;
-                } catch (RelationNotFound $e) {
-                    throw new ExpressionException("Relation access to non-relation property {$property}.");
-                }
-            } elseif ($this->metadata->hasField($parts[0])) {
-                $property = $this->metadata->getType() . '.' . $parts[0];
-            } else {
-                throw new ExpressionException(
-                    Messages::failedToAccessProperty($parts[0], $this->metadata->getClassName())
-                );
-            }
+        if ($this->exp instanceof UseDottedIdentifier) {
+            $property = $this->exp->parseIdentifier($property);
         }
         return $property;
     }

@@ -40,17 +40,17 @@ class ExpressionFilterParserTest extends TestCase
     {
         $_SERVER["REQUEST_URI"] = "/getter?filter=stringProperty eq 'string' and intProperty in (1,2,3) or boolProperty neq true and relation.property eq null";
         $request = ServerRequestFactory::createFromGlobals();
-        $parser = new ExpressionFilterParser(new DoctrineQueryExpressionBuilder());
-        $up = new UriParser($request, $parser);
-        $up->setMetadataRepository(self::$mr);
+        $up = new UriParser($request, self::$mr);
+        $parser = new ExpressionFilterParser(new DoctrineQueryExpressionBuilder(self::$mr, $up->getPath()));
+        $up->setFilterParser($parser);
         $this->assertEquals(
             "(getter.stringProperty = string AND getter.intProperty IN(1, 2, 3)) OR (getter.boolProperty <> 1 AND relation.property IS NULL)",
             (string)$up->getFilter()->getCondition()
         );
         $this->assertArrayHasKey('relation', $up->getFilter()->getRequiredJoins());
         $this->assertEquals(
+            'getter.relation',
             $up->getFilter()->getRequiredJoins()['relation'],
-            DummyRelation::class
         );
     }
 
@@ -58,8 +58,6 @@ class ExpressionFilterParserTest extends TestCase
     {
         $url = "stringProperty eq '3' and intProperty in (1,2,3) or boolProperty neq true";
         $parser = new ExpressionFilterParser(new DoctrineCriteriaExpressionBuilder());
-        $metadata = self::$mr->getByClass(GettersExample::class);
-        $parser->setMetadata($metadata);
         $parser->parse($url);
         $visitor = new QueryExpressionVisitor(['t']);
         $result = $visitor->dispatch($parser->getCondition());
