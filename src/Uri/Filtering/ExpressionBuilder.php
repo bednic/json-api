@@ -243,6 +243,7 @@ interface ExpressionBuilder
      * @param $args
      *
      * @return mixed
+     * @throws ExpressionException
      */
     public function pattern($column, $args);
 

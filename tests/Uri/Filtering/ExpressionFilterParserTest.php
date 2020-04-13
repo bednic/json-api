@@ -38,13 +38,13 @@ class ExpressionFilterParserTest extends TestCase
 
     public function testParse()
     {
-        $_SERVER["REQUEST_URI"] = "/getter?filter=stringProperty eq 'string' and intProperty in (1,2,3) or boolProperty neq true and relation.property eq null";
+        $_SERVER["REQUEST_URI"] = "/getter?filter=stringProperty eq 'string' and contains(stringProperty,'asdf') and intProperty in (1,2,3) or boolProperty neq true and relation.property eq null";
         $request = ServerRequestFactory::createFromGlobals();
         $up = new UriParser($request, self::$mr);
         $parser = new ExpressionFilterParser(new DoctrineQueryExpressionBuilder(self::$mr, $up->getPath()));
         $up->setFilterParser($parser);
         $this->assertEquals(
-            "(getter.stringProperty = 'string' AND getter.intProperty IN(1, 2, 3)) OR (getter.boolProperty <> true AND relation.property IS NULL)",
+            "((getter.stringProperty = 'string' AND getter.stringProperty LIKE '%asdf%') AND getter.intProperty IN(1, 2, 3)) OR (getter.boolProperty <> true AND relation.property IS NULL)",
             (string)$up->getFilter()->getCondition()
         );
         $this->assertArrayHasKey('relation', $up->getFilter()->getRequiredJoins());

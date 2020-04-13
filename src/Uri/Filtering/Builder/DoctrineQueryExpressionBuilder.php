@@ -221,6 +221,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      */
     public function contains($column, $args)
     {
+        $args = trim((string)$args, '\'');
         return $this->exp->like($column, "'%{$args}%'");
     }
 
