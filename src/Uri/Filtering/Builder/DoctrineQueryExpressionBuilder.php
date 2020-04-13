@@ -230,6 +230,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      */
     public function startsWith($column, $args)
     {
+        $args = trim((string)$args, '\'');
         return $this->exp->like($column, "'{$args}%'");
     }
 
@@ -238,6 +239,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      */
     public function endsWith($column, $args)
     {
+        $args = trim((string)$args, '\'');
         return $this->exp->like($column, "'%{$args}'");
     }
 
