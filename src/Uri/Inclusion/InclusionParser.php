@@ -34,15 +34,15 @@ class InclusionParser implements InclusionInterface
             $this->inclusions = [];
             $this->data = $data;
             if (strlen($data) > 0) {
-                $tree = [];
                 $t = explode(',', $data);
                 foreach ($t as $i) {
-                    self::dot2tree($tree, $i, []);
-                }
-                foreach ($tree as $root => $branch) {
-                    $this->inclusions[] = $parent = new Inclusion($root);
-                    if ($branch) {
-                        $this->makeInclusionTree($parent, $branch);
+                    $branch = [];
+                    self::dot2tree($branch, $i, []);
+                    foreach ($branch as $rel => $sub) {
+                        $this->inclusions[] = $parent = new Inclusion($rel);
+                        if ($sub) {
+                            $this->makeInclusionTree($parent, $sub);
+                        }
                     }
                 }
             }

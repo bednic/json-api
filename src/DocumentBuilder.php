@@ -184,12 +184,18 @@ class DocumentBuilder
                 if (!empty($data)) {
                     if ($relationship->isCollection) {
                         foreach ($data as $item) {
-                            $this->addInclusion($item);
-                            $this->fetchInclusions($item, $sub->getInclusions());
+                            if ($sub->hasInclusions()) {
+                                $this->fetchInclusions($item, $sub->getInclusions());
+                            } else {
+                                $this->addInclusion($item);
+                            }
                         }
                     } else {
-                        $this->addInclusion($data);
-                        $this->fetchInclusions($data, $sub->getInclusions());
+                        if ($sub->hasInclusions()) {
+                            $this->fetchInclusions($data, $sub->getInclusions());
+                        } else {
+                            $this->addInclusion($data);
+                        }
                     }
                 }
             } catch (RelationNotFound $relationNotFound) {
