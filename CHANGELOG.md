@@ -1,4 +1,3 @@
-
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -9,25 +8,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-* `ExpressionFilterParser` improved expression parser. More 'OData like'. Now supports own expression building.
-* `ExpressionBuilder` interface, by this interface you can serve won expression builder ant thus create own filtering
-strategy, based on you database framework.
-* `DoctrineCriteriaExpressionBuilder` is wrapper for `Doctrine\Collection\ExpressionBuilder` and it's default builder.
-* `DoctrineQueryExpressionBuilder` is wrapper for `Doctrine\ORM\Query\Epxr`, require Doctrine ORM installed.
 
 ### Changed
-* `MetadataFacory` now doesn't throw `\Psr\SimpleCache\InvalidArgumentException` when invalid class name is served.
-Instead it throws `ClassNotExist` exception.
 
 ### Deprecated
 
 ### Fixed
 
 ### Removed
+
+
+## [4.2.0]
+
+### Added
+* `ExpressionFilterParser` improved expression parser. More 'OData like'. Now supports own expression building.
+* `ExpressionBuilder` interface, by this interface you can serve won expression builder ant thus create own filtering
+ strategy, based on your database library.
+* `DoctrineCriteriaExpressionBuilder` is wrapper for `Doctrine\Collection\ExpressionBuilder` and it's default builder.
+* `DoctrineQueryExpressionBuilder` is wrapper for `Doctrine\ORM\Query\Epxr`, require Doctrine ORM installed.
+
+### Changed
+* `MetadataFacory` now doesn't throw `\Psr\SimpleCache\InvalidArgumentException` when invalid class name is served.
+ Instead, it throws `ClassNotExist` exception.
+* `UriParser::getPrimaryResourceType`, `UriParser::isCollection` moved to `PathInterface`
+
+### Deprecated
+
+### Fixed
+* Inclusion parsing and inclusion fetching
+
+### Removed
 * `ResourceCollection` type check, in case of inheritance this was unnecessary behavior. So I remove it for good.
-If you doesn't use `ResourceCollection` manually, just don't care.
+If you don't use `ResourceCollection` manually, just don't care.
 * `CriteriaFilterParser` replaced by `ExpressionFilterParser`, and `::getCondition()` now returns comparison
 instead Criteria
+* `UriParser::getRelationshipType` not used anywhere
 
 ## [4.1.1]
 
@@ -433,7 +448,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.1.1...4.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.2.0...4.x
+[4.2.0]: https://gitlab.com/bednic/json-api/compare/4.1.1...4.2.0
 [4.1.1]: https://gitlab.com/bednic/json-api/compare/4.1.0...4.1.1
 [4.1.0]: https://gitlab.com/bednic/json-api/compare/4.0.0...4.1.0
 [4.0.0]: https://gitlab.com/bednic/json-api/compare/3.1.1...4.0.0
