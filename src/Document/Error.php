@@ -25,23 +25,23 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
     /**
      * @var string
      */
-    private string $id = "";
-    /**
-     * @var int
-     */
-    private int $status = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
-    /**
-     * @var int
-     */
-    private int $code = 0;
+    private string $id;
     /**
      * @var string
      */
-    private string $title = "";
+    private string $status;
     /**
      * @var string
      */
-    private string $detail = "";
+    private string $code;
+    /**
+     * @var string
+     */
+    private string $title;
+    /**
+     * @var string
+     */
+    private string $detail;
     /**
      * @todo this should be own class contains defined props
      * @var object
@@ -57,11 +57,12 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
     {
         $self = new static();
         $self->setTitle(get_class($exception));
-        $self->setCode($exception->getCode());
+        $self->setStatus(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
+        $self->setCode((string)$exception->getCode());
         $self->setDetail($exception->getMessage());
         $source = [
             'location' => $exception->getFile() . ':' . $exception->getLine(),
-            'trace' => $exception->getTrace()
+            'trace' => (array)$exception->getTrace()
         ];
         if ($exception instanceof JsonApiException) {
             $self->setStatus($exception->getStatus());
@@ -84,9 +85,9 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param int $code
+     * @param string $code
      */
-    public function setCode(int $code): void
+    public function setCode(string $code): void
     {
         $this->code = $code;
     }
@@ -96,7 +97,7 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
      */
     public function setStatus(int $status): void
     {
-        $this->status = $status;
+        $this->status = (string)$status;
     }
 
     /**
@@ -104,7 +105,7 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
      */
     public function getStatus(): int
     {
-        return $this->status;
+        return (int)$this->status;
     }
 
 
@@ -142,14 +143,23 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
      */
     public function jsonSerialize()
     {
-        $ret = [
-            'id' => $this->id,
-            'status' => (string)$this->status,
-            'code' => (string)$this->code,
-            'title' => $this->title,
-            'detail' => $this->detail,
-        ];
-        if ($this->source) {
+        $ret = [];
+        if (isset($this->id)) {
+            $ret['id'] = $this->id;
+        }
+        if (isset($this->status)) {
+            $ret['status'] = $this->status;
+        }
+        if (isset($this->code)) {
+            $ret['code'] = $this->code;
+        }
+        if (isset($this->title)) {
+            $ret['title'] = $this->title;
+        }
+        if (isset($this->detail)) {
+            $ret['detail'] = $this->detail;
+        }
+        if (isset($this->source)) {
             $ret['source'] = $this->source;
         }
         if (!$this->getMeta()->isEmpty()) {
@@ -158,6 +168,6 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
         if (count($this->getLinks()) > 0) {
             $ret['links'] = $this->links;
         }
-        return $ret;
+        return (object)$ret;
     }
 }

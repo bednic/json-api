@@ -43,8 +43,6 @@ class DocumentTest extends TestCase
         $included->add(new ResourceObject(new Type('test'), new Id('1')));
         $document->setIncludes($included);
         $this->assertTrue($this->isValid($document));
-        $document->addError(new Error());
-        $this->assertTrue($this->isValid($document));
     }
 
     public function testGetData()
