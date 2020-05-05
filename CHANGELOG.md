@@ -17,6 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## [4.2.1]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+* [PsrJsonApiMiddleware fails because Error is json-unencodable](https://gitlab.com/bednic/json-api/-/issues/17)
+* [Error class instantiation fails with non-integer exception code](https://gitlab.com/bednic/json-api/-/issues/16)
+
+### Removed
+
 
 ## [4.2.0]
 
@@ -58,7 +72,6 @@ instead Criteria
 ### Removed
 
 ### Security
-
 
 ## [4.1.0]
 
@@ -448,7 +461,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.2.0...4.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.2.1...4.x
+[4.2.1]: https://gitlab.com/bednic/json-api/compare/4.2.0...4.2.1
 [4.2.0]: https://gitlab.com/bednic/json-api/compare/4.1.1...4.2.0
 [4.1.1]: https://gitlab.com/bednic/json-api/compare/4.1.0...4.1.1
 [4.1.0]: https://gitlab.com/bednic/json-api/compare/4.0.0...4.1.0
