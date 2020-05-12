@@ -33,4 +33,12 @@ class SchemaDriverTest extends TestCase
         $driver = new SchemaDriver(new NullLogger());
         $this->assertInstanceOf(SchemaDriver::class, $driver);
     }
+
+    public function testIsCollection()
+    {
+        $driver = new SchemaDriver();
+        $metadata = $driver->getClassMetadata(GettersExample::class);
+        $this->assertTrue($metadata->getRelationship('collection')->isCollection);
+        $this->assertFalse($metadata->getRelationship('relation')->isCollection);
+    }
 }

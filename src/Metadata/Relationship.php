@@ -47,7 +47,7 @@ class Relationship extends Field
         string $property,
         string $target,
         string $name = null,
-        bool $isCollection = false,
+        bool $isCollection = null,
         Meta $meta = null
     ): Relationship {
         $self = new static();
@@ -74,7 +74,7 @@ class Relationship extends Field
         string $target,
         string $setter = null,
         string $name = null,
-        bool $isCollection = false,
+        bool $isCollection = null,
         Meta $meta = null
     ): Relationship {
         $self = new static();
