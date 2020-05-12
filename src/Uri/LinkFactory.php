@@ -45,11 +45,11 @@ class LinkFactory
 
     private static function getBaseUrl(): string
     {
-        if (getenv(self::API_URL_ENV) && filter_var(getenv(self::API_URL_ENV), FILTER_VALIDATE_URL)) {
-            return getenv(self::API_URL_ENV);
-        }
         if (filter_var(self::$ENDPOINT, FILTER_VALIDATE_URL)) {
             return self::$ENDPOINT;
+        }
+        if (getenv(self::API_URL_ENV) && filter_var(getenv(self::API_URL_ENV), FILTER_VALIDATE_URL)) {
+            return getenv(self::API_URL_ENV);
         }
         return ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://'
             . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ':'

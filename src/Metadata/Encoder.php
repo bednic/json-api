@@ -15,9 +15,6 @@ use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Document\ReservedWord;
 use JSONAPI\Exception\Driver\ClassNotExist;
-use JSONAPI\Exception\Driver\ClassNotResource;
-use JSONAPI\Exception\Driver\DriverException;
-use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
@@ -268,18 +265,15 @@ final class Encoder
                 }
                 if ($field instanceof Relationship) {
                     $data = null;
-                    $meta = new Document\Meta();
-                    if ($field->meta) {
-                        $meta = call_user_func([$this->object, $field->meta->getter]);
-                    }
+
                     if ($field->isCollection) {
+                        $linkMeta = new Document\Meta();
                         if (!($value instanceof Collection)) {
                             $value = new ArrayCollection($value);
                         }
                         /** @var Collection $value */
                         $data = new ArrayCollection();
                         $total = $value->count();
-                        $meta->setProperty('total', $total);
                         $limit = min($this->relationshipLimit, $total);
                         foreach ($value->slice(0, $limit) as $object) {
                             $data->add($this->getIdentifier($object));
@@ -289,7 +283,6 @@ final class Encoder
                     }
                     $relationship = new Document\Relationship($field->name, $data);
                     LinkFactory::setRelationshipLinks($relationship, $this->resource);
-                    $relationship->setMeta($meta);
                     $this->resource->addRelationship($relationship);
                     $this->logger->debug("Adding relationship {$name}.");
                 } elseif ($field instanceof Attribute) {
