@@ -56,10 +56,11 @@ class SchemaDriver extends Driver
     public function getClassMetadata(string $className): ClassMetadata
     {
         try {
-            $ref = new ReflectionClass($className);
-            if ($ref->implementsInterface(Resource::class)) {
+            $res = new ReflectionClass($className);
+            if ($res->implementsInterface(Resource::class)) {
                 /** @var Resource $className */
                 $classMetadata = $className::getSchema();
+                $ref = new ReflectionClass($classMetadata->getClassName());
                 $attributes = $this->parseAttributes($ref, $classMetadata->getAttributes());
                 $relationships = $this->parseRelationships($ref, $classMetadata->getRelationships());
                 return new ClassMetadata(

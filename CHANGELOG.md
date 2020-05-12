@@ -17,6 +17,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+
+## [4.2.2]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+* Fix Schema driver bug, when it uses reflection from schema provider, not from metadata className
+
+### Removed
+
+
 ## [4.2.1]
 
 ### Added
@@ -461,7 +476,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.2.1...4.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.2.2...4.x
+[4.2.2]: https://gitlab.com/bednic/json-api/compare/4.2.1...4.2.2
 [4.2.1]: https://gitlab.com/bednic/json-api/compare/4.2.0...4.2.1
 [4.2.0]: https://gitlab.com/bednic/json-api/compare/4.1.1...4.2.0
 [4.1.1]: https://gitlab.com/bednic/json-api/compare/4.1.0...4.1.1
