@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\Metadata;
 
-use JSONAPI\DoctrineProxyTrait;
+
 use JSONAPI\Driver\Driver;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Exception\Metadata\MetadataException;
+use JSONAPI\Helper\DoctrineProxyTrait;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;

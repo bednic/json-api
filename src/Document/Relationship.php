@@ -6,8 +6,8 @@ namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\LinksTrait;
-use JSONAPI\MetaTrait;
+use JSONAPI\Helper\LinksTrait;
+use JSONAPI\Helper\MetaTrait;
 use JsonSerializable;
 
 /**

@@ -7,8 +7,8 @@ namespace JSONAPI\Document;
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Exception\JsonApiException;
-use JSONAPI\LinksTrait;
-use JSONAPI\MetaTrait;
+use JSONAPI\Helper\LinksTrait;
+use JSONAPI\Helper\MetaTrait;
 use JsonSerializable;
 use Throwable;
 

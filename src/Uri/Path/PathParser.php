@@ -7,6 +7,7 @@ namespace JSONAPI\Uri\Path;
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Metadata\MetadataRepository;
+use JSONAPI\Uri\LinkFactory;
 
 /**
  * Class PathParser
@@ -65,6 +66,7 @@ class PathParser implements PathInterface
      */
     public function parse(string $data): PathInterface
     {
+        $data = str_replace(parse_url(LinkFactory::getBaseUrl(), PHP_URL_PATH), '', $data);
         $resourceKey = 'resource';
         $idKey = 'id';
         $relationshipKey = 'relationship';

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use JSONAPI\LinksTrait;
-use JSONAPI\MetaTrait;
+use JSONAPI\Helper\LinksTrait;
+use JSONAPI\Helper\MetaTrait;
 use JsonSerializable;
 
 /**

@@ -7,10 +7,6 @@ namespace JSONAPI\Uri\Filtering;
 use DateTime;
 use Exception;
 use JSONAPI\Exception\Http\BadRequest;
-use JSONAPI\Exception\Metadata\AttributeNotFound;
-use JSONAPI\Exception\Metadata\RelationNotFound;
-use JSONAPI\Exception\MissingDependency;
-use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Uri\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
 use JSONAPI\Uri\Filtering\Builder\UseDottedIdentifier;
 

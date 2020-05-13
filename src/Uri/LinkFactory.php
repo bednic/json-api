@@ -43,7 +43,7 @@ class LinkFactory
     public const NEXT = 'next';
     public const PREV = 'prev';
 
-    private static function getBaseUrl(): string
+    public static function getBaseUrl(): string
     {
         if (filter_var(self::$ENDPOINT, FILTER_VALIDATE_URL)) {
             return self::$ENDPOINT;

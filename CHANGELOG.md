@@ -18,6 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## [4.2.4]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+* Fix path parsing when base path contains additional path
+
+### Removed
+
+
 ## [4.2.3]
 
 ### Added
@@ -490,7 +504,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.2.3...4.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/4.2.4...4.x
+[4.2.4]: https://gitlab.com/bednic/json-api/compare/4.2.3...4.2.4
 [4.2.3]: https://gitlab.com/bednic/json-api/compare/4.2.2...4.2.3
 [4.2.2]: https://gitlab.com/bednic/json-api/compare/4.2.1...4.2.2
 [4.2.1]: https://gitlab.com/bednic/json-api/compare/4.2.0...4.2.1

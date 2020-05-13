@@ -19,7 +19,6 @@ use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Factory\StreamFactory;
-use Slim\Psr7\NonBufferedBody;
 use Slim\Psr7\Stream;
 
 /**

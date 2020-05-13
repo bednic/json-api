@@ -60,7 +60,7 @@ class ExpressionLexer
     /**
      * Text being parsed
      *
-     * @var string[]
+     * @var string
      */
     private $text;
 

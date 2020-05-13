@@ -7,7 +7,7 @@ namespace JSONAPI\Document;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Document\ReservedWord;
-use JSONAPI\MetaTrait;
+use JSONAPI\Helper\MetaTrait;
 use JsonSerializable;
 
 /**

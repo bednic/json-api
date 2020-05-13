@@ -12,7 +12,7 @@ use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\RelationNotFound;
-use JSONAPI\Exception\MissingDependency;
+use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Inclusion\Inclusion;

@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Uri\Fieldset;
+namespace JSONAPI\Uri\Sorting;
 
-use JSONAPI\Uri\Sorting\SortInterface;
 
 /**
  * Class SortParser

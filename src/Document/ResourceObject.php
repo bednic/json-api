@@ -7,7 +7,7 @@ namespace JSONAPI\Document;
 use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Document\FieldNotSet;
 use JSONAPI\Exception\Document\ReservedWord;
-use JSONAPI\LinksTrait;
+use JSONAPI\Helper\LinksTrait;
 
 /**
  * Class ResourceObject

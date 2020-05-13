@@ -18,7 +18,7 @@ class DoctrineQueryExpressionBuilderTest extends TestCase
 
     private static \JSONAPI\Metadata\MetadataRepository $mr;
     /**
-     * @var PathParser
+     * @var PathInterface
      */
     private static PathInterface $path;
 

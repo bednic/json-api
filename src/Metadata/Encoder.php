@@ -7,7 +7,7 @@ namespace JSONAPI\Metadata;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\DoctrineProxyTrait;
+use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Document;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;

@@ -6,7 +6,7 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\MetaTrait;
+use JSONAPI\Helper\MetaTrait;
 
 /**
  * Class Link

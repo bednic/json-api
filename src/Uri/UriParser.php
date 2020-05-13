@@ -4,19 +4,11 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri;
 
-use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\UnsupportedParameter;
-use JSONAPI\Exception\Metadata\MetadataException;
-use JSONAPI\Exception\Metadata\MetadataNotFound;
-use JSONAPI\Exception\Metadata\RelationNotFound;
-use JSONAPI\Exception\MissingDependency;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
 use JSONAPI\Uri\Fieldset\FieldsetParser;
-use JSONAPI\Uri\Fieldset\SortParser;
-use JSONAPI\Uri\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
-use JSONAPI\Uri\Filtering\CriteriaFilterParser;
 use JSONAPI\Uri\Filtering\ExpressionFilterParser;
 use JSONAPI\Uri\Filtering\FilterInterface;
 use JSONAPI\Uri\Filtering\FilterParserInterface;
@@ -28,6 +20,7 @@ use JSONAPI\Uri\Pagination\PaginationParserInterface;
 use JSONAPI\Uri\Path\PathInterface;
 use JSONAPI\Uri\Path\PathParser;
 use JSONAPI\Uri\Sorting\SortInterface;
+use JSONAPI\Uri\Sorting\SortParser;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -74,7 +67,7 @@ final class UriParser
     /**
      * @var MetadataRepository|null
      */
-    private ?MetadataRepository $metadataRepository = null;
+    private ?MetadataRepository $metadataRepository;
     /**
      * Enables inclusion support
      *
@@ -210,17 +203,5 @@ final class UriParser
     public function getPath(): PathInterface
     {
         return $this->pathParser->parse($this->request->getUri()->getPath());
-    }
-
-    /**
-     * @return MetadataRepository|null
-     * @throws MissingDependency
-     */
-    private function getMetadataRepository(): MetadataRepository
-    {
-        if (is_null($this->metadataRepository)) {
-            throw new MissingDependency("You have to set MetadataRepository first. See method ::setMetadata.");
-        }
-        return $this->metadataRepository;
     }
 }
