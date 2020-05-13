@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Metadata;
 
-
 use JSONAPI\Driver\Driver;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
