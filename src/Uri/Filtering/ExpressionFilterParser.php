@@ -461,7 +461,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         $value = $this->lexer->getCurrentToken()->text;
         if (($value = filter_var($value, FILTER_VALIDATE_INT)) !== false) {
-            $this->exp->literal($value);
+            $value = $this->exp->literal($value);
             $this->lexer->nextToken();
             return $value;
         }

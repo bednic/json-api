@@ -10,10 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+* `ExpressionBuilder`
+    * `::neq` changed to `::ne`
+    * `::lte` changed to `::le`
+    * `::gte` changed to `::ge`
+* `UseDottedIdentifier::parseIdentifier` removed return type string
 
 ### Deprecated
 
 ### Fixed
+* `ExpressionFilterParse::parseInteger` did not return literal expression
 
 ### Removed
 

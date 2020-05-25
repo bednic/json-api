@@ -88,8 +88,7 @@
     },
     "scripts": {
         "lint": [
-            "phpcbf",
-            "phpcs"
+            "phpcbf&phpcs"
         ]
     }
 }

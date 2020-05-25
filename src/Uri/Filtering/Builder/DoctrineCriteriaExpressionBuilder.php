@@ -54,7 +54,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function neq($left, $right)
+    public function ne($left, $right)
     {
         return $this->exp->neq($left, $right);
     }
@@ -70,7 +70,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function gte($left, $right)
+    public function ge($left, $right)
     {
         return $this->exp->gte($left, $right);
     }
@@ -86,7 +86,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function lte($left, $right)
+    public function le($left, $right)
     {
         return $this->exp->lte($left, $right);
     }

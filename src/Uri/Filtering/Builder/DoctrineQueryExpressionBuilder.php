@@ -83,7 +83,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function neq($left, $right)
+    public function ne($left, $right)
     {
         return $this->exp->neq($left, $right);
     }
@@ -99,7 +99,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function gte($left, $right)
+    public function ge($left, $right)
     {
         return $this->exp->gte($left, $right);
     }
@@ -115,7 +115,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function lte($left, $right)
+    public function le($left, $right)
     {
         return $this->exp->lte($left, $right);
     }
@@ -324,11 +324,15 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     }
 
     /**
-     * @inheritDoc
-     * @throws MetadataException
+     * @param string $identifier
+     *
+     * @return string
      * @throws ExpressionException
+     * @throws MetadataException
+     * @throws MetadataNotFound
+     * @throws RelationNotFound
      */
-    public function parseIdentifier(string $identifier): string
+    public function parseIdentifier(string $identifier)
     {
         $classMetadata = $this->metadataRepository->getByType($this->path->getPrimaryResourceType());
         $parts = [...explode(".", $identifier)];
