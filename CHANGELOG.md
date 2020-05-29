@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 * `ExpressionFilterParse::parseInteger` did not return literal expression
+* `ExpressionFilterParse::parseDatetime` did not pass `DateTime` object to `ExpressionBuilder::literal`
 
 ### Removed
 

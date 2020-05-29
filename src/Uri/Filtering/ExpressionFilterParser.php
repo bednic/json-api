@@ -393,7 +393,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseBoolean()
     {
         $value = strcmp($this->lexer->getCurrentToken()->text, Constants::KEYWORD_TRUE) == 0;
-        $value = $this->exp->literal($value);
+        $value = $this->exp->literal((bool)$value);
         $this->lexer->nextToken();
         return $value;
     }
@@ -406,7 +406,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         $value = $this->lexer->getCurrentToken()->text;
         try {
-            $value = (new DateTime(trim($value, " \t\n\r\0\x0Bdatetime\'")))->format(DATE_ATOM);
+            $value = new DateTime(trim($value, " \t\n\r\0\x0Bdatetime\'"));
             $value = $this->exp->literal($value);
         } catch (Exception $e) {
             throw new ExpressionException(Messages::syntaxError());
@@ -423,7 +423,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         $value = $this->lexer->getCurrentToken()->text;
         if (($value = filter_var($value, FILTER_VALIDATE_FLOAT)) !== false) {
-            $value = $this->exp->literal($value);
+            $value = $this->exp->literal((float)$value);
             $this->lexer->nextToken();
             return $value;
         }
@@ -448,7 +448,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         $value = $this->lexer->getCurrentToken()->text;
         $value = trim($value, " \t\n\r\0\x0B\'");
-        $value = $this->exp->literal($value);
+        $value = $this->exp->literal((string)$value);
         $this->lexer->nextToken();
         return $value;
     }
@@ -461,7 +461,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         $value = $this->lexer->getCurrentToken()->text;
         if (($value = filter_var($value, FILTER_VALIDATE_INT)) !== false) {
-            $value = $this->exp->literal($value);
+            $value = $this->exp->literal((int)$value);
             $this->lexer->nextToken();
             return $value;
         }

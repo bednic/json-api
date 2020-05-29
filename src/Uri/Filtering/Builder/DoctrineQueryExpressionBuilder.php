@@ -320,6 +320,9 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      */
     public function literal($value)
     {
+        if ($value instanceof \DateTimeInterface) {
+            $value = $value->format(DATE_ATOM);
+        }
         return $this->exp->literal($value);
     }
 
