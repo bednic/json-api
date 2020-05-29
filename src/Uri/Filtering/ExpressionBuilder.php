@@ -47,7 +47,7 @@ interface ExpressionBuilder
      * @return mixed
      * @throws ExpressionException
      */
-    public function ne($left, $right);
+    public function neq($left, $right);
 
     /**
      * @param $left
@@ -65,7 +65,7 @@ interface ExpressionBuilder
      * @return mixed
      * @throws ExpressionException
      */
-    public function ge($left, $right);
+    public function gte($left, $right);
 
     /**
      * @param $left
@@ -83,7 +83,7 @@ interface ExpressionBuilder
      * @return mixed
      * @throws ExpressionException
      */
-    public function le($left, $right);
+    public function lte($left, $right);
 
     /**
      * @param $column
