@@ -15,11 +15,11 @@ class Constants
 {
     // LOGICAL
     public const LOGICAL_EQUAL = 'eq';
-    public const LOGICAL_NOT_EQUAL = 'ne';
+    public const LOGICAL_NOT_EQUAL = 'neq';
     public const LOGICAL_GREATER_THAN = 'gt';
-    public const LOGICAL_GREATER_THAN_OR_EQUAL = 'ge';
+    public const LOGICAL_GREATER_THAN_OR_EQUAL = 'gte';
     public const LOGICAL_LOWER_THAN = 'lt';
-    public const LOGICAL_LOWER_THAN_OR_EQUAL = 'le';
+    public const LOGICAL_LOWER_THAN_OR_EQUAL = 'lte';
     public const LOGICAL_AND = 'and';
     public const LOGICAL_OR = 'or';
     public const LOGICAL_NOT = 'not';

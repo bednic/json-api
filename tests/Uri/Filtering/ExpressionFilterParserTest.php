@@ -38,7 +38,7 @@ class ExpressionFilterParserTest extends TestCase
 
     public function testParse()
     {
-        $_SERVER["REQUEST_URI"] = "/getter?filter=stringProperty eq 'string' and contains(stringProperty,'asdf') and intProperty in (1,2,3) or boolProperty ne true and relation.property eq null";
+        $_SERVER["REQUEST_URI"] = "/getter?filter=stringProperty eq 'string' and contains(stringProperty,'asdf') and intProperty in (1,2,3) or boolProperty neq true and relation.property eq null";
         $request = ServerRequestFactory::createFromGlobals();
         $up = new UriParser($request, self::$mr);
         $parser = new ExpressionFilterParser(new DoctrineQueryExpressionBuilder(self::$mr, $up->getPath()));
@@ -56,7 +56,7 @@ class ExpressionFilterParserTest extends TestCase
 
     public function testDoctrineCriteriaExpression()
     {
-        $url = "stringProperty eq '3' and intProperty in (1,2,3) or boolProperty ne true";
+        $url = "stringProperty eq '3' and intProperty in (1,2,3) or boolProperty neq true";
         $parser = new ExpressionFilterParser(new DoctrineCriteriaExpressionBuilder());
         $parser->parse($url);
         $visitor = new QueryExpressionVisitor(['t']);
