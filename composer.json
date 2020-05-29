@@ -75,6 +75,11 @@
             "JSONAPI\\Test\\": "tests/"
         }
     },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "5.x"
+        }
+    },
     "archive": {
         "exclude": [
             "/resources",
