@@ -82,6 +82,13 @@ final class UriParser
     public static bool $sortEnabled = true;
 
     /**
+     * Enables pagination support
+     *
+     * @var bool
+     */
+    public static bool $paginationEnabled = true;
+
+    /**
      * UriParser constructor.
      *
      * @param ServerRequestInterface         $request
@@ -100,15 +107,15 @@ final class UriParser
         LoggerInterface $logger = null
     ) {
         $this->check($request);
-        $this->request = $request;
+        $this->request            = $request;
         $this->metadataRepository = $metadataRepository;
-        $this->logger = $logger ?? new NullLogger();
-        $this->fieldsetParser = new FieldsetParser();
-        $this->filterParser = $filterParser ?? new ExpressionFilterParser();
-        $this->inclusionParser = new InclusionParser();
-        $this->paginationParser = $paginationParser ?? new LimitOffsetPagination();
-        $this->pathParser = new PathParser($metadataRepository, $request->getMethod());
-        $this->sortParser = new SortParser();
+        $this->logger             = $logger ?? new NullLogger();
+        $this->fieldsetParser     = new FieldsetParser();
+        $this->filterParser       = $filterParser ?? new ExpressionFilterParser();
+        $this->inclusionParser    = new InclusionParser();
+        $this->paginationParser   = $paginationParser ?? new LimitOffsetPagination();
+        $this->pathParser         = new PathParser($metadataRepository, $request->getMethod());
+        $this->sortParser         = new SortParser();
     }
 
     /**
@@ -125,6 +132,9 @@ final class UriParser
         }
         if (!self::$sortEnabled && in_array(UriPartInterface::SORT_PART_KEY, $request->getQueryParams())) {
             throw new UnsupportedParameter(UriPartInterface::SORT_PART_KEY);
+        }
+        if (!self::$paginationEnabled && in_array(UriPartInterface::PAGINATION_PART_KEY, $request->getQueryParams())) {
+            throw new UnsupportedParameter(UriPartInterface::PAGINATION_PART_KEY);
         }
     }
 

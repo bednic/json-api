@@ -8,12 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+* static `UriParser::paginationEnabled` enables pagination
+* [Generate API schema](https://gitlab.com/bednic/json-api/-/issues/6)
+    * see src/OAS folder for details
+    * for usage see https://gitlab.com/bednic/json-api/-/wikis/OAS-Usage
 
 ### Changed
 
 ### Deprecated
 
 ### Fixed
+* Fixed inclusion as described in docs
+    > Note: Because compound documents require full linkage (except when relationship linkage is excluded by sparse
+    fieldsets), intermediate resources in a multi-part path must be returned along with the leaf nodes. For example,
+    a response to a request for comments.author should include comments as well as the author of each of those comments.
 
 ### Removed
 

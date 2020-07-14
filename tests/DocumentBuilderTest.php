@@ -13,13 +13,11 @@ use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Test\Resources\Valid\GettersExample;
 use JSONAPI\Uri\LinkFactory;
 use JSONAPI\Uri\UriParser;
-use Opis\JsonSchema\ISchema;
-use Opis\JsonSchema\Schema;
-use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
+use Swaggest\JsonSchema\Schema;
 
 /**
  * Class DocumentBuilderTest
@@ -29,8 +27,10 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 class DocumentBuilderTest extends TestCase
 {
     private static MetadataRepository $mr;
-    private static ISchema $schema;
-    private static Validator $validator;
+    /**
+     * @var Schema
+     */
+    private static $schema;
 
     public static function setUpBeforeClass(): void
     {
@@ -40,8 +40,7 @@ class DocumentBuilderTest extends TestCase
             new SimpleCacheAdapter(new ArrayCache()),
             new AnnotationDriver()
         );
-        self::$validator = new Validator();
-        self::$schema = Schema::fromJsonString(file_get_contents(RESOURCES . '/schema.json'));
+        self::$schema = Schema::import(json_decode(file_get_contents(RESOURCES . '/schema.json')));
     }
 
     public function testCreate()
@@ -106,7 +105,7 @@ class DocumentBuilderTest extends TestCase
 
     private function isValid(Document $document): bool
     {
-        $result = self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema);
-        return $result->isValid();
+        self::$schema->in(json_decode(json_encode($document)));
+        return true;
     }
 }

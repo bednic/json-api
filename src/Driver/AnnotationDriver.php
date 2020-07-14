@@ -47,16 +47,11 @@ class AnnotationDriver extends Driver
      *
      * @param LoggerInterface|null $logger
      *
-     * @throws DriverException
      */
     public function __construct(LoggerInterface $logger = null)
     {
-        try {
-            $this->logger = $logger ? $logger : new NullLogger();
-            $this->reader = new AnnotationReader();
-        } catch (AnnotationException $exception) {
-            throw new DriverException($exception->getMessage(), 10, $exception);
-        }
+        $this->logger = $logger ? $logger : new NullLogger();
+        $this->reader = new AnnotationReader();
     }
 
     /**

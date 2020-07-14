@@ -53,14 +53,14 @@ class DocumentBuilder
         int $maxIncludedItems = 625,
         int $relationshipLimit = 25
     ) {
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger   = $logger ?? new NullLogger();
         $this->metadata = $metadata;
-        $this->uri = $uriParser;
-        $this->encoder = new Encoder($this->metadata, $this->uri->getFieldset(), $this->logger);
+        $this->uri      = $uriParser;
+        $this->encoder  = new Encoder($this->metadata, $this->uri->getFieldset(), $this->logger);
         $this->encoder->setRelationshipLimit($relationshipLimit);
         $this->maxIncludedItems = $maxIncludedItems;
-        $this->document = new Document();
-        $this->included = new ResourceCollection();
+        $this->document         = new Document();
+        $this->included         = new ResourceCollection();
     }
 
     /**
@@ -175,7 +175,7 @@ class DocumentBuilder
         foreach ($inclusions as $sub) {
             try {
                 $relationship = $classMetadata->getRelationship($sub->getRelationName());
-                $data = null;
+                $data         = null;
                 if ($relationship->property) {
                     $data = $object->{$relationship->property};
                 } elseif ($relationship->getter) {
@@ -184,17 +184,15 @@ class DocumentBuilder
                 if (!empty($data)) {
                     if ($relationship->isCollection) {
                         foreach ($data as $item) {
+                            $this->addInclusion($item);
                             if ($sub->hasInclusions()) {
                                 $this->fetchInclusions($item, $sub->getInclusions());
-                            } else {
-                                $this->addInclusion($item);
                             }
                         }
                     } else {
+                        $this->addInclusion($data);
                         if ($sub->hasInclusions()) {
                             $this->fetchInclusions($data, $sub->getInclusions());
-                        } else {
-                            $this->addInclusion($data);
                         }
                     }
                 }

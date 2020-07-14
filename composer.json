@@ -1,7 +1,7 @@
 {
     "name": "bednic/json-api",
     "type": "library",
-    "description": "JSON API implementation, driven by annotations.",
+    "description": "JSON API implementation, by annotations or schemas.",
     "homepage": "https://gitlab.com/bednic/json-api",
     "support": {
         "issues": "https://gitlab.com/bednic/json-api/issues",
@@ -30,7 +30,7 @@
     "require": {
         "php": "^7.4",
         "ext-json": "*",
-        "bednic/tools": "^0.1.0",
+        "bednic/tools": "^0.2",
         "doctrine/annotations": "^1.8",
         "doctrine/collections": "^1.6",
         "fig/http-message-util": "^1.1",
@@ -47,7 +47,8 @@
         "phpunit/phpunit": "^8",
         "roave/doctrine-simplecache": "^2.3",
         "slim/psr7": "^0.6.0",
-        "squizlabs/php_codesniffer": "^3.4"
+        "squizlabs/php_codesniffer": "^3.4",
+        "swaggest/json-schema": "^0.12.29"
     },
     "minimum-stability": "stable",
     "autoload": {
@@ -83,10 +84,12 @@
     "archive": {
         "exclude": [
             "/resources",
+            "/tests-resources",
             "/tests",
             "/vendor",
             ".*",
             "*.xml",
+            "*.iml",
             "*.properties",
             "composer.lock"
         ]

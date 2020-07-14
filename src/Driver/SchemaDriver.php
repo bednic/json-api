@@ -45,7 +45,6 @@ class SchemaDriver extends Driver
         $this->logger = $logger ?? new NullLogger();
     }
 
-
     /**
      * @param string $className
      *
@@ -109,6 +108,7 @@ class SchemaDriver extends Driver
      * @throws AnnotationMisplace
      * @throws MethodNotExist
      * @throws PropertyNotExist
+     * @throws BadSignature
      */
     private function parseRelationships(ReflectionClass $reflectionClass, iterable $metadata): ArrayCollection
     {
