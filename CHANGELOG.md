@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Fixed
+* Fixed [issue 23](https://gitlab.com/bednic/json-api/-/issues/23)
 * Fixed inclusion as described in docs
     > Note: Because compound documents require full linkage (except when relationship linkage is excluded by sparse
     fieldsets), intermediate resources in a multi-part path must be returned along with the leaf nodes. For example,

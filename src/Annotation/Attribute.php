@@ -16,5 +16,6 @@ final class Attribute extends \JSONAPI\Metadata\Attribute
 
     public function __construct()
     {
+        // Override parent constructor cause Doctrine Annotations need public constructor
     }
 }

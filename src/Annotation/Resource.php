@@ -31,5 +31,6 @@ final class Resource
 
     public function __construct()
     {
+        // Override parent constructor cause Doctrine Annotations need public constructor
     }
 }
