@@ -249,15 +249,16 @@ class OpenAPISpecificationBuilder
             $single         = $collection . '/{id}';
             $singlePathItem = new PathItem();
             $singlePathItem->addParameter($this->oas->getComponents()->createParameterReference('id'));
-
-            $singlePathItem->setGet(
-                Operation::new()
-                    ->addParameter($this->oas->getComponents()->createParameterReference('fields'))
-                    ->setResponses($this->createReadResponses()->addResponse(
-                        (string)StatusCodeInterface::STATUS_OK,
-                        $this->createDocumentResponse($this->oas->getComponents()->createSchemaReference($shortName))
-                    ))
-            );
+            $getOperation = Operation::new()
+                ->addParameter($this->oas->getComponents()->createParameterReference('fields'))
+                ->setResponses($this->createReadResponses()->addResponse(
+                    (string)StatusCodeInterface::STATUS_OK,
+                    $this->createDocumentResponse($this->oas->getComponents()->createSchemaReference($shortName))
+                ));
+            if (UriParser::$inclusionEnabled) {
+                $getOperation->addParameter($this->oas->getComponents()->createParameterReference('include'));
+            }
+            $singlePathItem->setGet($getOperation);
             if (!$classMetadata->isReadOnly()) {
                 $singlePathItem->setPatch(
                     Operation::new()->addParameter($this->oas->getComponents()->createParameterReference('fields'))

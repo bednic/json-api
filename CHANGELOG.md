@@ -10,8 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * static `UriParser::paginationEnabled` enables pagination
 * [Generate API schema](https://gitlab.com/bednic/json-api/-/issues/6)
-    * see src/OAS folder for details
-    * for usage see https://gitlab.com/bednic/json-api/-/wikis/OAS-Usage
+    * see [Builder class](/src/OAS/Factory/OpenAPISpecificationBuilder.php) for examples
+    * for usage see [docs](https://gitlab.com/bednic/json-api/-/wikis/OAS-Usage)
 
 ### Changed
 

@@ -2,23 +2,23 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/8.1/phpunit.xsd"
          backupGlobals="true"
-         bootstrap="./tests/bootstrap.php"
+         bootstrap="tests/bootstrap.php"
          cacheResult="false"
          cacheTokens="false"
 >
     <testsuites>
         <testsuite name="default">
-            <directory>./tests/</directory>
+            <directory>tests/</directory>
         </testsuite>
     </testsuites>
     <logging>
-        <log type="coverage-clover" target="coverage.xml"/>
+        <log type="coverage-clover" target="tmp/coverage.xml"/>
         <log type="coverage-text" target="php://stdout"/>
-        <log type="junit" target="logfile.xml"/>
+        <log type="junit" target="tmp/logfile.xml"/>
     </logging>
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
-            <directory>./src/</directory>
+            <directory>src/</directory>
         </whitelist>
     </filter>
     <php>
