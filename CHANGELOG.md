@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
+
+## [5.1.0]
+
+### Added
 * static `UriParser::paginationEnabled` enables pagination
 * [Generate API schema](https://gitlab.com/bednic/json-api/-/issues/6)
     * see [Builder class](/src/OAS/Factory/OpenAPISpecificationBuilder.php) for examples
@@ -533,7 +546,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.0.0...5.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.0...5.x
+[5.1.0]: https://gitlab.com/bednic/json-api/compare/5.0.0...5.1.0
 [5.0.0]: https://gitlab.com/bednic/json-api/compare/4.2.4...5.0.0
 [4.2.4]: https://gitlab.com/bednic/json-api/compare/4.2.3...4.2.4
 [4.2.3]: https://gitlab.com/bednic/json-api/compare/4.2.2...4.2.3
