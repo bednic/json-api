@@ -12,6 +12,10 @@ namespace JSONAPI\OAS;
 abstract class Reference
 {
     /**
+     * @var SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback
+     */
+    protected $origin;
+    /**
      * @var string
      */
     protected string $ref;
@@ -23,26 +27,29 @@ abstract class Reference
     /**
      * @return bool
      */
-    protected function isReference()
+    public function isReference()
     {
         return $this->isRef;
     }
 
     /**
      * @param string $to
+     * @param SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback $origin
      */
-    protected function setRef(string $to)
+    protected function setRef(string $to, $origin)
     {
         $this->isRef = true;
         $this->ref   = $to;
+        $this->origin = $origin;
     }
 
     /**
      * @param string $to
+     * @param SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback $origin
      *
      * @return static
      */
-    abstract public static function createReference(string $to);
+    abstract public static function createReference(string $to, $origin);
 
     /**
      * @return object

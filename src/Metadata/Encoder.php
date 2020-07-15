@@ -87,8 +87,8 @@ final class Encoder
         LoggerInterface $logger = null
     ) {
         $this->repository = $metadataRepository;
-        $this->fieldset = $fieldset;
-        $this->logger = $logger ?? new NullLogger();
+        $this->fieldset   = $fieldset;
+        $this->logger     = $logger ?? new NullLogger();
     }
 
     /**
@@ -180,13 +180,13 @@ final class Encoder
      */
     private function for($object): Encoder
     {
-        $encoder = clone $this;
+        $encoder   = clone $this;
         $className = self::clearDoctrineProxyPrefix(get_class($object));
         try {
             $this->logger->debug("Init encoding of {$className}.");
-            $encoder->object = $object;
+            $encoder->object   = $object;
             $encoder->metadata = $this->repository->getByClass($className);
-            $encoder->ref = new ReflectionClass($className);
+            $encoder->ref      = new ReflectionClass($className);
         } catch (ReflectionException $exception) {
             throw new ClassNotExist($className);
         }
@@ -267,12 +267,11 @@ final class Encoder
                     $data = null;
 
                     if ($field->isCollection) {
-                        $linkMeta = new Document\Meta();
                         if (!($value instanceof Collection)) {
                             $value = new ArrayCollection($value);
                         }
                         /** @var Collection $value */
-                        $data = new ArrayCollection();
+                        $data  = new ArrayCollection();
                         $total = $value->count();
                         $limit = min($this->relationshipLimit, $total);
                         foreach ($value->slice(0, $limit) as $object) {
@@ -283,6 +282,10 @@ final class Encoder
                     }
                     $relationship = new Document\Relationship($field->name, $data);
                     LinkFactory::setRelationshipLinks($relationship, $this->resource);
+                    if ($field->meta) {
+                        $this->logger->debug("Adding meta to relationship {$name}");
+                        $relationship->setMeta(call_user_func([$this->object, $field->meta->getter]));
+                    }
                     $this->resource->addRelationship($relationship);
                     $this->logger->debug("Adding relationship {$name}.");
                 } elseif ($field instanceof Attribute) {

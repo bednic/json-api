@@ -16,7 +16,7 @@ class RequestBody extends Reference implements \JsonSerializable
      */
     private ?string $description = null;
     /**
-     * @var array<string, MediaType>
+     * @var MediaType[]
      */
     private array $content = [];
     /**
@@ -74,13 +74,15 @@ class RequestBody extends Reference implements \JsonSerializable
     /**
      * @param string $to
      *
+     * @param        $origin
+     *
      * @return RequestBody
      */
-    public static function createReference(string $to): RequestBody
+    public static function createReference(string $to, $origin): RequestBody
     {
         /** @var RequestBody $static */
         $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to);
+        $static->setRef($to, $origin);
         return $static;
     }
 

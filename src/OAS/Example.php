@@ -108,13 +108,15 @@ class Example extends Reference implements \JsonSerializable
     /**
      * @param string $to
      *
+     * @param        $origin
+     *
      * @return Example
      */
-    public static function createReference(string $to): Example
+    public static function createReference(string $to, $origin): Example
     {
         /** @var Example $static */
         $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to);
+        $static->setRef($to, $origin);
         return $static;
     }
 }

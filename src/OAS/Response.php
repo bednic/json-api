@@ -16,15 +16,15 @@ class Response extends Reference implements \JsonSerializable
      */
     private string $description;
     /**
-     * @var array<string, Header>
+     * @var Header[]
      */
     private array $headers = [];
     /**
-     * @var array<string, MediaType>
+     * @var MediaType[]
      */
     private array $content = [];
     /**
-     * @var array<string, Link>
+     * @var Link[]
      */
     private array $links = [];
 
@@ -100,11 +100,11 @@ class Response extends Reference implements \JsonSerializable
     /**
      * @inheritDoc
      */
-    public static function createReference(string $to): Response
+    public static function createReference(string $to, $origin): Response
     {
         /** @var Response $static */
         $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to);
+        $static->setRef($to, $origin);
         return $static;
     }
 }

@@ -13,16 +13,28 @@ use JSONAPI\OAS\Enum\In;
  */
 class Header extends Parameter
 {
+    /**
+     * Header constructor.
+     *
+     * @param string $name
+     */
     public function __construct(string $name)
     {
         parent::__construct($name, In::HEADER());
     }
 
+    /**
+     * @return string
+     */
     public function getName(): string
     {
         return parent::getName();
     }
 
+    /**
+     * @return object
+     * @throws Exception\IncompleteObjectException
+     */
     public function jsonSerialize()
     {
         $ret = parent::jsonSerialize();
@@ -34,13 +46,15 @@ class Header extends Parameter
     /**
      * @param string $to
      *
+     * @param        $origin
+     *
      * @return Header
      */
-    public static function createReference(string $to): Header
+    public static function createReference(string $to, $origin): Header
     {
         /** @var Header $static */
         $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to);
+        $static->setRef($to, $origin);
         return $static;
     }
 }

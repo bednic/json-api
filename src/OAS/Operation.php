@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use JSONAPI\OAS\Exception\DuplicationEntryException;
+
 /**
  * Class Operation
  *
@@ -13,7 +15,7 @@ class Operation implements \JsonSerializable
 {
 
     /**
-     * @var array<string>
+     * @var string[]
      */
     private array $tags = [];
     /**
@@ -33,7 +35,7 @@ class Operation implements \JsonSerializable
      */
     private ?string $operationId = null;
     /**
-     * @var array<Parameter>
+     * @var Parameter[]
      */
     private array $parameters = [];
     /**
@@ -46,7 +48,7 @@ class Operation implements \JsonSerializable
     private Responses $responses;
 
     /**
-     * @var array<string, Callback>
+     * @var Callback[]
      */
     private array $callbacks = [];
     /**
@@ -54,11 +56,11 @@ class Operation implements \JsonSerializable
      */
     private ?bool $deprecated = null;
     /**
-     * @var array<SecurityRequirement>
+     * @var SecurityRequirement[]
      */
     private array $security = [];
     /**
-     * @var array<Server>
+     * @var Server[]
      */
     private array $servers = [];
 
@@ -137,9 +139,17 @@ class Operation implements \JsonSerializable
      * @param Parameter $parameter
      *
      * @return Operation
+     * @throws DuplicationEntryException
      */
     public function addParameter(Parameter $parameter): Operation
     {
+        if (!$parameter->isReference()) {
+            foreach ($this->parameters as $p) {
+                if ($parameter->getUID() === $p->getUID()) {
+                    throw new DuplicationEntryException();
+                }
+            }
+        }
         $this->parameters[] = $parameter;
         return $this;
     }

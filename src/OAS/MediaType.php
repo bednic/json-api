@@ -22,11 +22,11 @@ class MediaType implements \JsonSerializable
      */
     private $example;
     /**
-     * @var array<string, Example>
+     * @var Example[]
      */
     private array $examples = [];
     /**
-     * @var array<string, Encoding>
+     * @var Encoding[]
      */
     private array $encoding = [];
 

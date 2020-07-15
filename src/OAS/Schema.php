@@ -110,11 +110,11 @@ class Schema extends Reference implements \JsonSerializable
      */
     private ?Schema $items = null;
     /**
-     * @var array<string, Schema>
+     * @var Schema[]
      */
     private array $properties = [];
     /**
-     * @var bool|array<string, Schema>|null
+     * @var bool|Schema[]|null
      */
     private $additionalProperties = null;
     /**
@@ -671,15 +671,13 @@ class Schema extends Reference implements \JsonSerializable
     }
 
     /**
-     * @param string $to
-     *
-     * @return Schema
+     * @inheritDoc
      */
-    public static function createReference(string $to): Schema
+    public static function createReference(string $to, $origin): Schema
     {
         /** @var Schema $static */
         $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to);
+        $static->setRef($to, $origin);
         return $static;
     }
 

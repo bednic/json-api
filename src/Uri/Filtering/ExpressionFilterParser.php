@@ -450,7 +450,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         $value = trim(str_replace("''", "'", $value), " \t\n\r\0\x0B\'");
         $value = $this->exp->literal((string)$value);
         $this->lexer->nextToken();
-        var_dump($value);
         return $value;
     }
 

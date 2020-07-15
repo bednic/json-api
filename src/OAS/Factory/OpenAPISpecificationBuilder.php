@@ -32,6 +32,8 @@ use JSONAPI\OAS\Schema;
 use JSONAPI\OAS\Server;
 use JSONAPI\Uri\LinkFactory;
 use JSONAPI\Uri\UriParser;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * Class OpenApiSpecificationBuilder
@@ -48,15 +50,21 @@ class OpenAPISpecificationBuilder
      * @var OpenAPISpecification
      */
     private OpenAPISpecification $oas;
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
 
     /**
      * OpenAPISchemaFactory constructor.
      *
-     * @param MetadataRepository $metadataRepository
+     * @param MetadataRepository   $metadataRepository
+     * @param LoggerInterface|null $logger
      */
-    public function __construct(MetadataRepository $metadataRepository)
+    public function __construct(MetadataRepository $metadataRepository, LoggerInterface $logger = null)
     {
         $this->metadataRepository = $metadataRepository;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -71,14 +79,20 @@ class OpenAPISpecificationBuilder
     public function create(Info $info): OpenAPISpecification
     {
         $this->oas = new OpenAPISpecification($info);
+        $this->logger->debug("OAS instance created");
         $server    = new Server(LinkFactory::getBaseUrl());
-        $server->setDescription('Default API server');
+        $this->logger->debug('Default server added');
+        $server->setDescription('API Server');
         $this->oas->addServer($server);
 
         $this->registerSchemas();
+        $this->logger->debug("Schemas registered");
         $this->registerResponses();
+        $this->logger->debug("Responses registered");
         $this->registerParameters();
+        $this->logger->debug("Parameters registered");
         $this->registerPaths();
+        $this->logger->debug("Paths registered");
 
         return $this->oas;
     }
@@ -413,7 +427,7 @@ class OpenAPISpecificationBuilder
      * @return Responses
      * @throws ReferencedObjectNotExistsException
      */
-    public function createCreateResponses(): Responses
+    private function createCreateResponses(): Responses
     {
         $responses = $this->createReadResponses();
         $responses->addResponse(

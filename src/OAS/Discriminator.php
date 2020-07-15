@@ -16,7 +16,7 @@ class Discriminator implements \JsonSerializable
      */
     private string $propertyName;
     /**
-     * @var array<string, string>
+     * @var string[]
      */
     private array $mapping = [];
 

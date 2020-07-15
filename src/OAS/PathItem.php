@@ -60,7 +60,7 @@ class PathItem implements \JsonSerializable
      */
     private ?array $servers = null;
     /**
-     * @var array<Parameter>
+     * @var Parameter[]
      */
     private array $parameters = [];
 

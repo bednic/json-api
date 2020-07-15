@@ -25,7 +25,7 @@ class Link extends Reference implements \JsonSerializable
      */
     private ?string $operationId;
     /**
-     * @var array<string, mixed>
+     * @var mixed[]
      */
     private array $parameters = [];
     /**
@@ -146,11 +146,11 @@ class Link extends Reference implements \JsonSerializable
     /**
      * @inheritDoc
      */
-    public static function createReference(string $to): Link
+    public static function createReference(string $to, $origin): Link
     {
         /** @var Link $static */
         $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to);
+        $static->setRef($to, $origin);
         return $static;
     }
 }

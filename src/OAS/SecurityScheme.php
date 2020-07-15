@@ -138,11 +138,11 @@ class SecurityScheme extends Reference implements \JsonSerializable
     /**
      * @inheritDoc
      */
-    public static function createReference(string $to): SecurityScheme
+    public static function createReference(string $to, $origin): SecurityScheme
     {
         /** @var SecurityScheme $static */
         $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to);
+        $static->setRef($to, $origin);
         return $static;
     }
 }

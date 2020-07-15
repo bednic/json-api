@@ -74,12 +74,12 @@ class Parameter extends Reference implements \JsonSerializable
      */
     private $example;
     /**
-     * @var array<string, Example>
+     * @var Example[]
      */
     private array $examples = [];
 
     /**
-     * @var array<string, MediaType>
+     * @var MediaType[]
      */
     private array $content = [];
 
@@ -106,6 +106,17 @@ class Parameter extends Reference implements \JsonSerializable
         if ($in->equals(In::COOKIE())) {
             $this->style = Style::FORM();
         }
+    }
+
+    /**
+     * @return string
+     */
+    public function getUID(): string
+    {
+        if ($this->isReference()) {
+            return $this->origin->getUID();
+        }
+        return $this->name . $this->in->getValue();
     }
 
     /**
@@ -309,13 +320,15 @@ class Parameter extends Reference implements \JsonSerializable
     /**
      * @param string $to
      *
+     * @param        $origin
+     *
      * @return Parameter
      */
-    public static function createReference(string $to): Parameter
+    public static function createReference(string $to, $origin): Parameter
     {
         /** @var Parameter $static */
         $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to);
+        $static->setRef($to, $origin);
         return $static;
     }
 }

@@ -19,7 +19,7 @@ class Responses implements \JsonSerializable
     private ?Response $default = null;
 
     /**
-     * @var array<int,Response>
+     * @var Response[]
      */
     private array $byStatus = [];
 

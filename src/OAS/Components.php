@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use JSONAPI\OAS\Exception\DuplicationEntryException;
 use JSONAPI\OAS\Exception\InvalidArgumentException;
 use JSONAPI\OAS\Exception\ReferencedObjectNotExistsException;
 
@@ -15,39 +16,39 @@ use JSONAPI\OAS\Exception\ReferencedObjectNotExistsException;
 class Components implements \JsonSerializable
 {
     /**
-     * @var array<string, Schema|Reference>
+     * @var Schema[]
      */
     private array $schemas = [];
     /**
-     * @var array<string, Response|Reference>
+     * @var Response[]
      */
     private array $responses = [];
     /**
-     * @var array<string, Parameter|Reference>
+     * @var Parameter[]
      */
     private array $parameters = [];
     /**
-     * @var array<string, Example|Reference>
+     * @var Example[]
      */
     private array $examples = [];
     /**
-     * @var array<string, RequestBody|Reference>
+     * @var RequestBody[]
      */
     private array $requestBodies = [];
     /**
-     * @var array<string, Header>
+     * @var Header[]
      */
     private array $headers = [];
     /**
-     * @var array<string, SecurityScheme|Reference>
+     * @var SecurityScheme[]
      */
     private array $securitySchemes = [];
     /**
-     * @var array<string, Link|Reference>
+     * @var Link[]
      */
     private array $links = [];
     /**
-     * @var array<string, Callback|Reference>
+     * @var Callback[]
      */
     private array $callbacks = [];
 
@@ -77,8 +78,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->schemas)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/schemas/' . $key;
-        return Schema::createReference($to);
+        $to     = '#/components/schemas/' . $key;
+        $origin = $this->schemas[$key];
+        return Schema::createReference($to, $origin);
     }
 
     /**
@@ -104,8 +106,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->responses)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/responses/' . $key;
-        return Response::createReference($to);
+        $to     = '#/components/responses/' . $key;
+        $origin = $this->responses[$key];
+        return Response::createReference($to, $origin);
     }
 
     /**
@@ -114,11 +117,17 @@ class Components implements \JsonSerializable
      *
      * @return $this
      * @throws InvalidArgumentException
+     * @throws DuplicationEntryException
      */
     public function addParameter(string $key, Parameter $parameter): Components
     {
         if (empty($key)) {
             throw new InvalidArgumentException();
+        }
+        foreach ($this->parameters as $p) {
+            if ($parameter->getUID() === $p->getUID()) {
+                throw new DuplicationEntryException();
+            }
         }
         $this->parameters[$key] = $parameter;
         return $this;
@@ -135,8 +144,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->parameters)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/parameters/' . $key;
-        return Parameter::createReference($to);
+        $to     = '#/components/parameters/' . $key;
+        $origin = $this->parameters[$key];
+        return Parameter::createReference($to, $origin);
     }
 
     /**
@@ -165,8 +175,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->examples)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/examples/' . $key;
-        return Example::createReference($to);
+        $origin = $this->examples[$key];
+        $to     = '#/components/examples/' . $key;
+        return Example::createReference($to, $origin);
     }
 
     /**
@@ -195,8 +206,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->requestBodies)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/requestBodies/' . $key;
-        return RequestBody::createReference($to);
+        $to     = '#/components/requestBodies/' . $key;
+        $origin = $this->requestBodies[$key];
+        return RequestBody::createReference($to, $origin);
     }
 
     /**
@@ -224,8 +236,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->headers)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/headers/' . $key;
-        return Header::createReference($to);
+        $to     = '#/components/headers/' . $key;
+        $origin = $this->headers[$key];
+        return Header::createReference($to, $origin);
     }
 
     /**
@@ -254,8 +267,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->securitySchemes)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/securitySchemes/' . $key;
-        return SecurityScheme::createReference($to);
+        $to     = '#/components/securitySchemes/' . $key;
+        $origin = $this->securitySchemes[$key];
+        return SecurityScheme::createReference($to, $origin);
     }
 
     /**
@@ -266,9 +280,6 @@ class Components implements \JsonSerializable
      */
     public function addLinks(string $key, Link $link): Components
     {
-        if ($this->links === null) {
-            $this->links = [];
-        }
         $this->links[$key] = $link;
         return $this;
     }
@@ -284,8 +295,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->links)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/links/' . $key;
-        return Link::createReference($to);
+        $to     = '#/components/links/' . $key;
+        $origin = $this->links[$key];
+        return Link::createReference($to, $origin);
     }
 
     /**
@@ -296,9 +308,6 @@ class Components implements \JsonSerializable
      */
     public function addCallback(string $key, Callback $callback): Components
     {
-        if ($this->callbacks === null) {
-            $this->callbacks = [];
-        }
         $this->callbacks[$key] = $callback;
         return $this;
     }
@@ -314,8 +323,9 @@ class Components implements \JsonSerializable
         if (!array_key_exists($key, $this->callbacks)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to = '#/components/callbacks/' . $key;
-        return Callback::createReference($to);
+        $to     = '#/components/callbacks/' . $key;
+        $origin = $this->callbacks[$key];
+        return Callback::createReference($to, $origin);
     }
 
     public function jsonSerialize()

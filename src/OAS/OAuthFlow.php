@@ -25,7 +25,7 @@ class OAuthFlow implements \JsonSerializable
      */
     private ?string $refreshUrl = null;
     /**
-     * @var array<string, string>
+     * @var string[]
      */
     private array $scopes;
 

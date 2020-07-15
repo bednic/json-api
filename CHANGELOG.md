@@ -10,10 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+* Add logger param in `OpenAPISpecificationBuilder` constructor
+* New method `Document::setJSONAPIObjectMeta` setting meta to jsonapi object
+* Changed method signature in `OpenAPISpecificationBuilder::createCreateResponses`
 
 ### Deprecated
 
 ### Fixed
+* fix missing relationship meta information
+* fix several OAS missing implementation constraints
 
 ### Removed
 

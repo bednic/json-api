@@ -18,8 +18,8 @@ final class Document implements JsonSerializable, HasLinks, HasMeta
     use LinksTrait;
     use MetaTrait;
 
-    public const MEDIA_TYPE = "application/vnd.api+json";
-    public const VERSION = "1.0";
+    public const MEDIA_TYPE = 'application/vnd.api+json';
+    public const VERSION = '1.0';
 
     /**
      * @var Error[]
@@ -35,6 +35,13 @@ final class Document implements JsonSerializable, HasLinks, HasMeta
      * @var ResourceCollection
      */
     private ResourceCollection $included;
+
+    /**
+     * @var array
+     */
+    private array $jsonapi = [
+        'version' => self::VERSION
+    ];
 
     /**
      * Document constructor.
@@ -62,6 +69,7 @@ final class Document implements JsonSerializable, HasLinks, HasMeta
     {
         return $this->data;
     }
+
     /**
      * @param ResourceCollection $includes
      */
@@ -79,6 +87,14 @@ final class Document implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
+     * @param Meta $meta
+     */
+    public function setJSONAPIObjectMeta(Meta $meta): void
+    {
+        $this->jsonapi['meta'] = $meta;
+    }
+
+    /**
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -88,20 +104,21 @@ final class Document implements JsonSerializable, HasLinks, HasMeta
      */
     public function jsonSerialize()
     {
-        $ret["jsonapi"] = ["version" => self::VERSION];
+        $ret = ['jsonapi' => $this->jsonapi];
+
         if (count($this->errors) > 0) {
-            $ret["errors"] = $this->errors;
+            $ret['errors'] = $this->errors;
         } else {
             $ret['data'] = $this->data;
             if ($this->included->count() > 0) {
-                $ret["included"] = $this->included;
+                $ret['included'] = $this->included;
             }
         }
         if ($this->hasLinks()) {
-            $ret["links"] = $this->links;
+            $ret['links'] = $this->links;
         }
         if (!$this->getMeta()->isEmpty()) {
-            $ret["meta"] = $this->meta;
+            $ret['meta'] = $this->meta;
         }
         return $ret;
     }

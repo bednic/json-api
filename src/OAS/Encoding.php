@@ -18,7 +18,7 @@ class Encoding implements \JsonSerializable
      */
     private ?string $contentType = null;
     /**
-     * @var array<string, Header>
+     * @var Header[]
      */
     private array $headers = [];
     /**

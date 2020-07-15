@@ -12,7 +12,7 @@ namespace JSONAPI\OAS;
 class ServerVariable implements \JsonSerializable
 {
     /**
-     * @var array<string>
+     * @var string[]
      */
     private array $enum = [];
     /**

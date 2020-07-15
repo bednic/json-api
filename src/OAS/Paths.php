@@ -14,7 +14,7 @@ use JSONAPI\OAS\Exception\InvalidFormatException;
 class Paths implements \JsonSerializable
 {
     /**
-     * @var array<PathItem>
+     * @var PathItem[]
      */
     private array $items = [];
 

@@ -21,7 +21,7 @@ class Server implements \JsonSerializable
      */
     private ?string $description = null;
     /**
-     * @var array<string, ServerVariable>
+     * @var ServerVariable[]
      */
     private array $variables = [];
 
