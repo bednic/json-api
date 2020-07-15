@@ -10,6 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 ### Changed
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
+
+## [5.1.1]
+
+### Added
+
+### Changed
 * Add logger param in `OpenAPISpecificationBuilder` constructor
 * New method `Document::setJSONAPIObjectMeta` setting meta to jsonapi object
 * Changed method signature in `OpenAPISpecificationBuilder::createCreateResponses`
@@ -551,7 +564,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.0...5.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.1...5.x
+[5.1.1]: https://gitlab.com/bednic/json-api/compare/5.1.0...5.1.1
 [5.1.0]: https://gitlab.com/bednic/json-api/compare/5.0.0...5.1.0
 [5.0.0]: https://gitlab.com/bednic/json-api/compare/4.2.4...5.0.0
 [4.2.4]: https://gitlab.com/bednic/json-api/compare/4.2.3...4.2.4
