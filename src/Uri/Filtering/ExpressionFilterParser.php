@@ -32,7 +32,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      *
      * @var mixed
      */
-    private $condition;
+    private $condition = null;
 
     /**
      * ExpressionFilterParser constructor.
@@ -42,7 +42,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     public function __construct(ExpressionBuilder $exp = null)
     {
         $this->exp = $exp ?? new DoctrineCriteriaExpressionBuilder();
-        $this->condition = new Criteria();
     }
 
     public function getRequiredJoins(): array

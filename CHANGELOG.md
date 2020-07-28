@@ -18,6 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## [5.1.4]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+* default condition value cannot be Criteria, changed to null to prevent uninitialized error
+
+### Removed
+
+
 ## [5.1.3]
 
 ### Added
@@ -594,8 +608,9 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.3...5.x
-[5.1.2]: https://gitlab.com/bednic/json-api/compare/5.1.2...5.1.3
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.4...5.x
+[5.1.4]: https://gitlab.com/bednic/json-api/compare/5.1.3...5.1.4
+[5.1.3]: https://gitlab.com/bednic/json-api/compare/5.1.2...5.1.3
 [5.1.2]: https://gitlab.com/bednic/json-api/compare/5.1.1...5.1.2
 [5.1.1]: https://gitlab.com/bednic/json-api/compare/5.1.0...5.1.1
 [5.1.0]: https://gitlab.com/bednic/json-api/compare/5.0.0...5.1.0
