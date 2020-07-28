@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\DuplicationEntryException;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Operation
  *
  * @package JSONAPI\OAS
  */
-class Operation implements \JsonSerializable
+class Operation implements JsonSerializable
 {
 
     /**
@@ -166,6 +167,14 @@ class Operation implements \JsonSerializable
     }
 
     /**
+     * @return Responses
+     */
+    public function getResponses(): Responses
+    {
+        return $this->responses;
+    }
+
+    /**
      * @param Responses $responses
      *
      * @return Operation
@@ -174,14 +183,6 @@ class Operation implements \JsonSerializable
     {
         $this->responses = $responses;
         return $this;
-    }
-
-    /**
-     * @return Responses
-     */
-    public function getResponses(): Responses
-    {
-        return $this->responses;
     }
 
     /**

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class Tag
  * Adds metadata to a single tag that is used by the Operation Object.
@@ -12,7 +14,7 @@ namespace JSONAPI\OAS;
  * @see     \JSONAPI\OAS\Operation Operation Object
  * @package JSONAPI\OAS
  */
-class Tag implements \JsonSerializable
+class Tag implements JsonSerializable
 {
     /**
      * @var string

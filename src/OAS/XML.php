@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class XML
  *
  * @package JSONAPI\OAS
  */
-class XML implements \JsonSerializable
+class XML implements JsonSerializable
 {
     /**
      * @var string|null

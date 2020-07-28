@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\InvalidFormatException;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Contact
  *
  * @package JSONAPI\OAS
  */
-class Contact implements \JsonSerializable
+class Contact implements JsonSerializable
 {
     /**
      * @var string|null
@@ -70,8 +71,8 @@ class Contact implements \JsonSerializable
     public function jsonSerialize()
     {
         return [
-            'name' => $this->name,
-            'url' => $this->url,
+            'name'  => $this->name,
+            'url'   => $this->url,
             'email' => $this->email
         ];
     }

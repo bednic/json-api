@@ -64,7 +64,7 @@ class OpenAPISpecificationBuilder
     public function __construct(MetadataRepository $metadataRepository, LoggerInterface $logger = null)
     {
         $this->metadataRepository = $metadataRepository;
-        $this->logger = $logger ?? new NullLogger();
+        $this->logger             = $logger ?? new NullLogger();
     }
 
     /**
@@ -80,7 +80,7 @@ class OpenAPISpecificationBuilder
     {
         $this->oas = new OpenAPISpecification($info);
         $this->logger->debug("OAS instance created");
-        $server    = new Server(LinkFactory::getBaseUrl());
+        $server = new Server(LinkFactory::getBaseUrl());
         $this->logger->debug('Default server added');
         $server->setDescription('API Server');
         $this->oas->addServer($server);
@@ -127,6 +127,137 @@ class OpenAPISpecificationBuilder
     }
 
     /**
+     * @return Schema
+     * @throws ReferencedObjectNotExistsException
+     */
+    private function createLink(): Schema
+    {
+        return Schema::new()->setOneOf([
+            DataType::string()->setFormat('url'),
+            DataType::object()
+                ->addProperty('href', DataType::string()->setFormat('url'))
+                ->addProperty(
+                    'meta',
+                    $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class))
+                )
+        ]);
+    }
+
+    /**
+     * @param ClassMetadata $metadata
+     *
+     * @return Schema
+     * @throws MetadataNotFound
+     * @throws ReferencedObjectNotExistsException
+     */
+    private function createResource(ClassMetadata $metadata): Schema
+    {
+        $attributes = DataType::object();
+        foreach ($metadata->getAttributes() as $attribute) {
+            $attributes->addProperty($attribute->name, $this->attributeToSchema($attribute));
+        }
+        $relationships = DataType::object();
+        foreach ($metadata->getRelationships() as $relationship) {
+            $relationships->addProperty($relationship->name, $this->relationshipToSchema($relationship));
+        }
+        $schema = DataType::object()
+            ->addProperty('attributes', $attributes)
+            ->addProperty('relationships', $relationships)
+            ->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
+        return Schema::new()->setAllOf([
+            $this->createResourceIdentifier($metadata),
+            $schema
+        ]);
+    }
+
+    /**
+     * @param Attribute $attribute
+     *
+     * @return Schema
+     */
+    private function attributeToSchema(Attribute $attribute): Schema
+    {
+        $schema = new Schema();
+        $type   = $this->translateType($attribute->type);
+        $schema->setType($type);
+        if ($type == 'integer') {
+            $schema->setFormat(PHP_INT_SIZE === 4 ? 'int32' : 'int64');
+        } elseif ($type == 'array') {
+            $schema->setItems((new Schema())->setType($this->translateType($attribute->of)));
+        } elseif ($type == 'number') {
+            $schema->setFormat('float');
+        }
+        return $schema;
+    }
+
+    /**
+     * @param string $type
+     *
+     * @return string
+     */
+    private function translateType(string $type): string
+    {
+        switch ($type) {
+            case 'string':
+                return 'string';
+            case 'int':
+                return 'integer';
+                break;
+            case 'bool':
+                return 'boolean';
+            case 'array':
+                return 'array';
+            case 'float':
+                return 'number';
+            default:
+                return 'object';
+        }
+    }
+
+    /**
+     * @param Relationship $relationship
+     *
+     * @return Schema
+     * @throws ReferencedObjectNotExistsException
+     * @throws MetadataNotFound
+     */
+    private function relationshipToSchema(Relationship $relationship): Schema
+    {
+        $schema = DataType::object();
+        if ($relationship->isCollection) {
+            $schema->addProperty(
+                'data',
+                DataType::array($this->createResourceIdentifier(
+                    $this->metadataRepository->getByClass($relationship->target)
+                ))
+            );
+        } else {
+            $schema->addProperty(
+                'data',
+                $this->createResourceIdentifier($this->metadataRepository->getByClass($relationship->target))
+            );
+        }
+        $schema->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)));
+        $schema->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
+        return $schema;
+    }
+
+    /**
+     * @param ClassMetadata $metadata
+     *
+     * @return Schema
+     * @throws ReferencedObjectNotExistsException
+     */
+    private function createResourceIdentifier(ClassMetadata $metadata): Schema
+    {
+        return DataType::object()
+            ->addProperty('id', DataType::string())
+            ->addProperty('type', DataType::string()->setEnum([$metadata->getType()]))
+            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)))
+            ->setRequired(['id', 'type']);
+    }
+
+    /**
      * @throws ReferencedObjectNotExistsException
      */
     private function registerResponses()
@@ -152,6 +283,64 @@ class OpenAPISpecificationBuilder
                 (string)StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
                 $this->createErrorResponse()
             );
+    }
+
+    /**
+     * @return Response
+     * @throws ReferencedObjectNotExistsException
+     */
+    private function createErrorResponse(): Response
+    {
+        $document = $this->createEmptyDocument();
+        $document->addProperty(
+            'error',
+            DataType::object()
+                ->addProperty('id', DataType::string()
+                    ->setDescription('A unique identifier for this particular occurrence of the problem'))
+                ->addProperty('links', DataType::object()
+                    ->addProperty(
+                        'about',
+                        $this->createLink()
+                            ->setDescription('A link that leads to further details
+                        about this particular occurrence of the problem')
+                    ))
+                ->addProperty('status', DataType::string()
+                    ->setDescription('The HTTP status code applicable to this problem, expressed as a string value'))
+                ->addProperty('code', DataType::string())
+                ->addProperty('title', DataType::string())
+                ->addProperty('detail', DataType::string())
+                ->addProperty('source', DataType::object()
+                    ->addProperty('pointer', DataType::string()->setFormat('JSON Pointer'))
+                    ->addProperty('parameter', DataType::string()))
+                ->addProperty(
+                    'meta',
+                    $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class))
+                )
+        );
+        $response = new Response('A generic error message, given when no more specific message is suitable');
+        $response->addContent(Document::MEDIA_TYPE, (new MediaType())->setSchema(
+            $document
+        ));
+        return $response;
+    }
+
+    /**
+     * @return Schema
+     * @throws ReferencedObjectNotExistsException
+     */
+    private function createEmptyDocument(): Schema
+    {
+        $document = DataType::object();
+        $document->addProperty(
+            'jsonapi',
+            DataType::object()
+                ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
+                ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)))
+        );
+
+        $document->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)));
+        $document->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
+        return $document;
     }
 
     /**
@@ -385,24 +574,6 @@ class OpenAPISpecificationBuilder
     }
 
     /**
-     * @param string $shortClassName
-     *
-     * @return RequestBody
-     * @throws ReferencedObjectNotExistsException
-     */
-    private function createRequestBodyFor(string $shortClassName): RequestBody
-    {
-        $content = new MediaType();
-        $content->setSchema(
-            DataType::object()
-                ->addProperty('jsonapi', DataType::string()->setEnum([Document::VERSION]))
-                ->addProperty('data', $this->oas->getComponents()->createSchemaReference($shortClassName))
-                ->setRequired(['data'])
-        );
-        return new RequestBody(Document::MEDIA_TYPE, $content);
-    }
-
-    /**
      * 200, 404, 500
      * @return Responses
      * @throws ReferencedObjectNotExistsException
@@ -420,6 +591,41 @@ class OpenAPISpecificationBuilder
                 ->createResponseReference((string)StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR)
         );
         return $responses;
+    }
+
+    /**
+     * @param Schema $data
+     *
+     * @return Response
+     * @throws ReferencedObjectNotExistsException
+     */
+    private function createDocumentResponse(Schema $data): Response
+    {
+        $document = $this->createEmptyDocument();
+        $document->addProperty('data', $data);
+        $response = new Response('Returns data of successful request');
+        $response->addContent(Document::MEDIA_TYPE, (new MediaType())->setSchema(
+            $document
+        ));
+        return $response;
+    }
+
+    /**
+     * @param string $shortClassName
+     *
+     * @return RequestBody
+     * @throws ReferencedObjectNotExistsException
+     */
+    private function createRequestBodyFor(string $shortClassName): RequestBody
+    {
+        $content = new MediaType();
+        $content->setSchema(
+            DataType::object()
+                ->addProperty('jsonapi', DataType::string()->setEnum([Document::VERSION]))
+                ->addProperty('data', $this->oas->getComponents()->createSchemaReference($shortClassName))
+                ->setRequired(['data'])
+        );
+        return new RequestBody(Document::MEDIA_TYPE, $content);
     }
 
     /**
@@ -487,139 +693,6 @@ class OpenAPISpecificationBuilder
     }
 
     /**
-     * @param Relationship $relationship
-     *
-     * @return Schema
-     * @throws ReferencedObjectNotExistsException
-     * @throws MetadataNotFound
-     */
-    private function relationshipToSchema(Relationship $relationship): Schema
-    {
-        $schema = DataType::object();
-        if ($relationship->isCollection) {
-            $schema->addProperty(
-                'data',
-                DataType::array($this->createResourceIdentifier(
-                    $this->metadataRepository->getByClass($relationship->target)
-                ))
-            );
-        } else {
-            $schema->addProperty(
-                'data',
-                $this->createResourceIdentifier($this->metadataRepository->getByClass($relationship->target))
-            );
-        }
-        $schema->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)));
-        $schema->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
-        return $schema;
-    }
-
-    /**
-     * @param Attribute $attribute
-     *
-     * @return Schema
-     */
-    private function attributeToSchema(Attribute $attribute): Schema
-    {
-        $schema = new Schema();
-        $type   = $this->translateType($attribute->type);
-        $schema->setType($type);
-        if ($type == 'integer') {
-            $schema->setFormat(PHP_INT_SIZE === 4 ? 'int32' : 'int64');
-        } elseif ($type == 'array') {
-            $schema->setItems((new Schema())->setType($this->translateType($attribute->of)));
-        } elseif ($type == 'number') {
-            $schema->setFormat('float');
-        }
-        return $schema;
-    }
-
-    /**
-     * @param string $type
-     *
-     * @return string
-     */
-    private function translateType(string $type): string
-    {
-        switch ($type) {
-            case 'string':
-                return 'string';
-            case 'int':
-                return 'integer';
-                break;
-            case 'bool':
-                return 'boolean';
-            case 'array':
-                return 'array';
-            case 'float':
-                return 'number';
-            default:
-                return 'object';
-        }
-    }
-
-    /**
-     * @param ClassMetadata $metadata
-     *
-     * @return Schema
-     * @throws ReferencedObjectNotExistsException
-     */
-    private function createResourceIdentifier(ClassMetadata $metadata): Schema
-    {
-        return DataType::object()
-            ->addProperty('id', DataType::string())
-            ->addProperty('type', DataType::string()->setEnum([$metadata->getType()]))
-            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)))
-            ->setRequired(['id', 'type']);
-    }
-
-    /**
-     * @param ClassMetadata $metadata
-     *
-     * @return Schema
-     * @throws MetadataNotFound
-     * @throws ReferencedObjectNotExistsException
-     */
-    private function createResource(ClassMetadata $metadata): Schema
-    {
-        $attributes = DataType::object();
-        foreach ($metadata->getAttributes() as $attribute) {
-            $attributes->addProperty($attribute->name, $this->attributeToSchema($attribute));
-        }
-        $relationships = DataType::object();
-        foreach ($metadata->getRelationships() as $relationship) {
-            $relationships->addProperty($relationship->name, $this->relationshipToSchema($relationship));
-        }
-        $schema = DataType::object()
-            ->addProperty('attributes', $attributes)
-            ->addProperty('relationships', $relationships)
-            ->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
-        return Schema::new()->setAllOf([
-            $this->createResourceIdentifier($metadata),
-            $schema
-        ]);
-    }
-
-    /**
-     * @return Schema
-     * @throws ReferencedObjectNotExistsException
-     */
-    private function createEmptyDocument(): Schema
-    {
-        $document = DataType::object();
-        $document->addProperty(
-            'jsonapi',
-            DataType::object()
-                ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
-                ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)))
-        );
-
-        $document->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)));
-        $document->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
-        return $document;
-    }
-
-    /**
      * @return Response
      * @throws ReferencedObjectNotExistsException
      */
@@ -631,78 +704,5 @@ class OpenAPISpecificationBuilder
             $document
         ));
         return $response;
-    }
-
-    /**
-     * @return Response
-     * @throws ReferencedObjectNotExistsException
-     */
-    private function createErrorResponse(): Response
-    {
-        $document = $this->createEmptyDocument();
-        $document->addProperty(
-            'error',
-            DataType::object()
-                ->addProperty('id', DataType::string()
-                    ->setDescription('A unique identifier for this particular occurrence of the problem'))
-                ->addProperty('links', DataType::object()
-                    ->addProperty(
-                        'about',
-                        $this->createLink()
-                            ->setDescription('A link that leads to further details
-                        about this particular occurrence of the problem')
-                    ))
-                ->addProperty('status', DataType::string()
-                    ->setDescription('The HTTP status code applicable to this problem, expressed as a string value'))
-                ->addProperty('code', DataType::string())
-                ->addProperty('title', DataType::string())
-                ->addProperty('detail', DataType::string())
-                ->addProperty('source', DataType::object()
-                    ->addProperty('pointer', DataType::string()->setFormat('JSON Pointer'))
-                    ->addProperty('parameter', DataType::string()))
-                ->addProperty(
-                    'meta',
-                    $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class))
-                )
-        );
-        $response = new Response('A generic error message, given when no more specific message is suitable');
-        $response->addContent(Document::MEDIA_TYPE, (new MediaType())->setSchema(
-            $document
-        ));
-        return $response;
-    }
-
-    /**
-     * @param Schema $data
-     *
-     * @return Response
-     * @throws ReferencedObjectNotExistsException
-     */
-    private function createDocumentResponse(Schema $data): Response
-    {
-        $document = $this->createEmptyDocument();
-        $document->addProperty('data', $data);
-        $response = new Response('Returns data of successful request');
-        $response->addContent(Document::MEDIA_TYPE, (new MediaType())->setSchema(
-            $document
-        ));
-        return $response;
-    }
-
-    /**
-     * @return Schema
-     * @throws ReferencedObjectNotExistsException
-     */
-    private function createLink(): Schema
-    {
-        return Schema::new()->setOneOf([
-            DataType::string()->setFormat('url'),
-            DataType::object()
-                ->addProperty('href', DataType::string()->setFormat('url'))
-                ->addProperty(
-                    'meta',
-                    $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class))
-                )
-        ]);
     }
 }

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class Discriminator
  *
  * @package JSONAPI\OAS
  */
-class Discriminator implements \JsonSerializable
+class Discriminator implements JsonSerializable
 {
     /**
      * @var string

@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class OpenAPI
  *
  * @package JSONAPI\OAS
  */
-class OpenAPISpecification implements \JsonSerializable
+class OpenAPISpecification implements JsonSerializable
 {
 
     private const VERSION = '3.0.3';
@@ -45,12 +47,12 @@ class OpenAPISpecification implements \JsonSerializable
     /**
      * OpenAPI constructor.
      *
-     * @param Info  $info
+     * @param Info $info
      */
     public function __construct(Info $info)
     {
-        $this->info  = $info;
-        $this->paths = new Paths();
+        $this->info       = $info;
+        $this->paths      = new Paths();
         $this->components = new Components();
     }
 

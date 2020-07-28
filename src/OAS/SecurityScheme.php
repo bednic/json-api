@@ -9,13 +9,15 @@ use JSONAPI\OAS\Enum\SecuritySchemeScheme;
 use JSONAPI\OAS\Enum\SecuritySchemeType;
 use JSONAPI\OAS\Exception\InvalidArgumentException;
 use JSONAPI\OAS\Exception\InvalidFormatException;
+use ReflectionClass;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class SecurityScheme
  *
  * @package JSONAPI\OAS
  */
-class SecurityScheme extends Reference implements \JsonSerializable
+class SecurityScheme extends Reference implements JsonSerializable
 {
     /**
      * @var SecuritySchemeType
@@ -88,6 +90,17 @@ class SecurityScheme extends Reference implements \JsonSerializable
     }
 
     /**
+     * @inheritDoc
+     */
+    public static function createReference(string $to, $origin): SecurityScheme
+    {
+        /** @var SecurityScheme $static */
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static->setRef($to, $origin);
+        return $static;
+    }
+
+    /**
      * @param string $description
      *
      * @return SecurityScheme
@@ -108,7 +121,6 @@ class SecurityScheme extends Reference implements \JsonSerializable
         $this->bearerFormat = $bearerFormat;
         return $this;
     }
-
 
     /**
      * @inheritDoc
@@ -133,16 +145,5 @@ class SecurityScheme extends Reference implements \JsonSerializable
             $ret['bearerFormat'] = $this->bearerFormat;
         }
         return (object)$ret;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function createReference(string $to, $origin): SecurityScheme
-    {
-        /** @var SecurityScheme $static */
-        $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
     }
 }

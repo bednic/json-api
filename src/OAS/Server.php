@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class Server
  *
  * @package JSONAPI\OAS
  */
-class Server implements \JsonSerializable
+class Server implements JsonSerializable
 {
     /**
      * @var string

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Resources\Valid;
 
-use JSONAPI\JsonConvertible;
+use Tools\JSON\JsonConvertible;
 
 class DtoValue implements JsonConvertible
 {
@@ -77,7 +77,7 @@ class DtoValue implements JsonConvertible
      *
      * @return static
      */
-    public static function jsonDeserialize($json)
+    public static function jsonDeserialize($json): self
     {
         $json = (array) $json;
         $self = new static();

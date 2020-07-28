@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Enum\Style;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Encoding
  *
  * @package JSONAPI\OAS
  */
-class Encoding implements \JsonSerializable
+class Encoding implements JsonSerializable
 {
     /**
      * @var string|null

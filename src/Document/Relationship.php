@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Helper\LinksTrait;
 use JSONAPI\Helper\MetaTrait;
-use JsonSerializable;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Relationships

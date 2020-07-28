@@ -7,8 +7,7 @@ namespace JSONAPI\Document;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
-use JSONAPI\Exception\Document\ResourceTypeMismatch;
-use JsonSerializable;
+use Tools\JSON\JsonSerializable;
 use Traversable;
 
 /**

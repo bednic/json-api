@@ -9,7 +9,7 @@ use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\Helper\LinksTrait;
 use JSONAPI\Helper\MetaTrait;
-use JsonSerializable;
+use Tools\JSON\JsonSerializable;
 use Throwable;
 
 /**

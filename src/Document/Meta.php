@@ -6,7 +6,7 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JsonSerializable;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Meta

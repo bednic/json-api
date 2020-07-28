@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use ReflectionClass;
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class Response
  *
  * @package JSONAPI\OAS
  */
-class Response extends Reference implements \JsonSerializable
+class Response extends Reference implements JsonSerializable
 {
     /**
      * @var string
@@ -36,6 +39,17 @@ class Response extends Reference implements \JsonSerializable
     public function __construct(string $description)
     {
         $this->description = $description;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function createReference(string $to, $origin): Response
+    {
+        /** @var Response $static */
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static->setRef($to, $origin);
+        return $static;
     }
 
     /**
@@ -95,16 +109,5 @@ class Response extends Reference implements \JsonSerializable
             $ret['links'] = $this->links;
         }
         return (object)$ret;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function createReference(string $to, $origin): Response
-    {
-        /** @var Response $static */
-        $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
     }
 }

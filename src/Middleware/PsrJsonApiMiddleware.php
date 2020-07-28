@@ -21,7 +21,6 @@ use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\Conflict;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Exception\Metadata\MetadataException;
-use JSONAPI\JsonDeserializable;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Path\PathInterface;
@@ -38,6 +37,7 @@ use ReflectionClass;
 use ReflectionException;
 use stdClass;
 use Throwable;
+use Tools\JSON\JsonDeserializable;
 
 /**
  * Class PsrJsonApiMiddleware
@@ -78,10 +78,10 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         StreamFactoryInterface $streamFactory,
         LoggerInterface $logger = null
     ) {
-        $this->repository = $repository;
+        $this->repository      = $repository;
         $this->responseFactory = $responseFactory;
-        $this->streamFactory = $streamFactory;
-        $this->logger = $logger ?? new NullLogger();
+        $this->streamFactory   = $streamFactory;
+        $this->logger          = $logger ?? new NullLogger();
     }
 
     /**
@@ -125,9 +125,11 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             }
             $response = $handler->handle($request);
         } catch (Throwable $exception) {
-            $this->logger->error($exception->getMessage());
+            $this->logger->error($exception->getMessage(), [
+                'exception' => $exception
+            ]);
             $document = new Document();
-            $error = Error::fromException($exception);
+            $error    = Error::fromException($exception);
             $document->addError($error);
             $response = $this->responseFactory
                 ->createResponse($error->getStatus())
@@ -150,7 +152,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         if ($path->isCollection()) {
             $data = new ResourceCollection();
             if ($body) {
-                $type = $path->getPrimaryResourceType();
+                $type     = $path->getPrimaryResourceType();
                 $metadata = $this->repository->getByType($type);
                 foreach ($body->data as $object) {
                     $resource = $this->jsonToResourceObject($object, $metadata, $path);
@@ -160,9 +162,9 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         } else {
             $data = null;
             if ($body) {
-                $type = $path->getPrimaryResourceType();
+                $type     = $path->getPrimaryResourceType();
                 $metadata = $this->repository->getByType($type);
-                $data = $this->jsonToResourceObject($body->data, $metadata, $path);
+                $data     = $this->jsonToResourceObject($body->data, $metadata, $path);
             }
         }
         return $data;
@@ -185,8 +187,8 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         if ($object->type !== $metadata->getType()) {
             throw new Conflict();
         }
-        $type = new Type($object->type);
-        $id = new Id(@$object->id);
+        $type     = new Type($object->type);
+        $id       = new Id(@$object->id);
         $resource = new ResourceObjectIdentifier($type, $id);
         if (!$path->isRelationship()) {
             $resource = new ResourceObject($type, $id);

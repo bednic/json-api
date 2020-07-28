@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Uri\Filtering;
 
 use DateTime;
+use Doctrine\Common\Collections\Criteria;
 use Exception;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Uri\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
@@ -41,6 +42,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     public function __construct(ExpressionBuilder $exp = null)
     {
         $this->exp = $exp ?? new DoctrineCriteriaExpressionBuilder();
+        $this->condition = new Criteria();
     }
 
     public function getRequiredJoins(): array

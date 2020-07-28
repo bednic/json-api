@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use ReflectionClass;
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class RequestBody
  *
  * @package JSONAPI\OAS
  */
-class RequestBody extends Reference implements \JsonSerializable
+class RequestBody extends Reference implements JsonSerializable
 {
     /**
      * @var string|null
@@ -38,28 +41,6 @@ class RequestBody extends Reference implements \JsonSerializable
     }
 
     /**
-     * @param string|null $description
-     *
-     * @return RequestBody
-     */
-    public function setDescription(?string $description): RequestBody
-    {
-        $this->description = $description;
-        return $this;
-    }
-
-    /**
-     * @param bool $required
-     *
-     * @return RequestBody
-     */
-    public function setRequired(bool $required): RequestBody
-    {
-        $this->required = $required;
-        return $this;
-    }
-
-    /**
      * @param string    $mediaType
      * @param MediaType $content
      *
@@ -81,9 +62,31 @@ class RequestBody extends Reference implements \JsonSerializable
     public static function createReference(string $to, $origin): RequestBody
     {
         /** @var RequestBody $static */
-        $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
         $static->setRef($to, $origin);
         return $static;
+    }
+
+    /**
+     * @param string|null $description
+     *
+     * @return RequestBody
+     */
+    public function setDescription(?string $description): RequestBody
+    {
+        $this->description = $description;
+        return $this;
+    }
+
+    /**
+     * @param bool $required
+     *
+     * @return RequestBody
+     */
+    public function setRequired(bool $required): RequestBody
+    {
+        $this->required = $required;
+        return $this;
     }
 
     public function jsonSerialize()

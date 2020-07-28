@@ -7,13 +7,14 @@ namespace JSONAPI\OAS;
 use JSONAPI\OAS\Exception\DuplicationEntryException;
 use JSONAPI\OAS\Exception\InvalidArgumentException;
 use JSONAPI\OAS\Exception\ReferencedObjectNotExistsException;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Components
  *
  * @package JSONAPI\OAS
  */
-class Components implements \JsonSerializable
+class Components implements JsonSerializable
 {
     /**
      * @var Schema[]

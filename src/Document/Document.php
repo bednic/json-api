@@ -6,7 +6,7 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Helper\LinksTrait;
 use JSONAPI\Helper\MetaTrait;
-use JsonSerializable;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Document

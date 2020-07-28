@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Document\ReservedWord;
 use JSONAPI\Helper\MetaTrait;
-use JsonSerializable;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class ResourceObjectIdentifier

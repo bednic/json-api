@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\ExclusivityCheckException;
+use ReflectionClass;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Link
  *
  * @package JSONAPI\OAS
  */
-class Link extends Reference implements \JsonSerializable
+class Link extends Reference implements JsonSerializable
 {
 
     /**
@@ -40,6 +42,17 @@ class Link extends Reference implements \JsonSerializable
      * @var Server|null
      */
     private ?Server $server;
+
+    /**
+     * @inheritDoc
+     */
+    public static function createReference(string $to, $origin): Link
+    {
+        /** @var Link $static */
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static->setRef($to, $origin);
+        return $static;
+    }
 
     /**
      * @param string|null $operationRef
@@ -73,7 +86,7 @@ class Link extends Reference implements \JsonSerializable
 
     /**
      * @param string $name
-     * @param mixed $parameter
+     * @param mixed  $parameter
      *
      * @return Link
      */
@@ -141,16 +154,5 @@ class Link extends Reference implements \JsonSerializable
             $ret['server'] = $this->server;
         }
         return (object)$ret;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function createReference(string $to, $origin): Link
-    {
-        /** @var Link $static */
-        $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
     }
 }

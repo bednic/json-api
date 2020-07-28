@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Enum\In;
+use ReflectionClass;
 
 /**
  * Class Header
@@ -21,6 +22,21 @@ class Header extends Parameter
     public function __construct(string $name)
     {
         parent::__construct($name, In::HEADER());
+    }
+
+    /**
+     * @param string $to
+     *
+     * @param        $origin
+     *
+     * @return Header
+     */
+    public static function createReference(string $to, $origin): Header
+    {
+        /** @var Header $static */
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static->setRef($to, $origin);
+        return $static;
     }
 
     /**
@@ -41,20 +57,5 @@ class Header extends Parameter
         unset($ret->name);
         unset($ret->in);
         return (object)$ret;
-    }
-
-    /**
-     * @param string $to
-     *
-     * @param        $origin
-     *
-     * @return Header
-     */
-    public static function createReference(string $to, $origin): Header
-    {
-        /** @var Header $static */
-        $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
     }
 }

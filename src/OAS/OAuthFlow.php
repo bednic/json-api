@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class OAuthFlow
  *
  * @package JSONAPI\OAS
  */
-class OAuthFlow implements \JsonSerializable
+class OAuthFlow implements JsonSerializable
 {
 
     /**

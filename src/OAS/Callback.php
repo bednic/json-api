@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use ReflectionClass;
+use Tools\JSON\JsonSerializable;
+
 /**
  * Class Callback
  *
  * @package JSONAPI\OAS
  */
-class Callback extends Reference implements \JsonSerializable
+class Callback extends Reference implements JsonSerializable
 {
     /**
      * @var string
@@ -32,6 +35,17 @@ class Callback extends Reference implements \JsonSerializable
         $this->pathItem   = $pathItem;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public static function createReference(string $to, $origin): Callback
+    {
+        /** @var Callback $static */
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static->setRef($to, $origin);
+        return $static;
+    }
+
     public function jsonSerialize()
     {
         if ($this->isReference()) {
@@ -41,16 +55,5 @@ class Callback extends Reference implements \JsonSerializable
             $this->expression => $this->pathItem
         ];
         return (object)$ret;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function createReference(string $to, $origin): Callback
-    {
-        /** @var Callback $static */
-        $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
     }
 }

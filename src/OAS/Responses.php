@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use Fig\Http\Message\StatusCodeInterface;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Responses
  *
  * @package JSONAPI\OAS
  */
-class Responses implements \JsonSerializable
+class Responses implements JsonSerializable
 {
     /**
      * @var Response

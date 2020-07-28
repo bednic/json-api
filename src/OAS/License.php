@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\InvalidFormatException;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Licence
  *
  * @package JSONAPI\OAS
  */
-class License implements \JsonSerializable
+class License implements JsonSerializable
 {
     /**
      * @var string
@@ -25,7 +26,7 @@ class License implements \JsonSerializable
     /**
      * Licence constructor.
      *
-     * @param string      $name
+     * @param string $name
      */
     public function __construct(string $name)
     {

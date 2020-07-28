@@ -6,13 +6,15 @@ namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\IncompleteObjectException;
 use JSONAPI\OAS\Exception\InvalidArgumentException;
+use ReflectionClass;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Schema
  *
  * @package JSONAPI\OAS
  */
-class Schema extends Reference implements \JsonSerializable
+class Schema extends Reference implements JsonSerializable
 {
     /**
      * @var string
@@ -161,6 +163,22 @@ class Schema extends Reference implements \JsonSerializable
      * @var bool
      */
     private ?bool $deprecated = null;
+
+    /**
+     * @inheritDoc
+     */
+    public static function createReference(string $to, $origin): Schema
+    {
+        /** @var Schema $static */
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static->setRef($to, $origin);
+        return $static;
+    }
+
+    public static function new(): Schema
+    {
+        return new Schema();
+    }
 
     /**
      * @param string $title
@@ -668,21 +686,5 @@ class Schema extends Reference implements \JsonSerializable
             $ret['deprecated'] = $this->deprecated;
         }
         return (object)$ret;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public static function createReference(string $to, $origin): Schema
-    {
-        /** @var Schema $static */
-        $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
-    }
-
-    public static function new(): Schema
-    {
-        return new Schema();
     }
 }

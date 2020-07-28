@@ -9,6 +9,9 @@ namespace JSONAPI;
  * Marks class that can be initialized from json data
  *
  * @package JSONAPI
+ * @deprecated use \Tools\JSON\JsonDeserializable
+ * @see https://gitlab.com/bednic/tools/-/blob/master/src/JSON/JsonDeserializable.php
+ * @version 5.1.1
  */
 interface JsonDeserializable
 {

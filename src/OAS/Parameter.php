@@ -8,13 +8,15 @@ use JSONAPI\OAS\Enum\In;
 use JSONAPI\OAS\Enum\Style;
 use JSONAPI\OAS\Exception\ExclusivityCheckException;
 use JSONAPI\OAS\Exception\IncompleteObjectException;
+use ReflectionClass;
+use Tools\JSON\JsonSerializable;
 
 /**
  * Class Parameter
  *
  * @package JSONAPI\OAS
  */
-class Parameter extends Reference implements \JsonSerializable
+class Parameter extends Reference implements JsonSerializable
 {
     /**
      * Case sensitive
@@ -109,6 +111,21 @@ class Parameter extends Reference implements \JsonSerializable
     }
 
     /**
+     * @param string $to
+     *
+     * @param        $origin
+     *
+     * @return Parameter
+     */
+    public static function createReference(string $to, $origin): Parameter
+    {
+        /** @var Parameter $static */
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static->setRef($to, $origin);
+        return $static;
+    }
+
+    /**
      * @return string
      */
     public function getUID(): string
@@ -117,14 +134,6 @@ class Parameter extends Reference implements \JsonSerializable
             return $this->origin->getUID();
         }
         return $this->name . $this->in->getValue();
-    }
-
-    /**
-     * @return string
-     */
-    protected function getName(): string
-    {
-        return $this->name;
     }
 
     /**
@@ -318,17 +327,10 @@ class Parameter extends Reference implements \JsonSerializable
     }
 
     /**
-     * @param string $to
-     *
-     * @param        $origin
-     *
-     * @return Parameter
+     * @return string
      */
-    public static function createReference(string $to, $origin): Parameter
+    protected function getName(): string
     {
-        /** @var Parameter $static */
-        $static = (new \ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
+        return $this->name;
     }
 }
