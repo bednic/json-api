@@ -32,7 +32,7 @@ class LinkFactory
 
     /**
      * @var string
-     * @deprecated
+     * @deprecated use self::$ENDPOINT instead
      */
     private const API_URL_ENV = "JSON_API_URL";
 

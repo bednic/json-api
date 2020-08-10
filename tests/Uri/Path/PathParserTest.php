@@ -85,11 +85,26 @@ class PathParserTest extends TestCase
         $data = '/api/resource/uuid';
         $path = $parser->parse($data);
         $this->assertInstanceOf(PathInterface::class, $path);
+
         $this->assertEquals('resource', $path->getResourceType());
         LinkFactory::$ENDPOINT = 'http://unit.test.org';
         $data = '/resource/uuid';
         $path = $parser->parse($data);
         $this->assertEquals('resource', $path->getResourceType());
+    }
+
+    public function testProxyUrl()
+    {
+        $parser = new PathParser(self::$mr);
+        LinkFactory::$ENDPOINT = 'http://unit.test.org/some/aweseome/proxy/resources/';
+        $data = '/resources/somethings';
+        $path = $parser->parse($data);
+        $this->assertTrue($path->isCollection());
+        $this->assertEquals('somethings', $path->getResourceType());
+        $data = '/resources/somethings/some-uuid';
+        $path = $parser->parse($data);
+        $this->assertEquals('somethings', $path->getResourceType());
+        $this->assertEquals('some-uuid', $path->getId());
     }
 
     public function testIsRelationship()
