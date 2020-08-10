@@ -68,7 +68,7 @@ class PathParser implements PathInterface
     {
 
         $req             = explode('/', $data);
-        $base            = explode('/', parse_url(LinkFactory::getBaseUrl(), PHP_URL_PATH));
+        $base            = explode('/', parse_url(LinkFactory::getBaseUrl(), PHP_URL_PATH) ?? '');
         $diff            = array_diff($req, $base);
         $data            = implode('/', $diff);
         $resourceKey     = 'resource';

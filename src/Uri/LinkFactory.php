@@ -32,7 +32,7 @@ class LinkFactory
 
     /**
      * @var string
-     * @deprecated use self::$ENDPOINT instead
+     * @deprecated use ::$ENDPOINT instead
      */
     private const API_URL_ENV = "JSON_API_URL";
 
@@ -43,6 +43,9 @@ class LinkFactory
     public const NEXT = 'next';
     public const PREV = 'prev';
 
+    /**
+     * @return string
+     */
     public static function getBaseUrl(): string
     {
         if (filter_var(self::$ENDPOINT, FILTER_VALIDATE_URL)) {
@@ -77,8 +80,7 @@ class LinkFactory
      */
     private static function getResourceLink(ResourceObjectIdentifier $resource): string
     {
-        $url = self::getBaseUrl();
-        return $url . '/' . $resource->getType() . '/' . $resource->getId();
+        return self::getBaseUrl() . '/' . $resource->getType() . '/' . $resource->getId();
     }
 
     /**
@@ -130,7 +132,7 @@ class LinkFactory
         ?PaginationInterface $pagination,
         ?SortInterface $sort
     ): Link {
-        $url = self::getBaseUrl();
+        $url  = self::getBaseUrl();
         $link = $url . (string)$path;
         $mark = '?';
         if (strlen((string)$filter)) {
@@ -166,11 +168,11 @@ class LinkFactory
      */
     public static function setDocumentLinks(Document $document, UriParser $parser): Document
     {
-        $path = $parser->getPath();
-        $filter = $parser->getFilter();
-        $inclusion = $parser->getInclusion();
-        $fieldset = $parser->getFieldset();
-        $sort = $parser->getSort();
+        $path       = $parser->getPath();
+        $filter     = $parser->getFilter();
+        $inclusion  = $parser->getInclusion();
+        $fieldset   = $parser->getFieldset();
+        $sort       = $parser->getSort();
         $pagination = $parser->getPagination();
         if ($document->getData() instanceof ResourceCollection) {
             $document->setLink(self::createDocumentLink(
