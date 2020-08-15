@@ -14,6 +14,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Fixed
+* fixed next link generation condition
+
+### Removed
+
+
+## [5.1.6]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+* fixed next link generation condition
 
 ### Removed
 
@@ -623,7 +638,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.5...5.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.6...5.x
+[5.1.6]: https://gitlab.com/bednic/json-api/compare/5.1.5...5.1.6
 [5.1.5]: https://gitlab.com/bednic/json-api/compare/5.1.4...5.1.5
 [5.1.4]: https://gitlab.com/bednic/json-api/compare/5.1.3...5.1.4
 [5.1.3]: https://gitlab.com/bednic/json-api/compare/5.1.2...5.1.3

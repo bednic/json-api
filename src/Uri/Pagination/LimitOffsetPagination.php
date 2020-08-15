@@ -99,7 +99,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     {
         $static = null;
         if ($this->total !== null) {
-            if ($this->getOffset() + $this->getLimit() <= $this->total) {
+            if ($this->getOffset() + $this->getLimit() < $this->total) {
                 $static = new static($this->getOffset() + $this->getLimit(), $this->getLimit());
                 $static->setTotal($this->total);
             }
