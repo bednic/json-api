@@ -30,7 +30,7 @@
     "require": {
         "php": "^7.4",
         "ext-json": "*",
-        "bednic/tools": "^0.3",
+        "bednic/tools": "^0.4",
         "doctrine/annotations": "^1.8",
         "doctrine/collections": "^1.6",
         "fig/http-message-util": "^1.1",
