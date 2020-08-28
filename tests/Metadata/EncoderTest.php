@@ -14,6 +14,7 @@ use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Test\Resources\Valid\GettersExample;
 use JSONAPI\Test\Resources\Valid\MetaExample;
 use JSONAPI\Uri\Fieldset\FieldsetParser;
+use JSONAPI\Uri\Inclusion\InclusionParser;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 
@@ -23,12 +24,13 @@ class EncoderTest extends TestCase
     public function testConstruct()
     {
         $fieldset = (new FieldsetParser())->parse([]);
+        $inc = (new InclusionParser())->parse('');
         $metadata = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new AnnotationDriver()
         );
-        $encoder = new Encoder($metadata, $fieldset);
+        $encoder = new Encoder($metadata, $fieldset, $inc);
         $this->assertInstanceOf(Encoder::class, $encoder);
         return $encoder;
     }

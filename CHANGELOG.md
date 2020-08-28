@@ -25,6 +25,7 @@ like pointer, parameter or line of exception and trace
 * `DocumentBuilder::__constructor` is now public and replace old `::create` function
 * All relationships returning collection of resources now must return `Collection` interface.
 Simple `array` was transferred internally anyway.
+* Add InclusionInterface dependency to `Encoder::__construct`
 
 ### Deprecated
 

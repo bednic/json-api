@@ -19,6 +19,7 @@ use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Uri\Fieldset\FieldsetInterface;
+use JSONAPI\Uri\Inclusion\InclusionInterface;
 use JSONAPI\Uri\LinkFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -72,19 +73,27 @@ final class Encoder
     private FieldsetInterface $fieldset;
 
     /**
+     * @var InclusionInterface
+     */
+    private InclusionInterface $inclusion;
+
+    /**
      * Encoder constructor.
      *
      * @param MetadataRepository   $metadataRepository
      * @param FieldsetInterface    $fieldset
+     * @param InclusionInterface   $inclusion
      * @param LoggerInterface|null $logger
      */
     public function __construct(
         MetadataRepository $metadataRepository,
         FieldsetInterface $fieldset,
+        InclusionInterface $inclusion,
         LoggerInterface $logger = null
     ) {
         $this->repository = $metadataRepository;
         $this->fieldset   = $fieldset;
+        $this->inclusion  = $inclusion;
         $this->logger     = $logger ?? new NullLogger();
     }
 
@@ -246,7 +255,7 @@ final class Encoder
                 }
                 if ($field instanceof Relationship) {
                     $relationship = new Document\Relationship($field->name);
-                    if (Config::$RELATIONSHIP_DATA) {
+                    if (Config::$RELATIONSHIP_DATA || $this->inclusion->hasInclusions()) {
                         if ($field->isCollection) {
                             if (!($value instanceof Collection)) {
                                 $value = new ArrayCollection($value);

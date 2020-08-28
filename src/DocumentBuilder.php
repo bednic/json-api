@@ -51,7 +51,12 @@ class DocumentBuilder
         $this->metadata = $metadata;
         $this->uri      = $uriParser;
         $this->logger   = $logger ?? new NullLogger();
-        $this->encoder  = new Encoder($this->metadata, $this->uri->getFieldset(), $this->logger);
+        $this->encoder  = new Encoder(
+            $this->metadata,
+            $this->uri->getFieldset(),
+            $this->uri->getInclusion(),
+            $this->logger
+        );
         $this->document = new Document();
         $this->included = new ResourceCollection();
     }
@@ -87,10 +92,6 @@ class DocumentBuilder
     {
         $this->logger->debug('Setting data.');
         $this->included->reset();
-        $origin = Config::$RELATIONSHIP_DATA; // backup
-        if ($this->uri->getInclusion()->hasInclusions()) {
-            Config::$RELATIONSHIP_DATA = true; // overload
-        }
         if ($this->uri->getPath()->isCollection()) {
             $this->logger->debug('It is resource collection.');
             $collection = new ResourceCollection();
@@ -113,7 +114,6 @@ class DocumentBuilder
                 $this->fetchInclusions($data, $this->uri->getInclusion()->getInclusions());
             }
         }
-        Config::$RELATIONSHIP_DATA = $origin; // reset
         $this->logger->debug('Data set.');
         return $this;
     }

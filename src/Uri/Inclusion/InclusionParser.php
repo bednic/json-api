@@ -32,7 +32,7 @@ class InclusionParser implements InclusionInterface
     {
         if ($data) {
             $this->inclusions = [];
-            $this->data = $data;
+            $this->data       = $data;
             if (strlen($data) > 0) {
                 $t = explode(',', $data);
                 foreach ($t as $i) {
@@ -79,6 +79,16 @@ class InclusionParser implements InclusionInterface
     public function hasInclusions(): bool
     {
         return count($this->inclusions) > 0;
+    }
+
+    /**
+     * @param string $relation
+     *
+     * @return bool
+     */
+    public function contains(string $relation): bool
+    {
+        return array_key_exists($relation, $this->inclusions);
     }
 
 

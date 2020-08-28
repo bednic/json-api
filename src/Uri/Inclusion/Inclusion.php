@@ -62,4 +62,14 @@ class Inclusion
     {
         return $this->relationName;
     }
+
+    /**
+     * @param $relation
+     *
+     * @return bool
+     */
+    public function inclusionContains(string $relation): bool
+    {
+        return array_key_exists($relation, $this->inclusions);
+    }
 }

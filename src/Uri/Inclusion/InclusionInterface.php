@@ -22,4 +22,11 @@ interface InclusionInterface extends UriPartInterface
      * @return bool
      */
     public function hasInclusions(): bool;
+
+    /**
+     * @param string $relation
+     *
+     * @return bool
+     */
+    public function contains(string $relation): bool;
 }
