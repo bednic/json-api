@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace JSONAPI\Document;
 
 use Fig\Http\Message\StatusCodeInterface;
+use JSONAPI\Exception\HasParameter;
+use JSONAPI\Exception\HasPointer;
 use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\Helper\LinksTrait;
@@ -60,16 +62,16 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
         $self->setStatus(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
         $self->setCode((string)$exception->getCode());
         $self->setDetail($exception->getMessage());
-        $source = [
-            'location' => $exception->getFile() . ':' . $exception->getLine(),
-            'trace' => $exception->getTraceAsString()
-        ];
+        $source = ErrorSource::internal(
+            $exception->getFile() . ':' . $exception->getLine(),
+            $exception->getTraceAsString()
+        );
         if ($exception instanceof JsonApiException) {
             $self->setStatus($exception->getStatus());
-            if ($exception instanceof UnsupportedParameter) {
-                $source = [
-                    'parameter' => $exception->getParameter()
-                ];
+            if ($exception instanceof HasPointer) {
+                $source = ErrorSource::pointer($exception->getPointer());
+            } elseif ($exception instanceof HasParameter) {
+                $source = ErrorSource::parameter($exception->getParameter());
             }
         }
         $self->setSource($source);
@@ -126,9 +128,9 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
     }
 
     /**
-     * @param array $source
+     * @param ErrorSource $source
      */
-    public function setSource(array $source): void
+    public function setSource(ErrorSource $source): void
     {
         $this->source = $source;
     }

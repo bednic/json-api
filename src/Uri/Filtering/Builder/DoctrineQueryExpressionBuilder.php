@@ -5,19 +5,15 @@ declare(strict_types=1);
 namespace JSONAPI\Uri\Filtering\Builder;
 
 use Doctrine\ORM\Query\Expr;
-use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
-use JSONAPI\Exception\MissingDependency;
-use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Filtering\Constants;
 use JSONAPI\Uri\Filtering\ExpressionBuilder;
 use JSONAPI\Uri\Filtering\ExpressionException;
 use JSONAPI\Uri\Filtering\Messages;
 use JSONAPI\Uri\Path\PathInterface;
-use JSONAPI\Uri\UriParser;
 
 /**
  * Class DoctrineQueryExpressionBuilder

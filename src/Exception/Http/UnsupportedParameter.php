@@ -4,14 +4,17 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Http;
 
+use JSONAPI\Exception\HasParameter;
+use JSONAPI\Exception\HasPointer;
+
 /**
  * Class UnsupportedParameter
  *
  * @package JSONAPI\Exception\Http
  */
-class UnsupportedParameter extends BadRequest
+class UnsupportedParameter extends BadRequest implements HasParameter
 {
-    protected $message = 'Paramter %s is not supported.';
+    protected $message = 'Parameter %s is not supported.';
     /**
      * @var string
      */

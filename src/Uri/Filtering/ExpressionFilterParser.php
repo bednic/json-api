@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Uri\Filtering;
 
 use DateTime;
-use Doctrine\Common\Collections\Criteria;
 use Exception;
-use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Uri\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
 use JSONAPI\Uri\Filtering\Builder\UseDottedIdentifier;
 
@@ -65,15 +63,11 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     public function parse($data): FilterInterface
     {
-        try {
-            if ($data && is_string($data)) {
-                $this->lexer     = new ExpressionLexer($data);
-                $this->condition = $this->parseExpression();
-            }
-            return $this;
-        } catch (ExpressionException $exception) {
-            throw new BadRequest($exception->getMessage(), $exception->getCode(), $exception);
+        if ($data && is_string($data)) {
+            $this->lexer     = new ExpressionLexer($data);
+            $this->condition = $this->parseExpression();
         }
+        return $this;
     }
 
     /**
@@ -149,7 +143,10 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
                 } elseif ($comparisonToken->identifierIs(Constants::LOGICAL_NOT_EQUAL)) {
                     $left = $this->exp->isNotNull($left);
                 } else {
-                    throw new ExpressionException("Only [eq, neq] operator support NULL comparison.");
+                    throw new ExpressionException(Messages::expressionParserOperatorNotSupportNull(
+                        $comparisonToken->text,
+                        $this->lexer->getPosition()
+                    ));
                 }
                 $this->lexer->nextToken();
             } else {
@@ -276,7 +273,9 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
                 return $this->parseInteger();
             case ExpressionTokenId::BINARY_LITERAL():
             case ExpressionTokenId::GUID_LITERAL():
-                throw new ExpressionException("Not implemented.");
+                throw new ExpressionException(
+                    Messages::operandOrFunctionNotImplemented($this->lexer->getCurrentToken()->getIdentifier())
+                );
             case ExpressionTokenId::OPENPARAM():
                 return $this->parseParentExpression();
             default:
@@ -309,7 +308,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseIdentifier()
     {
         if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::IDENTIFIER())) {
-            throw new ExpressionException("Syntax error");
+            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
         $isFunction = $this->lexer->peekNextToken()->id->equals(ExpressionTokenId::OPENPARAM());
         if ($isFunction) {
@@ -343,13 +342,13 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseArgumentList()
     {
         if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::OPENPARAM())) {
-            throw new ExpressionException(Messages::syntaxError());
+            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
         $this->lexer->nextToken();
         $args = $this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM()) ?
             [] : $this->parseArguments();
         if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM())) {
-            throw new ExpressionException(Messages::syntaxError());
+            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
         $this->lexer->nextToken();
         return $args;
@@ -410,7 +409,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             $value = new DateTime(trim($value, " \t\n\r\0\x0Bdatetime\'"));
             $value = $this->exp->literal($value);
         } catch (Exception $e) {
-            throw new ExpressionException(Messages::syntaxError());
+            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
         $this->lexer->nextToken();
         return $value;
@@ -428,7 +427,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             $this->lexer->nextToken();
             return $value;
         }
-        throw new ExpressionException("$value is not float.");
+        throw new ExpressionException(Messages::expressionLexerDigitExpected($this->lexer->getPosition()));
     }
 
     /**
@@ -466,6 +465,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             $this->lexer->nextToken();
             return $value;
         }
-        throw new ExpressionException("$value is not integer.");
+        throw new ExpressionException(Messages::expressionLexerDigitExpected($this->lexer->getPosition()));
     }
 }

@@ -12,7 +12,7 @@ namespace JSONAPI\Exception\Metadata;
 class RelationNotFound extends MetadataException
 {
     protected $code = 544;
-    protected $message = "Relation name %s does not exist on ResourceMetadata %s.";
+    protected $message = "Relation name [%s] does not exist on Resource [%s].";
 
     /**
      * RelationNotFound constructor.

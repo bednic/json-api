@@ -29,15 +29,12 @@ abstract class Field implements JsonSerializable
      * FieldMetadata constructor.
      *
      * @param string $key
-     * @param        $data
      *
      * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
      */
-    public function __construct(string $key, $data)
+    public function __construct(string $key)
     {
         $this->setKey($key);
-        $this->setData($data);
     }
 
     /**

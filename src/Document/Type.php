@@ -20,17 +20,17 @@ final class Type extends Field
      * @param string $type
      *
      * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
      */
     public function __construct(string $type)
     {
-        parent::__construct('type', $type);
+        parent::__construct('type');
+        $this->setData($type);
     }
 
     /**
      * @param string $type
      */
-    public function setData($type): void
+    protected function setData($type): void
     {
         $this->data = $type;
     }

@@ -133,10 +133,7 @@ abstract class Driver
             throw new BadSignature($reflection->getName(), $reflection->getDeclaringClass()->getName());
         }
         try {
-            if (
-                ($type->isBuiltin() && $type->getName() === 'array')
-                || (new ReflectionClass($type->getName()))->implementsInterface(Collection::class)
-            ) {
+            if ((new ReflectionClass($type->getName()))->implementsInterface(Collection::class)) {
                 return true;
             }
             return false;

@@ -20,6 +20,13 @@ final class Relationship extends Field implements JsonSerializable, HasLinks, Ha
     use LinksTrait;
     use MetaTrait;
 
+    private bool $modified = false;
+
+    public function __construct(string $key)
+    {
+        parent::__construct($key);
+    }
+
     /**
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      */
@@ -39,6 +46,7 @@ final class Relationship extends Field implements JsonSerializable, HasLinks, Ha
     public function setData($data): void
     {
         if ($data instanceof ResourceObjectIdentifier || $data instanceof Collection || is_null($data)) {
+            $this->modified = true;
             parent::setData($data);
         } else {
             throw new ForbiddenDataType(gettype($data));
@@ -46,13 +54,22 @@ final class Relationship extends Field implements JsonSerializable, HasLinks, Ha
     }
 
     /**
+     * @return bool
+     */
+    private function hasData(): bool
+    {
+        return $this->modified;
+    }
+
+    /**
      * @return array|mixed
      */
     public function jsonSerialize()
     {
-        $ret = [
-            'data' => $this->getData()
-        ];
+        $ret = [];
+        if ($this->hasData()) {
+            $ret['data'] = $this->getData();
+        }
         if ($this->hasLinks()) {
             $ret['links'] = $this->getLinks();
         }

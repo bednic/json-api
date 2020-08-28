@@ -6,7 +6,7 @@ namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\Exception\Document\ReservedWord;
+use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Helper\MetaTrait;
 use Tools\JSON\JsonSerializable;
 
@@ -36,7 +36,7 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta, PrimaryData
         try {
             $this->addField($type);
             $this->addField($id);
-        } catch (ReservedWord $ignored) {
+        } catch (AlreadyInUse $ignored) {
             // NO-SONAR
         }
     }
@@ -63,12 +63,12 @@ class ResourceObjectIdentifier implements JsonSerializable, HasMeta, PrimaryData
     /**
      * @param Field $field
      *
-     * @throws ReservedWord
+     * @throws AlreadyInUse
      */
     protected function addField(Field $field): void
     {
         if ($this->fields->containsKey($field->getKey())) {
-            throw new ReservedWord($field->getKey());
+            throw new AlreadyInUse($field->getKey());
         }
         $this->fields->set($field->getKey(), $field);
     }

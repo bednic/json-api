@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri;
 
+use JSONAPI\Config;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
@@ -28,14 +29,6 @@ use JSONAPI\Uri\Sorting\SortInterface;
  */
 class LinkFactory
 {
-    public static string $ENDPOINT = '';
-
-    /**
-     * @var string
-     * @deprecated use ::$ENDPOINT instead
-     */
-    private const API_URL_ENV = "JSON_API_URL";
-
     public const SELF = 'self';
     public const RELATED = 'related';
     public const FIRST = 'first';
@@ -48,11 +41,8 @@ class LinkFactory
      */
     public static function getBaseUrl(): string
     {
-        if (filter_var(self::$ENDPOINT, FILTER_VALIDATE_URL)) {
-            return self::$ENDPOINT;
-        }
-        if (getenv(self::API_URL_ENV) && filter_var(getenv(self::API_URL_ENV), FILTER_VALIDATE_URL)) {
-            return getenv(self::API_URL_ENV);
+        if (filter_var(Config::$ENDPOINT, FILTER_VALIDATE_URL)) {
+            return Config::$ENDPOINT;
         }
         return ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://'
             . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ':'

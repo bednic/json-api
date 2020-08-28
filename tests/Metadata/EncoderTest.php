@@ -62,23 +62,4 @@ class EncoderTest extends TestCase
         $this->assertInstanceOf(ResourceObject::class, $resource);
         $this->assertFalse($resource->jsonSerialize()['relationships']['relation']->getMeta()->isEmpty());
     }
-    /**
-     * @depends testConstruct
-     */
-    public function testSetRelationshipLimit(Encoder $encoder)
-    {
-        $encoder->setRelationshipLimit(100);
-        $this->expectException(\TypeError::class);
-        $encoder->setRelationshipLimit('asdf');
-    }
-
-    /**
-     * @depends testConstruct
-     */
-    public function testGetRelationshipLimit(Encoder $encoder)
-    {
-        $encoder->setRelationshipLimit(1);
-        $this->assertIsInt($encoder->getRelationshipLimit());
-        $this->assertEquals(1, $encoder->getRelationshipLimit());
-    }
 }

@@ -6,6 +6,7 @@ namespace JSONAPI\Test\Uri\Path;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Fig\Http\Message\RequestMethodInterface;
+use JSONAPI\Config;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
@@ -30,7 +31,7 @@ class PathParserTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        LinkFactory::$ENDPOINT = 'http://unit.test.org';
+        Config::$ENDPOINT = 'http://unit.test.org';
         self::$mr = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
@@ -81,13 +82,13 @@ class PathParserTest extends TestCase
     public function testParse()
     {
         $parser = new PathParser(self::$mr);
-        LinkFactory::$ENDPOINT = 'http://unit.test.org/api';
+        Config::$ENDPOINT = 'http://unit.test.org/api';
         $data = '/api/resource/uuid';
         $path = $parser->parse($data);
         $this->assertInstanceOf(PathInterface::class, $path);
 
         $this->assertEquals('resource', $path->getResourceType());
-        LinkFactory::$ENDPOINT = 'http://unit.test.org';
+        Config::$ENDPOINT = 'http://unit.test.org';
         $data = '/resource/uuid';
         $path = $parser->parse($data);
         $this->assertEquals('resource', $path->getResourceType());
@@ -96,7 +97,7 @@ class PathParserTest extends TestCase
     public function testProxyUrl()
     {
         $parser = new PathParser(self::$mr);
-        LinkFactory::$ENDPOINT = 'http://unit.test.org/some/aweseome/proxy/resources/';
+        Config::$ENDPOINT = 'http://unit.test.org/some/aweseome/proxy/resources/';
         $data = '/resources/somethings';
         $path = $parser->parse($data);
         $this->assertTrue($path->isCollection());

@@ -12,7 +12,7 @@ namespace JSONAPI\Exception\Driver;
 class ClassNotResource extends DriverException
 {
     protected $code = 544;
-    protected $message = "Class %s is not ResourceMetadata.";
+    protected $message = "Class %s is not Resource.";
 
     /**
      * ClassNotResource constructor.

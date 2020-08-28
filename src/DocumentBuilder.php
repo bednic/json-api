@@ -19,8 +19,10 @@ use JSONAPI\Uri\Inclusion\Inclusion;
 use JSONAPI\Uri\LinkFactory;
 use JSONAPI\Uri\Pagination\UseTotalCount;
 use JSONAPI\Uri\UriParser;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+use Slim\Psr7\Factory\ServerRequestFactory;
 
 class DocumentBuilder
 {
@@ -33,7 +35,6 @@ class DocumentBuilder
     private UriParser $uri;
 
     private ResourceCollection $included;
-    private int $maxIncludedItems;
 
     /**
      * DocumentBuilder constructor.
@@ -41,51 +42,36 @@ class DocumentBuilder
      * @param MetadataRepository   $metadata
      * @param UriParser            $uriParser
      * @param LoggerInterface|null $logger
-     * @param int                  $maxIncludedItems            Should by positive integer.
-     *                                                          Disable limit by passing -1.
-     * @param int                  $relationshipLimit           How many relationship object identifiers should be
-     *                                                          included in relationship collection.
      */
-    private function __construct(
+    public function __construct(
         MetadataRepository $metadata,
         UriParser $uriParser,
-        LoggerInterface $logger = null,
-        int $maxIncludedItems = 625,
-        int $relationshipLimit = 25
+        LoggerInterface $logger = null
     ) {
-        $this->logger   = $logger ?? new NullLogger();
         $this->metadata = $metadata;
         $this->uri      = $uriParser;
+        $this->logger   = $logger ?? new NullLogger();
         $this->encoder  = new Encoder($this->metadata, $this->uri->getFieldset(), $this->logger);
-        $this->encoder->setRelationshipLimit($relationshipLimit);
-        $this->maxIncludedItems = $maxIncludedItems;
-        $this->document         = new Document();
-        $this->included         = new ResourceCollection();
+        $this->document = new Document();
+        $this->included = new ResourceCollection();
     }
 
     /**
-     * @param MetadataRepository   $metadata
-     * @param UriParser            $uriParser
-     * @param LoggerInterface|null $logger
-     * @param int                  $maxIncludedItems
-     * @param int                  $relationshipLimit
+     * Come handy in simple use-cases
+     *
+     * @param MetadataRepository     $metadataRepository
+     * @param ServerRequestInterface $request
+     * @param LoggerInterface|null   $logger
      *
      * @return DocumentBuilder
+     * @throws BadRequest
      */
-    public static function create(
-        MetadataRepository $metadata,
-        UriParser $uriParser,
-        LoggerInterface $logger = null,
-        int $maxIncludedItems = 625,
-        int $relationshipLimit = 25
-    ): self {
-        return new self(
-            $metadata,
-            $uriParser,
-            $logger,
-            $maxIncludedItems,
-            $relationshipLimit
-        );
+    public function create(
+        MetadataRepository $metadataRepository,
+        ServerRequestInterface $request,
+        LoggerInterface $logger = null
+    ) {
+        return new DocumentBuilder($metadataRepository, new UriParser($request, $metadataRepository), $logger);
     }
 
     /**
@@ -99,8 +85,14 @@ class DocumentBuilder
      */
     public function setData($data): self
     {
+        $this->logger->debug('Setting data.');
         $this->included->reset();
+        $origin = Config::$RELATIONSHIP_DATA; // backup
+        if ($this->uri->getInclusion()->hasInclusions()) {
+            Config::$RELATIONSHIP_DATA = true; // overload
+        }
         if ($this->uri->getPath()->isCollection()) {
+            $this->logger->debug('It is resource collection.');
             $collection = new ResourceCollection();
             foreach ($data as $item) {
                 if ($this->uri->getPath()->isRelationship()) {
@@ -108,12 +100,10 @@ class DocumentBuilder
                 } else {
                     $collection->add($this->encoder->getResource($item));
                 }
-                if ($this->uri->getInclusion()->hasInclusions()) {
-                    $this->fetchInclusions($item, $this->uri->getInclusion()->getInclusions());
-                }
             }
             $this->document->setData($collection);
         } else {
+            $this->logger->debug('It is single resource');
             if ($this->uri->getPath()->isRelationship()) {
                 $this->document->setData($this->encoder->getIdentifier($data));
             } else {
@@ -123,6 +113,8 @@ class DocumentBuilder
                 $this->fetchInclusions($data, $this->uri->getInclusion()->getInclusions());
             }
         }
+        Config::$RELATIONSHIP_DATA = $origin; // reset
+        $this->logger->debug('Data set.');
         return $this;
     }
 
@@ -137,8 +129,10 @@ class DocumentBuilder
      */
     public function setTotalItems(int $total): self
     {
+        $this->logger->debug('Setting total.');
         if ($this->uri->getPagination() instanceof UseTotalCount) {
             $this->uri->getPagination()->setTotal($total);
+            $this->logger->debug('Total set.');
         }
         return $this;
     }
@@ -150,8 +144,12 @@ class DocumentBuilder
      */
     public function build(): Document
     {
+        $this->logger->debug('Building doc.');
         LinkFactory::setDocumentLinks($this->document, $this->uri);
+        $this->logger->debug('Links set.');
         $this->document->setIncludes($this->included);
+        $this->logger->debug('Includes set.');
+        $this->logger->debug('Built.');
         return $this->document;
     }
 
@@ -162,7 +160,7 @@ class DocumentBuilder
      * @throws BadRequest
      * @throws Exception\Document\ForbiddenCharacter
      * @throws Exception\Document\ForbiddenDataType
-     * @throws Exception\Document\ReservedWord
+     * @throws Exception\Document\AlreadyInUse
      * @throws Exception\Document\ResourceTypeMismatch
      * @throws Exception\Driver\ClassNotExist
      * @throws Exception\Metadata\InvalidField
@@ -171,6 +169,7 @@ class DocumentBuilder
      */
     private function fetchInclusions(object $object, array $inclusions): void
     {
+        $this->logger->debug('Fetching inclusions...');
         $classMetadata = $this->metadata->getByClass(self::clearDoctrineProxyPrefix(get_class($object)));
         foreach ($inclusions as $sub) {
             try {
@@ -207,7 +206,7 @@ class DocumentBuilder
      *
      * @throws Exception\Document\ForbiddenCharacter
      * @throws Exception\Document\ForbiddenDataType
-     * @throws Exception\Document\ReservedWord
+     * @throws Exception\Document\AlreadyInUse
      * @throws Exception\Driver\ClassNotExist
      * @throws Exception\Metadata\InvalidField
      * @throws Exception\Metadata\MetadataNotFound
@@ -215,10 +214,10 @@ class DocumentBuilder
      */
     private function addInclusion(object $item): void
     {
-        if ($this->maxIncludedItems < 0 || $this->included->count() < $this->maxIncludedItems) {
+        if (Config::$MAX_INCLUDED_ITEMS < 0 || $this->included->count() < Config::$MAX_INCLUDED_ITEMS) {
             $this->included->add($this->encoder->getResource($item));
         } else {
-            throw new InclusionOverflow($this->maxIncludedItems);
+            throw new InclusionOverflow(Config::$MAX_INCLUDED_ITEMS);
         }
     }
 }

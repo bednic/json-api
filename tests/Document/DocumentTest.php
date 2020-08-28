@@ -11,6 +11,8 @@ use JSONAPI\Document\PrimaryData;
 use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\Type;
+use JSONAPI\Metadata\MetadataFactory;
+use JsonSerializable;
 use Opis\JsonSchema\ISchema;
 use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
@@ -55,7 +57,7 @@ class DocumentTest extends TestCase
     public function testJsonSerialize()
     {
         $document = new Document();
-        $this->assertInstanceOf(\JsonSerializable::class, $document);
+        $this->assertInstanceOf(JsonSerializable::class, $document);
         $this->assertIsString(json_encode($document));
     }
 
@@ -81,6 +83,15 @@ class DocumentTest extends TestCase
         $document->addError($error);
         $this->assertTrue($this->isValid($document));
     }
+//    public function testWithData(){
+//        self::$mr = MetadataFactory::create(
+//            [RESOURCES . '/valid'],
+//            new SimpleCacheAdapter(new ArrayCache()),
+//            new AnnotationDriver()
+//        );
+//        $document = new Document();
+//        $data = new ResourceObject();
+//    }
 
     private function isValid(Document $document): bool
     {

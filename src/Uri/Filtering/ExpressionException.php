@@ -4,15 +4,19 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri\Filtering;
 
-use Exception;
+use JSONAPI\Exception\HasParameter;
+use JSONAPI\Exception\Http\BadRequest;
 
 /**
  * Class ExpressionException
  *
  * @package JSONAPI\Uri\Filtering
- * @codeCoverageIgnore
  */
-class ExpressionException extends Exception
+class ExpressionException extends BadRequest implements HasParameter
 {
 
+    public function getParameter(): string
+    {
+        return 'filter';
+    }
 }

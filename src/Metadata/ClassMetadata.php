@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Metadata;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use JSONAPI\Exception\Metadata\NameUsedAlready;
+use JSONAPI\Exception\Metadata\AlreadyInUse;
 use JSONAPI\Metadata;
 use JSONAPI\Exception\Metadata\AttributeNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
@@ -55,7 +55,7 @@ final class ClassMetadata
      * @param bool           $readOnly
      * @param Meta|null      $resourceMeta
      *
-     * @throws NameUsedAlready
+     * @throws AlreadyInUse
      */
     public function __construct(
         string $className,
@@ -76,13 +76,13 @@ final class ClassMetadata
         $this->fields->set('type', $type);
         foreach ($attributes as $attribute) {
             if ($this->fields->containsKey($attribute->name)) {
-                throw new NameUsedAlready($attribute->name);
+                throw new AlreadyInUse($attribute->name);
             }
             $this->fields->set($attribute->name, $attribute);
         }
         foreach ($relationships as $relationship) {
             if ($this->fields->containsKey($relationship->name)) {
-                throw new NameUsedAlready($relationship->name);
+                throw new AlreadyInUse($relationship->name);
             }
             $this->fields->set($relationship->name, $relationship);
         }

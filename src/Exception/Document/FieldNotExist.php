@@ -9,10 +9,11 @@ namespace JSONAPI\Exception\Document;
  *
  * @package JSONAPI\Exception\Document
  */
-class FieldNotSet extends DocumentException
+abstract class FieldNotExist extends DocumentException
 {
     protected $code = 526;
     protected $message = "Field %s is not set.";
+    protected string $field;
 
     /**
      * FieldNotSet constructor.
@@ -23,5 +24,6 @@ class FieldNotSet extends DocumentException
     {
         $message = sprintf($this->message, $field);
         parent::__construct($message);
+        $this->field = $field;
     }
 }

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\OAS\Factory;
 
 use Fig\Http\Message\StatusCodeInterface;
+use JSONAPI\Config;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
@@ -411,13 +412,13 @@ class OpenAPISpecificationBuilder
 
             $getOperation->addParameter($this->oas->getComponents()->createParameterReference('filter'));
             $getOperation->addParameter($this->oas->getComponents()->createParameterReference('fields'));
-            if (UriParser::$paginationEnabled) {
+            if (Config::$PAGINATION_SUPPORT) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('pagination'));
             }
-            if (UriParser::$inclusionEnabled) {
+            if (Config::$INCLUSION_SUPPORT) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('include'));
             }
-            if (UriParser::$sortEnabled) {
+            if (Config::$SORT_SUPPORT) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('sort'));
             }
 
@@ -458,7 +459,7 @@ class OpenAPISpecificationBuilder
                     (string)StatusCodeInterface::STATUS_OK,
                     $this->createDocumentResponse($this->oas->getComponents()->createSchemaReference($shortName))
                 ));
-            if (UriParser::$inclusionEnabled) {
+            if (Config::$INCLUSION_SUPPORT) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('include'));
             }
             $singlePathItem->setGet($getOperation);

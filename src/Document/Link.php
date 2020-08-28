@@ -20,16 +20,17 @@ final class Link extends Field implements HasMeta
     /**
      * Link constructor.
      *
-     * @param string    $key
-     * @param string    $uri
-     * @param Meta|null $meta
+     * @param string      $key
+     * @param string|null $uri
+     * @param Meta|null   $meta
      *
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
     public function __construct(string $key, ?string $uri, Meta $meta = null)
     {
-        parent::__construct($key, $uri);
+        parent::__construct($key);
+        $this->setData($uri);
         if ($meta) {
             $this->setMeta($meta);
         }

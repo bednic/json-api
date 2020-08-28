@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace JSONAPI\Document;
 
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\Exception\Document\FieldNotSet;
-use JSONAPI\Exception\Document\ReservedWord;
+use JSONAPI\Exception\Document\AttributeNotExist;
+use JSONAPI\Exception\Document\AlreadyInUse;
+use JSONAPI\Exception\Document\RelationshipNotExist;
 use JSONAPI\Helper\LinksTrait;
 
 /**
@@ -21,7 +22,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
     /**
      * @param Attribute $attribute
      *
-     * @throws ReservedWord
+     * @throws AlreadyInUse
      */
     public function addAttribute(Attribute $attribute)
     {
@@ -31,7 +32,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
     /**
      * @param Relationship $relationship
      *
-     * @throws ReservedWord
+     * @throws AlreadyInUse
      */
     public function addRelationship(Relationship $relationship)
     {
@@ -44,12 +45,12 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      * @param string $key
      *
      * @return mixed
-     * @throws FieldNotSet
+     * @throws AttributeNotExist
      */
     public function getAttribute(string $key)
     {
         if (!$this->getAttributes()->containsKey($key)) {
-            throw new FieldNotSet($key);
+            throw new AttributeNotExist($key);
         }
         return $this->fields->get($key)->getData();
     }
@@ -61,12 +62,12 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      * @param string $key
      *
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
-     * @throws FieldNotSet
+     * @throws RelationshipNotExist
      */
     public function getRelationship(string $key)
     {
         if (!$this->getRelationships()->containsKey($key)) {
-            throw new FieldNotSet($key);
+            throw new RelationshipNotExist($key);
         }
         return $this->fields->get($key)->getData();
     }

@@ -9,7 +9,7 @@ namespace JSONAPI\Exception\Metadata;
  *
  * @package JSONAPI\Exception\Metadata
  */
-class NameUsedAlready extends MetadataException
+class AlreadyInUse extends MetadataException
 {
     protected $code = 545;
     protected $message = "Field name %s is reserved or used yet. Please use different field name.";

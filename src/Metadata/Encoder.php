@@ -7,13 +7,14 @@ namespace JSONAPI\Metadata;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use JSONAPI\Config;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Document;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\Document\ReservedWord;
+use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
@@ -64,10 +65,6 @@ final class Encoder
      */
     private ClassMetadata $metadata;
 
-    /**
-     * @var int
-     */
-    private int $relationshipLimit = 25;
 
     /**
      * @var FieldsetInterface
@@ -77,9 +74,9 @@ final class Encoder
     /**
      * Encoder constructor.
      *
-     * @param MetadataRepository $metadataRepository
-     * @param FieldsetInterface  $fieldset
-     * @param LoggerInterface    $logger
+     * @param MetadataRepository   $metadataRepository
+     * @param FieldsetInterface    $fieldset
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         MetadataRepository $metadataRepository,
@@ -89,22 +86,6 @@ final class Encoder
         $this->repository = $metadataRepository;
         $this->fieldset   = $fieldset;
         $this->logger     = $logger ?? new NullLogger();
-    }
-
-    /**
-     * @return int
-     */
-    public function getRelationshipLimit(): int
-    {
-        return $this->relationshipLimit;
-    }
-
-    /**
-     * @param int $relationshipLimit
-     */
-    public function setRelationshipLimit(int $relationshipLimit): void
-    {
-        $this->relationshipLimit = $relationshipLimit;
     }
 
 
@@ -131,7 +112,7 @@ final class Encoder
      * @throws ForbiddenDataType
      * @throws InvalidField
      * @throws MetadataNotFound
-     * @throws ReservedWord
+     * @throws AlreadyInUse
      */
     public function getResource($object): ResourceObject
     {
@@ -242,7 +223,7 @@ final class Encoder
      * @throws ForbiddenDataType
      * @throws InvalidField
      * @throws MetadataNotFound
-     * @throws ReservedWord
+     * @throws AlreadyInUse
      */
     private function setFields(): self
     {
@@ -264,23 +245,26 @@ final class Encoder
                     }
                 }
                 if ($field instanceof Relationship) {
-                    $data = null;
-
-                    if ($field->isCollection) {
-                        if (!($value instanceof Collection)) {
-                            $value = new ArrayCollection($value);
+                    $relationship = new Document\Relationship($field->name);
+                    if (Config::$RELATIONSHIP_DATA) {
+                        if ($field->isCollection) {
+                            if (!($value instanceof Collection)) {
+                                $value = new ArrayCollection($value);
+                            }
+                            /** @var Collection $value */
+                            $data  = new ArrayCollection();
+                            $total = $value->count();
+                            $limit = min(Config::$RELATIONSHIP_LIMIT, $total);
+                            foreach ($value->slice(0, $limit) as $object) {
+                                $data->add($this->getIdentifier($object));
+                            }
+                        } elseif ($value) {
+                            $data = $this->getIdentifier($value);
+                        } else {
+                            $data = null;
                         }
-                        /** @var Collection $value */
-                        $data  = new ArrayCollection();
-                        $total = $value->count();
-                        $limit = min($this->relationshipLimit, $total);
-                        foreach ($value->slice(0, $limit) as $object) {
-                            $data->add($this->getIdentifier($object));
-                        }
-                    } elseif ($value) {
-                        $data = $this->getIdentifier($value);
+                        $relationship->setData($data);
                     }
-                    $relationship = new Document\Relationship($field->name, $data);
                     LinkFactory::setRelationshipLinks($relationship, $this->resource);
                     if ($field->meta) {
                         $this->logger->debug("Adding meta to relationship {$name}");

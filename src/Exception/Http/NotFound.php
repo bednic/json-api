@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Exception\Http;
 
 use Fig\Http\Message\StatusCodeInterface;
+use JSONAPI\Exception\HasPointer;
 
 /**
  * Class NotFound
@@ -12,10 +13,10 @@ use Fig\Http\Message\StatusCodeInterface;
  *
  * @package JSONAPI\Exception\Http
  */
-class NotFound extends BadRequest
+class NotFound extends BadRequest implements HasPointer
 {
     protected $code = StatusCodeInterface::STATUS_NOT_FOUND;
-    protected $message = 'Resource %s with ID %s not found.';
+    protected $message = 'Resource [%s] with ID [%s] not found.';
 
     /**
      * NotFound constructor.
@@ -34,5 +35,10 @@ class NotFound extends BadRequest
     public function getStatus(): int
     {
         return StatusCodeInterface::STATUS_NOT_FOUND;
+    }
+
+    public function getPointer(): string
+    {
+        return '/data/id';
     }
 }

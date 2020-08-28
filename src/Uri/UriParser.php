@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri;
 
+use JSONAPI\Config;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Metadata\MetadataRepository;
@@ -68,25 +69,6 @@ final class UriParser
      * @var MetadataRepository|null
      */
     private ?MetadataRepository $metadataRepository;
-    /**
-     * Enables inclusion support
-     *
-     * @var bool
-     */
-    public static bool $inclusionEnabled = true;
-    /**
-     * Enables sort support
-     *
-     * @var bool
-     */
-    public static bool $sortEnabled = true;
-
-    /**
-     * Enables pagination support
-     *
-     * @var bool
-     */
-    public static bool $paginationEnabled = true;
 
     /**
      * UriParser constructor.
@@ -127,13 +109,13 @@ final class UriParser
      */
     private function check(ServerRequestInterface $request)
     {
-        if (!self::$inclusionEnabled && in_array(UriPartInterface::INCLUSION_PART_KEY, $request->getQueryParams())) {
+        if (!Config::$INCLUSION_SUPPORT && in_array(UriPartInterface::INCLUSION_PART_KEY, $request->getQueryParams())) {
             throw new UnsupportedParameter(UriPartInterface::INCLUSION_PART_KEY);
         }
-        if (!self::$sortEnabled && in_array(UriPartInterface::SORT_PART_KEY, $request->getQueryParams())) {
+        if (!Config::$SORT_SUPPORT && in_array(UriPartInterface::SORT_PART_KEY, $request->getQueryParams())) {
             throw new UnsupportedParameter(UriPartInterface::SORT_PART_KEY);
         }
-        if (!self::$paginationEnabled && in_array(UriPartInterface::PAGINATION_PART_KEY, $request->getQueryParams())) {
+        if (!Config::$PAGINATION_SUPPORT && in_array(UriPartInterface::PAGINATION_PART_KEY, $request->getQueryParams())) {
             throw new UnsupportedParameter(UriPartInterface::PAGINATION_PART_KEY);
         }
     }
