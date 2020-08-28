@@ -40,6 +40,7 @@ class ErrorSource implements JsonSerializable
 
     private function __construct()
     {
+        // Instance should be created only with specific properties
     }
 
     public static function pointer(string $pointer): self
@@ -58,9 +59,9 @@ class ErrorSource implements JsonSerializable
 
     public static function internal(string $line, $trace)
     {
-        $static        = new static();
-        $static->line  = $line;
-        $steps = preg_split('/#[0-9]+ /', $trace);
+        $static       = new static();
+        $static->line = $line;
+        $steps        = preg_split('/#[0-9]+ /', $trace);
         array_shift($steps);
         $static->trace = $steps;
         return $static;

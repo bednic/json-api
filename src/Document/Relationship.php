@@ -22,11 +22,6 @@ final class Relationship extends Field implements JsonSerializable, HasLinks, Ha
 
     private bool $modified = false;
 
-    public function __construct(string $key)
-    {
-        parent::__construct($key);
-    }
-
     /**
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      */
