@@ -139,7 +139,6 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             $document = new Document();
             $error    = Error::fromException($exception);
             $document->addError($error);
-            file_put_contents('data.json', json_encode($document));
             $response = $this->responseFactory
                 ->createResponse($error->getStatus())
                 ->withBody($this->streamFactory->createStream(json_encode($document)));
