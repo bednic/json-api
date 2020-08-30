@@ -18,7 +18,7 @@ use JSONAPI\Uri\Path\PathInterface;
 /**
  * Class DoctrineQueryExpressionBuilder
  *
- * @package JSONAPI\Uri\Filtering
+ * @package JSONAPI\Uri\Filtering\Builder
  */
 class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
 {

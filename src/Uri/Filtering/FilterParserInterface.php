@@ -6,6 +6,11 @@ namespace JSONAPI\Uri\Filtering;
 
 use JSONAPI\Exception\Http\BadRequest;
 
+/**
+ * Interface FilterParserInterface
+ *
+ * @package JSONAPI\Uri\Filtering
+ */
 interface FilterParserInterface
 {
     /**

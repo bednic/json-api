@@ -28,38 +28,39 @@ class PathParserTest extends TestCase
      * @var MetadataRepository
      */
     private static MetadataRepository $mr;
+    private static string $baseUrl;
 
     public static function setUpBeforeClass(): void
     {
-        Config::$ENDPOINT = 'http://unit.test.org';
-        self::$mr = MetadataFactory::create(
+        self::$mr      = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new AnnotationDriver()
         );
+        self::$baseUrl = 'http://unit.test.org';
     }
 
     public function testGetId()
     {
-        $test = '/resource/uuid/relationships/relation';
-        $parser = new PathParser(self::$mr);
-        $path = $parser->parse($test);
+        $test   = '/resource/uuid/relationships/relation';
+        $parser = new PathParser(self::$mr, self::$baseUrl);
+        $path   = $parser->parse($test);
         $this->assertEquals('uuid', $path->getId());
     }
 
     public function testGetResourceType()
     {
-        $test = '/resource/uuid/relationships/relation';
-        $parser = new PathParser(self::$mr);
-        $path = $parser->parse($test);
+        $test   = '/resource/uuid/relationships/relation';
+        $parser = new PathParser(self::$mr, self::$baseUrl);
+        $path   = $parser->parse($test);
         $this->assertEquals('resource', $path->getResourceType());
     }
 
     public function testToString()
     {
-        $test = '/resource/uuid/relationships/relation';
-        $parser = new PathParser(self::$mr);
-        $path = $parser->parse($test);
+        $test   = '/resource/uuid/relationships/relation';
+        $parser = new PathParser(self::$mr, self::$baseUrl);
+        $path   = $parser->parse($test);
         $result = (string)$path;
         $this->assertIsString($result);
         $this->assertEquals($test, $result);
@@ -67,28 +68,26 @@ class PathParserTest extends TestCase
 
     public function testGetPrimaryResourceType()
     {
-        $parser = new PathParser(self::$mr);
-        $data = '/getter/uuid';
-        $path = $parser->parse($data);
+        $parser = new PathParser(self::$mr, self::$baseUrl);
+        $data   = '/getter/uuid';
+        $path   = $parser->parse($data);
         $this->assertEquals('getter', $path->getPrimaryResourceType());
     }
 
     public function testConstruct()
     {
-        $parser = new PathParser(self::$mr);
+        $parser = new PathParser(self::$mr, self::$baseUrl);
         $this->assertInstanceOf(PathParser::class, $parser);
     }
 
     public function testParse()
     {
-        $parser = new PathParser(self::$mr);
-        Config::$ENDPOINT = 'http://unit.test.org/api';
-        $data = '/api/resource/uuid';
-        $path = $parser->parse($data);
+        $parser = new PathParser(self::$mr, self::$baseUrl . '/api');
+        $data   = '/api/resource/uuid';
+        $path   = $parser->parse($data);
         $this->assertInstanceOf(PathInterface::class, $path);
 
         $this->assertEquals('resource', $path->getResourceType());
-        Config::$ENDPOINT = 'http://unit.test.org';
         $data = '/resource/uuid';
         $path = $parser->parse($data);
         $this->assertEquals('resource', $path->getResourceType());
@@ -96,10 +95,9 @@ class PathParserTest extends TestCase
 
     public function testProxyUrl()
     {
-        $parser = new PathParser(self::$mr);
-        Config::$ENDPOINT = 'http://unit.test.org/some/aweseome/proxy/resources/';
-        $data = '/resources/somethings';
-        $path = $parser->parse($data);
+        $parser = new PathParser(self::$mr, self::$baseUrl . '/resources');
+        $data   = '/resources/somethings';
+        $path   = $parser->parse($data);
         $this->assertTrue($path->isCollection());
         $this->assertEquals('somethings', $path->getResourceType());
         $data = '/resources/somethings/some-uuid';
@@ -110,25 +108,25 @@ class PathParserTest extends TestCase
 
     public function testIsRelationship()
     {
-        $test = '/resource/uuid/relationships/relation';
-        $parser = new PathParser(self::$mr);
-        $path = $parser->parse($test);
+        $test   = '/resource/uuid/relationships/relation';
+        $parser = new PathParser(self::$mr, self::$baseUrl);
+        $path   = $parser->parse($test);
         $this->assertTrue($path->isRelationship());
     }
 
     public function testIsCollection()
     {
-        $test = '/resource';
-        $parser = new PathParser(self::$mr, RequestMethodInterface::METHOD_GET);
-        $path = $parser->parse($test);
+        $test   = '/resource';
+        $parser = new PathParser(self::$mr, self::$baseUrl, RequestMethodInterface::METHOD_GET);
+        $path   = $parser->parse($test);
         $this->assertTrue($path->isCollection());
     }
 
     public function testGetRelationshipName()
     {
-        $test = '/resource/uuid/relationships/relation';
-        $parser = new PathParser(self::$mr);
-        $path = $parser->parse($test);
+        $test   = '/resource/uuid/relationships/relation';
+        $parser = new PathParser(self::$mr, self::$baseUrl);
+        $path   = $parser->parse($test);
         $this->assertEquals('relation', $path->getRelationshipName());
     }
 }

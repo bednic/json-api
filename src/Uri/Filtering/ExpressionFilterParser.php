@@ -35,7 +35,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     /**
      * ExpressionFilterParser constructor.
      *
-     * @param ExpressionBuilder $exp
+     * @param ExpressionBuilder|null $exp
      */
     public function __construct(ExpressionBuilder $exp = null)
     {
@@ -409,7 +409,11 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             $value = new DateTime(trim($value, " \t\n\r\0\x0Bdatetime\'"));
             $value = $this->exp->literal($value);
         } catch (Exception $e) {
-            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
+            throw new ExpressionException(Messages::expressionParserUnrecognizedLiteral(
+                'datetime',
+                $value,
+                $this->lexer->getPosition()
+            ));
         }
         $this->lexer->nextToken();
         return $value;

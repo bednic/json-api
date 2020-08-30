@@ -30,6 +30,7 @@ class ExpressionFilterParserTest extends TestCase
      * @var MetadataRepository
      */
     private static MetadataRepository $mr;
+    private static string $baseURL;
 
     public static function setUpBeforeClass(): void
     {
@@ -38,6 +39,7 @@ class ExpressionFilterParserTest extends TestCase
             new SimpleCacheAdapter(new ArrayCache()),
             new SchemaDriver()
         );
+        self::$baseURL = 'http://unit.test.org';
     }
 
     /**
@@ -66,7 +68,7 @@ class ExpressionFilterParserTest extends TestCase
         $_SERVER["REQUEST_URI"] =
             "/getter?filter=stringProperty eq 'O''Neil' and contains(stringProperty,'asdf') and intProperty in (1,2,3) or boolProperty ne true and relation.property eq null and stringProperty eq datetime'2018-12-01'";
         $request                = ServerRequestFactory::createFromGlobals();
-        $up                     = new UriParser($request, self::$mr);
+        $up                     = new UriParser($request, self::$mr, self::$baseURL);
         $parser                 = new ExpressionFilterParser(
             new DoctrineQueryExpressionBuilder(
                 self::$mr,

@@ -6,10 +6,9 @@ namespace JSONAPI\Uri\Pagination;
 
 /**
  * Class CursorPagination
- *
  * Class is abstract because you should implement interface methods based on you cursor mechanics
  *
- * @package JSONAPI\Uri\PaginationInterface
+ * @package JSONAPI\Uri\Pagination
  */
 abstract class CursorPagination implements PaginationInterface, PaginationParserInterface
 {
@@ -30,10 +29,8 @@ abstract class CursorPagination implements PaginationInterface, PaginationParser
      */
     public function parse(?array $data): PaginationInterface
     {
-        if ($data) {
-            if (isset($data['cursor'])) {
-                $this->cursor = $data['cursor'];
-            }
+        if ($data && isset($data['cursor'])) {
+            $this->cursor = $data['cursor'];
         }
         return $this;
     }

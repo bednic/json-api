@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JSONAPI\OAS\Factory;
 
 use Fig\Http\Message\StatusCodeInterface;
-use JSONAPI\Config;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
@@ -31,8 +30,6 @@ use JSONAPI\OAS\Response;
 use JSONAPI\OAS\Responses;
 use JSONAPI\OAS\Schema;
 use JSONAPI\OAS\Server;
-use JSONAPI\Uri\LinkFactory;
-use JSONAPI\Uri\UriParser;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -55,21 +52,39 @@ class OpenAPISpecificationBuilder
      * @var LoggerInterface
      */
     private LoggerInterface $logger;
+    private bool $supportInclusion;
+    private bool $supportSort;
+    private bool $supportPagination;
+    private string $baseUrl;
 
     /**
      * OpenAPISchemaFactory constructor.
      *
      * @param MetadataRepository   $metadataRepository
+     * @param string               $baseUrl
+     * @param bool                 $supportInclusion
+     * @param bool                 $supportSort
+     * @param bool                 $supportPagination
      * @param LoggerInterface|null $logger
      */
-    public function __construct(MetadataRepository $metadataRepository, LoggerInterface $logger = null)
-    {
+    public function __construct(
+        MetadataRepository $metadataRepository,
+        string $baseUrl,
+        bool $supportInclusion = true,
+        bool $supportSort = true,
+        bool $supportPagination = true,
+        LoggerInterface $logger = null
+    ) {
         $this->metadataRepository = $metadataRepository;
         $this->logger             = $logger ?? new NullLogger();
+        $this->supportInclusion = $supportInclusion;
+        $this->supportSort = $supportSort;
+        $this->supportPagination = $supportPagination;
+        $this->baseUrl = $baseUrl;
     }
 
     /**
-     * @param Info $info
+     * @param Info   $info
      *
      * @return OpenAPISpecification
      * @throws InvalidArgumentException
@@ -81,7 +96,7 @@ class OpenAPISpecificationBuilder
     {
         $this->oas = new OpenAPISpecification($info);
         $this->logger->debug("OAS instance created");
-        $server = new Server(LinkFactory::getBaseUrl());
+        $server = new Server($this->baseUrl);
         $this->logger->debug('Default server added');
         $server->setDescription('API Server');
         $this->oas->addServer($server);
@@ -412,13 +427,13 @@ class OpenAPISpecificationBuilder
 
             $getOperation->addParameter($this->oas->getComponents()->createParameterReference('filter'));
             $getOperation->addParameter($this->oas->getComponents()->createParameterReference('fields'));
-            if (Config::$PAGINATION_SUPPORT) {
+            if ($this->supportPagination) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('pagination'));
             }
-            if (Config::$INCLUSION_SUPPORT) {
+            if ($this->supportInclusion) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('include'));
             }
-            if (Config::$SORT_SUPPORT) {
+            if ($this->supportSort) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('sort'));
             }
 
@@ -459,7 +474,7 @@ class OpenAPISpecificationBuilder
                     (string)StatusCodeInterface::STATUS_OK,
                     $this->createDocumentResponse($this->oas->getComponents()->createSchemaReference($shortName))
                 ));
-            if (Config::$INCLUSION_SUPPORT) {
+            if ($this->supportInclusion) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('include'));
             }
             $singlePathItem->setGet($getOperation);

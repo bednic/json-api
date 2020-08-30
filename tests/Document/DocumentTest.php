@@ -11,23 +11,19 @@ use JSONAPI\Document\PrimaryData;
 use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\Type;
-use JSONAPI\Metadata\MetadataFactory;
 use JsonSerializable;
-use Opis\JsonSchema\ISchema;
-use Opis\JsonSchema\Schema;
 use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
+use Swaggest\JsonSchema\Schema;
 
 class DocumentTest extends TestCase
 {
-    private static ISchema $schema;
-    private static Validator $validator;
+    private static Schema $schema;
 
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        self::$validator = new Validator();
-        self::$schema = Schema::fromJsonString(file_get_contents(RESOURCES . '/schema.json'));
+        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../src/Middleware/schema.json')));
     }
 
     public function testToString()
@@ -83,19 +79,10 @@ class DocumentTest extends TestCase
         $document->addError($error);
         $this->assertTrue($this->isValid($document));
     }
-//    public function testWithData(){
-//        self::$mr = MetadataFactory::create(
-//            [RESOURCES . '/valid'],
-//            new SimpleCacheAdapter(new ArrayCache()),
-//            new AnnotationDriver()
-//        );
-//        $document = new Document();
-//        $data = new ResourceObject();
-//    }
 
     private function isValid(Document $document): bool
     {
-        $result = self::$validator->schemaValidation(json_decode(json_encode($document)), self::$schema);
-        return $result->isValid();
+        self::$schema->in(json_decode(json_encode($document)));
+        return true;
     }
 }

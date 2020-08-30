@@ -25,6 +25,7 @@ class Attribute extends Field
 
     private function __construct()
     {
+        // Instance can be created only via static factory methods
     }
 
     /**

@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri\Inclusion;
 
-use JSONAPI\Uri\UriPartInterface;
+use JSONAPI\Uri\QueryPartInterface;
 
 /**
  * Interface InclusionInterface
  *
  * @package JSONAPI\Uri\Inclusion
  */
-interface InclusionInterface extends UriPartInterface
+interface InclusionInterface extends QueryPartInterface
 {
     /**
      * @return Inclusion[]

@@ -10,7 +10,6 @@ use Exception;
  * Class ExpressionToken
  *
  * @package JSONAPI\Uri\Filtering
- * @codeCoverageIgnore
  */
 class ExpressionToken
 {

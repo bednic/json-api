@@ -15,7 +15,7 @@ use JSONAPI\Uri\Filtering\Messages;
 /**
  * Class DoctrineCriteriaExpressionBuilder
  *
- * @package JSONAPI\Uri\Filtering
+ * @package JSONAPI\Uri\Filtering\Builder
  */
 class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
 {

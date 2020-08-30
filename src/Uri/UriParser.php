@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri;
 
-use JSONAPI\Config;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Metadata\MetadataRepository;
@@ -70,13 +69,24 @@ final class UriParser
      */
     private ?MetadataRepository $metadataRepository;
 
+    private bool $supportInclusion;
+
+    private bool $supportSort;
+
+    private bool $supportPagination;
+
+
     /**
      * UriParser constructor.
      *
-     * @param ServerRequestInterface         $request
      * @param MetadataRepository             $metadataRepository
+     * @param ServerRequestInterface         $request
+     * @param string                         $baseUrl
      * @param FilterParserInterface|null     $filterParser     Default is CriteriaFilterParser
      * @param PaginationParserInterface|null $paginationParser Default is LimitOffsetPagination
+     * @param bool                           $supportInclusion
+     * @param bool                           $supportSort
+     * @param bool                           $supportPagination
      * @param LoggerInterface|null           $logger
      *
      * @throws BadRequest
@@ -84,11 +94,14 @@ final class UriParser
     public function __construct(
         ServerRequestInterface $request,
         MetadataRepository $metadataRepository,
+        string $baseUrl,
+        bool $supportInclusion = true,
+        bool $supportSort = true,
+        bool $supportPagination = true,
         FilterParserInterface $filterParser = null,
         PaginationParserInterface $paginationParser = null,
         LoggerInterface $logger = null
     ) {
-        $this->check($request);
         $this->request            = $request;
         $this->metadataRepository = $metadataRepository;
         $this->logger             = $logger ?? new NullLogger();
@@ -96,8 +109,12 @@ final class UriParser
         $this->filterParser       = $filterParser ?? new ExpressionFilterParser();
         $this->inclusionParser    = new InclusionParser();
         $this->paginationParser   = $paginationParser ?? new LimitOffsetPagination();
-        $this->pathParser         = new PathParser($metadataRepository, $request->getMethod());
+        $this->pathParser         = new PathParser($metadataRepository, $baseUrl, $request->getMethod());
         $this->sortParser         = new SortParser();
+        $this->supportInclusion   = $supportInclusion;
+        $this->supportSort        = $supportSort;
+        $this->supportPagination  = $supportPagination;
+        $this->check($request);
     }
 
     /**
@@ -109,14 +126,25 @@ final class UriParser
      */
     private function check(ServerRequestInterface $request)
     {
-        if (!Config::$INCLUSION_SUPPORT && in_array(UriPartInterface::INCLUSION_PART_KEY, $request->getQueryParams())) {
-            throw new UnsupportedParameter(UriPartInterface::INCLUSION_PART_KEY);
+        $this->logger->debug('Checking allowed query parts.');
+        if (
+            !$this->supportInclusion && in_array(
+                QueryPartInterface::INCLUSION_PART_KEY,
+                $request->getQueryParams()
+            )
+        ) {
+            throw new UnsupportedParameter(QueryPartInterface::INCLUSION_PART_KEY);
         }
-        if (!Config::$SORT_SUPPORT && in_array(UriPartInterface::SORT_PART_KEY, $request->getQueryParams())) {
-            throw new UnsupportedParameter(UriPartInterface::SORT_PART_KEY);
+        if (!$this->supportSort && in_array(QueryPartInterface::SORT_PART_KEY, $request->getQueryParams())) {
+            throw new UnsupportedParameter(QueryPartInterface::SORT_PART_KEY);
         }
-        if (!Config::$PAGINATION_SUPPORT && in_array(UriPartInterface::PAGINATION_PART_KEY, $request->getQueryParams())) {
-            throw new UnsupportedParameter(UriPartInterface::PAGINATION_PART_KEY);
+        if (
+            !$this->supportPagination && in_array(
+                QueryPartInterface::PAGINATION_PART_KEY,
+                $request->getQueryParams()
+            )
+        ) {
+            throw new UnsupportedParameter(QueryPartInterface::PAGINATION_PART_KEY);
         }
     }
 
@@ -148,7 +176,7 @@ final class UriParser
      */
     public function getFilter(): FilterInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::FILTER_PART_KEY] ?? null;
+        $params = $this->request->getQueryParams()[QueryPartInterface::FILTER_PART_KEY] ?? null;
         return $this->filterParser->parse($params);
     }
 
@@ -157,7 +185,7 @@ final class UriParser
      */
     public function getPagination(): PaginationInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::PAGINATION_PART_KEY] ?? null;
+        $params = $this->request->getQueryParams()[QueryPartInterface::PAGINATION_PART_KEY] ?? null;
         return $this->paginationParser->parse($params);
     }
 
@@ -166,7 +194,7 @@ final class UriParser
      */
     public function getSort(): SortInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::SORT_PART_KEY] ?? null;
+        $params = $this->request->getQueryParams()[QueryPartInterface::SORT_PART_KEY] ?? null;
         return $this->sortParser->parse($params);
     }
 
@@ -175,7 +203,7 @@ final class UriParser
      */
     public function getFieldset(): FieldsetInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::FIELDS_PART_KEY] ?? null;
+        $params = $this->request->getQueryParams()[QueryPartInterface::FIELDS_PART_KEY] ?? null;
         return $this->fieldsetParser->parse($params);
     }
 
@@ -184,7 +212,7 @@ final class UriParser
      */
     public function getInclusion(): InclusionInterface
     {
-        $params = $this->request->getQueryParams()[UriPartInterface::INCLUSION_PART_KEY] ?? null;
+        $params = $this->request->getQueryParams()[QueryPartInterface::INCLUSION_PART_KEY] ?? null;
         return $this->inclusionParser->parse($params);
     }
 

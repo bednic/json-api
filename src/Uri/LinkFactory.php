@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri;
 
-use JSONAPI\Config;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
@@ -25,10 +24,11 @@ use JSONAPI\Uri\Sorting\SortInterface;
 /**
  * Class LinkFactory
  *
- * @package JSONAPI
+ * @package JSONAPI\URI
  */
 class LinkFactory
 {
+
     public const SELF = 'self';
     public const RELATED = 'related';
     public const FIRST = 'first';
@@ -36,17 +36,11 @@ class LinkFactory
     public const NEXT = 'next';
     public const PREV = 'prev';
 
-    /**
-     * @return string
-     */
-    public static function getBaseUrl(): string
+    private string $baseURL;
+
+    public function __construct(string $baseURL)
     {
-        if (filter_var(Config::$ENDPOINT, FILTER_VALIDATE_URL)) {
-            return Config::$ENDPOINT;
-        }
-        return ($_SERVER['REQUEST_SCHEME'] ?? 'http') . '://'
-            . ($_SERVER['SERVER_NAME'] ?? 'localhost') . ':'
-            . ($_SERVER['SERVER_PORT'] ?? '80');
+        $this->baseURL = $baseURL;
     }
 
     /**
@@ -57,7 +51,7 @@ class LinkFactory
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    public static function setResourceLink(ResourceObject $resource, Meta $meta = null): ResourceObject
+    public function setResourceLink(ResourceObject $resource, Meta $meta = null): ResourceObject
     {
         $resource->setLink(new Link(self::SELF, self::getResourceLink($resource), $meta));
         return $resource;
@@ -68,9 +62,9 @@ class LinkFactory
      *
      * @return string
      */
-    private static function getResourceLink(ResourceObjectIdentifier $resource): string
+    private function getResourceLink(ResourceObjectIdentifier $resource): string
     {
-        return self::getBaseUrl() . '/' . $resource->getType() . '/' . $resource->getId();
+        return $this->baseURL . '/' . $resource->getType() . '/' . $resource->getId();
     }
 
     /**
@@ -82,19 +76,19 @@ class LinkFactory
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    public static function setRelationshipLinks(
+    public function setRelationshipLinks(
         Relationship $relationship,
         ResourceObject $resource,
         Meta $meta = null
     ): Relationship {
         $relationship->setLink(new Link(
             self::SELF,
-            self::getResourceLink($resource) . '/relationships/' . $relationship->getKey(),
+            $this->getResourceLink($resource) . '/relationships/' . $relationship->getKey(),
             $meta
         ));
         $relationship->setLink(new Link(
             self::RELATED,
-            self::getResourceLink($resource) . '/' . $relationship->getKey(),
+            $this->getResourceLink($resource) . '/' . $relationship->getKey(),
             $meta
         ));
         return $relationship;
@@ -113,7 +107,7 @@ class LinkFactory
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    private static function createDocumentLink(
+    private function createDocumentLink(
         string $type,
         PathInterface $path,
         ?FilterInterface $filter,
@@ -122,7 +116,7 @@ class LinkFactory
         ?PaginationInterface $pagination,
         ?SortInterface $sort
     ): Link {
-        $url  = self::getBaseUrl();
+        $url  = $this->baseURL;
         $link = $url . (string)$path;
         $mark = '?';
         if (strlen((string)$filter)) {
@@ -156,7 +150,7 @@ class LinkFactory
      * @throws ForbiddenDataType
      * @throws BadRequest
      */
-    public static function setDocumentLinks(Document $document, UriParser $parser): Document
+    public function setDocumentLinks(Document $document, UriParser $parser): Document
     {
         $path       = $parser->getPath();
         $filter     = $parser->getFilter();

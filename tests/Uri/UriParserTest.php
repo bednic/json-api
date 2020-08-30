@@ -26,55 +26,67 @@ use Slim\Psr7\Factory\ServerRequestFactory;
 class UriParserTest extends TestCase
 {
     private static MetadataRepository $mr;
+    private static string $baseURL;
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr = MetadataFactory::create(
+        self::$mr      = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new SchemaDriver()
         );
+        self::$baseURL = 'http://unit.test.org';
     }
 
     public function testGetFieldset()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr);
+        $up      = new UriParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(FieldsetInterface::class, $up->getFieldset());
     }
 
     public function testGetFilter()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr);
+        $up      = new UriParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(FilterInterface::class, $up->getFilter());
     }
 
     public function testGetSort()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr);
+        $up      = new UriParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(SortInterface::class, $up->getSort());
     }
 
     public function testConstruct()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr, new ExpressionFilterParser(), new PagePagination(), new NullLogger());
+        $up      = new UriParser(
+            $request,
+            self::$mr,
+            self::$baseURL,
+            true,
+            true,
+            true,
+            new ExpressionFilterParser(),
+            new PagePagination(),
+            new NullLogger()
+        );
         $this->assertInstanceOf(UriParser::class, $up);
     }
 
     public function testGetInclusion()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr);
+        $up      = new UriParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(InclusionInterface::class, $up->getInclusion());
     }
 
     public function testGetPath()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr);
+        $up      = new UriParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(PathInterface::class, $up->getPath());
     }
 
@@ -82,15 +94,15 @@ class UriParserTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr);
-        $parser = new ExpressionFilterParser();
+        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $parser  = new ExpressionFilterParser();
         $up->setFilterParser($parser);
     }
 
     public function testGetPagination()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr);
+        $up      = new UriParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(PaginationInterface::class, $up->getPagination());
     }
 
@@ -98,8 +110,8 @@ class UriParserTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
-        $up = new UriParser($request, self::$mr);
-        $parser = new LimitOffsetPagination();
+        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $parser  = new LimitOffsetPagination();
         $up->setPaginationParser($parser);
     }
 }

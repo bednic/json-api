@@ -25,7 +25,6 @@ use Exception;
  * GUID            guid'digit*
  *
  * @package JSONAPI\Uri\Filtering
- * @codeCoverageIgnore
  */
 class ExpressionLexer
 {

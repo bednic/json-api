@@ -95,7 +95,7 @@ class SecurityScheme extends Reference implements JsonSerializable
     public static function createReference(string $to, $origin): SecurityScheme
     {
         /** @var SecurityScheme $static */
-        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor(); // NOSONAR
         $static->setRef($to, $origin);
         return $static;
     }

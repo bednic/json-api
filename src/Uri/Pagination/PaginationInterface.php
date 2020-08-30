@@ -4,9 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri\Pagination;
 
-use JSONAPI\Uri\UriPartInterface;
+use JSONAPI\Uri\QueryPartInterface;
 
-interface PaginationInterface extends UriPartInterface
+/**
+ * Interface PaginationInterface
+ *
+ * @package JSONAPI\Uri\Pagination
+ */
+interface PaginationInterface extends QueryPartInterface
 {
     /**
      * @return PaginationInterface|null

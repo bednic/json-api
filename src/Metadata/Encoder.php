@@ -7,7 +7,6 @@ namespace JSONAPI\Metadata;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use JSONAPI\Config;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Document;
 use JSONAPI\Document\ResourceObject;
@@ -78,23 +77,47 @@ final class Encoder
     private InclusionInterface $inclusion;
 
     /**
+     * @var LinkFactory
+     */
+    private LinkFactory $linkFactory;
+
+    /**
+     * @var bool
+     */
+    private bool $withData;
+
+    /**
+     * @var int
+     */
+    private int $relationshipLimit;
+
+    /**
      * Encoder constructor.
      *
      * @param MetadataRepository   $metadataRepository
      * @param FieldsetInterface    $fieldset
      * @param InclusionInterface   $inclusion
+     * @param LinkFactory          $linkFactory
+     * @param bool                 $relationshipData
+     * @param int                  $relationshipLimit
      * @param LoggerInterface|null $logger
      */
     public function __construct(
         MetadataRepository $metadataRepository,
         FieldsetInterface $fieldset,
         InclusionInterface $inclusion,
+        LinkFactory $linkFactory,
+        bool $relationshipData = true,
+        int $relationshipLimit = 25,
         LoggerInterface $logger = null
     ) {
         $this->repository = $metadataRepository;
         $this->fieldset   = $fieldset;
         $this->inclusion  = $inclusion;
         $this->logger     = $logger ?? new NullLogger();
+        $this->linkFactory = $linkFactory;
+        $this->withData = $relationshipData;
+        $this->relationshipLimit = $relationshipLimit;
     }
 
 
@@ -133,7 +156,7 @@ final class Encoder
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    private function createIdentifier(): self
+    private function createIdentifier(): Encoder
     {
         $this->resource = new ResourceObjectIdentifier($this->getType(), $this->getId());
         return $this;
@@ -144,7 +167,7 @@ final class Encoder
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    private function createResource(): self
+    private function createResource(): Encoder
     {
         $this->resource = new ResourceObject($this->getType(), $this->getId());
         return $this;
@@ -155,9 +178,9 @@ final class Encoder
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    private function setLinks(): self
+    private function setLinks(): Encoder
     {
-        LinkFactory::setResourceLink($this->resource);
+        $this->linkFactory->setResourceLink($this->resource);
         return $this;
     }
 
@@ -171,7 +194,7 @@ final class Encoder
     private function for($object): Encoder
     {
         $encoder   = clone $this;
-        $className = self::clearDoctrineProxyPrefix(get_class($object));
+        $className = Encoder::clearDoctrineProxyPrefix(get_class($object));
         try {
             $this->logger->debug("Init encoding of {$className}.");
             $encoder->object   = $object;
@@ -186,7 +209,6 @@ final class Encoder
     /**
      * @return Document\Type
      * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
      */
     private function getType(): Document\Type
     {
@@ -216,7 +238,7 @@ final class Encoder
     /**
      * @return $this
      */
-    private function setMeta(): self
+    private function setMeta(): Encoder
     {
         if ($meta = $this->metadata->getMeta()) {
             $meta = call_user_func([$this->object, $meta->getter]);
@@ -234,7 +256,7 @@ final class Encoder
      * @throws MetadataNotFound
      * @throws AlreadyInUse
      */
-    private function setFields(): self
+    private function setFields(): Encoder
     {
         foreach (
             array_merge(
@@ -255,7 +277,7 @@ final class Encoder
                 }
                 if ($field instanceof Relationship) {
                     $relationship = new Document\Relationship($field->name);
-                    if (Config::$RELATIONSHIP_DATA || $this->inclusion->hasInclusions()) {
+                    if ($this->withData || $this->inclusion->hasInclusions()) {
                         if ($field->isCollection) {
                             if (!($value instanceof Collection)) {
                                 $value = new ArrayCollection($value);
@@ -263,7 +285,7 @@ final class Encoder
                             /** @var Collection $value */
                             $data  = new ArrayCollection();
                             $total = $value->count();
-                            $limit = min(Config::$RELATIONSHIP_LIMIT, $total);
+                            $limit = min($this->relationshipLimit, $total);
                             foreach ($value->slice(0, $limit) as $object) {
                                 $data->add($this->getIdentifier($object));
                             }
@@ -274,7 +296,7 @@ final class Encoder
                         }
                         $relationship->setData($data);
                     }
-                    LinkFactory::setRelationshipLinks($relationship, $this->resource);
+                    $this->linkFactory->setRelationshipLinks($relationship, $this->resource);
                     if ($field->meta) {
                         $this->logger->debug("Adding meta to relationship {$name}");
                         $relationship->setMeta(call_user_func([$this->object, $field->meta->getter]));

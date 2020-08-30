@@ -36,6 +36,8 @@ use Psr\Log\NullLogger;
 use ReflectionClass;
 use ReflectionException;
 use stdClass;
+use Swaggest\JsonSchema\Exception\LogicException;
+use Swaggest\JsonSchema\Schema;
 use Throwable;
 use Tools\JSON\JsonDeserializable;
 
@@ -62,18 +64,25 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * @var LoggerInterface|null
      */
     private LoggerInterface $logger;
+    private string $baseURL;
+    /**
+     * @var Schema
+     */
+    private Schema $validator;
 
 
     /**
      * PsrJsonApiMiddleware constructor.
      *
      * @param MetadataRepository       $repository
+     * @param string                   $baseURL
      * @param ResponseFactoryInterface $responseFactory
      * @param StreamFactoryInterface   $streamFactory
-     * @param LoggerInterface          $logger
+     * @param LoggerInterface|null     $logger
      */
     public function __construct(
         MetadataRepository $repository,
+        string $baseURL,
         ResponseFactoryInterface $responseFactory,
         StreamFactoryInterface $streamFactory,
         LoggerInterface $logger = null
@@ -82,6 +91,10 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         $this->responseFactory = $responseFactory;
         $this->streamFactory   = $streamFactory;
         $this->logger          = $logger ?? new NullLogger();
+        $this->baseURL         = $baseURL;
+        $this->validator       = Schema::import(
+            json_decode(file_get_contents(__DIR__ . '/schema.json'))
+        );
     }
 
     /**
@@ -111,26 +124,22 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $document = new Document();
                 if ($request->getBody()->getSize() > 0) {
                     $request->getBody()->rewind();
-                    $path = (new PathParser($this->repository, $request->getMethod()))
-                        ->parse($request->getUri()->getPath());
-                    $document->setData(
-                        $this->loadRequestData(
-                            json_decode($request->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR),
-                            $path
-                        )
-                    );
-                }
+                    $data = json_decode($request->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
 
+                    $this->validator->in($data);
+
+                    $path = (new PathParser($this->repository, $this->baseURL, $request->getMethod()))
+                        ->parse($request->getUri()->getPath());
+                    $document->setData($this->loadRequestData($data, $path));
+                }
                 $request = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
         } catch (Throwable $exception) {
-            $this->logger->error($exception->getMessage(), [
-                'exception' => $exception
-            ]);
             $document = new Document();
             $error    = Error::fromException($exception);
             $document->addError($error);
+            file_put_contents('data.json', json_encode($document));
             $response = $this->responseFactory
                 ->createResponse($error->getStatus())
                 ->withBody($this->streamFactory->createStream(json_encode($document)));

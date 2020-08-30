@@ -41,7 +41,7 @@ class Callback extends Reference implements JsonSerializable
     public static function createReference(string $to, $origin): Callback
     {
         /** @var Callback $static */
-        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor(); // NOSONAR
         $static->setRef($to, $origin);
         return $static;
     }

@@ -43,18 +43,22 @@ class PathParser implements PathInterface
      * @var string
      */
     private string $method;
+    private string $baseURL;
 
     /**
      * PathParser constructor.
      *
      * @param MetadataRepository $metadataRepository
+     * @param string             $baseURL
      * @param string             $method
      */
     public function __construct(
         MetadataRepository $metadataRepository,
+        string $baseURL,
         string $method = RequestMethodInterface::METHOD_GET
     ) {
         $this->metadataRepository = $metadataRepository;
+        $this->baseURL            = $baseURL;
         $this->method             = $method;
     }
 
@@ -68,7 +72,7 @@ class PathParser implements PathInterface
     {
 
         $req             = explode('/', $data);
-        $base            = explode('/', parse_url(LinkFactory::getBaseUrl(), PHP_URL_PATH) ?? '');
+        $base            = explode('/', parse_url($this->baseURL, PHP_URL_PATH) ?? '');
         $diff            = array_diff($req, $base);
         $data            = implode('/', $diff);
         $resourceKey     = 'resource';

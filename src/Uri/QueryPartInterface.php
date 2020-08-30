@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri;
 
-interface UriPartInterface
+interface QueryPartInterface
 {
     public const FIELDS_PART_KEY = 'fields';
     public const FILTER_PART_KEY = 'filter';

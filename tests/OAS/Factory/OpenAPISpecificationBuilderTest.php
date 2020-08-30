@@ -33,6 +33,7 @@ class OpenAPISpecificationBuilderTest extends TestCase
      * @var Schema
      */
     private static $validator;
+    private static string $baseUrl;
 
     public static function setUpBeforeClass(): void
     {
@@ -41,6 +42,7 @@ class OpenAPISpecificationBuilderTest extends TestCase
             new SimpleCacheAdapter(new ArrayCache()),
             new AnnotationDriver()
         );
+        self::$baseUrl   = 'http://unit.test.org';
         self::$validator = Schema::import(
             json_decode(file_get_contents(RESOURCES . DIRECTORY_SEPARATOR . 'openapi-v3.0.json'))
         );
@@ -48,7 +50,7 @@ class OpenAPISpecificationBuilderTest extends TestCase
 
     public function testCreate()
     {
-        $factory = new OpenAPISpecificationBuilder(self::$mr);
+        $factory = new OpenAPISpecificationBuilder(self::$mr, self::$baseUrl);
 
         $info = new Info('JSON:API OAS', '1.0.0');
         $info->setDescription('Test specification');

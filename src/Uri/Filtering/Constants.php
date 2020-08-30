@@ -8,8 +8,7 @@ namespace JSONAPI\Uri\Filtering;
  * Class Constants
  *
  * @package JSONAPI\Uri\Filtering
- * @codeCoverageIgnore
- * @link http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#_Toc31360956
+ * @link    http://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html#_Toc31360956
  */
 class Constants
 {

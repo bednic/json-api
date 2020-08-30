@@ -17,13 +17,12 @@ class SortParser implements SortInterface
     private array $sort = [];
 
     /**
-     * @param string $data
+     * @param string|null $data
      *
      * @return SortInterface
      */
     public function parse(?string $data): SortInterface
     {
-        //@todo: this should be able to parse field and relation.field
         $this->sort = [];
         if ($data) {
             preg_match_all('/((?P<sort>-?)(?P<field>[a-zA-Z0-9.]+))/', $data, $matches);

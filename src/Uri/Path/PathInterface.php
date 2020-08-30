@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\Uri\Path;
 
 use JSONAPI\Exception\Metadata\MetadataException;
-use JSONAPI\Uri\UriPartInterface;
+use JSONAPI\Uri\QueryPartInterface;
 
 /**
  * Interface PathInterface
  *
- * @package JSONAPI\Uri\PathInterface
+ * @package JSONAPI\Uri\Path
  */
-interface PathInterface extends UriPartInterface
+interface PathInterface extends QueryPartInterface
 {
 
     /**

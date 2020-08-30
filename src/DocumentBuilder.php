@@ -7,76 +7,71 @@ namespace JSONAPI;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Exception\Document\DocumentException;
-use JSONAPI\Exception\Document\InclusionOverflow;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Metadata\MetadataException;
-use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Metadata\Encoder;
-use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\Inclusion\Inclusion;
 use JSONAPI\Uri\LinkFactory;
 use JSONAPI\Uri\Pagination\UseTotalCount;
 use JSONAPI\Uri\UriParser;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Slim\Psr7\Factory\ServerRequestFactory;
 
+/**
+ * Class DocumentBuilder
+ *
+ * @package JSONAPI
+ */
 class DocumentBuilder
 {
     use DoctrineProxyTrait;
 
+    /**
+     * @var LoggerInterface
+     */
     private LoggerInterface $logger;
-    private MetadataRepository $metadata;
+    /**
+     * @var Encoder
+     */
     private Encoder $encoder;
+    /**
+     * @var Document
+     */
     private Document $document;
-    private UriParser $uri;
+    /**
+     * @var LinkFactory
+     */
+    private LinkFactory $linkFactory;
+    /**
+     * @var InclusionFetcher
+     */
+    private InclusionFetcher $inclusionFetcher;
 
-    private ResourceCollection $included;
+    private UriParser $uri;
 
     /**
      * DocumentBuilder constructor.
      *
-     * @param MetadataRepository   $metadata
-     * @param UriParser            $uriParser
+     * @param Encoder              $encoder
+     * @param InclusionFetcher     $inclusionFetcher
+     * @param LinkFactory          $linkFactory
+     * @param UriParser            $uri
      * @param LoggerInterface|null $logger
      */
     public function __construct(
-        MetadataRepository $metadata,
-        UriParser $uriParser,
+        Encoder $encoder,
+        InclusionFetcher $inclusionFetcher,
+        LinkFactory $linkFactory,
+        UriParser $uri,
         LoggerInterface $logger = null
     ) {
-        $this->metadata = $metadata;
-        $this->uri      = $uriParser;
-        $this->logger   = $logger ?? new NullLogger();
-        $this->encoder  = new Encoder(
-            $this->metadata,
-            $this->uri->getFieldset(),
-            $this->uri->getInclusion(),
-            $this->logger
-        );
-        $this->document = new Document();
-        $this->included = new ResourceCollection();
-    }
-
-    /**
-     * Come handy in simple use-cases
-     *
-     * @param MetadataRepository     $metadataRepository
-     * @param ServerRequestInterface $request
-     * @param LoggerInterface|null   $logger
-     *
-     * @return DocumentBuilder
-     * @throws BadRequest
-     */
-    public function create(
-        MetadataRepository $metadataRepository,
-        ServerRequestInterface $request,
-        LoggerInterface $logger = null
-    ) {
-        return new DocumentBuilder($metadataRepository, new UriParser($request, $metadataRepository), $logger);
+        $this->encoder          = $encoder;
+        $this->inclusionFetcher = $inclusionFetcher;
+        $this->linkFactory      = $linkFactory;
+        $this->uri              = $uri;
+        $this->logger           = $logger ?? new NullLogger();
+        $this->document         = new Document();
     }
 
     /**
@@ -88,10 +83,9 @@ class DocumentBuilder
      * @throws DriverException
      * @throws MetadataException
      */
-    public function setData($data): self
+    public function setData($data): DocumentBuilder
     {
         $this->logger->debug('Setting data.');
-        $this->included->reset();
         if ($this->uri->getPath()->isCollection()) {
             $this->logger->debug('It is resource collection.');
             $collection = new ResourceCollection();
@@ -100,6 +94,9 @@ class DocumentBuilder
                     $collection->add($this->encoder->getIdentifier($item));
                 } else {
                     $collection->add($this->encoder->getResource($item));
+                }
+                if ($this->uri->getInclusion()->hasInclusions()) {
+                    $this->inclusionFetcher->fetchInclusions($data, $this->uri->getInclusion()->getInclusions());
                 }
             }
             $this->document->setData($collection);
@@ -111,7 +108,7 @@ class DocumentBuilder
                 $this->document->setData($this->encoder->getResource($data));
             }
             if ($this->uri->getInclusion()->hasInclusions()) {
-                $this->fetchInclusions($data, $this->uri->getInclusion()->getInclusions());
+                $this->inclusionFetcher->fetchInclusions($data, $this->uri->getInclusion()->getInclusions());
             }
         }
         $this->logger->debug('Data set.');
@@ -127,7 +124,7 @@ class DocumentBuilder
      *
      * @return $this
      */
-    public function setTotalItems(int $total): self
+    public function setTotal(int $total): DocumentBuilder
     {
         $this->logger->debug('Setting total.');
         if ($this->uri->getPagination() instanceof UseTotalCount) {
@@ -145,79 +142,11 @@ class DocumentBuilder
     public function build(): Document
     {
         $this->logger->debug('Building doc.');
-        LinkFactory::setDocumentLinks($this->document, $this->uri);
+        $this->linkFactory->setDocumentLinks($this->document, $this->uri);
         $this->logger->debug('Links set.');
-        $this->document->setIncludes($this->included);
+        $this->document->setIncludes($this->inclusionFetcher->getIncluded());
         $this->logger->debug('Includes set.');
         $this->logger->debug('Built.');
         return $this->document;
-    }
-
-    /**
-     * @param object      $object
-     * @param Inclusion[] $inclusions
-     *
-     * @throws BadRequest
-     * @throws Exception\Document\ForbiddenCharacter
-     * @throws Exception\Document\ForbiddenDataType
-     * @throws Exception\Document\AlreadyInUse
-     * @throws Exception\Document\ResourceTypeMismatch
-     * @throws Exception\Driver\ClassNotExist
-     * @throws Exception\Metadata\InvalidField
-     * @throws Exception\Metadata\MetadataNotFound
-     * @throws InclusionOverflow
-     */
-    private function fetchInclusions(object $object, array $inclusions): void
-    {
-        $this->logger->debug('Fetching inclusions...');
-        $classMetadata = $this->metadata->getByClass(self::clearDoctrineProxyPrefix(get_class($object)));
-        foreach ($inclusions as $sub) {
-            try {
-                $relationship = $classMetadata->getRelationship($sub->getRelationName());
-                $data         = null;
-                if ($relationship->property) {
-                    $data = $object->{$relationship->property};
-                } elseif ($relationship->getter) {
-                    $data = call_user_func([$object, $relationship->getter]);
-                }
-                if (!empty($data)) {
-                    if ($relationship->isCollection) {
-                        foreach ($data as $item) {
-                            $this->addInclusion($item);
-                            if ($sub->hasInclusions()) {
-                                $this->fetchInclusions($item, $sub->getInclusions());
-                            }
-                        }
-                    } else {
-                        $this->addInclusion($data);
-                        if ($sub->hasInclusions()) {
-                            $this->fetchInclusions($data, $sub->getInclusions());
-                        }
-                    }
-                }
-            } catch (RelationNotFound $relationNotFound) {
-                throw new BadRequest("URL malformed around '{$sub->getRelationName()}'.");
-            }
-        }
-    }
-
-    /**
-     * @param object $item
-     *
-     * @throws Exception\Document\ForbiddenCharacter
-     * @throws Exception\Document\ForbiddenDataType
-     * @throws Exception\Document\AlreadyInUse
-     * @throws Exception\Driver\ClassNotExist
-     * @throws Exception\Metadata\InvalidField
-     * @throws Exception\Metadata\MetadataNotFound
-     * @throws InclusionOverflow
-     */
-    private function addInclusion(object $item): void
-    {
-        if (Config::$MAX_INCLUDED_ITEMS < 0 || $this->included->count() < Config::$MAX_INCLUDED_ITEMS) {
-            $this->included->add($this->encoder->getResource($item));
-        } else {
-            throw new InclusionOverflow(Config::$MAX_INCLUDED_ITEMS);
-        }
     }
 }

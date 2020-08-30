@@ -10,22 +10,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * `ErrorSource` class which wraps Error::source, implements additional information to Error,
 like pointer, parameter or line of exception and trace
-* `Config` static class
-    * `ENDPOINT` for setup API endpoint url
-    * `MAX_INCLUDED_ITEMS` sets max items included in a document, to prevent huge files
-    * `RELATIONSHIP_LIMIT` sets limit of items in `relationship/data`
-    * `RELATIONSHIP_DATA` toggle if relationships should or shouldn't contain data at all
-    * `INCLUSION_SUPPORT` enable *include* url parameter support
-    * `SORT_SUPPORT` enable *sort* url parameter support
-    * `PAGINATION_SUPPORT` enable *page* url parameter support
+* `DocumentBuilderFactory` class which provides an easy setup of `DocumentBuilder`
+via `::new(ServerRequestInterface $request)` method
+* `InclusionFetcher` class which extract inclusion fetch logic outside of `DocumentBuilder`
 
 ### Changed
 * Relationships now mustn't contains key data
-* `DocumentBuilder::create` now server as the simplest possible use-case for using DocumentBuilder
-* `DocumentBuilder::__constructor` is now public and replace old `::create` function
 * All relationships returning collection of resources now must return `Collection` interface.
 Simple `array` was transferred internally anyway.
 * Add InclusionInterface dependency to `Encoder::__construct`
+* Renamed `UriPArtInterface` to `QueryPartInterface` to be more accurate
+* `DocumentBuilder` was refactored to fit new use case
+* Env `JSON_API_URL` is now at most cases `$baseURL` parameter in constructors, this should allow to
+have different instances of JSON API in one project
+* `LinkFactory` in now instantiable class with dependencies
+* `PsrJsonApiMiddleware` now check incoming body against [schema](http://json-schema.org/draft-06/schema#)
+    * there is known issue with *id* resource property, you have to send *id* even if you are creating resource
 
 ### Deprecated
 
@@ -35,6 +35,7 @@ Simple `array` was transferred internally anyway.
 * `JsonSerializable`
 * `JsonConvertible`
 * `API_ENV_URL`
+* `DocumentBuilder::create`
 
 ---
 [Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.7...6.x

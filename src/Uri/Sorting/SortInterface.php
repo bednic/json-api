@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri\Sorting;
 
-use JSONAPI\Uri\UriPartInterface;
+use JSONAPI\Uri\QueryPartInterface;
 
-interface SortInterface extends UriPartInterface
+interface SortInterface extends QueryPartInterface
 {
 
     public const ASC = 'ASC';

@@ -26,6 +26,7 @@ class LinkFactoryTest extends TestCase
      * @var UriParser
      */
     private static UriParser $up;
+    private static string $baseURL;
 
     public static function setUpBeforeClass(): void
     {
@@ -35,13 +36,15 @@ class LinkFactoryTest extends TestCase
             new AnnotationDriver()
         );
         $request  = ServerRequestFactory::createFromGlobals();
-        self::$up = new UriParser($request, $metadata);
+        self::$baseURL = 'http://unit.test.org/api';
+        self::$up = new UriParser($request, $metadata, self::$baseURL);
     }
 
     public function testSetDocumentLinks()
     {
         $document = new Document();
-        LinkFactory::setDocumentLinks($document, self::$up);
+        $factory = new LinkFactory(self::$baseURL);
+        $factory->setDocumentLinks($document, self::$up);
         $links = $document->getLinks();
         $this->assertIsArray($links);
         $this->assertArrayHasKey(LinkFactory::SELF, $links);
@@ -57,8 +60,10 @@ class LinkFactoryTest extends TestCase
     public function testSetRelationshipLinks()
     {
         $resource     = new ResourceObject(new Type('resource'), new Id('id'));
-        $relationship = new Relationship('test', null);
-        LinkFactory::setRelationshipLinks($relationship, $resource);
+        $relationship = new Relationship('test');
+        $relationship->setData(null);
+        $factory = new LinkFactory(self::$baseURL);
+        $factory->setRelationshipLinks($relationship, $resource);
         $links = $relationship->getLinks();
         $this->assertIsArray($links);
         $this->assertArrayHasKey(LinkFactory::SELF, $links);
@@ -73,19 +78,13 @@ class LinkFactoryTest extends TestCase
     public function testSetResourceLink()
     {
         $resource = new ResourceObject(new Type('resource'), new Id('id'));
-        LinkFactory::setResourceLink($resource);
+        $factory = new LinkFactory(self::$baseURL);
+        $factory->setResourceLink($resource);
         $links = $resource->getLinks();
         $this->assertIsArray($links);
         $this->assertArrayHasKey(LinkFactory::SELF, $links);
         $self = $links[LinkFactory::SELF];
         $this->assertEquals('http://unit.test.org/api/resource/id', $self->getData());
         $this->assertTrue(filter_var($self->getData(), FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE) !== null);
-    }
-
-    public function testGetBaseUrl()
-    {
-        $base = LinkFactory::getBaseUrl();
-        $this->assertIsString($base);
-        $this->assertEquals('http://unit.test.org/api', $base);
     }
 }

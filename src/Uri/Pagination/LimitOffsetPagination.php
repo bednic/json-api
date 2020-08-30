@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace JSONAPI\Uri\Pagination;
 
 /**
- * Class LimitOffsetPaginationParser
+ * Class LimitOffsetPagination
  *
- * @package JSONAPI\Query
+ * @package JSONAPI\Uri\Pagination
  */
 class LimitOffsetPagination implements PaginationInterface, PaginationParserInterface, UseTotalCount
 {

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace JSONAPI\Uri\Pagination;
 
 /**
- * Interface PagePagination
+ * Class PagePagination
  *
- * @package JSONAPI\Uri\PaginationInterface
+ * @package JSONAPI\Uri\Pagination
  */
 class PagePagination implements PaginationInterface, PaginationParserInterface, UseTotalCount
 {

@@ -7,10 +7,11 @@ namespace JSONAPI\Document;
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Exception\HasParameter;
 use JSONAPI\Exception\HasPointer;
-use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Exception\JsonApiException;
 use JSONAPI\Helper\LinksTrait;
 use JSONAPI\Helper\MetaTrait;
+use Swaggest\JsonSchema\Exception\Error as SchemaError;
+use Swaggest\JsonSchema\InvalidValue;
 use Tools\JSON\JsonSerializable;
 use Throwable;
 
@@ -45,10 +46,9 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
      */
     private string $detail;
     /**
-     * @todo this should be own class contains defined props
-     * @var object
+     * @var ErrorSource
      */
-    private $source;
+    private ErrorSource $source;
 
     /**
      * @param Throwable $exception
@@ -73,9 +73,30 @@ final class Error implements JsonSerializable, HasLinks, HasMeta
             } elseif ($exception instanceof HasParameter) {
                 $source = ErrorSource::parameter($exception->getParameter());
             }
+        } elseif ($exception instanceof InvalidValue) {
+            list($message, $source) = $self::parseInvalidValue($exception->inspect());
+            $self->setDetail($message);
         }
         $self->setSource($source);
         return $self;
+    }
+
+    /**
+     * @param SchemaError $error
+     *
+     * @return array
+     * @example [
+     *      <string> message,
+     *      <ErrorSource> source
+     * ]
+     */
+    private static function parseInvalidValue(SchemaError $error): array
+    {
+        if ($error->subErrors) {
+            return self::parseInvalidValue($error->subErrors[0]);
+        } else {
+            return [preg_replace('/, data.+/', '', $error->error), ErrorSource::pointer($error->dataPointer)];
+        }
     }
 
     /**

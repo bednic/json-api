@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri\Filtering;
 
-use JSONAPI\Uri\UriPartInterface;
+use JSONAPI\Uri\QueryPartInterface;
 
 /**
  * Interface FilterInterface
  *
  * @package JSONAPI\Uri\Filtering
  */
-interface FilterInterface extends UriPartInterface
+interface FilterInterface extends QueryPartInterface
 {
 
     /**

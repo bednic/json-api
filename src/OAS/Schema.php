@@ -170,7 +170,7 @@ class Schema extends Reference implements JsonSerializable
     public static function createReference(string $to, $origin): Schema
     {
         /** @var Schema $static */
-        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
+        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor(); //NOSONAR
         $static->setRef($to, $origin);
         return $static;
     }
