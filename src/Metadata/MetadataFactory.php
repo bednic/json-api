@@ -70,8 +70,8 @@ class MetadataFactory
         Driver $driver,
         LoggerInterface $logger = null
     ) {
-        $this->paths = $paths;
-        $this->cache = $cache;
+        $this->paths  = $paths;
+        $this->cache  = $cache;
         $this->driver = $driver;
         $this->logger = $logger ?? new NullLogger();
         $this->load();
@@ -137,8 +137,8 @@ class MetadataFactory
      */
     private function loadMetadata(string $className)
     {
-        $classMetadata = $this->getMetadataByClass($className);
-        $this->metadata[$className] = $classMetadata;
+        $classMetadata                                   = $this->getMetadataByClass($className);
+        $this->metadata[$className]                      = $classMetadata;
         $this->typeToClassMap[$classMetadata->getType()] = $className;
     }
 
@@ -153,7 +153,8 @@ class MetadataFactory
             if (!is_dir($path)) {
                 throw new InvalidArgumentException("Path '$path' is not directory.");
             }
-            $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
+            $predeclaredClasses = get_declared_classes();
+            $it                 = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($path));
             $it->rewind();
             while ($it->valid()) {
                 /** @var $it RecursiveDirectoryIterator */
@@ -171,8 +172,9 @@ class MetadataFactory
                 }
                 $it->next();
             }
+            $newLoadedClasses = array_diff(get_declared_classes(), $predeclaredClasses);
 
-            foreach (get_declared_classes() as $className) {
+            foreach ($newLoadedClasses as $className) {
                 try {
                     $this->loadMetadata($className);
                 } catch (ClassNotResource $ignored) {
@@ -184,8 +186,8 @@ class MetadataFactory
         }
         try {
             $this->cache->set(slashToDot(get_class($this)), array_keys($this->metadata));
-        } catch (CacheException $ignored) {
-            // NO SONAR
+        } catch (CacheException $e) {
+            throw new MetadataException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
@@ -206,7 +208,7 @@ class MetadataFactory
         Driver $driver,
         LoggerInterface $logger = null
     ): MetadataRepository {
-        $self = new static($paths, $cache, $driver, $logger);
+        $self       = new static($paths, $cache, $driver, $logger);
         $repository = new MetadataRepository();
         foreach ($self->getAllMetadata() as $metadata) {
             $repository->add($metadata);
