@@ -66,8 +66,6 @@ class DocumentBuilderFactory
      */
     private LoggerInterface $logger;
 
-    private ?UriParser $uriParser = null;
-
     /**
      * DocumentInstantiationFactory constructor.
      *
@@ -118,21 +116,11 @@ class DocumentBuilderFactory
     public function new(ServerRequestInterface $request): DocumentBuilder
     {
         $linkFactory      = new LinkFactory($this->baseURL);
-        $this->uriParser  = new UriParser(
-            $request,
-            $this->metadataRepository,
-            $this->baseURL,
-            $this->supportInclusion,
-            $this->supportSort,
-            $this->supportPagination,
-            $this->filterParser,
-            $this->paginationParser,
-            $this->logger
-        );
+        $uriParser  = $this->uri($request);
         $encoder          = new Encoder(
             $this->metadataRepository,
-            $this->uriParser->getFieldset(),
-            $this->uriParser->getInclusion(),
+            $uriParser->getFieldset(),
+            $uriParser->getInclusion(),
             $linkFactory,
             $this->relationshipData,
             $this->relationshipLimit,
@@ -144,16 +132,27 @@ class DocumentBuilderFactory
             $this->maxIncludedItems,
             $this->logger
         );
-        return new DocumentBuilder($encoder, $inclusionFetcher, $linkFactory, $this->uriParser, $this->logger);
+        return new DocumentBuilder($encoder, $inclusionFetcher, $linkFactory, $uriParser, $this->logger);
     }
 
     /**
-     * Returns null if parser is not initialized, parser is initialized after ::new() call
+     * @param ServerRequestInterface $request
      *
-     * @return UriParser|null
+     * @return UriParser
+     * @throws Exception\Http\BadRequest
      */
-    public function getURIParser(): ?UriParser
+    public function uri(ServerRequestInterface $request): UriParser
     {
-        return $this->uriParser;
+        return new UriParser(
+            $request,
+            $this->metadataRepository,
+            $this->baseURL,
+            $this->supportInclusion,
+            $this->supportSort,
+            $this->supportPagination,
+            $this->filterParser,
+            $this->paginationParser,
+            $this->logger
+        );
     }
 }

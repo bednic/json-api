@@ -44,9 +44,6 @@ class DocumentInstantiationFactoryTest extends TestCase
         $baseUrl = 'http://unit.test.org';
         $request = ServerRequestFactory::createFromGlobals();
         $factory = new DocumentBuilderFactory(self::$metadata, $baseUrl);
-        $null    = $factory->getURIParser();
-        $this->assertNull($null);
-        $factory->new($request);
-        $this->assertInstanceOf(UriParser::class, $factory->getURIParser());
+        $this->assertInstanceOf(UriParser::class, $factory->uri($request));
     }
 }
