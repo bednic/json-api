@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class MethodNotExistTest extends TestCase
 {
-    protected $runTestInSeparateProcess = true;
+
 
     public function testConstruct()
     {

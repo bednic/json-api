@@ -18,7 +18,7 @@ use PHPUnit\Framework\TestCase;
 class BadMethodSignatureTest extends TestCase
 {
 
-    protected $runTestInSeparateProcess = true;
+
 
     public function testConstruct()
     {

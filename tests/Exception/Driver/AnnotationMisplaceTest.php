@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class AnnotationMisplaceTest extends TestCase
 {
 
-    protected $runTestInSeparateProcess = true;
+
 
     public function testConstruct()
     {

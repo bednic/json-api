@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class ClassNotExistTest extends TestCase
 {
-    protected $runTestInSeparateProcess = true;
+
 
     public function testConstruct()
     {
