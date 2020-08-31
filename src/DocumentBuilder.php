@@ -96,7 +96,7 @@ class DocumentBuilder
                     $collection->add($this->encoder->getResource($item));
                 }
                 if ($this->uri->getInclusion()->hasInclusions()) {
-                    $this->inclusionFetcher->fetchInclusions($data, $this->uri->getInclusion()->getInclusions());
+                    $this->inclusionFetcher->fetchInclusions($item, $this->uri->getInclusion()->getInclusions());
                 }
             }
             $this->document->setData($collection);
