@@ -115,9 +115,10 @@ class MetadataFactory
      */
     private function load(): void
     {
+        $cacheKey = get_class($this);
         try {
-            if ($this->cache->has(slashToDot(self::class))) {
-                foreach ($this->cache->get(slashToDot(self::class)) as $className) {
+            if ($this->cache->has(slashToDot($cacheKey))) {
+                foreach ($this->cache->get(slashToDot($cacheKey)) as $className) {
                     $this->loadMetadata($className);
                 }
             } else {
@@ -182,7 +183,7 @@ class MetadataFactory
             }
         }
         try {
-            $this->cache->set(slashToDot(self::class), array_keys($this->metadata));
+            $this->cache->set(slashToDot(get_class($this)), array_keys($this->metadata));
         } catch (CacheException $ignored) {
             // NO SONAR
         }
