@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Fixed
+
+### Removed
+
+
+## [6.0.0]
+This release bringing significant refactor, so please pay attention to changes. Whole usage should be simpler.
+Most of the responsibility can be now on DI. Another advantage of changes is, that you can have more then one
+metadata factories, so you can have several API groups under one application.
+
+### Added
 * `ErrorSource` class which wraps Error::source, implements additional information to Error,
 like pointer, parameter or line of exception and trace
 * `DocumentBuilderFactory` class which provides an easy setup of `DocumentBuilder`
@@ -37,5 +53,7 @@ have different instances of JSON API in one project
 * `API_ENV_URL`
 * `DocumentBuilder::create`
 
+
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.7...6.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/6.0.0...6.x
+[6.0.0]: https://gitlab.com/bednic/json-api/compare/5.1.7...6.0.0

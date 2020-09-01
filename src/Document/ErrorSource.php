@@ -34,15 +34,20 @@ class ErrorSource implements JsonSerializable
     private ?string $line = null;
 
     /**
-     * @var null
+     * @var array|null
      */
-    private $trace = null;
+    private ?array $trace = null;
 
     private function __construct()
     {
         // Instance should be created only with specific properties
     }
 
+    /**
+     * @param string $pointer
+     *
+     * @return static
+     */
     public static function pointer(string $pointer): self
     {
         $static          = new static();
@@ -50,6 +55,11 @@ class ErrorSource implements JsonSerializable
         return $static;
     }
 
+    /**
+     * @param string $parameter
+     *
+     * @return static
+     */
     public static function parameter(string $parameter)
     {
         $static            = new static();
@@ -57,6 +67,12 @@ class ErrorSource implements JsonSerializable
         return $static;
     }
 
+    /**
+     * @param string $line
+     * @param        $trace
+     *
+     * @return static
+     */
     public static function internal(string $line, $trace)
     {
         $static       = new static();
