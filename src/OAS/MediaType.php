@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\ExclusivityCheckException;
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class MediaType
  *
  * @package JSONAPI\OAS
  */
-class MediaType implements JsonSerializable
+class MediaType implements Serializable
 {
     /**
      * @var Schema

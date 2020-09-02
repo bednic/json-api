@@ -10,14 +10,14 @@ use JSONAPI\OAS\Enum\SecuritySchemeType;
 use JSONAPI\OAS\Exception\InvalidArgumentException;
 use JSONAPI\OAS\Exception\InvalidFormatException;
 use ReflectionClass;
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class SecurityScheme
  *
  * @package JSONAPI\OAS
  */
-class SecurityScheme extends Reference implements JsonSerializable
+class SecurityScheme extends Reference implements Serializable
 {
     /**
      * @var SecuritySchemeType

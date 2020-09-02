@@ -16,6 +16,7 @@ use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException as CacheException;
 use Symfony\Component\ClassLoader\ClassMapGenerator;
+use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
  * Class MetadataFactory
@@ -50,6 +51,10 @@ class MetadataFactory
      * @var array
      */
     private array $metadata = [];
+    /**
+     * @var AsciiSlugger
+     */
+    private AsciiSlugger $slugger;
 
     /**
      * MetadataFactory constructor.
@@ -73,6 +78,7 @@ class MetadataFactory
         $this->cache  = $cache;
         $this->driver = $driver;
         $this->logger = $logger ?? new NullLogger();
+        $this->slugger = new AsciiSlugger();
         $this->load();
     }
 
@@ -85,13 +91,15 @@ class MetadataFactory
      */
     private function getMetadataByClass(string $className): ClassMetadata
     {
+
         try {
+            $key = $this->slugger->slug($className)->toString();
             $className = self::clearDoctrineProxyPrefix($className);
-            if ($this->cache->has(slashToDot($className))) {
-                return $this->cache->get(slashToDot($className));
+            if ($this->cache->has($key)) {
+                return $this->cache->get($key);
             } else {
                 $classMetadata = $this->driver->getClassMetadata($className);
-                $this->cache->set(slashToDot($className), $classMetadata);
+                $this->cache->set($key, $classMetadata);
                 return $classMetadata;
             }
         } catch (CacheException $exception) {
@@ -114,10 +122,10 @@ class MetadataFactory
      */
     private function load(): void
     {
-        $cacheKey = get_class($this);
+        $key = $this->slugger->slug(get_class($this))->toString();
         try {
-            if ($this->cache->has(slashToDot($cacheKey))) {
-                foreach ($this->cache->get(slashToDot($cacheKey)) as $className) {
+            if ($this->cache->has($key)) {
+                foreach ($this->cache->get($key) as $className) {
                     $this->loadMetadata($className);
                 }
             } else {
@@ -164,7 +172,7 @@ class MetadataFactory
             }
         }
         try {
-            $this->cache->set(slashToDot(get_class($this)), array_keys($this->metadata));
+            $this->cache->set($this->slugger->slug(get_class($this))->toString(), array_keys($this->metadata));
         } catch (CacheException $e) {
             throw new MetadataException($e->getMessage(), $e->getCode(), $e);
         }

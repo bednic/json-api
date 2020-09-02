@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class Tag
@@ -14,7 +14,7 @@ use Tools\JSON\JsonSerializable;
  * @see     \JSONAPI\OAS\Operation Operation Object
  * @package JSONAPI\OAS
  */
-class Tag implements JsonSerializable
+class Tag implements Serializable
 {
     /**
      * @var string

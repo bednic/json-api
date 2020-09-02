@@ -33,6 +33,8 @@ use JSONAPI\OAS\Server;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+use function Symfony\Component\String\u;
+
 /**
  * Class OpenApiSpecificationBuilder
  *
@@ -83,6 +85,11 @@ class OpenAPISpecificationBuilder
         $this->baseUrl = $baseUrl;
     }
 
+    private static function shortName(string $className)
+    {
+        return u($className)->afterLast('\\')->toString();
+    }
+
     /**
      * @param Info   $info
      *
@@ -125,19 +132,19 @@ class OpenAPISpecificationBuilder
             ->setAdditionalProperties(true)
             ->setReadOnly(true)
             ->setDescription('Where specified, a meta member can be used to include non-standard meta-information.');
-        $this->oas->getComponents()->addSchema(classShortName(Meta::class), $meta);
+        $this->oas->getComponents()->addSchema(self::shortName(Meta::class), $meta);
 
         // LINKS
-        $this->oas->getComponents()->addSchema(classShortName(Link::class), $this->createLink());
+        $this->oas->getComponents()->addSchema(self::shortName(Link::class), $this->createLink());
         $links = DataType::object()
             ->setReadOnly(true)
-            ->addProperty('self', $this->oas->getComponents()->createSchemaReference(classShortName(Link::class)))
-            ->addProperty('related', $this->oas->getComponents()->createSchemaReference(classShortName(Link::class)))
-            ->setAdditionalProperties($this->oas->getComponents()->createSchemaReference(classShortName(Link::class)));
+            ->addProperty('self', $this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)))
+            ->addProperty('related', $this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)))
+            ->setAdditionalProperties($this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)));
         $this->oas->getComponents()->addSchema('links', $links);
 
         foreach ($this->metadataRepository->getAll() as $classMetadata) {
-            $shortName = classShortName($classMetadata->getClassName());
+            $shortName = self::shortName($classMetadata->getClassName());
             $this->oas->getComponents()->addSchema($shortName, $this->createResource($classMetadata));
         }
     }
@@ -154,7 +161,7 @@ class OpenAPISpecificationBuilder
                 ->addProperty('href', DataType::string()->setFormat('url'))
                 ->addProperty(
                     'meta',
-                    $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class))
+                    $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class))
                 )
         ]);
     }
@@ -253,7 +260,7 @@ class OpenAPISpecificationBuilder
                 $this->createResourceIdentifier($this->metadataRepository->getByClass($relationship->target))
             );
         }
-        $schema->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)));
+        $schema->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
         $schema->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
         return $schema;
     }
@@ -269,7 +276,7 @@ class OpenAPISpecificationBuilder
         return DataType::object()
             ->addProperty('id', DataType::string())
             ->addProperty('type', DataType::string()->setEnum([$metadata->getType()]))
-            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)))
+            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)))
             ->setRequired(['id', 'type']);
     }
 
@@ -330,7 +337,7 @@ class OpenAPISpecificationBuilder
                     ->addProperty('parameter', DataType::string()))
                 ->addProperty(
                     'meta',
-                    $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class))
+                    $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class))
                 )
         );
         $response = new Response('A generic error message, given when no more specific message is suitable');
@@ -351,10 +358,10 @@ class OpenAPISpecificationBuilder
             'jsonapi',
             DataType::object()
                 ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
-                ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)))
+                ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)))
         );
 
-        $document->addProperty('meta', $this->oas->getComponents()->createSchemaReference(classShortName(Meta::class)));
+        $document->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
         $document->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
         return $document;
     }
@@ -418,7 +425,7 @@ class OpenAPISpecificationBuilder
     private function registerPaths()
     {
         foreach ($this->metadataRepository->getAll() as $classMetadata) {
-            $shortName = classShortName($classMetadata->getClassName());
+            $shortName = self::shortName($classMetadata->getClassName());
 
             // COLLECTION
             $collection         = '/' . $classMetadata->getType();
@@ -521,7 +528,7 @@ class OpenAPISpecificationBuilder
                     );
                     $relationshipPathItem->setPost(
                         Operation::new()
-                            ->setRequestBody($this->createRequestBodyFor(classShortName($relationship->target)))
+                            ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
                             ->setResponses($this->createCreateResponses()->addResponse(
                                 (string)StatusCodeInterface::STATUS_OK,
                                 $this->createDocumentResponse(
@@ -533,7 +540,7 @@ class OpenAPISpecificationBuilder
                     );
                     $relationshipPathItem->setPatch(
                         Operation::new()
-                            ->setRequestBody($this->createRequestBodyFor(classShortName($relationship->target)))
+                            ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
                             ->setResponses($this->createCreateResponses()->addResponse(
                                 (string)StatusCodeInterface::STATUS_OK,
                                 $this->createDocumentResponse(
@@ -567,7 +574,7 @@ class OpenAPISpecificationBuilder
                     );
                     $relationshipPathItem->setPatch(
                         Operation::new()
-                            ->setRequestBody($this->createRequestBodyFor(classShortName($relationship->target)))
+                            ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
                             ->setResponses($this->createCreateResponses()->addResponse(
                                 (string)StatusCodeInterface::STATUS_OK,
                                 $this->createDocumentResponse(

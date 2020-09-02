@@ -36,10 +36,9 @@ use Psr\Log\NullLogger;
 use ReflectionClass;
 use ReflectionException;
 use stdClass;
-use Swaggest\JsonSchema\Exception\LogicException;
 use Swaggest\JsonSchema\Schema;
 use Throwable;
-use Tools\JSON\JsonDeserializable;
+use JSONAPI\Document\Deserializable;
 
 /**
  * Class PsrJsonApiMiddleware
@@ -205,8 +204,8 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                     $value = $object->attributes->{$attribute->name};
                     try {
                         $className = $attribute->type;
-                        if ((new ReflectionClass($className))->implementsInterface(JsonDeserializable::class)) {
-                            /** @var JsonDeserializable $className */
+                        if ((new ReflectionClass($className))->implementsInterface(Deserializable::class)) {
+                            /** @var Deserializable $className */
                             $value = $className::jsonDeserialize($value);
                         }
                     } catch (ReflectionException $ignored) {

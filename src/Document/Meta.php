@@ -6,14 +6,13 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use Tools\JSON\JsonSerializable;
 
 /**
  * Class Meta
  *
  * @package JSONAPI\Document
  */
-final class Meta implements JsonSerializable
+final class Meta implements Serializable
 {
 
     /**

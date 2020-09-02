@@ -8,14 +8,13 @@ use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Helper\LinksTrait;
 use JSONAPI\Helper\MetaTrait;
-use Tools\JSON\JsonSerializable;
 
 /**
  * Class Relationships
  *
  * @package JSONAPI\Document
  */
-final class Relationship extends Field implements JsonSerializable, HasLinks, HasMeta
+final class Relationship extends Field implements Serializable, HasLinks, HasMeta
 {
     use LinksTrait;
     use MetaTrait;

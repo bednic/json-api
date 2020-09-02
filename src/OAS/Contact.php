@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\InvalidFormatException;
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class Contact
  *
  * @package JSONAPI\OAS
  */
-class Contact implements JsonSerializable
+class Contact implements Serializable
 {
     /**
      * @var string|null

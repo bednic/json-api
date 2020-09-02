@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class SecurityRequirement
  *
  * @package JSONAPI\OAS
  */
-class SecurityRequirement implements JsonSerializable
+class SecurityRequirement implements Serializable
 {
     /**
      * Each name MUST correspond to a security scheme which is declared in the Security Schemes under the Components

@@ -6,14 +6,13 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use Tools\JSON\JsonSerializable;
 
 /**
  * Class FieldMetadata
  *
  * @package JSONAPI\Document
  */
-abstract class Field implements JsonSerializable
+abstract class Field implements Serializable
 {
 
     /**

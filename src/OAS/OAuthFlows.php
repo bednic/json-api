@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class OAuthFlows
  *
  * @package JSONAPI\OAS
  */
-class OAuthFlows implements JsonSerializable
+class OAuthFlows implements Serializable
 {
 
     private ?OAuthFlow $implicit = null;

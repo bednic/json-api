@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use ReflectionClass;
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class RequestBody
  *
  * @package JSONAPI\OAS
  */
-class RequestBody extends Reference implements JsonSerializable
+class RequestBody extends Reference implements Serializable
 {
     /**
      * @var string|null

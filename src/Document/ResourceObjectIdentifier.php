@@ -8,14 +8,13 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Helper\MetaTrait;
-use Tools\JSON\JsonSerializable;
 
 /**
  * Class ResourceObjectIdentifier
  *
  * @package JSONAPI\Document
  */
-class ResourceObjectIdentifier implements JsonSerializable, HasMeta, PrimaryData
+class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
 {
     use MetaTrait;
 

@@ -5,9 +5,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [Unreleased]
+## [6.1.0]
 
 ### Added
+* Classes for JSON conversion
+    * `JSONAPI\Document\Serializable`
+    * `JSONAPI\Document\Deserializable`
+    * `JSONAPI\Document\Convertible`
 
 ### Changed
 
@@ -16,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+* `bednic/tools` library, replaced with `symfony/string`
 
 
 ## [6.0.0]
@@ -55,5 +60,6 @@ have different instances of JSON API in one project
 
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/6.0.0...6.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/6.1.0...6.x
+[6.1.0]: https://gitlab.com/bednic/json-api/compare/6.0.0...6.1.0
 [6.0.0]: https://gitlab.com/bednic/json-api/compare/5.1.7...6.0.0

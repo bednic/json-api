@@ -9,14 +9,14 @@ use JSONAPI\OAS\Enum\Style;
 use JSONAPI\OAS\Exception\ExclusivityCheckException;
 use JSONAPI\OAS\Exception\IncompleteObjectException;
 use ReflectionClass;
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class Parameter
  *
  * @package JSONAPI\OAS
  */
-class Parameter extends Reference implements JsonSerializable
+class Parameter extends Reference implements Serializable
 {
     /**
      * Case sensitive

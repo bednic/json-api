@@ -6,14 +6,14 @@ namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\ExclusivityCheckException;
 use ReflectionClass;
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class Link
  *
  * @package JSONAPI\OAS
  */
-class Link extends Reference implements JsonSerializable
+class Link extends Reference implements Serializable
 {
 
     /**

@@ -7,7 +7,6 @@ namespace JSONAPI\Document;
 use ArrayIterator;
 use Countable;
 use IteratorAggregate;
-use Tools\JSON\JsonSerializable;
 use Traversable;
 
 /**
@@ -15,7 +14,7 @@ use Traversable;
  *
  * @package JSONAPI\Document\PrimaryData
  */
-final class ResourceCollection implements PrimaryData, IteratorAggregate, Countable, JsonSerializable
+final class ResourceCollection implements PrimaryData, IteratorAggregate, Countable, Serializable
 {
     /**
      * @var ResourceObject[]|ResourceObjectIdentifier[]

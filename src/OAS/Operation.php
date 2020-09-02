@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\OAS\Exception\DuplicationEntryException;
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class Operation
  *
  * @package JSONAPI\OAS
  */
-class Operation implements JsonSerializable
+class Operation implements Serializable
 {
 
     /**

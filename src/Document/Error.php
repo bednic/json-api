@@ -12,7 +12,6 @@ use JSONAPI\Helper\LinksTrait;
 use JSONAPI\Helper\MetaTrait;
 use Swaggest\JsonSchema\Exception\Error as SchemaError;
 use Swaggest\JsonSchema\InvalidValue;
-use Tools\JSON\JsonSerializable;
 use Throwable;
 
 /**
@@ -20,7 +19,7 @@ use Throwable;
  *
  * @package JSONAPI\Document
  */
-final class Error implements JsonSerializable, HasLinks, HasMeta
+final class Error implements Serializable, HasLinks, HasMeta
 {
     use LinksTrait;
     use MetaTrait;

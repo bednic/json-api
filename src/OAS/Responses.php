@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class Responses
  *
  * @package JSONAPI\OAS
  */
-class Responses implements JsonSerializable
+class Responses implements Serializable
 {
     /**
      * @var Response

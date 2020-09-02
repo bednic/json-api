@@ -7,14 +7,14 @@ namespace JSONAPI\OAS;
 use JSONAPI\OAS\Exception\IncompleteObjectException;
 use JSONAPI\OAS\Exception\InvalidArgumentException;
 use ReflectionClass;
-use Tools\JSON\JsonSerializable;
+use JSONAPI\Document\Serializable;
 
 /**
  * Class Schema
  *
  * @package JSONAPI\OAS
  */
-class Schema extends Reference implements JsonSerializable
+class Schema extends Reference implements Serializable
 {
     /**
      * @var string

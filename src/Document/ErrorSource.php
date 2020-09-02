@@ -4,14 +4,12 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use Tools\JSON\JsonSerializable;
-
 /**
  * Class ErrorSource
  *
  * @package JSONAPI\Document
  */
-class ErrorSource implements JsonSerializable
+class ErrorSource implements Serializable
 {
     /**
      * JSON Pointer [RFC6901] to the associated entity in the request document

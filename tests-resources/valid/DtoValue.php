@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Resources\Valid;
 
-use Tools\JSON\JsonConvertible;
+use JSONAPI\Document\Convertible;
 
-class DtoValue implements JsonConvertible
+class DtoValue implements Convertible
 {
 
     /**

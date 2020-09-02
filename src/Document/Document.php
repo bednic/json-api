@@ -6,14 +6,13 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Helper\LinksTrait;
 use JSONAPI\Helper\MetaTrait;
-use Tools\JSON\JsonSerializable;
 
 /**
  * Class Document
  *
  * @package JSONAPI\Document
  */
-final class Document implements JsonSerializable, HasLinks, HasMeta
+final class Document implements Serializable, HasLinks, HasMeta
 {
     use LinksTrait;
     use MetaTrait;
