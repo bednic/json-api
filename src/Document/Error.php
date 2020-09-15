@@ -83,7 +83,7 @@ final class Error implements Serializable, HasLinks, HasMeta
     /**
      * @param SchemaError $error
      *
-     * @return array
+     * @return array<mixed>
      * @example [
      *      <string> message,
      *      <ErrorSource> source
@@ -94,7 +94,10 @@ final class Error implements Serializable, HasLinks, HasMeta
         if ($error->subErrors) {
             return self::parseInvalidValue($error->subErrors[0]);
         } else {
-            return [preg_replace('/, data.+/', '', $error->error), ErrorSource::pointer($error->dataPointer)];
+            return [
+                (string) preg_replace('/, data.+/', '', $error->error),
+                ErrorSource::pointer($error->dataPointer)
+            ];
         }
     }
 

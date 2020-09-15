@@ -70,10 +70,16 @@ class Contact implements Serializable
 
     public function jsonSerialize()
     {
-        return [
-            'name'  => $this->name,
-            'url'   => $this->url,
-            'email' => $this->email
-        ];
+        $ret = [];
+        if ($this->name) {
+            $ret['name'] = $this->name;
+        }
+        if ($this->url) {
+            $ret['url'] = $this->url;
+        }
+        if ($this->email) {
+            $ret['email'] = $this->email;
+        }
+        return (object)$ret;
     }
 }

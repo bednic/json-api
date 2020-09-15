@@ -3,7 +3,7 @@ image: registry.gitlab.com/bednic/json-api/ci:7.4
 stages:
     - build
     - test
-    - analyze
+    - analyse
 
 variables:
     SONAR_HOST_URL: "https://sonarcloud.io"
@@ -28,12 +28,12 @@ test:unit:
             - tmp
 
 code_sniffer:
-    stage: analyze
+    stage: analyse
     script:
         - vendor/bin/phpcs
 
 sonar:
-    stage: analyze
+    stage: analyse
     image:
         name: sonarsource/sonar-scanner-cli:latest
         entrypoint: [""]
@@ -46,3 +46,8 @@ sonar:
     allow_failure: true
     dependencies:
         - test:unit
+
+phpstan:
+    stage: analyse
+    script:
+        - vendor/bin/phpstan analyse

@@ -75,7 +75,7 @@ class DocumentBuilder
     }
 
     /**
-     * @param iterable|object $data
+     * @param iterable<object>|object $data
      *
      * @return $this
      * @throws BadRequest
@@ -86,7 +86,7 @@ class DocumentBuilder
     public function setData($data): DocumentBuilder
     {
         $this->logger->debug('Setting data.');
-        if ($this->uri->getPath()->isCollection()) {
+        if ($this->uri->getPath()->isCollection() && is_iterable($data)) {
             $this->logger->debug('It is resource collection.');
             $collection = new ResourceCollection();
             foreach ($data as $item) {
@@ -100,7 +100,7 @@ class DocumentBuilder
                 }
             }
             $this->document->setData($collection);
-        } else {
+        } elseif (is_object($data)) {
             $this->logger->debug('It is single resource');
             if ($this->uri->getPath()->isRelationship()) {
                 $this->document->setData($this->encoder->getIdentifier($data));

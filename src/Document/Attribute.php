@@ -18,7 +18,7 @@ final class Attribute extends Field
      * Attribute constructor.
      *
      * @param string $key
-     * @param        $data
+     * @param mixed  $data
      *
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType

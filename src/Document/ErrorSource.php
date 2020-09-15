@@ -32,7 +32,7 @@ class ErrorSource implements Serializable
     private ?string $line = null;
 
     /**
-     * @var array|null
+     * @var array<string>|null
      */
     private ?array $trace = null;
 
@@ -44,11 +44,11 @@ class ErrorSource implements Serializable
     /**
      * @param string $pointer
      *
-     * @return static
+     * @return ErrorSource
      */
     public static function pointer(string $pointer): self
     {
-        $static          = new static();
+        $static          = new self();
         $static->pointer = $pointer;
         return $static;
     }
@@ -56,26 +56,26 @@ class ErrorSource implements Serializable
     /**
      * @param string $parameter
      *
-     * @return static
+     * @return ErrorSource
      */
-    public static function parameter(string $parameter)
+    public static function parameter(string $parameter): self
     {
-        $static            = new static();
+        $static            = new self();
         $static->parameter = $parameter;
         return $static;
     }
 
     /**
      * @param string $line
-     * @param        $trace
+     * @param string $trace
      *
-     * @return static
+     * @return ErrorSource
      */
-    public static function internal(string $line, $trace)
+    public static function internal(string $line, string $trace): self
     {
-        $static       = new static();
+        $static       = new self();
         $static->line = $line;
-        $steps        = preg_split('/#[0-9]+ /', $trace);
+        $steps        = preg_split('/#[0-9]+ /', $trace) !== false ? preg_split('/#[0-9]+ /', $trace) : [];
         array_shift($steps);
         $static->trace = $steps;
         return $static;

@@ -15,7 +15,7 @@ use stdClass;
 interface Deserializable
 {
     /**
-     * @param stdClass|array $json
+     * @param stdClass|array<mixed> $json
      *
      * @return static
      */

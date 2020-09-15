@@ -31,12 +31,12 @@ final class Document implements Serializable, HasLinks, HasMeta
     private ?PrimaryData $data = null;
 
     /**
-     * @var ResourceCollection
+     * @var ResourceCollection<ResourceObject>
      */
     private ResourceCollection $included;
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     private array $jsonapi = [
         'version' => self::VERSION
@@ -70,9 +70,9 @@ final class Document implements Serializable, HasLinks, HasMeta
     }
 
     /**
-     * @param ResourceCollection $includes
+     * @param ResourceCollection<ResourceObject> $includes
      */
-    public function setIncludes(ResourceCollection $includes)
+    public function setIncludes(ResourceCollection $includes): void
     {
         $this->included = $includes;
     }
