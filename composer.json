@@ -46,7 +46,6 @@
     "require-dev": {
         "doctrine/cache": "^1.8",
         "doctrine/orm": "^2.7",
-        "phpstan/phpstan": "^0.12.42",
         "phpunit/phpunit": "^8",
         "roave/doctrine-simplecache": "^2.3",
         "slim/psr7": "^0.6.0",
@@ -76,7 +75,10 @@
         ],
         "psr-4": {
             "JSONAPI\\Test\\": "tests/"
-        }
+        },
+        "files": [
+            "tests-resources/JSONTestObject.php"
+        ]
     },
     "extra": {
         "branch-alias": {
@@ -97,12 +99,7 @@
         ]
     },
     "scripts": {
-        "lint": [
-            "phpcbf"
-        ],
-        "analyse": [
-            "phpstan analyse",
-            "phpcs"
-        ]
+        "lint": ["phpcbf"],
+        "analyse": ["phpcs"]
     }
 }
