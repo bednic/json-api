@@ -18,12 +18,15 @@ abstract class CursorPagination implements PaginationInterface, PaginationParser
     private string $cursor;
 
     /**
-     * @return mixed
+     * @return string
      */
-    abstract public function getCursor(): string;
+    public function getCursor(): string
+    {
+        return $this->cursor;
+    }
 
     /**
-     * @param array $data
+     * @param array|null $data
      *
      * @return PaginationInterface
      */

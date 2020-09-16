@@ -50,7 +50,7 @@ class Relationship extends Field
         bool $isCollection = null,
         Meta $meta = null
     ): Relationship {
-        $self = new static();
+        $self = new self();
         $self->property = $property;
         $self->name = $name;
         $self->target = $target;
@@ -77,7 +77,7 @@ class Relationship extends Field
         bool $isCollection = null,
         Meta $meta = null
     ): Relationship {
-        $self = new static();
+        $self = new self();
         $self->getter = $getter;
         $self->name = $name;
         $self->setter = $setter;

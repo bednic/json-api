@@ -64,7 +64,7 @@ class Inclusion
     }
 
     /**
-     * @param $relation
+     * @param string $relation
      *
      * @return bool
      */

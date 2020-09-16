@@ -17,7 +17,7 @@ class FieldsetParser implements FieldsetInterface
     private array $fields = [];
 
     /**
-     * @param $data
+     * @param array|null $data
      *
      * @return FieldsetInterface
      */

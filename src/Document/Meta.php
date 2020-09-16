@@ -37,7 +37,7 @@ final class Meta implements Serializable
 
     /**
      * @param string $key
-     * @param        $value
+     * @param mixed  $value
      *
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType

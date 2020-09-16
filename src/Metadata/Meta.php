@@ -24,7 +24,7 @@ class Meta
      */
     public static function create(string $getter): Meta
     {
-        $self = new static();
+        $self = new self();
         $self->getter = $getter;
         return $self;
     }

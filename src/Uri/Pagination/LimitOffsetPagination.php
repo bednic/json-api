@@ -100,11 +100,11 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
         $static = null;
         if ($this->total !== null) {
             if ($this->getOffset() + $this->getLimit() < $this->total) {
-                $static = new static($this->getOffset() + $this->getLimit(), $this->getLimit());
+                $static = new self($this->getOffset() + $this->getLimit(), $this->getLimit());
                 $static->setTotal($this->total);
             }
         } else {
-            $static = new static($this->getOffset() + $this->getLimit(), $this->getLimit());
+            $static = new self($this->getOffset() + $this->getLimit(), $this->getLimit());
         }
         return $static;
     }
@@ -115,7 +115,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     public function prev(): ?PaginationInterface
     {
         if ($this->getOffset() - $this->getLimit() >= 0) {
-            $static = new static($this->getOffset() - $this->getLimit(), $this->getLimit());
+            $static = new self($this->getOffset() - $this->getLimit(), $this->getLimit());
             if ($this->total !== null) {
                 $static->setTotal($this->total);
             }
@@ -129,7 +129,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      */
     public function first(): PaginationInterface
     {
-        $static = new static(0, $this->getLimit());
+        $static = new self(0, $this->getLimit());
         if ($this->total !== null) {
             $static->setTotal($this->total);
         }
@@ -142,7 +142,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     public function last(): ?PaginationInterface
     {
         if ($this->total !== null) {
-            $static = new static(max(0, $this->total - $this->getLimit()), $this->getLimit());
+            $static = new self(max(0, $this->total - $this->getLimit()), $this->getLimit());
             $static->setTotal($this->total);
             return $static;
         }

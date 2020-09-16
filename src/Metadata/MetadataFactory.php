@@ -68,7 +68,7 @@ class MetadataFactory
      * @throws InvalidArgumentException
      * @throws MetadataException
      */
-    private function __construct(
+    final private function __construct(
         array $paths,
         CacheInterface $cache,
         Driver $driver,

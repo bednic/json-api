@@ -39,7 +39,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     public function __construct(int $number = 1, int $size = 25)
     {
         $this->number = $number;
-        $this->size = $size;
+        $this->size   = $size;
     }
 
     /**
@@ -53,7 +53,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getNumber(): int
     {
@@ -61,7 +61,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     }
 
     /**
-     * @return int|null
+     * @return int
      */
     public function getSize(): int
     {
@@ -76,11 +76,11 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
         $static = null;
         if ($this->total !== null) {
             if ($this->getNumber() + 1 <= $this->total) {
-                $static = new static($this->getNumber() + 1, $this->getSize());
+                $static = new self($this->getNumber() + 1, $this->getSize());
                 $static->setTotal($this->total);
             }
         } else {
-            $static = new static($this->getNumber() + 1, $this->getSize());
+            $static = new self($this->getNumber() + 1, $this->getSize());
         }
         return $static;
     }
@@ -91,7 +91,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     public function prev(): ?PaginationInterface
     {
         if ($this->getNumber() - 1 > 0) {
-            $static = new static($this->getNumber() - 1, $this->getSize());
+            $static = new self($this->getNumber() - 1, $this->getSize());
             if ($this->total !== null) {
                 $static->setTotal($this->total);
             }
@@ -105,7 +105,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
      */
     public function first(): PaginationInterface
     {
-        $static = new static(1, $this->getSize());
+        $static = new self(1, $this->getSize());
         if ($this->total !== null) {
             $static->setTotal($this->total);
         }
@@ -118,7 +118,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     public function last(): ?PaginationInterface
     {
         if ($this->total !== null) {
-            $static = new static($this->total, $this->getSize());
+            $static = new self($this->total, $this->getSize());
             if ($this->total !== null) {
                 $static->setTotal($this->total);
             }
@@ -128,7 +128,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     }
 
     /**
-     * @param array $data
+     * @param array|null $data
      *
      * @return PaginationInterface
      */

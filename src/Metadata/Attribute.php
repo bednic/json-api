@@ -34,7 +34,7 @@ class Attribute extends Field
      * @param string|null $type
      * @param string|null $of
      *
-     * @return static
+     * @return self
      */
     public static function createByProperty(
         string $property,
@@ -42,7 +42,7 @@ class Attribute extends Field
         string $name = null,
         string $type = null
     ): self {
-        $self = new static();
+        $self = new self();
         $self->property = $property;
         $self->name = $name;
         $self->type = $type;
@@ -57,7 +57,7 @@ class Attribute extends Field
      * @param string|null $type
      * @param string|null $of
      *
-     * @return static
+     * @return self
      */
     public static function createByMethod(
         string $getter,
@@ -66,7 +66,7 @@ class Attribute extends Field
         string $type = null,
         string $of = null
     ): self {
-        $self = new static();
+        $self = new self();
         $self->getter = $getter;
         $self->setter = $setter;
         $self->name = $name;

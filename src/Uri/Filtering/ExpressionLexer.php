@@ -94,11 +94,11 @@ class ExpressionLexer
     /**
      * ExpressionLexer constructor.
      *
-     * @param $expression
+     * @param string $expression
      *
      * @throws ExpressionException
      */
-    public function __construct($expression)
+    public function __construct(string $expression)
     {
         $this->text = $expression;
         $this->textLen = strlen($this->text);
@@ -395,11 +395,11 @@ class ExpressionLexer
     }
 
     /**
-     * @param $message
+     * @param string $message
      *
      * @throws ExpressionException
      */
-    private function parseError($message)
+    private function parseError(string $message)
     {
         throw new ExpressionException($message);
     }

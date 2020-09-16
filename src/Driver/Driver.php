@@ -17,8 +17,11 @@ use JSONAPI\Metadata\Relationship;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
+use ReflectionNamedType;
+use ReflectionParameter;
 use ReflectionProperty;
 use ReflectionType;
+use Reflector;
 
 /**
  * Interface Driver
@@ -50,11 +53,8 @@ abstract class Driver
      */
     protected function isGetter(ReflectionMethod $getter): void
     {
-
-        if (
-            !(($getter->hasReturnType() && $getter->getReturnType()->getName() !== 'void')
-            || preg_match(self::GETTER, $getter->getName()))
-        ) {
+        $type = $this->getType($getter);
+        if (!(($type && $type !== 'void') || preg_match(self::GETTER, $getter->getName()))) {
             throw new AnnotationMisplace(
                 $getter->getName(),
                 $getter->class
@@ -89,8 +89,9 @@ abstract class Driver
             throw new BadSignature($setter->getName(), $setter->class);
         }
         $parameters = $setter->getParameters();
+
         $parameter = array_shift($parameters);
-        return $parameter->getType() ? $parameter->getType()->getName() : null;
+        return $this->getType($parameter);
     }
 
     /**
@@ -108,13 +109,13 @@ abstract class Driver
     }
 
     /**
-     * @param ReflectionMethod|ReflectionProperty $reflection
+     * @param ReflectionMethod|ReflectionProperty|ReflectionParameter $reflection
      *
      * @return string|null
      */
     protected function getType($reflection): ?string
     {
-        /** @var ReflectionType $type */
+        /** @var ReflectionNamedType $type */
         $type = $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
         return $type ? $type->getName() : null;
     }
@@ -127,13 +128,12 @@ abstract class Driver
      */
     protected function isCollection($reflection): ?bool
     {
-
-        $type = $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
+        $type = $this->getType($reflection);
         if (is_null($type)) {
             throw new BadSignature($reflection->getName(), $reflection->getDeclaringClass()->getName());
         }
         try {
-            if ((new ReflectionClass($type->getName()))->implementsInterface(Collection::class)) {
+            if ((new ReflectionClass($type))->implementsInterface(Collection::class)) {
                 return true;
             }
             return false;
@@ -194,16 +194,16 @@ abstract class Driver
     }
 
     /**
-     * @param Relationship         $relationship
-     * @param                      $reflection
-     * @param ReflectionClass      $reflectionClass
+     * @param Relationship                                  $relationship
+     * @param ReflectionProperty|ReflectionMethod|Reflector $reflection
+     * @param ReflectionClass                               $reflectionClass
      *
      * @throws BadSignature
      * @throws MethodNotExist
      */
     protected function fillUpRelationship(
         Relationship $relationship,
-        $reflection,
+        Reflector $reflection,
         ReflectionClass $reflectionClass
     ) {
         if (!$relationship->name) {

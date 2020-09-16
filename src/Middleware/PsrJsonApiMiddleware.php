@@ -60,9 +60,12 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      */
     private StreamFactoryInterface $streamFactory;
     /**
-     * @var LoggerInterface|null
+     * @var LoggerInterface
      */
     private LoggerInterface $logger;
+    /**
+     * @var string
+     */
     private string $baseURL;
     /**
      * @var Schema
@@ -225,7 +228,9 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                     } else {
                         $data = new ResourceObjectIdentifier(new Type($value->type), new Id($value->id));
                     }
-                    $resource->addRelationship(new Relationship($relationship->name, $data));
+                    $rel = new Relationship($relationship->name);
+                    $rel->setData($data);
+                    $resource->addRelationship($rel);
                 }
             }
         }

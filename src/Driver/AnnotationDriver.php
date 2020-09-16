@@ -11,6 +11,7 @@ use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
+use JSONAPI\Annotation\Resource as ResourceAnnotation;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\BadSignature;
 use JSONAPI\Exception\Driver\ClassNotExist;
@@ -67,14 +68,15 @@ class AnnotationDriver extends Driver
     {
         try {
             $ref = new ReflectionClass($className);
-            /** @var Resource $resource */
-            if ($resource = $this->reader->getClassAnnotation($ref, Resource::class)) {
+            /** @var ResourceAnnotation $resource */
+            $resource = $this->reader->getClassAnnotation($ref, Resource::class);
+            if ($resource) {
                 $this->logger->debug('Found resource ' . $resource->type);
                 if ($resource->meta && !$ref->hasMethod($resource->meta->getter)) {
                     throw new MethodNotExist($resource->meta->getter, $ref->getName());
                 }
-                $id = null;
-                $attributes = new ArrayCollection();
+                $id            = null;
+                $attributes    = new ArrayCollection();
                 $relationships = new ArrayCollection();
                 $this->parseProperties($ref, $id, $attributes, $relationships);
                 $this->parseMethods($ref, $id, $attributes, $relationships);
@@ -97,13 +99,13 @@ class AnnotationDriver extends Driver
     }
 
     /**
-     * @param ReflectionClass  $reflectionClass
-     * @param                  $id
-     * @param ArrayCollection  $attributes
-     * @param ArrayCollection  $relationships
+     * @param ReflectionClass $reflectionClass
+     * @param Id|null         $id
+     * @param ArrayCollection $attributes
+     * @param ArrayCollection $relationships
      *
-     * @throws MethodNotExist
      * @throws BadSignature
+     * @throws MethodNotExist
      */
     private function parseProperties(
         ReflectionClass $reflectionClass,
@@ -135,14 +137,14 @@ class AnnotationDriver extends Driver
     }
 
     /**
-     * @param ReflectionClass  $reflectionClass
-     * @param                  $id
-     * @param ArrayCollection  $attributes
-     * @param ArrayCollection  $relationships
+     * @param ReflectionClass $reflectionClass
+     * @param Id|null         $id
+     * @param ArrayCollection $attributes
+     * @param ArrayCollection $relationships
      *
+     * @throws AnnotationMisplace
      * @throws BadSignature
      * @throws MethodNotExist
-     * @throws AnnotationMisplace
      */
     private function parseMethods(
         ReflectionClass $reflectionClass,

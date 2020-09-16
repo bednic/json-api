@@ -111,18 +111,18 @@ final class Encoder
         int $relationshipLimit = 25,
         LoggerInterface $logger = null
     ) {
-        $this->repository = $metadataRepository;
-        $this->fieldset   = $fieldset;
-        $this->inclusion  = $inclusion;
-        $this->logger     = $logger ?? new NullLogger();
-        $this->linkFactory = $linkFactory;
-        $this->withData = $relationshipData;
+        $this->repository        = $metadataRepository;
+        $this->fieldset          = $fieldset;
+        $this->inclusion         = $inclusion;
+        $this->logger            = $logger ?? new NullLogger();
+        $this->linkFactory       = $linkFactory;
+        $this->withData          = $relationshipData;
         $this->relationshipLimit = $relationshipLimit;
     }
 
 
     /**
-     * @param $object
+     * @param object $object
      *
      * @return ResourceObjectIdentifier
      * @throws ClassNotExist
@@ -130,13 +130,13 @@ final class Encoder
      * @throws ForbiddenDataType
      * @throws MetadataNotFound
      */
-    public function getIdentifier($object): ResourceObjectIdentifier
+    public function getIdentifier(object $object): ResourceObjectIdentifier
     {
         return $this->for($object)->createIdentifier()->setMeta()->resource;
     }
 
     /**
-     * @param $object
+     * @param object $object
      *
      * @return ResourceObject
      * @throws ClassNotExist
@@ -146,7 +146,7 @@ final class Encoder
      * @throws MetadataNotFound
      * @throws AlreadyInUse
      */
-    public function getResource($object): ResourceObject
+    public function getResource(object $object): ResourceObject
     {
         return $this->for($object)->createResource()->setMeta()->setFields()->setLinks()->resource;
     }
@@ -163,7 +163,7 @@ final class Encoder
     }
 
     /**
-     * @return $this
+     * @return self
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
@@ -185,13 +185,13 @@ final class Encoder
     }
 
     /**
-     * @param $object
+     * @param object $object
      *
      * @return Encoder
      * @throws ClassNotExist
      * @throws MetadataNotFound
      */
-    private function for($object): Encoder
+    private function for(object $object): Encoder
     {
         $encoder   = clone $this;
         $className = Encoder::clearDoctrineProxyPrefix(get_class($object));
@@ -258,60 +258,62 @@ final class Encoder
      */
     private function setFields(): Encoder
     {
-        foreach (
-            array_merge(
-                $this->metadata->getAttributes(),
-                $this->metadata->getRelationships()
-            ) as $name => $field
-        ) {
-            if ($this->fieldset->showField($this->resource->getType(), $name)) {
-                $value = null;
-                if ($field->getter != null) {
-                    $value = call_user_func([$this->object, $field->getter]);
-                } else {
-                    try {
-                        $value = $this->ref->getProperty($field->property)->getValue($this->object);
-                    } catch (ReflectionException $ignored) {
-                        // NO SONAR Can't happen
-                    }
-                }
-                if ($field instanceof Relationship) {
-                    $relationship = new Document\Relationship($field->name);
-                    if ($this->withData || $this->inclusion->hasInclusions()) {
-                        if ($field->isCollection) {
-                            if (!($value instanceof Collection)) {
-                                $value = new ArrayCollection($value);
-                            }
-                            /** @var Collection $value */
-                            $data  = new ArrayCollection();
-                            $total = $value->count();
-                            $limit = min($this->relationshipLimit, $total);
-                            foreach ($value->slice(0, $limit) as $object) {
-                                $data->add($this->getIdentifier($object));
-                            }
-                        } elseif ($value) {
-                            $data = $this->getIdentifier($value);
-                        } else {
-                            $data = null;
+        if ($this->resource instanceof ResourceObject) {
+            foreach (
+                array_merge(
+                    $this->metadata->getAttributes(),
+                    $this->metadata->getRelationships()
+                ) as $name => $field
+            ) {
+                if ($this->fieldset->showField($this->resource->getType(), $name)) {
+                    $value = null;
+                    if ($field->getter != null) {
+                        $value = call_user_func([$this->object, $field->getter]);
+                    } else {
+                        try {
+                            $value = $this->ref->getProperty($field->property)->getValue($this->object);
+                        } catch (ReflectionException $ignored) {
+                            // NO SONAR Can't happen
                         }
-                        $relationship->setData($data);
                     }
-                    $this->linkFactory->setRelationshipLinks($relationship, $this->resource);
-                    if ($field->meta) {
-                        $this->logger->debug("Adding meta to relationship {$name}");
-                        $relationship->setMeta(call_user_func([$this->object, $field->meta->getter]));
+                    if ($field instanceof Relationship) {
+                        $relationship = new Document\Relationship($field->name);
+                        if ($this->withData || $this->inclusion->hasInclusions()) {
+                            if ($field->isCollection) {
+                                if (!($value instanceof Collection)) {
+                                    $value = new ArrayCollection($value);
+                                }
+                                /** @var Collection $value */
+                                $data  = new ArrayCollection();
+                                $total = $value->count();
+                                $limit = min($this->relationshipLimit, $total);
+                                foreach ($value->slice(0, $limit) as $object) {
+                                    $data->add($this->getIdentifier($object));
+                                }
+                            } elseif ($value) {
+                                $data = $this->getIdentifier($value);
+                            } else {
+                                $data = null;
+                            }
+                            $relationship->setData($data);
+                        }
+                        $this->linkFactory->setRelationshipLinks($relationship, $this->resource);
+                        if ($field->meta) {
+                            $this->logger->debug("Adding meta to relationship {$name}");
+                            $relationship->setMeta(call_user_func([$this->object, $field->meta->getter]));
+                        }
+                        $this->resource->addRelationship($relationship);
+                        $this->logger->debug("Adding relationship {$name}.");
+                    } elseif ($field instanceof Attribute) {
+                        if ($value instanceof DateTimeInterface) {
+                            // ISO 8601
+                            $value = $value->format(DATE_ATOM);
+                        }
+                        $this->logger->debug("Adding attribute {$name}.");
+                        $this->resource->addAttribute(new Document\Attribute($name, $value));
+                    } else {
+                        throw new InvalidField($name);
                     }
-                    $this->resource->addRelationship($relationship);
-                    $this->logger->debug("Adding relationship {$name}.");
-                } elseif ($field instanceof Attribute) {
-                    if ($value instanceof DateTimeInterface) {
-                        // ISO 8601
-                        $value = $value->format(DATE_ATOM);
-                    }
-                    $this->logger->debug("Adding attribute {$name}.");
-                    $this->resource->addAttribute(new Document\Attribute($name, $value));
-                } else {
-                    throw new InvalidField($name);
                 }
             }
         }

@@ -35,7 +35,7 @@ class Id
      */
     public static function createByProperty(string $property): Id
     {
-        $self = new static();
+        $self = new self();
         $self->property = $property;
         return $self;
     }
@@ -47,7 +47,7 @@ class Id
      */
     public static function createByMethod(string $getter): Id
     {
-        $self = new static();
+        $self = new self();
         $self->getter = $getter;
         return $self;
     }

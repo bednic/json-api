@@ -14,8 +14,8 @@ interface ExpressionBuilder
 {
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -23,8 +23,8 @@ interface ExpressionBuilder
     public function and($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -32,8 +32,8 @@ interface ExpressionBuilder
     public function or($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -41,8 +41,8 @@ interface ExpressionBuilder
     public function eq($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -50,8 +50,8 @@ interface ExpressionBuilder
     public function ne($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -59,8 +59,8 @@ interface ExpressionBuilder
     public function gt($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -68,8 +68,8 @@ interface ExpressionBuilder
     public function ge($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -77,8 +77,8 @@ interface ExpressionBuilder
     public function lt($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -86,8 +86,8 @@ interface ExpressionBuilder
     public function le($left, $right);
 
     /**
-     * @param $column
-     * @param $args
+     * @param mixed $column
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -97,8 +97,8 @@ interface ExpressionBuilder
     /**
      * Addition
      *
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -108,8 +108,8 @@ interface ExpressionBuilder
     /**
      * Subtraction
      *
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -117,8 +117,8 @@ interface ExpressionBuilder
     public function sub($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -126,8 +126,8 @@ interface ExpressionBuilder
     public function mul($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -135,8 +135,8 @@ interface ExpressionBuilder
     public function div($left, $right);
 
     /**
-     * @param $left
-     * @param $right
+     * @param mixed $left
+     * @param mixed $right
      *
      * @return mixed
      * @throws ExpressionException
@@ -144,7 +144,7 @@ interface ExpressionBuilder
     public function mod($left, $right);
 
     /**
-     * @param $args
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -152,7 +152,7 @@ interface ExpressionBuilder
     public function not($args);
 
     /**
-     * @param $args
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -160,7 +160,7 @@ interface ExpressionBuilder
     public function upper($args);
 
     /**
-     * @param $args
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -168,7 +168,7 @@ interface ExpressionBuilder
     public function lower($args);
 
     /**
-     * @param $args
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -176,7 +176,7 @@ interface ExpressionBuilder
     public function trim($args);
 
     /**
-     * @param $args
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -184,8 +184,8 @@ interface ExpressionBuilder
     public function length($args);
 
     /**
-     * @param $column
-     * @param $args
+     * @param mixed $column
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -193,8 +193,8 @@ interface ExpressionBuilder
     public function concat($column, $args);
 
     /**
-     * @param $column
-     * @param $args
+     * @param mixed $column
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -202,8 +202,8 @@ interface ExpressionBuilder
     public function contains($column, $args);
 
     /**
-     * @param $column
-     * @param $args
+     * @param mixed $column
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -211,8 +211,8 @@ interface ExpressionBuilder
     public function startsWith($column, $args);
 
     /**
-     * @param $column
-     * @param $args
+     * @param mixed $column
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -220,9 +220,9 @@ interface ExpressionBuilder
     public function endsWith($column, $args);
 
     /**
-     * @param      $column
-     * @param      $start
-     * @param null $end
+     * @param mixed $column
+     * @param mixed $start
+     * @param mixed $end
      *
      * @return mixed
      * @throws ExpressionException
@@ -230,8 +230,8 @@ interface ExpressionBuilder
     public function substring($column, $start, $end = null);
 
     /**
-     * @param $column
-     * @param $args
+     * @param mixed $column
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -239,8 +239,8 @@ interface ExpressionBuilder
     public function indexOf($column, $args);
 
     /**
-     * @param $column
-     * @param $args
+     * @param mixed $column
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -248,7 +248,7 @@ interface ExpressionBuilder
     public function pattern($column, $args);
 
     /**
-     * @param $args
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -256,7 +256,7 @@ interface ExpressionBuilder
     public function ceil($args);
 
     /**
-     * @param $args
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -264,7 +264,7 @@ interface ExpressionBuilder
     public function floor($args);
 
     /**
-     * @param $args
+     * @param mixed $args
      *
      * @return mixed
      * @throws ExpressionException
@@ -272,7 +272,7 @@ interface ExpressionBuilder
     public function round($args);
 
     /**
-     * @param $column
+     * @param mixed $column
      *
      * @return mixed
      * @throws ExpressionException
@@ -280,14 +280,14 @@ interface ExpressionBuilder
     public function isNull($column);
 
     /**
-     * @param $column
+     * @param mixed $column
      *
      * @return mixed
      */
     public function isNotNull($column);
 
     /**
-     * @param $value
+     * @param mixed $value
      *
      * @return mixed
      */

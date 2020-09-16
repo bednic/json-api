@@ -24,7 +24,7 @@ class InclusionParser implements InclusionInterface
 
 
     /**
-     * @param $data
+     * @param string|null $data
      *
      * @return InclusionInterface
      */
@@ -93,11 +93,11 @@ class InclusionParser implements InclusionInterface
 
 
     /**
-     * @param $arr
-     * @param $path
-     * @param $value
+     * @param array  $arr
+     * @param string $path
+     * @param array  $value
      */
-    private static function dot2tree(&$arr, $path, $value)
+    private static function dot2tree(array &$arr, string $path, array $value)
     {
         $keys = explode('.', $path);
         foreach ($keys as $key) {

@@ -35,9 +35,9 @@ class Example extends Reference implements Serializable
     private ?string $externalValue = null;
 
     /**
-     * @param string $to
+     * @param string                                                                            $to
      *
-     * @param        $origin
+     * @param SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback $origin
      *
      * @return Example
      */

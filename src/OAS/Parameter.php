@@ -111,9 +111,8 @@ class Parameter extends Reference implements Serializable
     }
 
     /**
-     * @param string $to
-     *
-     * @param        $origin
+     * @param string                                                                            $to
+     * @param SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback $origin
      *
      * @return Parameter
      */
