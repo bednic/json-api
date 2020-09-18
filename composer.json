@@ -46,6 +46,7 @@
     "require-dev": {
         "doctrine/cache": "^1.8",
         "doctrine/orm": "^2.7",
+        "phpstan/phpstan": "^0.12.42",
         "phpunit/phpunit": "^8",
         "roave/doctrine-simplecache": "^2.3",
         "slim/psr7": "^0.6.0",
@@ -100,6 +101,6 @@
     },
     "scripts": {
         "lint": ["phpcbf"],
-        "analyse": ["phpcs"]
+        "analyse": ["phpcs", "phpstan analyse"]
     }
 }

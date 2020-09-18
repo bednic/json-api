@@ -46,3 +46,8 @@ sonar:
     allow_failure: true
     dependencies:
         - test:unit
+
+phpstan:
+    stage: analyse
+    script:
+        - vendor/bin/phpstan -n --no-ansi analyse
