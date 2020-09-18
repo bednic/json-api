@@ -77,7 +77,7 @@ class ExpressionFilterParserTest extends TestCase
         );
         $up->setFilterParser($parser);
         $this->assertEquals(
-            "((getter.stringProperty = 'O''Neil' AND getter.stringProperty LIKE '%asdf%') AND getter.intProperty IN(1, 2, 3)) OR ((getter.boolProperty <> true AND relation.property IS NULL) AND getter.stringProperty = '2018-12-01T00:00:00+00:00')",
+            "((getter.stringProperty = 'O''Neil' AND getter.stringProperty LIKE '%asdf%') AND getter.intProperty IN(1, 2, 3)) OR ((getter.boolProperty <> true AND relation.property IS NULL) AND getter.stringProperty = '2018-12-01T00:00:00+01:00')",
             (string)$up->getFilter()->getCondition()
         );
         $this->assertArrayHasKey('relation', $up->getFilter()->getRequiredJoins());
