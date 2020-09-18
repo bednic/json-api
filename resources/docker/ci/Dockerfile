@@ -12,3 +12,4 @@ RUN docker-php-ext-install zip
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
+COPY ./resources/docker/ci/php.ini "$PHP_INI_DIR/php.ini"
