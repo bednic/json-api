@@ -283,13 +283,84 @@ interface ExpressionBuilder
      * @param mixed $column
      *
      * @return mixed
+     * @throws ExpressionException
      */
     public function isNotNull($column);
 
     /**
      * @param mixed $value
      *
-     * @return mixed
+     * @return mixed@throws ExpressionException
+     *
      */
     public function literal($value);
+
+    /**
+     * @param mixed $column
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function date($column);
+
+    /**
+     * @param mixed $column
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function day($column);
+
+    /**
+     * @param mixed $column
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function hour($column);
+
+    /**
+     * @param mixed $column
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function minute($column);
+
+    /**
+     * @param mixed $column
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function month($column);
+
+    /**
+     * @return mixed
+     */
+    public function now();
+
+    /**
+     * @param mixed $column
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function second($column);
+
+    /**
+     * @param mixed $column
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function time($column);
+
+    /**
+     * @param mixed $column
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function year($column);
 }

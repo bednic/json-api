@@ -279,4 +279,67 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     {
         return $value;
     }
+
+    public function date($column)
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
+
+    public function day($column)
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
+
+    public function hour($column)
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
+
+    public function minute($column)
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
+
+    public function month($column)
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
+
+    public function now()
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
+
+    public function second($column)
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
+
+    public function time($column)
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
+
+    public function year($column)
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+        );
+    }
 }
