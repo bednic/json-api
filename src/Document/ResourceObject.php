@@ -48,12 +48,20 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      */
     public function getAttribute(string $key)
     {
-        if (!$this->getAttributes()->containsKey($key)) {
+        if (!$this->hasAttribute($key)) {
             throw new FieldNotSet($key);
         }
         return $this->fields->get($key)->getData();
     }
 
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasAttribute(string $key): bool
+    {
+        return $this->getAttributes()->containsKey($key);
+    }
 
     /**
      * Reruns Relationship value
@@ -65,10 +73,19 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      */
     public function getRelationship(string $key)
     {
-        if (!$this->getRelationships()->containsKey($key)) {
+        if (!$this->hasRelationship($key)) {
             throw new FieldNotSet($key);
         }
         return $this->fields->get($key)->getData();
+    }
+
+    /**
+     * @param string $key
+     * @return bool
+     */
+    public function hasRelationship(string $key): bool
+    {
+        return $this->getRelationships()->containsKey($key);
     }
 
     /**
