@@ -109,13 +109,14 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                     throw new UnsupportedMediaType();
                 }
                 $document = new Document();
-                if ($request->getBody()->getSize() > 0) {
-                    $request->getBody()->rewind();
+                $request->getBody()->rewind();
+                $data = $request->getBody()->getContents();
+                if (strlen($data) > 0) {
                     $path = (new PathParser($this->repository, $request->getMethod()))
                         ->parse($request->getUri()->getPath());
                     $document->setData(
                         $this->loadRequestData(
-                            json_decode($request->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR),
+                            json_decode($data, false, 512, JSON_THROW_ON_ERROR),
                             $path
                         )
                     );
