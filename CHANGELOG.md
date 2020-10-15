@@ -4,7 +4,6 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased]
 
 ### Added
@@ -14,6 +13,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Fixed
+
+### Removed
+
+
+## [5.2.0]
+
+### Added
+* add ResourceObject::hasAttribute()/::hasRelationship() method [issue#29](https://gitlab.com/bednic/json-api/-/issues/29)
+
+### Changed
+
+### Deprecated
+
+### Fixed
+* fixed PsrJsonApiMiddleware can't handle unknown size of body stream [issue#30](https://gitlab.com/bednic/json-api/-/issues/30)
 
 ### Removed
 
@@ -651,7 +665,8 @@ it's standard server error, not uri error.
 ### Security
 
 ---
-[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.1.7...5.x
+[Unreleased]: https://gitlab.com/bednic/json-api/compare/5.2.0...5.x
+[5.2.0]: https://gitlab.com/bednic/json-api/compare/5.1.7...5.2.0
 [5.1.7]: https://gitlab.com/bednic/json-api/compare/5.1.6...5.1.7
 [5.1.6]: https://gitlab.com/bednic/json-api/compare/5.1.5...5.1.6
 [5.1.5]: https://gitlab.com/bednic/json-api/compare/5.1.4...5.1.5
