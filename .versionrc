@@ -1,0 +1,42 @@
+{
+    "types": [
+        {
+            "type": "feat",
+            "section": "Added"
+        },
+        {
+            "type": "fix",
+            "section": "Fixed"
+        },
+        {
+            "type": "chore",
+            "hidden": true
+        },
+        {
+            "type": "docs",
+            "hidden": true
+        },
+        {
+            "type": "style",
+            "hidden": true
+        },
+        {
+            "type": "refactor",
+            "section": "Changed"
+        },
+        {
+            "type": "perf",
+            "hidden": true
+        },
+        {
+            "type": "test",
+            "hidden": true
+        }
+    ],
+    "tag-prefix": "",
+    "header": "# Changelog\n\nAll notable changes to this project will be documented in this file.\nThe format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),\nand this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n",
+    "commitUrlFormat": "{{host}}/bednic/json-api/commit/{{hash}}",
+    "compareUrlFormat": "{{host}}/bednic/json-api/compare/{{previousTag}}...{{currentTag}}",
+    "issueUrlFormat": "{{host}}/bednic/json-api/issues/{{id}}",
+    "userUrlFormat": "{{host}}/{{user}}"
+}

@@ -100,7 +100,15 @@
         ]
     },
     "scripts": {
-        "lint": ["phpcbf"],
-        "analyse": ["phpcs", "phpstan analyse"]
+        "lint": [
+            "phpcbf"
+        ],
+        "analyse": [
+            "phpcs",
+            "phpstan analyse"
+        ],
+        "release": [
+            "npx standard-version"
+        ]
     }
 }
