@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.0](https://gitlab.com/bednic/json-api/compare/6.1.0...6.2.0) (2020-10-15)
+
+
+### Added
+
+* Add ResourceObject::hasAttribute & ResourceObject::hasRelationship ([701ba6d](https://gitlab.com/bednic/json-api/commit/701ba6d9a9cd7f9d22fa4fe532d464146b123905)), closes [#29](https://gitlab.com/bednic/json-api/issues/29)
+* add several function to ExpressionBuilder itnerface ([2903901](https://gitlab.com/bednic/json-api/commit/290390177081dcd604d89dd7ca6b3f7d2150120f))
+
+
+### Fixed
+
+* Fix potential bugs ([e3ed9fd](https://gitlab.com/bednic/json-api/commit/e3ed9fd0a488cddc0b1d1e8e127d3abd6422e29c))
+* request body getSize may return null ([97212ac](https://gitlab.com/bednic/json-api/commit/97212ac2ba5b08c87ceafac8c3be12bab14c7a83)), closes [#30](https://gitlab.com/bednic/json-api/issues/30)
 
 ## [6.1.0]
 
