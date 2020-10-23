@@ -23,7 +23,7 @@ class DocumentTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../src/Middleware/schema.json')));
+        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../src/Middleware/out.json')));
     }
 
     public function testToString()

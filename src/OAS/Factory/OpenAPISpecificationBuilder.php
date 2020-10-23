@@ -15,6 +15,8 @@ use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Metadata\Relationship;
 use JSONAPI\OAS\Enum\In;
 use JSONAPI\OAS\Enum\Style;
+use JSONAPI\OAS\Exception\DuplicationEntryException;
+use JSONAPI\OAS\Exception\ExclusivityCheckException;
 use JSONAPI\OAS\Exception\InvalidArgumentException;
 use JSONAPI\OAS\Exception\InvalidFormatException;
 use JSONAPI\OAS\Exception\ReferencedObjectNotExistsException;
@@ -79,10 +81,10 @@ class OpenAPISpecificationBuilder
     ) {
         $this->metadataRepository = $metadataRepository;
         $this->logger             = $logger ?? new NullLogger();
-        $this->supportInclusion = $supportInclusion;
-        $this->supportSort = $supportSort;
-        $this->supportPagination = $supportPagination;
-        $this->baseUrl = $baseUrl;
+        $this->supportInclusion   = $supportInclusion;
+        $this->supportSort        = $supportSort;
+        $this->supportPagination  = $supportPagination;
+        $this->baseUrl            = $baseUrl;
     }
 
     private static function shortName(string $className)
@@ -91,7 +93,7 @@ class OpenAPISpecificationBuilder
     }
 
     /**
-     * @param Info   $info
+     * @param Info $info
      *
      * @return OpenAPISpecification
      * @throws InvalidArgumentException
@@ -225,7 +227,6 @@ class OpenAPISpecificationBuilder
                 return 'string';
             case 'int':
                 return 'integer';
-                break;
             case 'bool':
                 return 'boolean';
             case 'array':
@@ -354,13 +355,7 @@ class OpenAPISpecificationBuilder
     private function createEmptyDocument(): Schema
     {
         $document = DataType::object();
-        $document->addProperty(
-            'jsonapi',
-            DataType::object()
-                ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
-                ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)))
-        );
-
+        $document->addProperty('jsonapi', $this->createJsonApiObject());
         $document->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
         $document->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
         return $document;
@@ -368,6 +363,8 @@ class OpenAPISpecificationBuilder
 
     /**
      * @throws InvalidArgumentException
+     * @throws ExclusivityCheckException
+     * @throws DuplicationEntryException
      */
     private function registerParameters()
     {
@@ -383,6 +380,7 @@ class OpenAPISpecificationBuilder
         $inclusion->setDescription('An endpoint MAY also support an **include** request parameter to allow the
         client to customize which related resources should be returned');
         $inclusion->setSchema(DataType::array(DataType::string()));
+        $inclusion->setExample(['resource.relationship']);
         $this->oas->getComponents()->addParameter('include', $inclusion);
 
         $fields = new Parameter('fields', In::QUERY());
@@ -391,6 +389,7 @@ class OpenAPISpecificationBuilder
         $fields->setDescription('A client MAY request that an endpoint return only specific **fields** in the
         response on a per-type basis by including a fields[TYPE] parameter.');
         $fields->setSchema(DataType::object()->setAdditionalProperties(DataType::string()));
+        $fields->setExample(['resource' => 'attribute,relationship']);
         $this->oas->getComponents()->addParameter('fields', $fields);
 
         $sort = new Parameter('sort', In::QUERY());
@@ -399,6 +398,7 @@ class OpenAPISpecificationBuilder
         $sort->setDescription('An endpoint MAY support requests to sort the primary data with a **sort** query
         parameter. The value for sort MUST represent sort fields.');
         $sort->setSchema(DataType::array(DataType::string()));
+        $sort->setExample(['attributeASC', '-attributeDESC']);
         $this->oas->getComponents()->addParameter('sort', $sort);
 
         $pagination = new Parameter('page', In::QUERY());
@@ -407,6 +407,7 @@ class OpenAPISpecificationBuilder
         $pagination->setStyle(Style::DEEP_OBJECT());
         $pagination->setExplode(true);
         $pagination->setSchema(DataType::object()->setAdditionalProperties(DataType::string()));
+        $pagination->setExample(['page[offset]' => 0, 'page[limit]' => 25]);
         $this->oas->getComponents()->addParameter('pagination', $pagination);
 
         $filter = new Parameter('filter', In::QUERY());
@@ -418,9 +419,10 @@ class OpenAPISpecificationBuilder
     }
 
     /**
+     * @throws InvalidFormatException
      * @throws MetadataNotFound
      * @throws ReferencedObjectNotExistsException
-     * @throws InvalidFormatException
+     * @throws DuplicationEntryException
      */
     private function registerPaths()
     {
@@ -644,11 +646,18 @@ class OpenAPISpecificationBuilder
         $content = new MediaType();
         $content->setSchema(
             DataType::object()
-                ->addProperty('jsonapi', DataType::string()->setEnum([Document::VERSION]))
+                ->addProperty('jsonapi', $this->createJsonApiObject())
                 ->addProperty('data', $this->oas->getComponents()->createSchemaReference($shortClassName))
                 ->setRequired(['data'])
         );
         return new RequestBody(Document::MEDIA_TYPE, $content);
+    }
+
+    private function createJsonApiObject(): Schema
+    {
+        return DataType::object()
+            ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
+            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
     }
 
     /**

@@ -45,7 +45,7 @@ class DocumentBuilderTest extends TestCase
             new SimpleCacheAdapter(new ArrayCache()),
             new AnnotationDriver()
         );
-        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../src/Middleware/schema.json')));
+        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../src/Middleware/out.json')));
         self::$baseUrl = 'http://unit.test.org/api';
         self::$factory = new DocumentBuilderFactory(self::$mr, self::$baseUrl);
     }
