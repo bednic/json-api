@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [6.2.1](https://gitlab.com/bednic/json-api/compare/6.2.0...6.2.1) (2020-10-23)
+
+
+### Changed
+
+* **OAS:** Add examples to OAS <parameters> schemas ([caaef1b](https://gitlab.com/bednic/json-api/commit/caaef1bba506ce0762b48ea79a510c98036614c0))
+
+
+### Fixed
+
+* **Middleware:** POST request throws false exception ([c582c48](https://gitlab.com/bednic/json-api/commit/c582c48ccc4a86cdda4a90f91519f4a50b48e98d))
+
 ## [6.2.0](https://gitlab.com/bednic/json-api/compare/6.1.0...6.2.0) (2020-10-15)
 
 
