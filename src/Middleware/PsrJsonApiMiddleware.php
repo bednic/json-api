@@ -70,7 +70,11 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     /**
      * @var Schema
      */
-    private Schema $validator;
+    private Schema $input;
+    /**
+     * @var Schema
+     */
+    private Schema $output;
 
 
     /**
@@ -94,8 +98,11 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         $this->streamFactory   = $streamFactory;
         $this->logger          = $logger ?? new NullLogger();
         $this->baseURL         = $baseURL;
-        $this->validator       = Schema::import(
-            json_decode(file_get_contents(__DIR__ . '/schema.json'))
+        $this->input           = Schema::import(
+            json_decode(file_get_contents(__DIR__ . '/in.json'))
+        );
+        $this->output          = Schema::import(
+            json_decode(file_get_contents(__DIR__ . '/out.json'))
         );
     }
 
@@ -128,7 +135,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $data = $request->getBody()->getContents();
                 if (strlen($data) > 0) {
                     $data = json_decode($data, false, 512, JSON_THROW_ON_ERROR);
-                    $this->validator->in($data);
+                    $this->input->in($data);
                     $path = (new PathParser($this->repository, $this->baseURL, $request->getMethod()))
                         ->parse($request->getUri()->getPath());
                     $document->setData($this->loadRequestData($data, $path));
@@ -136,6 +143,11 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $request = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
+            if (strlen($response->getBody()->getContents()) > 0) {
+                $this->output->in(
+                    json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR)
+                );
+            }
         } catch (Throwable $exception) {
             $document = new Document();
             $error    = Error::fromException($exception);
