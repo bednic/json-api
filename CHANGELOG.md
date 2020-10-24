@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [6.2.2](https://gitlab.com/bednic/json-api/compare/6.2.1...6.2.2) (2020-10-24)
+
+
+### Fixed
+
+* **Middleware:** add body rewind after reading contents ([923aee8](https://gitlab.com/bednic/json-api/commit/923aee80ddbbbada1d24c94c8d510f291f6fb9ef))
+
 ### [6.2.1](https://gitlab.com/bednic/json-api/compare/6.2.0...6.2.1) (2020-10-23)
 
 
