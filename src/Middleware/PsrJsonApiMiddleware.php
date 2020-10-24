@@ -143,9 +143,11 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $request = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
-            if (strlen($response->getBody()->getContents()) > 0) {
+            $content = $response->getBody()->getContents();
+            $response->getBody()->rewind();
+            if (strlen($content) > 0) {
                 $this->output->in(
-                    json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR)
+                    json_decode($content, false, 512, JSON_THROW_ON_ERROR)
                 );
             }
         } catch (Throwable $exception) {
