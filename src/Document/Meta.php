@@ -18,13 +18,15 @@ final class Meta implements Serializable
     /**
      * @var array
      */
-    private array $properties;
+    private array $properties = [];
 
     /**
      * Meta constructor.
      *
      * @param array $properties
      *
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      * @example [
      *          'key' => 'value',
      *          ...
@@ -32,7 +34,9 @@ final class Meta implements Serializable
      */
     public function __construct(array $properties = [])
     {
-        $this->properties = $properties;
+        foreach ($properties as $key => $value) {
+            $this->setProperty($key, $value);
+        }
     }
 
     /**
