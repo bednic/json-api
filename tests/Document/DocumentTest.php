@@ -7,12 +7,12 @@ namespace JSONAPI\Test\Document;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error;
 use JSONAPI\Document\Id;
+use JSONAPI\Document\Meta;
 use JSONAPI\Document\PrimaryData;
 use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\Type;
 use JsonSerializable;
-use Opis\JsonSchema\Validator;
 use PHPUnit\Framework\TestCase;
 use Swaggest\JsonSchema\Schema;
 
@@ -23,7 +23,7 @@ class DocumentTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../src/Middleware/out.json')));
+        self::$schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../src/Middleware/out.json')));
     }
 
     public function testToString()
@@ -60,6 +60,7 @@ class DocumentTest extends TestCase
     public function testConstruct()
     {
         $document = new Document();
+
         $this->assertInstanceOf(Document::class, $document);
         $this->assertTrue($this->isValid($document));
     }
@@ -67,7 +68,7 @@ class DocumentTest extends TestCase
     public function testSetData()
     {
         $document = new Document();
-        $data = new ResourceCollection();
+        $data     = new ResourceCollection();
         $document->setData($data);
         $this->assertTrue($this->isValid($document));
     }
@@ -75,7 +76,7 @@ class DocumentTest extends TestCase
     public function testAddError()
     {
         $document = new Document();
-        $error = new Error();
+        $error    = new Error();
         $document->addError($error);
         $this->assertTrue($this->isValid($document));
     }
@@ -84,5 +85,14 @@ class DocumentTest extends TestCase
     {
         self::$schema->in(json_decode(json_encode($document)));
         return true;
+    }
+
+    public function testSetJSONAPIObjectMeta()
+    {
+        $document = new Document();
+        $document->setJSONAPIObjectMeta(new Meta(['prop' => 'value']));
+        $document->setMeta(new Meta(['prop' => 'value']));
+        $json = $document->jsonSerialize();
+        $this->assertArrayHasKey('meta', $json['jsonapi']);
     }
 }

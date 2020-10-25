@@ -18,7 +18,7 @@ final class Document implements Serializable, HasLinks, HasMeta
     use MetaTrait;
 
     public const MEDIA_TYPE = 'application/vnd.api+json';
-    public const VERSION = '1.0';
+    public const VERSION    = '1.0';
 
     /**
      * @var Error[]
@@ -55,10 +55,9 @@ final class Document implements Serializable, HasLinks, HasMeta
      */
     public function setData(?PrimaryData $data): void
     {
-        if (count($this->errors) > 0) {
-            return;
+        if (!(count($this->errors) > 0)) {
+            $this->data = $data;
         }
-        $this->data = $data;
     }
 
     /**
