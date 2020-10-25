@@ -14,7 +14,7 @@ namespace JSONAPI\Annotation;
 final class Resource
 {
     /**
-     * @var string|null
+     * @var string
      */
     public ?string $type = null;
 

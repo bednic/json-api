@@ -101,6 +101,8 @@ class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterfa
             $this->assertInstanceOf(Document::class, $request->getParsedBody());
         }
         $factory = new ResponseFactory();
-        return $factory->createResponse();
+        return $factory->createResponse()->withBody(
+            new Stream(fopen(RESOURCES . DIRECTORY_SEPARATOR . 'response.json', 'r'))
+        );
     }
 }
