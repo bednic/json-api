@@ -24,7 +24,7 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     /**
      * ResourceCollection constructor.
      *
-     * @param array $data
+     * @param ResourceObject[]|ResourceObjectIdentifier[] $data
      */
     public function __construct(array $data = [])
     {
@@ -36,7 +36,7 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     /**
      * @param ResourceObjectIdentifier|ResourceObject $resource
      */
-    public function add(ResourceObjectIdentifier $resource)
+    public function add(ResourceObjectIdentifier $resource): void
     {
         $key = $this->key($resource);
         if (!array_key_exists($key, $this->data)) {
@@ -45,13 +45,18 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     }
 
     /**
-     * @param string $key
+     * @param string $type Type of resource
+     * @param string $id   ID of resource
      *
      * @return ResourceObjectIdentifier|ResourceObject|null
      */
-    public function get(string $key): ?ResourceObjectIdentifier
+    public function get(string $type, string $id): ?ResourceObjectIdentifier
     {
-        return $this->data[$key] ?? null;
+        $key = $type . $id;
+        if (array_key_exists($key, $this->data)) {
+            return $this->data[$key];
+        }
+        return null;
     }
 
     /**
@@ -112,6 +117,14 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     public function reset(): void
     {
         $this->data = [];
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray(): array
+    {
+        return array_values($this->data);
     }
 
     /**
