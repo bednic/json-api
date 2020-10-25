@@ -26,6 +26,9 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
+use Symfony\Component\String\Inflector\EnglishInflector;
+
+use function Symfony\Component\String\s;
 
 /**
  * Class AnnotationDriver
@@ -42,6 +45,10 @@ class AnnotationDriver extends Driver
      * @var AnnotationReader
      */
     private AnnotationReader $reader;
+    /**
+     * @var EnglishInflector
+     */
+    private EnglishInflector $inflector;
 
     /**
      * AnnotationDriver constructor.
@@ -53,6 +60,7 @@ class AnnotationDriver extends Driver
     {
         $this->logger = $logger ? $logger : new NullLogger();
         $this->reader = new AnnotationReader();
+        $this->inflector = new EnglishInflector();
     }
 
     /**
@@ -71,7 +79,10 @@ class AnnotationDriver extends Driver
             /** @var ResourceAnnotation $resource */
             $resource = $this->reader->getClassAnnotation($ref, Resource::class);
             if ($resource) {
-                $this->logger->debug('Found resource ' . $resource->type);
+                $this->logger->debug('Found resource ' . $ref->getShortName());
+                if ($resource->type === null) {
+                    $resource->type = $this->inflector->pluralize(s($ref->getShortName())->camel()->toString())[0];
+                }
                 if ($resource->meta && !$ref->hasMethod($resource->meta->getter)) {
                     throw new MethodNotExist($resource->meta->getter, $ref->getName());
                 }
