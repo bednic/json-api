@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.0](https://gitlab.com/bednic/json-api/compare/6.2.3...6.3.0) (2020-10-26)
+
+
+### Added
+
+* ResourceCollection::toArray ([b8ef68c](https://gitlab.com/bednic/json-api/commit/b8ef68c52c2509a2a37524932eec2b3bcbe3f805))
+
+
+### Changed
+
+* Change constructor ([dd7119d](https://gitlab.com/bednic/json-api/commit/dd7119df06c76aa1246187ff19705eaf23f11a25))
+
 ### [6.2.3](https://gitlab.com/bednic/json-api/compare/6.2.2...6.2.3) (2020-10-25)
 
 
