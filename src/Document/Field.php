@@ -15,6 +15,7 @@ use JSONAPI\Exception\Document\ForbiddenDataType;
 abstract class Field implements Serializable
 {
 
+    public const KEY_REGEX = "/^([a-zA-Z0-9]+)([a-zA-Z-0-9_]*[a-zA-Z-0-9])?$/";
     /**
      * @var string
      */
@@ -51,7 +52,7 @@ abstract class Field implements Serializable
      */
     protected function setKey(string $key): void
     {
-        if (!preg_match("/(^[a-zA-Z0-9])(([a-zA-Z0-9-_]*)([a-zA-Z0-9]))$/", $key)) {
+        if (!preg_match(Field::KEY_REGEX, $key)) {
             throw new ForbiddenCharacter($key);
         }
         $this->key = $key;

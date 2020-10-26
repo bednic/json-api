@@ -48,7 +48,7 @@ final class Meta implements Serializable
      */
     public function setProperty(string $key, $value): void
     {
-        if (!preg_match("/(^[a-zA-Z0-9])(([a-zA-Z-_]+)([a-zA-Z0-9]))?$/", $key)) {
+        if (!preg_match(Field::KEY_REGEX, $key)) {
             throw new ForbiddenCharacter($key);
         }
         if (!in_array(gettype($value), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
