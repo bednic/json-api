@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [6.3.1](https://gitlab.com/bednic/json-api/compare/6.3.0...6.3.1) (2020-10-26)
+
+
+### Fixed
+
+* Meta didnt accept very short prop names ([5c89997](https://gitlab.com/bednic/json-api/commit/5c899979c6d04e44af47b77d00b05f4e64e2f539))
+
 ## [6.3.0](https://gitlab.com/bednic/json-api/compare/6.2.3...6.3.0) (2020-10-26)
 
 
