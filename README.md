@@ -9,7 +9,7 @@ This library is tested in production with Doctrine2 and SlimPHP.
 
 Library only provides wrappers to create valid JSON API document. Controllers and Response is on you.
 
-### [JSON API Standard Docs](https://jsonapi.org/)
+### [JSON API Standard Specification](https://jsonapi.org/)
 ### [Documentation](https://gitlab.com/bednic/json-api/-/wikis/)
 For latest update see [Changelog](CHANGELOG.md)
 

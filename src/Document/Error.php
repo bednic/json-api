@@ -83,7 +83,7 @@ final class Error implements Serializable, HasLinks, HasMeta
     /**
      * @param SchemaError $error
      *
-     * @return array<mixed>
+     * @return array<string|ErrorSource>
      * @example [
      *      <string> message,
      *      <ErrorSource> source

@@ -8,7 +8,10 @@ use JSONAPI\Document\Error;
 use JSONAPI\Exception\Document\AttributeNotExist;
 use JSONAPI\Exception\Http\UnsupportedParameter;
 use JSONAPI\Exception\Metadata\AttributeNotFound;
+use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\MockObject\MockClass;
 use PHPUnit\Framework\TestCase;
+use Swaggest\JsonSchema\InvalidValue;
 
 class ErrorTest extends TestCase
 {
@@ -27,5 +30,10 @@ class ErrorTest extends TestCase
             true
         );
         $this->assertArrayHasKey('pointer', $eee['source']);
+        $eeee = json_decode(
+            json_encode(Error::fromException(new InvalidValue("test"))),
+            true
+        );
+        $this->assertArrayHasKey('pointer', $eeee['source']);
     }
 }

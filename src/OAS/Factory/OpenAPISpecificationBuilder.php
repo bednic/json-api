@@ -96,6 +96,8 @@ class OpenAPISpecificationBuilder
      * @param Info $info
      *
      * @return OpenAPISpecification
+     * @throws DuplicationEntryException
+     * @throws ExclusivityCheckException
      * @throws InvalidArgumentException
      * @throws InvalidFormatException
      * @throws MetadataNotFound

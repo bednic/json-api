@@ -4,6 +4,7 @@ stages:
     - build
     - test
     - analyse
+    - docs
 
 variables:
     SONAR_HOST_URL: "https://sonarcloud.io"
@@ -51,3 +52,16 @@ phpstan:
     stage: analyse
     script:
         - vendor/bin/phpstan -n --no-ansi analyse
+
+pages:
+    stage: docs
+    image:
+        name: phpdoc/phpdoc:3
+        entrypoint: [""]
+    services: [ ]
+    script:
+        - phpdoc -d src -t public
+    artifacts:
+        paths:
+            - public
+        expire_in: 1h
