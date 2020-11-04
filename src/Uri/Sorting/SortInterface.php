@@ -6,6 +6,11 @@ namespace JSONAPI\Uri\Sorting;
 
 use JSONAPI\Uri\QueryPartInterface;
 
+/**
+ * Interface SortInterface
+ *
+ * @package JSONAPI\Uri\Sorting
+ */
 interface SortInterface extends QueryPartInterface
 {
 

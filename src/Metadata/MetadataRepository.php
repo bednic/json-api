@@ -8,6 +8,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 
+/**
+ * Class MetadataRepository
+ *
+ * @package JSONAPI\Metadata
+ */
 class MetadataRepository
 {
     private Collection $collection;

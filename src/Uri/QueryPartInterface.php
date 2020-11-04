@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace JSONAPI\Uri;
 
+/**
+ * Interface QueryPartInterface
+ *
+ * @package JSONAPI\Uri
+ */
 interface QueryPartInterface
 {
     public const FIELDS_PART_KEY = 'fields';

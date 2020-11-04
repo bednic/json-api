@@ -18,6 +18,11 @@ use JSONAPI\Uri\Inclusion\Inclusion;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class InclusionFetcher
+ *
+ * @package JSONAPI
+ */
 class InclusionFetcher
 {
     use DoctrineProxyTrait;
