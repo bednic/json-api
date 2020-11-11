@@ -11,8 +11,8 @@ namespace JSONAPI\Uri\Pagination;
  */
 class PagePagination implements PaginationInterface, PaginationParserInterface, UseTotalCount
 {
-    public const PAGE_NUMBER_KEY = 'number';
-    public const PAGE_SIZE_KEY = 'size';
+    public const PAGE_START_KEY = 'number';
+    public const PAGE_SIZE_KEY  = 'size';
     /**
      * @var int
      */
@@ -31,6 +31,16 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     private ?int $total = null;
 
     /**
+     * @var int
+     */
+    private int $defaultNumber;
+
+    /**
+     * @var int
+     */
+    private int $defaultSize;
+
+    /**
      * PagePagination constructor.
      *
      * @param int $number
@@ -38,8 +48,8 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
      */
     public function __construct(int $number = 1, int $size = 25)
     {
-        $this->number = $number;
-        $this->size   = $size;
+        $this->defaultNumber = $this->number = $number;
+        $this->defaultSize   = $this->size = $size;
     }
 
     /**
@@ -134,11 +144,13 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
      */
     public function parse(?array $data): PaginationInterface
     {
+        $this->number = $this->defaultNumber;
+        $this->size   = $this->defaultSize;
         if ($data) {
-            if (isset($data[self::PAGE_NUMBER_KEY])) {
-                $this->number = filter_var($data[self::PAGE_NUMBER_KEY], FILTER_VALIDATE_INT, [
+            if (isset($data[self::PAGE_START_KEY])) {
+                $this->number = filter_var($data[self::PAGE_START_KEY], FILTER_VALIDATE_INT, [
                     'options' => [
-                        'default' => $this->number
+                        'default' => $this->defaultNumber
                     ]
                 ]);
             }
@@ -159,7 +171,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
      */
     public function __toString(): string
     {
-        return rawurlencode('page[' . self::PAGE_NUMBER_KEY . ']') . '=' . $this->getNumber()
+        return rawurlencode('page[' . self::PAGE_START_KEY . ']') . '=' . $this->getNumber()
             . '&' . rawurlencode('page[' . self::PAGE_SIZE_KEY . ']') . '=' . $this->getSize();
     }
 }

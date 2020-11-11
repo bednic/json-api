@@ -11,8 +11,6 @@ namespace JSONAPI\Uri\Pagination;
  */
 interface PaginationParserInterface
 {
-    public const KEY = 'page';
-
     /**
      * @param array|null $data
      *

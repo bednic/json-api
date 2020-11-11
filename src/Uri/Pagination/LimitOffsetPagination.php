@@ -11,6 +11,18 @@ namespace JSONAPI\Uri\Pagination;
  */
 class LimitOffsetPagination implements PaginationInterface, PaginationParserInterface, UseTotalCount
 {
+    public const PAGE_START_KEY = 'offset';
+    public const PAGE_SIZE_KEY  = 'limit';
+
+    /**
+     * @var int
+     */
+    private int $defaultOffset;
+
+    /**
+     * @var int
+     */
+    private int $defaultLimit;
 
     /**
      * @var int
@@ -37,8 +49,8 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      */
     public function __construct(int $offset = 0, int $limit = 25)
     {
-        $this->offset = $offset;
-        $this->limit = $limit;
+        $this->defaultOffset = $this->offset = $offset;
+        $this->defaultLimit  = $this->limit = $limit;
     }
 
     /**
@@ -58,25 +70,27 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     }
 
     /**
-     * @param array $data
+     * @param array|null $data
      *
      * @return PaginationInterface
      */
     public function parse(?array $data): PaginationInterface
     {
+        $this->limit  = $this->defaultLimit;
+        $this->offset = $this->defaultOffset;
         if ($data) {
             if (isset($data['limit'])) {
-                $this->limit = filter_var($data['limit'], FILTER_VALIDATE_INT, [
+                $this->limit = filter_var($data[self::PAGE_SIZE_KEY], FILTER_VALIDATE_INT, [
                     'options' => [
-                        'default' => $this->limit
+                        'default' => $this->defaultLimit
                     ]
                 ]);
             }
 
             if (isset($data['offset'])) {
-                $this->offset = filter_var($data['offset'], FILTER_VALIDATE_INT, [
+                $this->offset = filter_var($data[self::PAGE_START_KEY], FILTER_VALIDATE_INT, [
                     'options' => [
-                        'default' => $this->offset
+                        'default' => $this->defaultOffset
                     ]
                 ]);
             }
@@ -154,7 +168,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      */
     public function __toString(): string
     {
-        return rawurlencode('page[offset]') . '=' . $this->getOffset() . '&' . rawurlencode('page[limit]')
-            . '=' . $this->getLimit();
+        return rawurlencode('page[' . self::PAGE_START_KEY . ']') . '=' . $this->getOffset()
+            . '&' . rawurlencode('page[' . self::PAGE_SIZE_KEY . ']') . '=' . $this->getLimit();
     }
 }

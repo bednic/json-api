@@ -24,7 +24,7 @@ class SortParser implements SortInterface
     public function parse(?string $data): SortInterface
     {
         $this->sort = [];
-        if ($data) {
+        if ($data && strlen($data) > 0) {
             preg_match_all('/((?P<sort>-?)(?P<field>[a-zA-Z0-9.]+))/', $data, $matches);
             foreach ($matches['field'] as $i => $field) {
                 $this->sort[$field] = $matches['sort'][$i] ? SortInterface::DESC : SortInterface::ASC;

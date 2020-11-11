@@ -18,9 +18,9 @@ class InclusionParser implements InclusionInterface
 
     /**
      * @todo: remove this and replace it with generating URI part by recursive array walk
-     * @var string
+     * @var string|null
      */
-    private string $data = '';
+    private ?string $data = null;
 
 
     /**
@@ -30,19 +30,17 @@ class InclusionParser implements InclusionInterface
      */
     public function parse(?string $data): InclusionInterface
     {
-        if ($data) {
-            $this->inclusions = [];
-            $this->data       = $data;
-            if (strlen($data) > 0) {
-                $t = explode(',', $data);
-                foreach ($t as $i) {
-                    $branch = [];
-                    self::dot2tree($branch, $i, []);
-                    foreach ($branch as $rel => $sub) {
-                        $this->inclusions[] = $parent = new Inclusion($rel);
-                        if ($sub) {
-                            $this->makeInclusionTree($parent, $sub);
-                        }
+        $this->inclusions = [];
+        $this->data       = $data;
+        if ($data && strlen($data) > 0) {
+            $t = explode(',', $data);
+            foreach ($t as $i) {
+                $branch = [];
+                self::dot2tree($branch, $i, []);
+                foreach ($branch as $rel => $sub) {
+                    $this->inclusions[] = $parent = new Inclusion($rel);
+                    if ($sub) {
+                        $this->makeInclusionTree($parent, $sub);
                     }
                 }
             }
@@ -111,6 +109,6 @@ class InclusionParser implements InclusionInterface
      */
     public function __toString(): string
     {
-        return strlen($this->data) ? 'include=' . $this->data : '';
+        return $this->data ? 'include=' . $this->data : '';
     }
 }
