@@ -29,9 +29,9 @@ class SortParser implements SortInterface
     {
         $this->sort = [];
         if ($data && strlen($data) > 0) {
-            if (preg_match_all('/((?P<sort>-?)(?P<field>[a-zA-Z0-9.]+))/', $data, $matches) !== false) {
+            if (preg_match_all('/^(?P<sort>(-|))(?P<field>[a-zA-Z0-9-.]+)$/', $data, $matches) !== false) {
                 foreach ($matches['field'] as $i => $field) {
-                    $this->sort[$field] = $matches['sort'][$i] ? SortInterface::DESC : SortInterface::ASC;
+                    $this->sort[$field] = strlen($matches['sort'][$i]) ? SortInterface::DESC : SortInterface::ASC;
                 }
             } else {
                 throw new MalformedParameter(QueryPartInterface::SORT_PART_KEY);
