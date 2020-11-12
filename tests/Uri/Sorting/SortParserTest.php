@@ -16,10 +16,18 @@ class SortParserTest extends TestCase
         $parser = new SortParser();
         $parser->parse('-created,title,-dotted.att');
         $expected = [
-            'created' => SortParser::DESC,
-            'title' => SortParser::ASC,
+            'created'    => SortParser::DESC,
+            'title'      => SortParser::ASC,
             'dotted.att' => SortParser::DESC
         ];
+        $this->assertEquals($expected, $parser->getOrder());
+    }
+
+    public function testEmpty()
+    {
+        $parser = new SortParser();
+        $parser->parse('');
+        $expected = [];
         $this->assertEquals($expected, $parser->getOrder());
     }
 
