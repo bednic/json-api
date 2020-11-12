@@ -30,7 +30,7 @@ class ErrorTest extends TestCase
         $error->setTitle('title');
         $error->setCode('code');
         $error->setSource($source);
-        $error->setLink(new Link(Link::ABOUT, 'http://about.error.com'));
+        $error->setLink(new Link('about', 'http://about.error.com'));
         $json = $error->jsonSerialize();
         $this->assertObjectHasAttribute('id', $json);
         $this->assertEquals('id', $json->id);
