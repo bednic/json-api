@@ -11,16 +11,29 @@ use PHPUnit\Framework\TestCase;
 class SortParserTest extends TestCase
 {
 
-    public function testParse()
+    public function goodDataProvider()
+    {
+        return [
+            ['0', ['0' => SortParser::ASC]],
+            ['0-0', ['0-0' => SortParser::ASC]],
+            ['-asdf', ['asdf' => SortParser::DESC]],
+            ['asdf', ['asdf' => SortParser::ASC]],
+            ['asdf.asdf', ['asdf.asdf' => SortParser::ASC]],
+            ['-asdf.asdf', ['asdf.asdf' => SortParser::DESC]],
+            ['asdf-asdf', ['asdf-asdf' => SortParser::ASC]],
+            ['-asdf.asdf-asdf', ['asdf.asdf-asdf' => SortParser::DESC]],
+            ['-asdf_asdf-asdf.asdf', ['asdf_asdf-asdf.asdf' => SortParser::DESC]]
+        ];
+    }
+
+    /**
+     * @dataProvider goodDataProvider
+     */
+    public function testParse($data, $result)
     {
         $parser = new SortParser();
-        $parser->parse('-created,title,-dotted.att');
-        $expected = [
-            'created'    => SortParser::DESC,
-            'title'      => SortParser::ASC,
-            'dotted.att' => SortParser::DESC
-        ];
-        $this->assertEquals($expected, $parser->getOrder());
+        $parser->parse($data);
+        $this->assertEquals($result, $parser->getOrder());
     }
 
     public function testEmpty()
@@ -34,6 +47,13 @@ class SortParserTest extends TestCase
     public function badDataProvider()
     {
         return [
+            ['*adsf'],
+            ['--'],
+            ['-'],
+            ['.'],
+            ['-.'],
+            ['asdf-'],
+            ['asdf.'],
             ['-qwe-asdf*qwefasdf*+asdfqwef'],
             ['*asdf,asdf,-asdf']
         ];

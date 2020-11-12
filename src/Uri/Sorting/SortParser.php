@@ -28,10 +28,17 @@ class SortParser implements SortInterface
     public function parse(?string $data): SortInterface
     {
         $this->sort = [];
-        if ($data && strlen($data) > 0) {
-            $fields = explode(',', $data);
-            foreach ($fields as $field) {
-                if (preg_match('/^(?P<sort>(-|))(?P<field>[a-zA-Z0-9-.]+)$/', $field, $matches)) {
+        if (!is_null($data) && strlen($data) > 0) {
+            $parts = explode(',', $data);
+            $parts = array_map('trim', $parts);
+            foreach ($parts as $part) {
+                if (
+                    preg_match(
+                        '/^(?P<sort>(-|))(?P<field>([a-zA-Z0-9]([a-zA-Z0-9-_.]+[a-zA-Z0-9])?))$/',
+                        $part,
+                        $matches
+                    )
+                ) {
                     $this->sort[$matches['field']] = strlen($matches['sort']) ? SortInterface::DESC
                         : SortInterface::ASC;
                 } else {
