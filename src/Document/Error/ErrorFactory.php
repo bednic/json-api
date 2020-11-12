@@ -19,7 +19,7 @@ interface ErrorFactory
      *
      * @param Throwable $exception
      *
-     * @return mixed
+     * @return Error
      */
     public function fromThrowable(Throwable $exception): Error;
 }

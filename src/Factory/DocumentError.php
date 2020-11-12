@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Factory;
 
-
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Error;
 use JSONAPI\Document\Error\ErrorFactory;

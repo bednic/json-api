@@ -46,5 +46,4 @@ class ErrorTest extends TestCase
         $this->assertObjectHasAttribute('meta', $json);
         $this->assertObjectHasAttribute('links', $json);
     }
-
 }

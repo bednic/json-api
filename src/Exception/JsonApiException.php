@@ -6,6 +6,7 @@ namespace JSONAPI\Exception;
 
 use Exception;
 use Fig\Http\Message\StatusCodeInterface;
+
 use function Symfony\Component\String\s;
 
 /**

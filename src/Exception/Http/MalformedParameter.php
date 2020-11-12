@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Http;
 
-
 use JSONAPI\Exception\HasParameter;
 
 /**
