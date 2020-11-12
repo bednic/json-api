@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI;
+namespace JSONAPI\Factory;
 
 use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Exception\Document\DocumentException;
@@ -22,9 +22,8 @@ use Psr\Log\NullLogger;
  * Class InclusionFetcher
  *
  * @package JSONAPI
- * @deprecated use JSONAPI\Factory\InclusionCollector instead
  */
-class InclusionFetcher
+class InclusionCollector
 {
     use DoctrineProxyTrait;
 

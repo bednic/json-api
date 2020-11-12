@@ -61,8 +61,8 @@ class DocumentBuilder
      */
     public function __construct(
         Encoder $encoder,
-        InclusionFetcher $inclusionFetcher,
-        LinkFactory $linkFactory,
+        InclusionFetcher $inclusionFetcher, //todo 7.x
+        LinkFactory $linkFactory, //todo 7.x
         UriParser $uri,
         LoggerInterface $logger = null
     ) {

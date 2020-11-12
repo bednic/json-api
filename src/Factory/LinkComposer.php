@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Uri;
+namespace JSONAPI\Factory;
 
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
@@ -20,33 +20,25 @@ use JSONAPI\Uri\Inclusion\InclusionInterface;
 use JSONAPI\Uri\Pagination\PaginationInterface;
 use JSONAPI\Uri\Path\PathInterface;
 use JSONAPI\Uri\Sorting\SortInterface;
+use JSONAPI\Uri\UriParser;
 
 /**
- * Class LinkFactory
+ * Class LinkComposer
  *
- * @package JSONAPI\URI
- * @deprecated use JSONAPI\Factory\LinkComposer instead
+ * @package JSONAPI\Factory
  */
-class LinkFactory
+class LinkComposer
 {
-
-    /** @deprecated use Link::SELF instead */
-    public const SELF = 'self';
-    /** @deprecated use Link::RELATED instead */
-    public const RELATED = 'related';
-    /** @deprecated use Link::FIRST instead */
-    public const FIRST = 'first';
-    /** @deprecated use Link::LAST instead */
-    public const LAST = 'last';
-    /** @deprecated use Link::NEXT instead */
-    public const NEXT = 'next';
-    /** @deprecated use Link::PREV instead */
-    public const PREV = 'prev';
-    /** @deprecated use Link::ABOUT instead */
-    public const ABOUT = 'about';
-
+    /**
+     * @var string
+     */
     private string $baseURL;
 
+    /**
+     * LinkComposer constructor.
+     *
+     * @param string $baseURL
+     */
     public function __construct(string $baseURL)
     {
         $this->baseURL = $baseURL;
@@ -62,7 +54,7 @@ class LinkFactory
      */
     public function setResourceLink(ResourceObject $resource, Meta $meta = null): ResourceObject
     {
-        $resource->setLink(new Link(self::SELF, self::getResourceLink($resource), $meta));
+        $resource->setLink(new Link(Link::SELF, self::getResourceLink($resource), $meta));
         return $resource;
     }
 
@@ -91,12 +83,12 @@ class LinkFactory
         Meta $meta = null
     ): Relationship {
         $relationship->setLink(new Link(
-            self::SELF,
+            Link::SELF,
             $this->getResourceLink($resource) . '/relationships/' . $relationship->getKey(),
             $meta
         ));
         $relationship->setLink(new Link(
-            self::RELATED,
+            Link::RELATED,
             $this->getResourceLink($resource) . '/' . $relationship->getKey(),
             $meta
         ));
@@ -169,7 +161,7 @@ class LinkFactory
         $pagination = $parser->getPagination();
         if ($document->getData() instanceof ResourceCollection) {
             $document->setLink(self::createDocumentLink(
-                LinkFactory::SELF,
+                Link::SELF,
                 $path,
                 $filter,
                 $inclusion,
@@ -179,7 +171,7 @@ class LinkFactory
             ));
             if ($first = $pagination->first()) {
                 $document->setLink(self::createDocumentLink(
-                    LinkFactory::FIRST,
+                    Link::FIRST,
                     $path,
                     $filter,
                     $inclusion,
@@ -190,7 +182,7 @@ class LinkFactory
             }
             if ($last = $pagination->last()) {
                 $document->setLink(self::createDocumentLink(
-                    LinkFactory::LAST,
+                    Link::LAST,
                     $path,
                     $filter,
                     $inclusion,
@@ -201,7 +193,7 @@ class LinkFactory
             }
             if ($prev = $pagination->prev()) {
                 $document->setLink(self::createDocumentLink(
-                    LinkFactory::PREV,
+                    Link::PREV,
                     $path,
                     $filter,
                     $inclusion,
@@ -212,7 +204,7 @@ class LinkFactory
             }
             if ($next = $pagination->next()) {
                 $document->setLink(self::createDocumentLink(
-                    LinkFactory::NEXT,
+                    Link::NEXT,
                     $path,
                     $filter,
                     $inclusion,
@@ -223,7 +215,7 @@ class LinkFactory
             }
         } else {
             $document->setLink(self::createDocumentLink(
-                LinkFactory::SELF,
+                Link::SELF,
                 $parser->getPath(),
                 null,
                 $parser->getInclusion(),

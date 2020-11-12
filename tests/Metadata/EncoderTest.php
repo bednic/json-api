@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JSONAPI\Test\Metadata;
 
 use Doctrine\Common\Cache\ArrayCache;
-use JSONAPI\Document\Meta;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Driver\AnnotationDriver;

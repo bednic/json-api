@@ -17,6 +17,14 @@ final class Link extends Field implements HasMeta
 {
     use MetaTrait;
 
+    public const SELF = 'self';
+    public const RELATED = 'related';
+    public const FIRST = 'first';
+    public const LAST = 'last';
+    public const NEXT = 'next';
+    public const PREV = 'prev';
+    public const ABOUT = 'about';
+
     /**
      * Link constructor.
      *

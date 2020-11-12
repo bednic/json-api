@@ -106,7 +106,7 @@ final class Encoder
         MetadataRepository $metadataRepository,
         FieldsetInterface $fieldset,
         InclusionInterface $inclusion,
-        LinkFactory $linkFactory,
+        LinkFactory $linkFactory, //todo 7.x
         bool $relationshipData = true,
         int $relationshipLimit = 25,
         LoggerInterface $logger = null

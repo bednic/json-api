@@ -115,7 +115,7 @@ class DocumentBuilderFactory
      */
     public function new(ServerRequestInterface $request): DocumentBuilder
     {
-        $linkFactory      = new LinkFactory($this->baseURL);
+        $linkFactory      = new LinkFactory($this->baseURL); //todo 7.x
         $uriParser  = $this->uri($request);
         $encoder          = new Encoder(
             $this->metadataRepository,
