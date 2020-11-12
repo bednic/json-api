@@ -79,7 +79,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
         $this->limit  = $this->defaultLimit;
         $this->offset = $this->defaultOffset;
         if ($data) {
-            if (isset($data['limit'])) {
+            if (isset($data[self::PAGE_SIZE_KEY])) {
                 $this->limit = filter_var($data[self::PAGE_SIZE_KEY], FILTER_VALIDATE_INT, [
                     'options' => [
                         'default' => $this->defaultLimit
@@ -87,7 +87,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
                 ]);
             }
 
-            if (isset($data['offset'])) {
+            if (isset($data[self::PAGE_START_KEY])) {
                 $this->offset = filter_var($data[self::PAGE_START_KEY], FILTER_VALIDATE_INT, [
                     'options' => [
                         'default' => $this->defaultOffset
