@@ -81,7 +81,7 @@ class PathParser implements PathInterface
         $pattern         = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
 
-        if (preg_match($pattern, $data, $matches) !== false) {
+        if (preg_match($pattern, $data, $matches)) {
             $this->resource = $matches[$resourceKey];
             $this->id       = isset($matches[$idKey]) ? $matches[$idKey] : null;
             if (isset($matches[$relationshipKey]) && strlen($matches[$relationshipKey]) > 0) {
