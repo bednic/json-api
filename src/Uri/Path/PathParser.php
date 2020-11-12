@@ -7,7 +7,6 @@ namespace JSONAPI\Uri\Path;
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\LinkFactory;
 
 /**
  * Class PathParser
@@ -82,7 +81,7 @@ class PathParser implements PathInterface
         $pattern         = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
 
-        if (preg_match($pattern, $data, $matches)) {
+        if (preg_match($pattern, $data, $matches) !== false) {
             $this->resource = $matches[$resourceKey];
             $this->id       = isset($matches[$idKey]) ? $matches[$idKey] : null;
             if (isset($matches[$relationshipKey]) && strlen($matches[$relationshipKey]) > 0) {
@@ -93,7 +92,7 @@ class PathParser implements PathInterface
                 $this->relationship   = $matches[$relatedKey];
             }
         } else {
-            throw new BadRequest("Invalid URL");
+            throw new BadRequest();
         }
         return $this;
     }
