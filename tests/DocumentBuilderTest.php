@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JSONAPI\Test;
 
 use Doctrine\Common\Cache\ArrayCache;
-use JSONAPI\Config;
 use JSONAPI\Document\Document;
 use JSONAPI\DocumentBuilder;
 use JSONAPI\DocumentBuilderFactory;

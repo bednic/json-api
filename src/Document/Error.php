@@ -4,15 +4,9 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use Fig\Http\Message\StatusCodeInterface;
-use JSONAPI\Exception\HasParameter;
-use JSONAPI\Exception\HasPointer;
-use JSONAPI\Exception\JsonApiException;
+use JSONAPI\Document\Error\Source;
 use JSONAPI\Helper\LinksTrait;
 use JSONAPI\Helper\MetaTrait;
-use Swaggest\JsonSchema\Exception\Error as SchemaError;
-use Swaggest\JsonSchema\InvalidValue;
-use Throwable;
 
 /**
  * Class Error
@@ -45,63 +39,14 @@ final class Error implements Serializable, HasLinks, HasMeta
      */
     private string $detail;
     /**
-     * @var ErrorSource
+     * @var Source
      */
-    private ErrorSource $source;
+    private Source $source;
 
     /**
-     * @param Throwable $exception
+     *  a short, human-readable summary of the problem that SHOULD NOT change from occurrence to occurrence of the
+     *  problem, except for purposes of localization.
      *
-     * @return Error
-     */
-    public static function fromException(Throwable $exception)
-    {
-        $self = new static();
-        $self->setTitle(get_class($exception));
-        $self->setStatus(StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR);
-        $self->setCode((string)$exception->getCode());
-        $self->setDetail($exception->getMessage());
-        $source = ErrorSource::internal(
-            $exception->getFile() . ':' . $exception->getLine(),
-            $exception->getTraceAsString()
-        );
-        if ($exception instanceof JsonApiException) {
-            $self->setStatus($exception->getStatus());
-            if ($exception instanceof HasPointer) {
-                $source = ErrorSource::pointer($exception->getPointer());
-            } elseif ($exception instanceof HasParameter) {
-                $source = ErrorSource::parameter($exception->getParameter());
-            }
-        } elseif ($exception instanceof InvalidValue) {
-            list($message, $source) = $self::parseInvalidValue($exception->inspect());
-            $self->setDetail($message);
-        }
-        $self->setSource($source);
-        return $self;
-    }
-
-    /**
-     * @param SchemaError $error
-     *
-     * @return array<string|ErrorSource>
-     * @example [
-     *      <string> message,
-     *      <ErrorSource> source
-     * ]
-     */
-    private static function parseInvalidValue(SchemaError $error): array
-    {
-        if ($error->subErrors) {
-            return self::parseInvalidValue($error->subErrors[0]);
-        } else {
-            return [
-                (string) preg_replace('/, data.+/', '', $error->error),
-                ErrorSource::pointer($error->dataPointer)
-            ];
-        }
-    }
-
-    /**
      * @param string $title
      */
     public function setTitle(string $title): void
@@ -110,6 +55,8 @@ final class Error implements Serializable, HasLinks, HasMeta
     }
 
     /**
+     * an application-specific error code, expressed as a string value.
+     *
      * @param string $code
      */
     public function setCode(string $code): void
@@ -118,6 +65,8 @@ final class Error implements Serializable, HasLinks, HasMeta
     }
 
     /**
+     * the HTTP status code applicable to this problem, expressed as a string value.
+     *
      * @param int $status
      */
     public function setStatus(int $status): void
@@ -135,6 +84,9 @@ final class Error implements Serializable, HasLinks, HasMeta
 
 
     /**
+     * a human-readable explanation specific to this occurrence of the problem. Like title, this field’s value can be
+     * localized.
+     *
      * @param string $detail
      */
     public function setDetail(string $detail): void
@@ -143,6 +95,8 @@ final class Error implements Serializable, HasLinks, HasMeta
     }
 
     /**
+     * a unique identifier for this particular occurrence of the problem.
+     *
      * @param string $id
      */
     public function setId(string $id): void
@@ -151,9 +105,11 @@ final class Error implements Serializable, HasLinks, HasMeta
     }
 
     /**
-     * @param ErrorSource $source
+     * an object containing references to the source of the error.
+     *
+     * @param Source $source
      */
-    public function setSource(ErrorSource $source): void
+    public function setSource(Source $source): void
     {
         $this->source = $source;
     }

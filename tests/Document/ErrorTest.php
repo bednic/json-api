@@ -4,36 +4,47 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Document;
 
+use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Error;
-use JSONAPI\Exception\Document\AttributeNotExist;
-use JSONAPI\Exception\Http\UnsupportedParameter;
-use JSONAPI\Exception\Metadata\AttributeNotFound;
-use PHPUnit\Framework\MockObject\MockBuilder;
-use PHPUnit\Framework\MockObject\MockClass;
+use JSONAPI\Document\Link;
+use JSONAPI\Document\Meta;
+use JSONAPI\Uri\QueryPartInterface;
 use PHPUnit\Framework\TestCase;
-use Swaggest\JsonSchema\InvalidValue;
 
+/**
+ * Class ErrorTest
+ *
+ * @package JSONAPI\Test\Document
+ */
 class ErrorTest extends TestCase
 {
-    public function testFromException()
+
+    public function testSetters()
     {
-        $e = json_decode(
-            json_encode(Error::fromException(new \Exception("Test Generic Exception Message"))->jsonSerialize()),
-            true
-        );
-        $this->assertArrayHasKey('line', $e['source']);
-        $this->assertArrayHasKey('trace', $e['source']);
-        $ee = json_decode(json_encode(Error::fromException(new UnsupportedParameter('sort'))->jsonSerialize()), true);
-        $this->assertArrayHasKey('parameter', $ee['source']);
-        $eee = json_decode(
-            json_encode(Error::fromException(new AttributeNotExist('testAttribute'))->jsonSerialize()),
-            true
-        );
-        $this->assertArrayHasKey('pointer', $eee['source']);
-        $eeee = json_decode(
-            json_encode(Error::fromException(new InvalidValue("test"))),
-            true
-        );
-        $this->assertArrayHasKey('pointer', $eeee['source']);
+        $source = Error\Source::parameter(QueryPartInterface::SORT_PART_KEY);
+        $error  = new Error();
+        $error->setMeta(new Meta(['custom' => 'property']));
+        $error->setId('id');
+        $error->setStatus(StatusCodeInterface::STATUS_OK);
+        $error->setDetail('detail');
+        $error->setTitle('title');
+        $error->setCode('code');
+        $error->setSource($source);
+        $error->setLink(new Link(Link::ABOUT, 'http://about.error.com'));
+        $json = $error->jsonSerialize();
+        $this->assertObjectHasAttribute('id', $json);
+        $this->assertEquals('id', $json->id);
+        $this->assertObjectHasAttribute('status', $json);
+        $this->assertEquals(200, $json->status);
+        $this->assertObjectHasAttribute('detail', $json);
+        $this->assertEquals('detail', $json->detail);
+        $this->assertObjectHasAttribute('title', $json);
+        $this->assertEquals('title', $json->title);
+        $this->assertObjectHasAttribute('code', $json);
+        $this->assertEquals('code', $json->code);
+        $this->assertObjectHasAttribute('source', $json);
+        $this->assertObjectHasAttribute('meta', $json);
+        $this->assertObjectHasAttribute('links', $json);
     }
+
 }

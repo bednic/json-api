@@ -8,7 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Document\Attribute;
 use JSONAPI\Document\Document;
-use JSONAPI\Document\Error;
+use JSONAPI\Document\Error\ErrorFactory;
 use JSONAPI\Document\Id;
 use JSONAPI\Document\PrimaryData;
 use JSONAPI\Document\Relationship;
@@ -21,6 +21,7 @@ use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\Conflict;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Exception\Metadata\MetadataException;
+use JSONAPI\Factory\DocumentError;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Uri\Path\PathInterface;
@@ -36,6 +37,8 @@ use Psr\Log\NullLogger;
 use ReflectionClass;
 use ReflectionException;
 use stdClass;
+use Swaggest\JsonSchema\Exception as SchemaException;
+use Swaggest\JsonSchema\InvalidValue;
 use Swaggest\JsonSchema\Schema;
 use Throwable;
 use JSONAPI\Document\Deserializable;
@@ -75,6 +78,10 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * @var Schema
      */
     private Schema $output;
+    /**
+     * @var ErrorFactory
+     */
+    private ErrorFactory $errorFactory;
 
 
     /**
@@ -85,19 +92,25 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * @param ResponseFactoryInterface $responseFactory
      * @param StreamFactoryInterface   $streamFactory
      * @param LoggerInterface|null     $logger
+     * @param ErrorFactory|null        $errorFactory
+     *
+     * @throws InvalidValue
+     * @throws SchemaException
      */
     public function __construct(
         MetadataRepository $repository,
         string $baseURL,
         ResponseFactoryInterface $responseFactory,
         StreamFactoryInterface $streamFactory,
-        LoggerInterface $logger = null
+        LoggerInterface $logger = null,
+        ErrorFactory $errorFactory = null
     ) {
         $this->repository      = $repository;
+        $this->baseURL         = $baseURL;
         $this->responseFactory = $responseFactory;
         $this->streamFactory   = $streamFactory;
         $this->logger          = $logger ?? new NullLogger();
-        $this->baseURL         = $baseURL;
+        $this->errorFactory    = $errorFactory ?? new DocumentError();
         $this->input           = Schema::import(
             json_decode(file_get_contents(__DIR__ . '/in.json'))
         );
@@ -121,11 +134,11 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     {
         try {
             if (
-                in_array($request->getMethod(), [
+            in_array($request->getMethod(), [
                 RequestMethodInterface::METHOD_POST,
                 RequestMethodInterface::METHOD_PATCH,
                 RequestMethodInterface::METHOD_DELETE
-                ])
+            ])
             ) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
@@ -143,7 +156,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $request = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
-            $content = $response->getBody()->getContents();
+            $content  = $response->getBody()->getContents();
             $response->getBody()->rewind();
             if (strlen($content) > 0) {
                 $this->output->in(
@@ -152,7 +165,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             }
         } catch (Throwable $exception) {
             $document = new Document();
-            $error    = Error::fromException($exception);
+            $error    = $this->errorFactory->fromThrowable($exception);
             $document->addError($error);
             $response = $this->responseFactory
                 ->createResponse($error->getStatus())

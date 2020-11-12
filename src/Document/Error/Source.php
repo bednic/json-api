@@ -2,14 +2,16 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Document;
+namespace JSONAPI\Document\Error;
+
+use JSONAPI\Document\Serializable;
 
 /**
  * Class ErrorSource
  *
  * @package JSONAPI\Document
  */
-class ErrorSource implements Serializable
+class Source implements Serializable
 {
     /**
      * JSON Pointer [RFC6901] to the associated entity in the request document
@@ -26,16 +28,6 @@ class ErrorSource implements Serializable
      */
     private ?string $parameter = null;
 
-    /**
-     * @var string|null
-     */
-    private ?string $line = null;
-
-    /**
-     * @var array<string>|null
-     */
-    private ?array $trace = null;
-
     private function __construct()
     {
         // Instance should be created only with specific properties
@@ -44,7 +36,7 @@ class ErrorSource implements Serializable
     /**
      * @param string $pointer
      *
-     * @return ErrorSource
+     * @return Source
      */
     public static function pointer(string $pointer): self
     {
@@ -56,7 +48,7 @@ class ErrorSource implements Serializable
     /**
      * @param string $parameter
      *
-     * @return ErrorSource
+     * @return Source
      */
     public static function parameter(string $parameter): self
     {
@@ -66,34 +58,15 @@ class ErrorSource implements Serializable
     }
 
     /**
-     * @param string $line
-     * @param string $trace
-     *
-     * @return ErrorSource
-     */
-    public static function internal(string $line, string $trace): self
-    {
-        $static       = new self();
-        $static->line = $line;
-        $steps        = preg_split('/#[0-9]+ /', $trace) !== false ? preg_split('/#[0-9]+ /', $trace) : [];
-        array_shift($steps);
-        $static->trace = $steps;
-        return $static;
-    }
-
-    /**
      * @inheritDoc
      */
     public function jsonSerialize()
     {
         $ret = [];
-        if ($this->parameter) {
+        if (!is_null($this->parameter)) {
             $ret['parameter'] = $this->parameter;
-        } elseif ($this->pointer) {
-            $ret['pointer'] = $this->pointer;
         } else {
-            $ret['line']  = $this->line;
-            $ret['trace'] = $this->trace;
+            $ret['pointer'] = $this->pointer;
         }
         return $ret;
     }
