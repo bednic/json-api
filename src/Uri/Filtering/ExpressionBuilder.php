@@ -290,8 +290,8 @@ interface ExpressionBuilder
     /**
      * @param mixed $value
      *
-     * @return mixed@throws ExpressionException
-     *
+     * @return mixed
+     * @throws ExpressionException
      */
     public function literal($value);
 
