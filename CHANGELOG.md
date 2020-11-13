@@ -14,14 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-* **SortParser::parse incompatible behavior:** clrf ([fad6240](https://gitlab.com/bednic/json-api/commit/fad6240842001bcb5d96bd200dd84229be57627b)), closes [#33](https://gitlab.com/bednic/json-api/issues/33)
+* **Uri:** SortParser::parse incompatible behavior ([fad6240](https://gitlab.com/bednic/json-api/commit/fad6240842001bcb5d96bd200dd84229be57627b)), closes [#33](https://gitlab.com/bednic/json-api/issues/33)
 * **Uri:** insufficient parsers behavior ([6657dea](https://gitlab.com/bednic/json-api/commit/6657deacd5479848246a5f0366a492bf054c66aa))
 * **Uri:** LimitOffsetPagination const instead strings ([e51aa6d](https://gitlab.com/bednic/json-api/commit/e51aa6df21be4d4df15327f60f85ddcb8b7f4acc))
 * **Uri:** PathParser ([423e4fb](https://gitlab.com/bednic/json-api/commit/423e4fbb207c749550e6f930848fd2def32be7df))
 * **Uri:** SortParser behavior ([bc02bdc](https://gitlab.com/bednic/json-api/commit/bc02bdce445f26aee46d70e5455ae6b8bdbe9021))
 * **Uri:** SortParser regex ([3ee4457](https://gitlab.com/bednic/json-api/commit/3ee44570e0ce0e7034b5694be3b8445332306e8a))
 * **Uri:** SortParser::parse ([81cc097](https://gitlab.com/bednic/json-api/commit/81cc0978f814522f2234586be59e1f16e9e8d30b))
-* PathParser::parse condition mistake ([fb394f7](https://gitlab.com/bednic/json-api/commit/fb394f791399b30445695e20a60dc4894359eed0))
+* **Uri:** PathParser::parse condition mistake ([fb394f7](https://gitlab.com/bednic/json-api/commit/fb394f791399b30445695e20a60dc4894359eed0))
 
 ### [6.3.1](https://gitlab.com/bednic/json-api/compare/6.3.0...6.3.1) (2020-10-26)
 
