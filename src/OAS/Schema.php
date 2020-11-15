@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Exception\IncompleteObjectException;
-use JSONAPI\OAS\Exception\InvalidArgumentException;
+use JSONAPI\Exception\OAS\IncompleteObjectException;
+use JSONAPI\Exception\OAS\InvalidArgumentException;
 use ReflectionClass;
 use JSONAPI\Document\Serializable;
 

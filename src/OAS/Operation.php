@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Exception\DuplicationEntryException;
+use JSONAPI\Exception\OAS\DuplicationEntryException;
 use JSONAPI\Document\Serializable;
 
 /**

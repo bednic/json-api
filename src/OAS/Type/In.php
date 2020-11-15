@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\OAS\Enum;
+namespace JSONAPI\OAS\Type;
 
 use MyCLabs\Enum\Enum;
 

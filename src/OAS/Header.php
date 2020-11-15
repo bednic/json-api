@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Enum\In;
+use JSONAPI\Exception\OAS\IncompleteObjectException;
+use JSONAPI\OAS\Type\In;
 use ReflectionClass;
 
 /**
@@ -48,7 +49,7 @@ class Header extends Parameter
 
     /**
      * @return object
-     * @throws Exception\IncompleteObjectException
+     * @throws IncompleteObjectException
      */
     public function jsonSerialize()
     {

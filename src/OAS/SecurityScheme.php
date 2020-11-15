@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Enum\In;
-use JSONAPI\OAS\Enum\SecuritySchemeScheme;
-use JSONAPI\OAS\Enum\SecuritySchemeType;
-use JSONAPI\OAS\Exception\InvalidArgumentException;
-use JSONAPI\OAS\Exception\InvalidFormatException;
+use JSONAPI\OAS\Type\In;
+use JSONAPI\OAS\Type\SecuritySchemeScheme;
+use JSONAPI\OAS\Type\SecuritySchemeType;
+use JSONAPI\Exception\OAS\InvalidArgumentException;
+use JSONAPI\Exception\OAS\InvalidFormatException;
 use ReflectionClass;
 use JSONAPI\Document\Serializable;
 

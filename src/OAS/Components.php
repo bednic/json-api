@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Exception\DuplicationEntryException;
-use JSONAPI\OAS\Exception\InvalidArgumentException;
-use JSONAPI\OAS\Exception\ReferencedObjectNotExistsException;
+use JSONAPI\Exception\OAS\DuplicationEntryException;
+use JSONAPI\Exception\OAS\InvalidArgumentException;
+use JSONAPI\Exception\OAS\ReferencedObjectNotExistsException;
 use JSONAPI\Document\Serializable;
 
 /**

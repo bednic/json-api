@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Exception\InvalidFormatException;
+use JSONAPI\Exception\OAS\InvalidFormatException;
 use JSONAPI\Document\Serializable;
 
 /**

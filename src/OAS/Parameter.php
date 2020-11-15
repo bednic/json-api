@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Enum\In;
-use JSONAPI\OAS\Enum\Style;
-use JSONAPI\OAS\Exception\ExclusivityCheckException;
-use JSONAPI\OAS\Exception\IncompleteObjectException;
+use JSONAPI\OAS\Type\In;
+use JSONAPI\OAS\Type\Style;
+use JSONAPI\Exception\OAS\ExclusivityCheckException;
+use JSONAPI\Exception\OAS\IncompleteObjectException;
 use ReflectionClass;
 use JSONAPI\Document\Serializable;
 
