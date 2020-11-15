@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\OAS\Exception;
+namespace JSONAPI\Exception\OAS;
 
 /**
  * Class DuplicationEntryException
  *
- * @package JSONAPI\OAS\Exception
+ * @package JSONAPI\Exception\OAS
  */
 class DuplicationEntryException extends OpenAPIException
 {

@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\OAS\Exception;
+namespace JSONAPI\Exception\OAS;
 
 /**
  * Class InvalidFormatException
  *
- * @package JSONAPI\OAS\Exception
+ * @package JSONAPI\Exception\OAS
  */
 class InvalidFormatException extends OpenAPIException
 {
