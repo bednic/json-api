@@ -14,14 +14,14 @@ use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\Inclusion\Inclusion;
+use JSONAPI\URI\Inclusion\Inclusion;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Class InclusionFetcher
+ * Class InclusionCollector
  *
- * @package JSONAPI
+ * @package JSONAPI\Factory
  */
 class InclusionCollector
 {

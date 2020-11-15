@@ -2,22 +2,23 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI;
+namespace JSONAPI\Factory;
 
+use JSONAPI\Document\Builder;
+use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\Filtering\FilterParserInterface;
-use JSONAPI\Uri\LinkFactory;
-use JSONAPI\Uri\Pagination\PaginationParserInterface;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\URI\Filtering\FilterParserInterface;
+use JSONAPI\URI\Pagination\PaginationParserInterface;
+use JSONAPI\URI\URIParser;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
 /**
- * Class DocumentFactory
+ * Class DocumentBuilderFactory
  *
- * @package JSONAPI
+ * @package JSONAPI\Factory
  */
 class DocumentBuilderFactory
 {
@@ -110,14 +111,14 @@ class DocumentBuilderFactory
     /**
      * @param ServerRequestInterface $request
      *
-     * @return DocumentBuilder
-     * @throws Exception\Http\BadRequest
+     * @return Builder
+     * @throws BadRequest
      */
-    public function new(ServerRequestInterface $request): DocumentBuilder
+    public function new(ServerRequestInterface $request): Builder
     {
-        $linkFactory      = new LinkFactory($this->baseURL); //todo 7.x
-        $uriParser  = $this->uri($request);
-        $encoder          = new Encoder(
+        $linkFactory = new LinkComposer($this->baseURL);
+        $uriParser   = $this->uri($request);
+        $encoder     = new Encoder(
             $this->metadataRepository,
             $uriParser->getFieldset(),
             $uriParser->getInclusion(),
@@ -126,24 +127,24 @@ class DocumentBuilderFactory
             $this->relationshipLimit,
             $this->logger
         );
-        $inclusionFetcher = new InclusionFetcher(
+        $collector   = new InclusionCollector(
             $this->metadataRepository,
             $encoder,
             $this->maxIncludedItems,
             $this->logger
         );
-        return new DocumentBuilder($encoder, $inclusionFetcher, $linkFactory, $uriParser, $this->logger);
+        return new Builder($encoder, $collector, $linkFactory, $uriParser, $this->logger);
     }
 
     /**
      * @param ServerRequestInterface $request
      *
-     * @return UriParser
-     * @throws Exception\Http\BadRequest
+     * @return URIParser
+     * @throws BadRequest
      */
-    public function uri(ServerRequestInterface $request): UriParser
+    public function uri(ServerRequestInterface $request): URIParser
     {
-        return new UriParser(
+        return new URIParser(
             $request,
             $this->metadataRepository,
             $this->baseURL,

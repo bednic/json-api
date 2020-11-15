@@ -14,13 +14,13 @@ use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Http\BadRequest;
-use JSONAPI\Uri\Fieldset\FieldsetInterface;
-use JSONAPI\Uri\Filtering\FilterInterface;
-use JSONAPI\Uri\Inclusion\InclusionInterface;
-use JSONAPI\Uri\Pagination\PaginationInterface;
-use JSONAPI\Uri\Path\PathInterface;
-use JSONAPI\Uri\Sorting\SortInterface;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\URI\Fieldset\FieldsetInterface;
+use JSONAPI\URI\Filtering\FilterInterface;
+use JSONAPI\URI\Inclusion\InclusionInterface;
+use JSONAPI\URI\Pagination\PaginationInterface;
+use JSONAPI\URI\Path\PathInterface;
+use JSONAPI\URI\Sorting\SortInterface;
+use JSONAPI\URI\URIParser;
 
 /**
  * Class LinkComposer
@@ -54,7 +54,7 @@ class LinkComposer
      */
     public function setResourceLink(ResourceObject $resource, Meta $meta = null): ResourceObject
     {
-        $resource->setLink(new Link(Link::SELF, self::getResourceLink($resource), $meta));
+        $resource->setLink(new Link(Link::SELF, $this->getResourceLink($resource), $meta));
         return $resource;
     }
 
@@ -144,14 +144,14 @@ class LinkComposer
 
     /**
      * @param Document  $document
-     * @param UriParser $parser
+     * @param URIParser $parser
      *
      * @return Document
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws BadRequest
      */
-    public function setDocumentLinks(Document $document, UriParser $parser): Document
+    public function setDocumentLinks(Document $document, URIParser $parser): Document
     {
         $path       = $parser->getPath();
         $filter     = $parser->getFilter();
@@ -160,7 +160,7 @@ class LinkComposer
         $sort       = $parser->getSort();
         $pagination = $parser->getPagination();
         if ($document->getData() instanceof ResourceCollection) {
-            $document->setLink(self::createDocumentLink(
+            $document->setLink($this->createDocumentLink(
                 Link::SELF,
                 $path,
                 $filter,
@@ -170,7 +170,7 @@ class LinkComposer
                 $sort
             ));
             if ($first = $pagination->first()) {
-                $document->setLink(self::createDocumentLink(
+                $document->setLink($this->createDocumentLink(
                     Link::FIRST,
                     $path,
                     $filter,
@@ -181,7 +181,7 @@ class LinkComposer
                 ));
             }
             if ($last = $pagination->last()) {
-                $document->setLink(self::createDocumentLink(
+                $document->setLink($this->createDocumentLink(
                     Link::LAST,
                     $path,
                     $filter,
@@ -192,7 +192,7 @@ class LinkComposer
                 ));
             }
             if ($prev = $pagination->prev()) {
-                $document->setLink(self::createDocumentLink(
+                $document->setLink($this->createDocumentLink(
                     Link::PREV,
                     $path,
                     $filter,
@@ -203,7 +203,7 @@ class LinkComposer
                 ));
             }
             if ($next = $pagination->next()) {
-                $document->setLink(self::createDocumentLink(
+                $document->setLink($this->createDocumentLink(
                     Link::NEXT,
                     $path,
                     $filter,
@@ -214,7 +214,7 @@ class LinkComposer
                 ));
             }
         } else {
-            $document->setLink(self::createDocumentLink(
+            $document->setLink($this->createDocumentLink(
                 Link::SELF,
                 $parser->getPath(),
                 null,

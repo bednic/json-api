@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Metadata;
+namespace JSONAPI\Factory;
 
 use JSONAPI\Driver\Driver;
 use JSONAPI\Exception\Driver\ClassNotExist;
@@ -11,6 +11,8 @@ use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Helper\DoctrineProxyTrait;
+use JSONAPI\Metadata\ClassMetadata;
+use JSONAPI\Metadata\MetadataRepository;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
@@ -22,6 +24,7 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
  * Class MetadataFactory
  *
  * @package JSONAPI\Metadata
+ * @todo This deserve refactor
  */
 class MetadataFactory
 {
@@ -30,7 +33,7 @@ class MetadataFactory
     /**
      * @var string[]
      */
-    private array $paths = [];
+    private array $paths;
     /**
      * @var CacheInterface
      */
@@ -59,7 +62,7 @@ class MetadataFactory
     /**
      * MetadataFactory constructor.
      *
-     * @param array                $paths
+     * @param string[]             $paths
      * @param CacheInterface       $cache
      * @param Driver               $driver
      * @param LoggerInterface|null $logger
@@ -74,10 +77,10 @@ class MetadataFactory
         Driver $driver,
         LoggerInterface $logger = null
     ) {
-        $this->paths  = $paths;
-        $this->cache  = $cache;
-        $this->driver = $driver;
-        $this->logger = $logger ?? new NullLogger();
+        $this->paths   = $paths;
+        $this->cache   = $cache;
+        $this->driver  = $driver;
+        $this->logger  = $logger ?? new NullLogger();
         $this->slugger = new AsciiSlugger();
         $this->load();
     }
@@ -93,7 +96,7 @@ class MetadataFactory
     {
 
         try {
-            $key = $this->slugger->slug($className)->toString();
+            $key       = $this->slugger->slug($className)->toString();
             $className = self::clearDoctrineProxyPrefix($className);
             if ($this->cache->has($key)) {
                 return $this->cache->get($key);

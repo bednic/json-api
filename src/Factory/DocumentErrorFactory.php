@@ -16,11 +16,11 @@ use Swaggest\JsonSchema\InvalidValue as SchemaInvalidValue;
 use Throwable;
 
 /**
- * Class DocumentError
+ * Class DocumentErrorFactory
  *
  * @package JSONAPI\Factory
  */
-class DocumentError implements ErrorFactory
+class DocumentErrorFactory implements ErrorFactory
 {
 
     /**

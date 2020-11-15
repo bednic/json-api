@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\OAS\Factory;
+namespace JSONAPI\Factory;
 
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Document;
@@ -13,13 +13,14 @@ use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Metadata\Relationship;
-use JSONAPI\OAS\Enum\In;
-use JSONAPI\OAS\Enum\Style;
-use JSONAPI\OAS\Exception\DuplicationEntryException;
-use JSONAPI\OAS\Exception\ExclusivityCheckException;
-use JSONAPI\OAS\Exception\InvalidArgumentException;
-use JSONAPI\OAS\Exception\InvalidFormatException;
-use JSONAPI\OAS\Exception\ReferencedObjectNotExistsException;
+use JSONAPI\OAS\Factory\DataType;
+use JSONAPI\OAS\Type\In;
+use JSONAPI\OAS\Type\Style;
+use JSONAPI\Exception\OAS\DuplicationEntryException;
+use JSONAPI\Exception\OAS\ExclusivityCheckException;
+use JSONAPI\Exception\OAS\InvalidArgumentException;
+use JSONAPI\Exception\OAS\InvalidFormatException;
+use JSONAPI\Exception\OAS\ReferencedObjectNotExistsException;
 use JSONAPI\OAS\Header;
 use JSONAPI\OAS\Info;
 use JSONAPI\OAS\MediaType;
