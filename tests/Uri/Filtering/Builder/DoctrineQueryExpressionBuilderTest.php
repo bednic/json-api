@@ -6,10 +6,10 @@ namespace JSONAPI\Test\Uri\Filtering\Builder;
 
 use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Driver\SchemaDriver;
-use JSONAPI\Metadata\MetadataFactory;
-use JSONAPI\Uri\Filtering\Builder\DoctrineQueryExpressionBuilder;
-use JSONAPI\Uri\Path\PathInterface;
-use JSONAPI\Uri\Path\PathParser;
+use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\URI\Filtering\Builder\DoctrineQueryExpressionBuilder;
+use JSONAPI\URI\Path\PathInterface;
+use JSONAPI\URI\Path\PathParser;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 

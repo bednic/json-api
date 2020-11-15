@@ -6,11 +6,11 @@ namespace JSONAPI\Test\OAS\Factory;
 
 use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\OAS\Contact;
 use JSONAPI\OAS\ExternalDocumentation;
-use JSONAPI\OAS\Factory\OpenAPISpecificationBuilder;
+use JSONAPI\Factory\OpenAPISpecificationBuilder;
 use JSONAPI\OAS\Info;
 use JSONAPI\OAS\License;
 use JSONAPI\OAS\OpenAPISpecification;

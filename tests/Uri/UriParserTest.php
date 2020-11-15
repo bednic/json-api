@@ -6,18 +6,18 @@ namespace JSONAPI\Test\Uri;
 
 use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Driver\SchemaDriver;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\Fieldset\FieldsetInterface;
-use JSONAPI\Uri\Filtering\ExpressionFilterParser;
-use JSONAPI\Uri\Filtering\FilterInterface;
-use JSONAPI\Uri\Inclusion\InclusionInterface;
-use JSONAPI\Uri\Pagination\LimitOffsetPagination;
-use JSONAPI\Uri\Pagination\PagePagination;
-use JSONAPI\Uri\Pagination\PaginationInterface;
-use JSONAPI\Uri\Path\PathInterface;
-use JSONAPI\Uri\Sorting\SortInterface;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\URI\Fieldset\FieldsetInterface;
+use JSONAPI\URI\Filtering\ExpressionFilterParser;
+use JSONAPI\URI\Filtering\FilterInterface;
+use JSONAPI\URI\Inclusion\InclusionInterface;
+use JSONAPI\URI\Pagination\LimitOffsetPagination;
+use JSONAPI\URI\Pagination\PagePagination;
+use JSONAPI\URI\Pagination\PaginationInterface;
+use JSONAPI\URI\Path\PathInterface;
+use JSONAPI\URI\Sorting\SortInterface;
+use JSONAPI\URI\URIParser;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
@@ -41,28 +41,28 @@ class UriParserTest extends TestCase
     public function testGetFieldset()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $up      = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(FieldsetInterface::class, $up->getFieldset());
     }
 
     public function testGetFilter()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $up      = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(FilterInterface::class, $up->getFilter());
     }
 
     public function testGetSort()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $up      = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(SortInterface::class, $up->getSort());
     }
 
     public function testConstruct()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser(
+        $up      = new URIParser(
             $request,
             self::$mr,
             self::$baseURL,
@@ -73,20 +73,20 @@ class UriParserTest extends TestCase
             new PagePagination(),
             new NullLogger()
         );
-        $this->assertInstanceOf(UriParser::class, $up);
+        $this->assertInstanceOf(URIParser::class, $up);
     }
 
     public function testGetInclusion()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $up      = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(InclusionInterface::class, $up->getInclusion());
     }
 
     public function testGetPath()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $up      = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(PathInterface::class, $up->getPath());
     }
 
@@ -94,7 +94,7 @@ class UriParserTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $up      = new URIParser($request, self::$mr, self::$baseURL);
         $parser  = new ExpressionFilterParser();
         $up->setFilterParser($parser);
     }
@@ -102,7 +102,7 @@ class UriParserTest extends TestCase
     public function testGetPagination()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $up      = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(PaginationInterface::class, $up->getPagination());
     }
 
@@ -110,7 +110,7 @@ class UriParserTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new UriParser($request, self::$mr, self::$baseURL);
+        $up      = new URIParser($request, self::$mr, self::$baseURL);
         $parser  = new LimitOffsetPagination();
         $up->setPaginationParser($parser);
     }

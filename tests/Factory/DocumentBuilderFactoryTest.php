@@ -2,22 +2,21 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test;
+namespace JSONAPI\Test\Factory;
 
 use Doctrine\Common\Cache\ArrayCache;
-use JSONAPI\DocumentBuilder;
-use JSONAPI\DocumentBuilderFactory;
+use JSONAPI\Document\Builder;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\DocumentBuilderFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\URI\URIParser;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
-class DocumentInstantiationFactoryTest extends TestCase
+class DocumentBuilderFactoryTest extends TestCase
 {
-
     public static MetadataRepository $metadata;
 
     public static function setUpBeforeClass(): void
@@ -36,7 +35,7 @@ class DocumentInstantiationFactoryTest extends TestCase
         $request  = ServerRequestFactory::createFromGlobals();
         $factory  = new DocumentBuilderFactory(self::$metadata, $baseUrl);
         $composer = $factory->new($request);
-        $this->assertInstanceOf(DocumentBuilder::class, $composer);
+        $this->assertInstanceOf(Builder::class, $composer);
     }
 
     public function testGetURIParser()
@@ -44,6 +43,6 @@ class DocumentInstantiationFactoryTest extends TestCase
         $baseUrl = 'http://unit.test.org';
         $request = ServerRequestFactory::createFromGlobals();
         $factory = new DocumentBuilderFactory(self::$metadata, $baseUrl);
-        $this->assertInstanceOf(UriParser::class, $factory->uri($request));
+        $this->assertInstanceOf(URIParser::class, $factory->uri($request));
     }
 }

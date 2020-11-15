@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Uri\Filtering;
 
-use JSONAPI\Uri\Filtering\Messages;
+use JSONAPI\URI\Filtering\Messages;
 use PHPUnit\Framework\TestCase;
 
 class MessagesTest extends TestCase

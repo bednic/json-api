@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Uri\Pagination;
 
-use JSONAPI\Uri\Pagination\PagePagination;
+use JSONAPI\URI\Pagination\PagePagination;
 use PHPUnit\Framework\TestCase;
 
 class PagePaginationTest extends TestCase

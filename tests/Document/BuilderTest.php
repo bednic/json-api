@@ -2,28 +2,23 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test;
+namespace JSONAPI\Test\Document;
 
 use Doctrine\Common\Cache\ArrayCache;
+use JSONAPI\Document\Builder;
 use JSONAPI\Document\Document;
-use JSONAPI\DocumentBuilder;
-use JSONAPI\DocumentBuilderFactory;
+use JSONAPI\Document\Link;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\DocumentBuilderFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Test\Resources\Valid\GettersExample;
-use JSONAPI\Uri\LinkFactory;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Swaggest\JsonSchema\Schema;
 
-/**
- * Class DocumentBuilderTest
- *
- * @package JSONAPI\Test
- */
-class DocumentBuilderTest extends TestCase
+class BuilderTest extends TestCase
 {
     private static MetadataRepository $mr;
     /**
@@ -44,7 +39,7 @@ class DocumentBuilderTest extends TestCase
             new SimpleCacheAdapter(new ArrayCache()),
             new AnnotationDriver()
         );
-        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../src/Middleware/out.json')));
+        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../src/Middleware/out.json')));
         self::$baseUrl = 'http://unit.test.org/api';
         self::$factory = new DocumentBuilderFactory(self::$mr, self::$baseUrl);
     }
@@ -53,7 +48,7 @@ class DocumentBuilderTest extends TestCase
     {
         $request = ServerRequestFactory::createFromGlobals();
         $db      = self::$factory->new($request);
-        $this->assertInstanceOf(DocumentBuilder::class, $db);
+        $this->assertInstanceOf(Builder::class, $db);
     }
 
     public function testSetTotal()
@@ -62,7 +57,7 @@ class DocumentBuilderTest extends TestCase
         $request = ServerRequestFactory::createFromGlobals();
         $db      = self::$factory->new($request);
         $this->assertInstanceOf(
-            DocumentBuilder::class,
+            Builder::class,
             $db->setTotal(10)
         );
     }
@@ -72,13 +67,13 @@ class DocumentBuilderTest extends TestCase
         $request = ServerRequestFactory::createFromGlobals();
         $single  = new GettersExample('uuid');
         $db      = self::$factory->new($request);
-        $this->assertInstanceOf(DocumentBuilder::class, $db->setData($single));
+        $this->assertInstanceOf(Builder::class, $db->setData($single));
 
         $_SERVER['REQUEST_URI'] = 'getter';
         $request                = ServerRequestFactory::createFromGlobals();
         $collection             = [new GettersExample('uuid')];
         $db                     = self::$factory->new($request);
-        $this->assertInstanceOf(DocumentBuilder::class, $db->setData($collection));
+        $this->assertInstanceOf(Builder::class, $db->setData($collection));
     }
 
     public function testBuild()
@@ -95,7 +90,7 @@ class DocumentBuilderTest extends TestCase
         $collection             = [new GettersExample('uuid')];
         $db                     = self::$factory->new($request);
         $doc                    = $db->setData($collection)->build();
-        $self                   = $doc->getLinks()[LinkFactory::SELF];
+        $self                   = $doc->getLinks()[Link::SELF];
         $this->assertStringContainsString('http://unit.test.org/api', (string)$self->getData());
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));

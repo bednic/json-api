@@ -9,7 +9,7 @@ use Fig\Http\Message\RequestMethodInterface;
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Document;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Middleware\PsrJsonApiMiddleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;

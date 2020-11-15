@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Uri\Pagination;
 
-use JSONAPI\Uri\Pagination\LimitOffsetPagination;
-use JSONAPI\Uri\Pagination\PaginationInterface;
+use JSONAPI\URI\Pagination\LimitOffsetPagination;
+use JSONAPI\URI\Pagination\PaginationInterface;
 use PHPUnit\Framework\TestCase;
 
 class LimitOffsetPaginationTest extends TestCase

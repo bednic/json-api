@@ -2,30 +2,29 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test\Uri;
+namespace JSONAPI\Test\Factory;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Id;
+use JSONAPI\Document\Link;
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\Type;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Metadata\MetadataFactory;
-use JSONAPI\Uri\LinkFactory;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\Factory\LinkComposer;
+use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\URI\URIParser;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
 
-class LinkFactoryTest extends TestCase
+class LinkComposerTest extends TestCase
 {
-
     /**
-     * @var UriParser
+     * @var URIParser
      */
-    private static UriParser $up;
+    private static URIParser $up;
     private static string $baseURL;
 
     public static function setUpBeforeClass(): void
@@ -37,18 +36,18 @@ class LinkFactoryTest extends TestCase
         );
         $request  = ServerRequestFactory::createFromGlobals();
         self::$baseURL = 'http://unit.test.org/api';
-        self::$up = new UriParser($request, $metadata, self::$baseURL);
+        self::$up = new URIParser($request, $metadata, self::$baseURL);
     }
 
     public function testSetDocumentLinks()
     {
         $document = new Document();
-        $factory = new LinkFactory(self::$baseURL);
+        $factory = new LinkComposer(self::$baseURL);
         $factory->setDocumentLinks($document, self::$up);
         $links = $document->getLinks();
         $this->assertIsArray($links);
-        $this->assertArrayHasKey(LinkFactory::SELF, $links);
-        $self = $links[LinkFactory::SELF];
+        $this->assertArrayHasKey(Link::SELF, $links);
+        $self = $links[Link::SELF];
         $this->assertEquals(
             'http://unit.test.org/api/getter/uuid?include=collection&' .
             'fields%5Bresource%5D=publicProperty,privateProperty,relations',
@@ -62,15 +61,15 @@ class LinkFactoryTest extends TestCase
         $resource     = new ResourceObject(new Type('resource'), new Id('id'));
         $relationship = new Relationship('test');
         $relationship->setData(null);
-        $factory = new LinkFactory(self::$baseURL);
+        $factory = new LinkComposer(self::$baseURL);
         $factory->setRelationshipLinks($relationship, $resource);
         $links = $relationship->getLinks();
         $this->assertIsArray($links);
-        $this->assertArrayHasKey(LinkFactory::SELF, $links);
-        $self = $links[LinkFactory::SELF];
+        $this->assertArrayHasKey(Link::SELF, $links);
+        $self = $links[Link::SELF];
         $this->assertEquals('http://unit.test.org/api/resource/id/relationships/test', $self->getData());
         $this->assertTrue(filter_var($self->getData(), FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE) !== null);
-        $related = $links[LinkFactory::RELATED];
+        $related = $links[Link::RELATED];
         $this->assertEquals('http://unit.test.org/api/resource/id/test', $related->getData());
         $this->assertTrue(filter_var($related->getData(), FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE) !== null);
     }
@@ -78,12 +77,12 @@ class LinkFactoryTest extends TestCase
     public function testSetResourceLink()
     {
         $resource = new ResourceObject(new Type('resource'), new Id('id'));
-        $factory = new LinkFactory(self::$baseURL);
+        $factory = new LinkComposer(self::$baseURL);
         $factory->setResourceLink($resource);
         $links = $resource->getLinks();
         $this->assertIsArray($links);
-        $this->assertArrayHasKey(LinkFactory::SELF, $links);
-        $self = $links[LinkFactory::SELF];
+        $this->assertArrayHasKey(Link::SELF, $links);
+        $self = $links[Link::SELF];
         $this->assertEquals('http://unit.test.org/api/resource/id', $self->getData());
         $this->assertTrue(filter_var($self->getData(), FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE) !== null);
     }

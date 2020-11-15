@@ -8,13 +8,13 @@ use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Driver\AnnotationDriver;
+use JSONAPI\Factory\LinkComposer;
 use JSONAPI\Metadata\Encoder;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Test\Resources\Valid\GettersExample;
 use JSONAPI\Test\Resources\Valid\MetaExample;
-use JSONAPI\Uri\Fieldset\FieldsetParser;
-use JSONAPI\Uri\Inclusion\InclusionParser;
-use JSONAPI\Uri\LinkFactory;
+use JSONAPI\URI\Fieldset\FieldsetParser;
+use JSONAPI\URI\Inclusion\InclusionParser;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 
@@ -39,7 +39,7 @@ class EncoderTest extends TestCase
         $fieldset = (new FieldsetParser())->parse([]);
         $inc = (new InclusionParser())->parse('');
         $baseUrl = 'http://unit.test.org/api';
-        $links = new LinkFactory($baseUrl);
+        $links = new LinkComposer($baseUrl);
         $encoder = new Encoder(self::$metadata, $fieldset, $inc, $links);
         $this->assertInstanceOf(Encoder::class, $encoder);
         return $encoder;

@@ -7,7 +7,7 @@ namespace JSONAPI\Test\Metadata;
 use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Driver\SchemaDriver;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;

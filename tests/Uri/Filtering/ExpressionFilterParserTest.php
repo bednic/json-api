@@ -12,14 +12,14 @@ use Doctrine\ORM\Persisters\SqlExpressionVisitor;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\QueryExpressionVisitor;
 use JSONAPI\Driver\SchemaDriver;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Test\Resources\Valid\DummyRelation;
 use JSONAPI\Test\Resources\Valid\GettersExample;
-use JSONAPI\Uri\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
-use JSONAPI\Uri\Filtering\Builder\DoctrineQueryExpressionBuilder;
-use JSONAPI\Uri\Filtering\ExpressionFilterParser;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\URI\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
+use JSONAPI\URI\Filtering\Builder\DoctrineQueryExpressionBuilder;
+use JSONAPI\URI\Filtering\ExpressionFilterParser;
+use JSONAPI\URI\URIParser;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
@@ -68,7 +68,7 @@ class ExpressionFilterParserTest extends TestCase
         $_SERVER["REQUEST_URI"] =
             "/getter?filter=stringProperty eq 'O''Neil' and contains(stringProperty,'asdf') and intProperty in (1,2,3) or boolProperty ne true and relation.property eq null and stringProperty eq datetime'2018-12-01'";
         $request                = ServerRequestFactory::createFromGlobals();
-        $up                     = new UriParser($request, self::$mr, self::$baseURL);
+        $up                     = new URIParser($request, self::$mr, self::$baseURL);
         $parser                 = new ExpressionFilterParser(
             new DoctrineQueryExpressionBuilder(
                 self::$mr,

@@ -6,7 +6,7 @@ namespace JSONAPI\Test\Factory;
 
 use JSONAPI\Document\Error;
 use JSONAPI\Exception\InvalidArgumentException;
-use JSONAPI\Factory\DocumentError;
+use JSONAPI\Factory\DocumentErrorFactory;
 use PHPUnit\Framework\TestCase;
 use Swaggest\JsonSchema\InvalidValue;
 
@@ -15,13 +15,13 @@ class DocumentErrorTest extends TestCase
 
     public function testConstruct()
     {
-        $instance = new DocumentError();
-        $this->assertInstanceOf(DocumentError::class, $instance);
+        $instance = new DocumentErrorFactory();
+        $this->assertInstanceOf(DocumentErrorFactory::class, $instance);
     }
 
     public function testFromThrowable()
     {
-        $i = new DocumentError();
+        $i = new DocumentErrorFactory();
         $error = $i->fromThrowable(new \Exception("Unknown exception"));
         $this->assertInstanceOf(Error::class, $error);
         $jae = $i->fromThrowable(new InvalidArgumentException());

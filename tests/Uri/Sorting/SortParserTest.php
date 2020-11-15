@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Test\Uri\Sorting;
 
 use JSONAPI\Exception\Http\MalformedParameter;
-use JSONAPI\Uri\Sorting\SortParser;
+use JSONAPI\URI\Sorting\SortParser;
 use PHPUnit\Framework\TestCase;
 
 class SortParserTest extends TestCase

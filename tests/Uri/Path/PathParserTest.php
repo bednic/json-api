@@ -6,13 +6,11 @@ namespace JSONAPI\Test\Uri\Path;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Fig\Http\Message\RequestMethodInterface;
-use JSONAPI\Config;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Metadata\MetadataFactory;
+use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\LinkFactory;
-use JSONAPI\Uri\Path\PathInterface;
-use JSONAPI\Uri\Path\PathParser;
+use JSONAPI\URI\Path\PathInterface;
+use JSONAPI\URI\Path\PathParser;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 

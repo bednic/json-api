@@ -8,7 +8,7 @@ use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Error;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
-use JSONAPI\Uri\QueryPartInterface;
+use JSONAPI\URI\QueryPartInterface;
 use PHPUnit\Framework\TestCase;
 
 /**
