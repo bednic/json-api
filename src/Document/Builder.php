@@ -2,19 +2,18 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI;
+namespace JSONAPI\Document;
 
-use JSONAPI\Document\Document;
-use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Exception\Document\DocumentException;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Metadata\MetadataException;
+use JSONAPI\Factory\InclusionCollector;
+use JSONAPI\Factory\LinkComposer;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Metadata\Encoder;
-use JSONAPI\Uri\LinkFactory;
-use JSONAPI\Uri\Pagination\UseTotalCount;
-use JSONAPI\Uri\UriParser;
+use JSONAPI\URI\Pagination\UseTotalCount;
+use JSONAPI\URI\URIParser;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -23,7 +22,7 @@ use Psr\Log\NullLogger;
  *
  * @package JSONAPI
  */
-class DocumentBuilder
+class Builder
 {
     use DoctrineProxyTrait;
 
@@ -40,30 +39,30 @@ class DocumentBuilder
      */
     private Document $document;
     /**
-     * @var LinkFactory
+     * @var LinkComposer
      */
-    private LinkFactory $linkFactory;
+    private LinkComposer $linkFactory;
     /**
-     * @var InclusionFetcher
+     * @var InclusionCollector
      */
-    private InclusionFetcher $inclusionFetcher;
+    private InclusionCollector $inclusionFetcher;
 
-    private UriParser $uri;
+    private URIParser $uri;
 
     /**
      * DocumentBuilder constructor.
      *
      * @param Encoder              $encoder
-     * @param InclusionFetcher     $inclusionFetcher
-     * @param LinkFactory          $linkFactory
-     * @param UriParser            $uri
+     * @param InclusionCollector   $inclusionFetcher
+     * @param LinkComposer         $linkFactory
+     * @param URIParser            $uri
      * @param LoggerInterface|null $logger
      */
     public function __construct(
         Encoder $encoder,
-        InclusionFetcher $inclusionFetcher, //todo 7.x
-        LinkFactory $linkFactory, //todo 7.x
-        UriParser $uri,
+        InclusionCollector $inclusionFetcher,
+        LinkComposer $linkFactory,
+        URIParser $uri,
         LoggerInterface $logger = null
     ) {
         $this->encoder          = $encoder;
@@ -83,7 +82,7 @@ class DocumentBuilder
      * @throws DriverException
      * @throws MetadataException
      */
-    public function setData($data): DocumentBuilder
+    public function setData($data): Builder
     {
         $this->logger->debug('Setting data.');
         if ($this->uri->getPath()->isCollection() && is_iterable($data)) {
@@ -124,7 +123,7 @@ class DocumentBuilder
      *
      * @return $this
      */
-    public function setTotal(int $total): DocumentBuilder
+    public function setTotal(int $total): Builder
     {
         $this->logger->debug('Setting total.');
         if ($this->uri->getPagination() instanceof UseTotalCount) {

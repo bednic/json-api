@@ -21,11 +21,11 @@ use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Http\Conflict;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Exception\Metadata\MetadataException;
-use JSONAPI\Factory\DocumentError;
+use JSONAPI\Factory\DocumentErrorFactory;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Uri\Path\PathInterface;
-use JSONAPI\Uri\Path\PathParser;
+use JSONAPI\URI\Path\PathInterface;
+use JSONAPI\URI\Path\PathParser;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -110,7 +110,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         $this->responseFactory = $responseFactory;
         $this->streamFactory   = $streamFactory;
         $this->logger          = $logger ?? new NullLogger();
-        $this->errorFactory    = $errorFactory ?? new DocumentError();
+        $this->errorFactory    = $errorFactory ?? new DocumentErrorFactory();
         $this->input           = Schema::import(
             json_decode(file_get_contents(__DIR__ . '/in.json'))
         );

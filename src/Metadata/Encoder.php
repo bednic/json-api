@@ -7,6 +7,7 @@ namespace JSONAPI\Metadata;
 use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use JSONAPI\Factory\LinkComposer;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Document;
 use JSONAPI\Document\ResourceObject;
@@ -17,9 +18,9 @@ use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
-use JSONAPI\Uri\Fieldset\FieldsetInterface;
-use JSONAPI\Uri\Inclusion\InclusionInterface;
-use JSONAPI\Uri\LinkFactory;
+use JSONAPI\URI\Fieldset\FieldsetInterface;
+use JSONAPI\URI\Inclusion\InclusionInterface;
+use JSONAPI\URI\LinkFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -77,9 +78,9 @@ final class Encoder
     private InclusionInterface $inclusion;
 
     /**
-     * @var LinkFactory
+     * @var LinkComposer
      */
-    private LinkFactory $linkFactory;
+    private LinkComposer $linkFactory;
 
     /**
      * @var bool
@@ -97,7 +98,7 @@ final class Encoder
      * @param MetadataRepository   $metadataRepository
      * @param FieldsetInterface    $fieldset
      * @param InclusionInterface   $inclusion
-     * @param LinkFactory          $linkFactory
+     * @param LinkComposer          $linkFactory
      * @param bool                 $relationshipData
      * @param int                  $relationshipLimit
      * @param LoggerInterface|null $logger
@@ -106,7 +107,7 @@ final class Encoder
         MetadataRepository $metadataRepository,
         FieldsetInterface $fieldset,
         InclusionInterface $inclusion,
-        LinkFactory $linkFactory, //todo 7.x
+        LinkComposer $linkFactory, //todo 7.x
         bool $relationshipData = true,
         int $relationshipLimit = 25,
         LoggerInterface $logger = null
