@@ -164,6 +164,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 );
             }
         } catch (Throwable $exception) {
+            $this->logger->error($exception->getMessage(), ['exception' => $exception]);
             $document = new Document();
             $error    = $this->errorFactory->fromThrowable($exception);
             $document->addError($error);
