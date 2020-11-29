@@ -2,22 +2,20 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Helper;
-
-use JSONAPI\Document\Link;
+namespace JSONAPI\Document;
 
 /**
  * Trait LinksTrait
  *
  * @package JSONAPI
  */
-trait LinksTrait
+trait LinksExtension
 {
 
     /**
      * @var Link[]
      */
-    protected array $links = [];
+    private array $links = [];
 
     /**
      * @param Link $link

@@ -2,22 +2,20 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Helper;
-
-use JSONAPI\Document\Meta;
+namespace JSONAPI\Document;
 
 /**
  * Trait MetaTrait
  *
  * @package JSONAPI
  */
-trait MetaTrait
+trait MetaExtension
 {
 
     /**
-     * @var Meta
+     * @var Meta|null
      */
-    protected ?Meta $meta = null;
+    private ?Meta $meta = null;
 
     /**
      * @param Meta $meta
@@ -36,5 +34,13 @@ trait MetaTrait
             $this->meta = new Meta();
         }
         return $this->meta;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasMeta(): bool
+    {
+        return isset($this->meta) && !$this->meta->isEmpty();
     }
 }
