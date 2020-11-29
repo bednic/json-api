@@ -10,7 +10,7 @@ namespace JSONAPI\Helper;
  * This is known hack to remove proxy prefix from Doctrine Proxy entities.
  * Unfortunately there is no way how to do it right & clean.
  *
- * @package JSONAPI
+ * @package JSONAPI\Helper
  */
 trait DoctrineProxyTrait
 {
