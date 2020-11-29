@@ -4,31 +4,24 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use ArrayIterator;
-use Countable;
-use IteratorAggregate;
-use Traversable;
+use JSONAPI\Data\Collection;
 
 /**
  * Class ResourceCollection
  *
  * @package JSONAPI\Document\PrimaryData
  */
-final class ResourceCollection implements PrimaryData, IteratorAggregate, Countable, Serializable
+final class ResourceCollection extends Collection implements PrimaryData, Serializable
 {
-    /**
-     * @var ResourceObject[]|ResourceObjectIdentifier[]
-     */
-    private array $data = [];
-
     /**
      * ResourceCollection constructor.
      *
-     * @param ResourceObject[]|ResourceObjectIdentifier[] $data
+     * @param ResourceObject[]|ResourceObjectIdentifier[] $items
      */
-    public function __construct(array $data = [])
+    public function __construct(array $items = [])
     {
-        foreach ($data as $item) {
+        parent::__construct([]);
+        foreach ($items as $item) {
             $this->add($item);
         }
     }
@@ -39,9 +32,18 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     public function add(ResourceObjectIdentifier $resource): void
     {
         $key = $this->key($resource);
-        if (!array_key_exists($key, $this->data)) {
-            $this->data[$key] = $resource;
+        if (!$this->hasKey($key)) {
+            $this->set($key, $resource);
         }
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function push($item): int
+    {
+        $this->add($item);
+        return $this->count();
     }
 
     /**
@@ -50,23 +52,10 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
      *
      * @return ResourceObjectIdentifier|ResourceObject|null
      */
-    public function get(string $type, string $id): ?ResourceObjectIdentifier
+    public function find(string $type, string $id): ?ResourceObjectIdentifier
     {
         $key = $type . $id;
-        if (array_key_exists($key, $this->data)) {
-            return $this->data[$key];
-        }
-        return null;
-    }
-
-    /**
-     * @param ResourceObjectIdentifier $resource
-     *
-     * @return bool
-     */
-    public function contains(ResourceObjectIdentifier $resource): bool
-    {
-        return in_array($resource, $this->data, true);
+        return $this->hasKey($key) ? $this->get($key) : null;
     }
 
     /**
@@ -77,8 +66,8 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     public function remove(ResourceObjectIdentifier $resource): bool
     {
         $key = $this->key($resource);
-        if (array_key_exists($key, $this->data)) {
-            unset($this->data[$key]);
+        if ($this->hasKey($key)) {
+            $this->unset($key);
             return true;
         } else {
             return false;
@@ -86,45 +75,23 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
     }
 
     /**
-     * @return int
-     */
-    public function count(): int
-    {
-        return count($this->data);
-    }
-
-    /**
-     * Retrieve an external iterator
+     * @param ResourceObjectIdentifier $resource
      *
-     * @link  https://php.net/manual/en/iteratoraggregate.getiterator.php
-     * @return Traversable An instance of an object implementing <b>Iterator</b> or
-     * <b>Traversable</b>
-     * @since 5.0.0
+     * @return string
      */
-    public function getIterator()
-    {
-        return new ArrayIterator($this->data);
-    }
-
     private function key(ResourceObjectIdentifier $resource): string
     {
         return $resource->getType() . $resource->getId();
     }
 
     /**
-     * Erase whole collection
+     * @param ResourceObjectIdentifier $resource
+     *
+     * @return bool
      */
-    public function reset(): void
+    public function contains(ResourceObjectIdentifier $resource): bool
     {
-        $this->data = [];
-    }
-
-    /**
-     * @return array
-     */
-    public function toArray(): array
-    {
-        return array_values($this->data);
+        return $this->has($resource, true);
     }
 
     /**
@@ -137,6 +104,6 @@ final class ResourceCollection implements PrimaryData, IteratorAggregate, Counta
      */
     public function jsonSerialize()
     {
-        return array_values($this->data);
+        return $this->values();
     }
 }

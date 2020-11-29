@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test\Uri\Pagination;
+namespace JSONAPI\Test\URI\Pagination;
 
 use JSONAPI\URI\Pagination\PagePagination;
 use PHPUnit\Framework\TestCase;

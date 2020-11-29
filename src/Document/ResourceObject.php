@@ -4,11 +4,10 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\Collection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Document\AttributeNotExist;
 use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Document\RelationshipNotExist;
-use JSONAPI\Helper\LinksTrait;
 
 /**
  * Class ResourceObject
@@ -17,7 +16,7 @@ use JSONAPI\Helper\LinksTrait;
  */
 final class ResourceObject extends ResourceObjectIdentifier implements HasLinks, PrimaryData
 {
-    use LinksTrait;
+    use LinksExtension;
 
     /**
      * @param Attribute $attribute
@@ -61,7 +60,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      */
     public function hasAttribute(string $key): bool
     {
-        return $this->getAttributes()->containsKey($key);
+        return $this->getAttributes()->offsetExists($key);
     }
 
 
@@ -87,7 +86,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      */
     public function hasRelationship(string $key): bool
     {
-        return $this->getRelationships()->containsKey($key);
+        return $this->getRelationships()->offsetExists($key);
     }
 
     /**

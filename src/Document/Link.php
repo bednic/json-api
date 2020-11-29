@@ -6,7 +6,6 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Helper\MetaTrait;
 
 /**
  * Class Link
@@ -15,7 +14,7 @@ use JSONAPI\Helper\MetaTrait;
  */
 final class Link extends Field implements HasMeta
 {
-    use MetaTrait;
+    use MetaExtension;
 
     public const SELF = 'self';
     public const RELATED = 'related';

@@ -4,14 +4,13 @@ declare(strict_types=1);
 
 namespace JSONAPI\Driver;
 
-use Doctrine\Common\Annotations\AnnotationException;
 use Doctrine\Common\Annotations\AnnotationReader;
-use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Annotation\Attribute;
 use JSONAPI\Annotation\Id;
 use JSONAPI\Annotation\Relationship;
 use JSONAPI\Annotation\Resource;
 use JSONAPI\Annotation\Resource as ResourceAnnotation;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\BadSignature;
 use JSONAPI\Exception\Driver\ClassNotExist;
@@ -87,8 +86,8 @@ class AnnotationDriver extends Driver
                     throw new MethodNotExist($resource->meta->getter, $ref->getName());
                 }
                 $id            = null;
-                $attributes    = new ArrayCollection();
-                $relationships = new ArrayCollection();
+                $attributes    = new Collection();
+                $relationships = new Collection();
                 $this->parseProperties($ref, $id, $attributes, $relationships);
                 $this->parseMethods($ref, $id, $attributes, $relationships);
                 $this->logger->debug('Created ClassMetadata for ' . $resource->type);
@@ -112,8 +111,8 @@ class AnnotationDriver extends Driver
     /**
      * @param ReflectionClass $reflectionClass
      * @param Id|null         $id
-     * @param ArrayCollection $attributes
-     * @param ArrayCollection $relationships
+     * @param Collection $attributes
+     * @param Collection $relationships
      *
      * @throws BadSignature
      * @throws MethodNotExist
@@ -121,8 +120,8 @@ class AnnotationDriver extends Driver
     private function parseProperties(
         ReflectionClass $reflectionClass,
         ?Id &$id,
-        ArrayCollection &$attributes,
-        ArrayCollection &$relationships
+        Collection $attributes,
+        Collection $relationships
     ): void {
         foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
@@ -134,14 +133,14 @@ class AnnotationDriver extends Driver
             if ($attribute = $this->reader->getPropertyAnnotation($reflectionProperty, Attribute::class)) {
                 $attribute->property = $reflectionProperty->getName();
                 $this->fillUpAttribute($attribute, $reflectionProperty, $reflectionClass);
-                $attributes->add($attribute);
+                $attributes->push($attribute);
                 $this->logger->debug('Found resource attribute ' . $attribute->name);
             }
             /** @var Relationship | null $relationship */
             if ($relationship = $this->reader->getPropertyAnnotation($reflectionProperty, Relationship::class)) {
                 $relationship->property = $reflectionProperty->getName();
                 $this->fillUpRelationship($relationship, $reflectionProperty, $reflectionClass);
-                $relationships->add($relationship);
+                $relationships->push($relationship);
                 $this->logger->debug('Found resource relationship ' . $relationship->name);
             }
         }
@@ -150,8 +149,8 @@ class AnnotationDriver extends Driver
     /**
      * @param ReflectionClass $reflectionClass
      * @param Id|null         $id
-     * @param ArrayCollection $attributes
-     * @param ArrayCollection $relationships
+     * @param Collection $attributes
+     * @param Collection $relationships
      *
      * @throws AnnotationMisplace
      * @throws BadSignature
@@ -160,8 +159,8 @@ class AnnotationDriver extends Driver
     private function parseMethods(
         ReflectionClass $reflectionClass,
         ?Id &$id,
-        ArrayCollection &$attributes,
-        ArrayCollection &$relationships
+        Collection $attributes,
+        Collection $relationships
     ): void {
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
@@ -176,7 +175,7 @@ class AnnotationDriver extends Driver
                     $this->isGetter($reflectionMethod);
                     $attribute->getter = $reflectionMethod->getName();
                     $this->fillUpAttribute($attribute, $reflectionMethod, $reflectionClass);
-                    $attributes->add($attribute);
+                    $attributes->push($attribute);
                     $this->logger->debug('Found resource attribute ' . $attribute->name);
                 }
                 /** @var Relationship $relationship */
@@ -184,7 +183,7 @@ class AnnotationDriver extends Driver
                     $this->isGetter($reflectionMethod);
                     $relationship->getter = $reflectionMethod->getName();
                     $this->fillUpRelationship($relationship, $reflectionMethod, $reflectionClass);
-                    $relationships->add($relationship);
+                    $relationships->push($relationship);
                     $this->logger->debug('Found resource relationship ' . $relationship->name);
                 }
             }

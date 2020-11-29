@@ -5,8 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Metadata;
 
 use DateTimeInterface;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Factory\LinkComposer;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Document;
@@ -20,7 +19,6 @@ use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\URI\Fieldset\FieldsetInterface;
 use JSONAPI\URI\Inclusion\InclusionInterface;
-use JSONAPI\URI\LinkFactory;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use ReflectionClass;
@@ -107,7 +105,7 @@ final class Encoder
         MetadataRepository $metadataRepository,
         FieldsetInterface $fieldset,
         InclusionInterface $inclusion,
-        LinkComposer $linkFactory, //todo 7.x
+        LinkComposer $linkFactory,
         bool $relationshipData = true,
         int $relationshipLimit = 25,
         LoggerInterface $logger = null
@@ -282,10 +280,9 @@ final class Encoder
                         if ($this->withData || $this->inclusion->hasInclusions()) {
                             if ($field->isCollection) {
                                 if (!($value instanceof Collection)) {
-                                    $value = new ArrayCollection($value);
+                                    $value = new Collection($value);
                                 }
-                                /** @var Collection $value */
-                                $data  = new ArrayCollection();
+                                $data  = new Document\ResourceCollection();
                                 $total = $value->count();
                                 $limit = min($this->relationshipLimit, $total);
                                 foreach ($value->slice(0, $limit) as $object) {

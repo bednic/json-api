@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\Collection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Helper\LinksTrait;
-use JSONAPI\Helper\MetaTrait;
 
 /**
  * Class Relationships
@@ -16,8 +14,8 @@ use JSONAPI\Helper\MetaTrait;
  */
 final class Relationship extends Field implements Serializable, HasLinks, HasMeta
 {
-    use LinksTrait;
-    use MetaTrait;
+    use LinksExtension;
+    use MetaExtension;
 
     private bool $modified = false;
 
@@ -27,19 +25,23 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
     public function getData()
     {
         if ($this->data instanceof Collection) {
-            return $this->data->toArray();
+            return $this->data->values();
         }
         return $this->data;
     }
 
     /**
-     * @param ResourceObjectIdentifier|Collection<ResourceObjectIdentifier>|null $data
+     * @param ResourceObjectIdentifier|ResourceCollection<ResourceObjectIdentifier>|null $data
      *
      * @throws ForbiddenDataType
      */
     public function setData($data): void
     {
-        if ($data instanceof ResourceObjectIdentifier || $data instanceof Collection || is_null($data)) {
+        if (
+            $data instanceof ResourceObjectIdentifier ||
+            $data instanceof ResourceCollection ||
+            is_null($data)
+        ) {
             $this->modified = true;
             parent::setData($data);
         } else {
@@ -67,7 +69,7 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
         if ($this->hasLinks()) {
             $ret['links'] = $this->getLinks();
         }
-        if (!$this->getMeta()->isEmpty()) {
+        if ($this->hasMeta()) {
             $ret['meta'] = $this->getMeta();
         }
         return $ret;

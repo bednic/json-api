@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test\Uri\Filtering;
+namespace JSONAPI\Test\URI\Filtering;
 
 use JSONAPI\URI\Filtering\Messages;
 use PHPUnit\Framework\TestCase;

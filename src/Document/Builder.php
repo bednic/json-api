@@ -22,7 +22,7 @@ use Psr\Log\NullLogger;
  *
  * @package JSONAPI
  */
-class Builder
+final class Builder
 {
     use DoctrineProxyTrait;
 

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test\Uri\Path;
+namespace JSONAPI\Test\URI\Path;
 
 use Doctrine\Common\Cache\ArrayCache;
 use Fig\Http\Message\RequestMethodInterface;
@@ -17,7 +17,7 @@ use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 /**
  * Class PathParserTest
  *
- * @package JSONAPI\Test\Uri\Path
+ * @package JSONAPI\Test\URI\Path
  */
 class PathParserTest extends TestCase
 {

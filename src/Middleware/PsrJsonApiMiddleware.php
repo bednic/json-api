@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Middleware;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Document\Attribute;
 use JSONAPI\Document\Document;
@@ -248,7 +247,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 if (isset($object->relationships->{$relationship->name})) {
                     $value = $object->relationships->{$relationship->name}->data;
                     if ($relationship->isCollection) {
-                        $data = new ArrayCollection();
+                        $data = new ResourceCollection();
                         foreach ($value as $item) {
                             $data->add(new ResourceObjectIdentifier(new Type($item->type), new Id($item->id)));
                         }

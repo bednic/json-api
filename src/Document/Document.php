@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use JSONAPI\Helper\LinksTrait;
-use JSONAPI\Helper\MetaTrait;
-
 /**
  * Class Document
  *
@@ -14,8 +11,8 @@ use JSONAPI\Helper\MetaTrait;
  */
 final class Document implements Serializable, HasLinks, HasMeta
 {
-    use LinksTrait;
-    use MetaTrait;
+    use LinksExtension;
+    use MetaExtension;
 
     public const MEDIA_TYPE = 'application/vnd.api+json';
     public const VERSION    = '1.0';
@@ -115,7 +112,7 @@ final class Document implements Serializable, HasLinks, HasMeta
         if ($this->hasLinks()) {
             $ret['links'] = $this->links;
         }
-        if (!$this->getMeta()->isEmpty()) {
+        if ($this->hasMeta()) {
             $ret['meta'] = $this->meta;
         }
         return $ret;

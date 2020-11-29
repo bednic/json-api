@@ -2,20 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test\Uri\Filtering;
+namespace JSONAPI\Test\URI\Filtering;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
-use Doctrine\Common\Collections\Expr\ExpressionVisitor;
-use Doctrine\ORM\Persisters\SqlExpressionVisitor;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\QueryExpressionVisitor;
+use ExpressionBuilder\Dispatcher\ClosureResolver;
 use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Test\Resources\Valid\DummyRelation;
-use JSONAPI\Test\Resources\Valid\GettersExample;
+use JSONAPI\URI\Filtering\Builder\ClosureExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\DoctrineQueryExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionFilterParser;
@@ -34,7 +31,7 @@ class ExpressionFilterParserTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr = MetadataFactory::create(
+        self::$mr      = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new SchemaDriver()
@@ -98,5 +95,30 @@ class ExpressionFilterParserTest extends TestCase
             "(t.stringProperty = :stringProperty AND t.intProperty IN(:intProperty)) OR (t.boolProperty <> :boolProperty AND t.stringProperty = :stringProperty_3)",
             (string)$result
         );
+    }
+
+    public function testClosureExpressionBuilderUsage()
+    {
+        $std                 = new \stdClass();
+        $std->stringProperty = "O'Neil";
+        $std->intProperty    = 2;
+        $std->boolProperty   = true;
+        $std->dateProperty   = new \DateTime('2020-12-01');
+        $data                = [$std];
+        $url                 =
+            "stringProperty eq 'O''Neil'" .
+            " and " .
+            "intProperty in (1,2,3)" .
+            " or " .
+            "boolProperty ne true" .
+            " and " .
+            "dateProperty eq datetime'2020-12-01'";
+        $parser              = new ExpressionFilterParser(new ClosureExpressionBuilder());
+        $parser->parse($url);
+        $visitor = new ClosureResolver();
+        $filter  = $visitor->dispatch($parser->getCondition());
+        $result  = array_filter($data, $filter);
+        $this->assertIsCallable($filter);
+        $this->assertContains($std, $result);
     }
 }

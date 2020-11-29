@@ -5,8 +5,6 @@ declare(strict_types=1);
 namespace JSONAPI\Document;
 
 use JSONAPI\Document\Error\Source;
-use JSONAPI\Helper\LinksTrait;
-use JSONAPI\Helper\MetaTrait;
 
 /**
  * Class Error
@@ -15,8 +13,8 @@ use JSONAPI\Helper\MetaTrait;
  */
 final class Error implements Serializable, HasLinks, HasMeta
 {
-    use LinksTrait;
-    use MetaTrait;
+    use LinksExtension;
+    use MetaExtension;
 
     /**
      * @var string

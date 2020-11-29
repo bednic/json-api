@@ -77,7 +77,7 @@ final class URIParser
 
 
     /**
-     * UriParser constructor.
+     * URIParser constructor.
      *
      * @param MetadataRepository             $metadataRepository
      * @param ServerRequestInterface         $request
@@ -222,6 +222,6 @@ final class URIParser
      */
     public function getPath(): PathInterface
     {
-        return $this->pathParser->parse($this->request->getUri()->getPath());
+        return $this->pathParser->parse($this->request->getURI()->getPath());
     }
 }

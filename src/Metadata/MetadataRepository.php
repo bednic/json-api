@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Metadata;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 
 /**
@@ -20,8 +19,8 @@ class MetadataRepository
 
     public function __construct()
     {
-        $this->collection = new ArrayCollection();
-        $this->typeToClassMap = new ArrayCollection();
+        $this->collection = new Collection();
+        $this->typeToClassMap = new Collection();
     }
 
     /**
@@ -32,7 +31,7 @@ class MetadataRepository
      */
     public function getByClass(string $className): ClassMetadata
     {
-        if ($this->collection->containsKey($className)) {
+        if ($this->collection->hasKey($className)) {
             return $this->collection[$className];
         }
         throw new MetadataNotFound($className);
@@ -46,7 +45,7 @@ class MetadataRepository
      */
     public function getByType(string $type): ClassMetadata
     {
-        if ($this->typeToClassMap->containsKey($type)) {
+        if ($this->typeToClassMap->hasKey($type)) {
             return $this->getByClass($this->typeToClassMap->get($type));
         }
         throw new MetadataNotFound($type);
@@ -57,7 +56,7 @@ class MetadataRepository
      */
     public function getAll(): array
     {
-        return $this->collection->toArray();
+        return $this->collection->values();
     }
 
     /**

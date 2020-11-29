@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Driver;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\BadSignature;
 use JSONAPI\Exception\Driver\ClassNotExist;
@@ -82,15 +82,15 @@ class SchemaDriver extends Driver
      * @param ReflectionClass $reflectionClass
      * @param array           $metadata
      *
-     * @return ArrayCollection
+     * @return Collection
      * @throws MethodNotExist
      * @throws PropertyNotExist
      * @throws AnnotationMisplace
      * @throws BadSignature
      */
-    private function parseAttributes(ReflectionClass $reflectionClass, iterable $metadata): ArrayCollection
+    private function parseAttributes(ReflectionClass $reflectionClass, iterable $metadata): Collection
     {
-        $attributes = new ArrayCollection();
+        $attributes = new Collection();
         /** @var Attribute $attribute */
         foreach ($metadata as $attribute) {
             $reflection = $this->getReflection($attribute, $reflectionClass);
@@ -104,15 +104,15 @@ class SchemaDriver extends Driver
      * @param ReflectionClass $reflectionClass
      * @param array           $metadata
      *
-     * @return ArrayCollection
+     * @return Collection
      * @throws AnnotationMisplace
      * @throws MethodNotExist
      * @throws PropertyNotExist
      * @throws BadSignature
      */
-    private function parseRelationships(ReflectionClass $reflectionClass, iterable $metadata): ArrayCollection
+    private function parseRelationships(ReflectionClass $reflectionClass, iterable $metadata): Collection
     {
-        $relationships = new ArrayCollection();
+        $relationships = new Collection();
         /** @var Relationship $relationship */
         foreach ($metadata as $relationship) {
             $reflection = $this->getReflection($relationship, $reflectionClass);

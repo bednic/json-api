@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Metadata;
 
-use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Metadata\AlreadyInUse;
 use JSONAPI\Metadata;
 use JSONAPI\Exception\Metadata\AttributeNotFound;
@@ -36,9 +36,9 @@ final class ClassMetadata
     private Metadata\Id $id;
 
     /**
-     * @var ArrayCollection|Field[]
+     * @var Collection|Field[]
      */
-    private ArrayCollection $fields;
+    private Collection $fields;
     /**
      * @var Meta|null
      */
@@ -66,7 +66,7 @@ final class ClassMetadata
         bool $readOnly = false,
         ?Meta $resourceMeta = null
     ) {
-        $this->fields = new ArrayCollection();
+        $this->fields = new Collection();
         $this->className = $className;
         $this->id = $id;
         $this->type = $type;
@@ -75,13 +75,13 @@ final class ClassMetadata
         $this->fields->set('id', $id);
         $this->fields->set('type', $type);
         foreach ($attributes as $attribute) {
-            if ($this->fields->containsKey($attribute->name)) {
+            if ($this->fields->hasKey($attribute->name)) {
                 throw new AlreadyInUse($attribute->name);
             }
             $this->fields->set($attribute->name, $attribute);
         }
         foreach ($relationships as $relationship) {
-            if ($this->fields->containsKey($relationship->name)) {
+            if ($this->fields->hasKey($relationship->name)) {
                 throw new AlreadyInUse($relationship->name);
             }
             $this->fields->set($relationship->name, $relationship);
@@ -177,7 +177,7 @@ final class ClassMetadata
      */
     public function hasRelationship(string $fieldName): bool
     {
-        return $this->fields->filter(fn($i) => $i instanceof Relationship)->containsKey($fieldName);
+        return $this->fields->filter(fn($i) => $i instanceof Relationship)->hasKey($fieldName);
     }
 
     /**
@@ -187,7 +187,7 @@ final class ClassMetadata
      */
     public function hasAttribute(string $fieldName): bool
     {
-        return $this->fields->filter(fn($i) => $i instanceof Attribute)->containsKey($fieldName);
+        return $this->fields->filter(fn($i) => $i instanceof Attribute)->hasKey($fieldName);
     }
 
     /**
@@ -197,6 +197,6 @@ final class ClassMetadata
      */
     public function hasField(string $fieldName): bool
     {
-        return $this->fields->containsKey($fieldName);
+        return $this->fields->hasKey($fieldName);
     }
 }

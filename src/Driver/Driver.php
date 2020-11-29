@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Driver;
 
-use Doctrine\Common\Collections\Collection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Driver\AnnotationMisplace;
 use JSONAPI\Exception\Driver\BadSignature;
 use JSONAPI\Exception\Driver\DriverException;
@@ -20,7 +20,6 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
-use ReflectionType;
 use Reflector;
 
 /**
@@ -131,13 +130,11 @@ abstract class Driver
         $type = $this->getType($reflection);
         if (is_null($type)) {
             throw new BadSignature($reflection->getName(), $reflection->getDeclaringClass()->getName());
-        }
-        try {
-            if ((new ReflectionClass($type))->implementsInterface(Collection::class)) {
-                return true;
-            }
-            return false;
-        } catch (ReflectionException $exception) {
+        } elseif ($type === 'array') {
+            return true;
+        } elseif ($type === Collection::class) {
+            return true;
+        } else {
             return false;
         }
     }

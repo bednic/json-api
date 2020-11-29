@@ -20,4 +20,9 @@ interface HasMeta
      * @return Meta
      */
     public function getMeta(): Meta;
+
+    /**
+     * @return bool
+     */
+    public function hasMeta(): bool;
 }

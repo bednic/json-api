@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test\Uri\Filtering\Builder;
+namespace JSONAPI\Test\URI\Filtering\Builder;
 
 use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Driver\SchemaDriver;

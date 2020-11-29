@@ -15,6 +15,7 @@ use JSONAPI\Test\Resources\Valid\MetaExample;
 use JSONAPI\Test\Resources\Valid\PropsExample;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
+use ReflectionNamedType;
 
 /**
  * Class AnnotationDriverTest
@@ -23,7 +24,6 @@ use Psr\Log\NullLogger;
  */
 class AnnotationDriverTest extends TestCase
 {
-
     public function testConstruct()
     {
         $driver = new AnnotationDriver();

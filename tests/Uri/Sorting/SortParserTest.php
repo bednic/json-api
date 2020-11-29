@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Test\Uri\Sorting;
+namespace JSONAPI\Test\URI\Sorting;
 
 use JSONAPI\Exception\Http\MalformedParameter;
 use JSONAPI\URI\Sorting\SortParser;

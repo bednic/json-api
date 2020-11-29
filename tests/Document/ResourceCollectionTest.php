@@ -25,17 +25,17 @@ class ResourceCollectionTest extends TestCase
         $this->assertInstanceOf(ResourceCollection::class, $collection);
     }
 
-    public function testGet()
+    public function testFind()
     {
         $collection = new ResourceCollection([
             new ResourceObject(new Type('type'), new Id('1')),
             new ResourceObject(new Type('type'), new Id('2'))
         ]);
-        $this->assertInstanceOf(ResourceObject::class, $collection->get('type', '1'));
-        $this->assertEquals('1', $collection->get('type', '1')->getId());
-        $this->assertInstanceOf(ResourceObject::class, $collection->get('type', '2'));
-        $this->assertEquals('2', $collection->get('type', '2')->getId());
-        $this->assertNull($collection->get('type', '3'));
+        $this->assertInstanceOf(ResourceObject::class, $collection->find('type', '1'));
+        $this->assertEquals('1', $collection->find('type', '1')->getId());
+        $this->assertInstanceOf(ResourceObject::class, $collection->find('type', '2'));
+        $this->assertEquals('2', $collection->find('type', '2')->getId());
+        $this->assertNull($collection->find('type', '3'));
     }
 
     public function testReset()
@@ -54,9 +54,9 @@ class ResourceCollectionTest extends TestCase
         $resource   = new ResourceObject(new Type('type'), new Id('1'));
         $collection = new ResourceCollection();
         $collection->add($resource);
-        $this->assertEquals($resource, $collection->get('type', '1'));
+        $this->assertEquals($resource, $collection->find('type', '1'));
         $this->assertTrue($collection->remove($resource));
-        $this->assertNull($collection->get('type', '1'));
+        $this->assertNull($collection->find('type', '1'));
         $this->assertFalse($collection->remove($resource));
     }
 

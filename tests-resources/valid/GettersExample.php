@@ -11,8 +11,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Resources\Valid;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\Id;
 use JSONAPI\Metadata\Relationship;
@@ -76,7 +75,7 @@ class GettersExample implements Resource
     {
         $this->id = $id;
         $this->relation = new DummyRelation('relation1');
-        $this->collection = new ArrayCollection([
+        $this->collection = new Collection([
             new DummyRelation('relation2'),
             new DummyRelation('relation3')
         ]);

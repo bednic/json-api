@@ -4,9 +4,9 @@
 namespace JSONAPI\Test\Resources\Invalid;
 
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+
 use JSONAPI\Annotation as API;
+use JSONAPI\Data\Collection;
 
 /**
  * Class BadRelationshipGetter
@@ -23,6 +23,6 @@ class BadRelationshipGetter
      */
     public function getRelation()
     {
-        return  new ArrayCollection();
+        return  new Collection();
     }
 }

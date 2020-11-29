@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Test\Document;
 
 use Doctrine\Common\Cache\ArrayCache;
+use JSONAPI\Data\Collection;
 use JSONAPI\Document\Builder;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
@@ -78,6 +79,7 @@ class BuilderTest extends TestCase
 
     public function testBuild()
     {
+        new \ReflectionClass(Collection::class);
         $request = ServerRequestFactory::createFromGlobals();
         $single  = new GettersExample('uuid');
         $db      = self::$factory->new($request);

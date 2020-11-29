@@ -4,10 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Document\AlreadyInUse;
-use JSONAPI\Helper\MetaTrait;
 
 /**
  * Class ResourceObjectIdentifier
@@ -16,7 +14,7 @@ use JSONAPI\Helper\MetaTrait;
  */
 class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
 {
-    use MetaTrait;
+    use MetaExtension;
 
     /**
      * @var Collection|Field[]
@@ -31,7 +29,7 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
      */
     public function __construct(Type $type, Id $id)
     {
-        $this->fields = new ArrayCollection();
+        $this->fields = new Collection();
         try {
             $this->addField($type);
             $this->addField($id);
@@ -66,7 +64,7 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
      */
     protected function addField(Field $field): void
     {
-        if ($this->fields->containsKey($field->getKey())) {
+        if ($this->fields->hasKey($field->getKey())) {
             throw new AlreadyInUse($field->getKey());
         }
         $this->fields->set($field->getKey(), $field);
@@ -86,7 +84,7 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
             'type' => $this->fields->get('type'),
             'id' => $this->fields->get('id')
         ];
-        if (!$this->getMeta()->isEmpty()) {
+        if ($this->hasMeta()) {
             $ret['meta'] = $this->getMeta();
         }
         return $ret;
