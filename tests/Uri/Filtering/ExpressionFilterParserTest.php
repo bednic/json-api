@@ -26,7 +26,8 @@ class ExpressionFilterParserTest extends TestCase
      * @var MetadataRepository
      */
     private static MetadataRepository $mr;
-    private static string             $baseURL;
+
+    private static string $baseURL;
 
     public static function setUpBeforeClass(): void
     {
