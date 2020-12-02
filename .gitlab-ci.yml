@@ -35,6 +35,8 @@ code_sniffer:
 
 sonar:
     stage: analyse
+    only:
+        - '/^[0-9]+\.x/'
     image:
         name: sonarsource/sonar-scanner-cli:latest
         entrypoint: [""]
@@ -55,6 +57,8 @@ phpstan:
 
 pages:
     stage: docs
+    only:
+        - tags
     image:
         name: phpdoc/phpdoc:3
         entrypoint: [""]
