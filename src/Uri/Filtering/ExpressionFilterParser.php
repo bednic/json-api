@@ -67,6 +67,12 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         if ($data && is_string($data) && strlen($data) > 0) {
             $this->lexer     = new ExpressionLexer($data);
             $this->condition = $this->parseExpression();
+            if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::END())) {
+                throw new ExpressionException(Messages::expressionLexerInvalidCharacter(
+                    $this->lexer->getCurrentToken()->text,
+                    $this->lexer->getPosition()
+                ));
+            }
         }
         return $this;
     }

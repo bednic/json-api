@@ -5,19 +5,15 @@ declare(strict_types=1);
 namespace JSONAPI\Test\Uri\Filtering;
 
 use Doctrine\Common\Cache\ArrayCache;
-use Doctrine\Common\Collections\Expr\ClosureExpressionVisitor;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
-use Doctrine\Common\Collections\Expr\ExpressionVisitor;
-use Doctrine\ORM\Persisters\SqlExpressionVisitor;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\QueryExpressionVisitor;
 use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Test\Resources\Valid\DummyRelation;
-use JSONAPI\Test\Resources\Valid\GettersExample;
 use JSONAPI\Uri\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
 use JSONAPI\Uri\Filtering\Builder\DoctrineQueryExpressionBuilder;
+use JSONAPI\Uri\Filtering\ExpressionException;
 use JSONAPI\Uri\Filtering\ExpressionFilterParser;
 use JSONAPI\Uri\UriParser;
 use PHPUnit\Framework\TestCase;
@@ -30,11 +26,11 @@ class ExpressionFilterParserTest extends TestCase
      * @var MetadataRepository
      */
     private static MetadataRepository $mr;
-    private static string $baseURL;
+    private static string             $baseURL;
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr = MetadataFactory::create(
+        self::$mr      = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new SimpleCacheAdapter(new ArrayCache()),
             new SchemaDriver()
@@ -98,5 +94,23 @@ class ExpressionFilterParserTest extends TestCase
             "(t.stringProperty = :stringProperty AND t.intProperty IN(:intProperty)) OR (t.boolProperty <> :boolProperty AND t.stringProperty = :stringProperty_3)",
             (string)$result
         );
+    }
+
+    public function providerIssue34()
+    {
+        return [
+            ["1====1"],
+            ["'asd'qwe'"]
+        ];
+    }
+
+    /**
+     * @dataProvider providerIssue34
+     */
+    public function testIssue34($case)
+    {
+        $this->expectException(ExpressionException::class);
+        $filter = new ExpressionFilterParser(new DoctrineCriteriaExpressionBuilder());
+        $filter->parse($case);
     }
 }
