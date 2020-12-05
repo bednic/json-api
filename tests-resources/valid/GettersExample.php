@@ -23,7 +23,7 @@ use JSONAPI\Annotation as API;
  * Class GettersExample
  *
  * @package JSONAPI
- * @API\Resource("getter")
+ * @API\Resource
  */
 class GettersExample implements Resource
 {

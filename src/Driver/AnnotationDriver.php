@@ -57,8 +57,8 @@ class AnnotationDriver extends Driver
      */
     public function __construct(LoggerInterface $logger = null)
     {
-        $this->logger = $logger ? $logger : new NullLogger();
-        $this->reader = new AnnotationReader();
+        $this->logger    = $logger ? $logger : new NullLogger();
+        $this->reader    = new AnnotationReader();
         $this->inflector = new EnglishInflector();
     }
 
@@ -111,8 +111,8 @@ class AnnotationDriver extends Driver
     /**
      * @param ReflectionClass $reflectionClass
      * @param Id|null         $id
-     * @param Collection $attributes
-     * @param Collection $relationships
+     * @param Collection      $attributes
+     * @param Collection      $relationships
      *
      * @throws BadSignature
      * @throws MethodNotExist
@@ -149,8 +149,8 @@ class AnnotationDriver extends Driver
     /**
      * @param ReflectionClass $reflectionClass
      * @param Id|null         $id
-     * @param Collection $attributes
-     * @param Collection $relationships
+     * @param Collection      $attributes
+     * @param Collection      $relationships
      *
      * @throws AnnotationMisplace
      * @throws BadSignature
