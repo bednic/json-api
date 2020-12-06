@@ -155,7 +155,7 @@ class MetadataFactory
             if (!is_dir($path)) {
                 throw new InvalidArgumentException("Path '$path' is not directory.");
             }
-            $map = ClassMapGenerator::createMap($path);
+            $map = ClassMapGenerator::createMap($path); //todo: resolve this
             foreach ($map as $className => $file) {
                 try {
                     $this->loadMetadata($className);
