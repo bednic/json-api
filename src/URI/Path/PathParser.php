@@ -98,37 +98,11 @@ class PathParser implements PathInterface
     }
 
     /**
-     * @return string
-     */
-    public function getResourceType(): string
-    {
-        return $this->resource;
-    }
-
-    /**
-     * @return string
-     */
-    public function getId(): ?string
-    {
-        return $this->id;
-    }
-
-    /**
      * @return bool
      */
     public function isRelationship(): bool
     {
         return $this->isRelationship;
-    }
-
-    /**
-     * Method returns if endpoint represents collection
-     *
-     * @return string|null
-     */
-    public function getRelationshipName(): ?string
-    {
-        return $this->relationship;
     }
 
     /**
@@ -169,6 +143,24 @@ class PathParser implements PathInterface
     }
 
     /**
+     * Method returns if endpoint represents collection
+     *
+     * @return string|null
+     */
+    public function getRelationshipName(): ?string
+    {
+        return $this->relationship;
+    }
+
+    /**
+     * @return string
+     */
+    public function getResourceType(): string
+    {
+        return $this->resource;
+    }
+
+    /**
      * @inheritDoc
      */
     public function isCollection(): bool
@@ -183,5 +175,13 @@ class PathParser implements PathInterface
             return false;
         }
         return true;
+    }
+
+    /**
+     * @return string
+     */
+    public function getId(): ?string
+    {
+        return $this->id;
     }
 }

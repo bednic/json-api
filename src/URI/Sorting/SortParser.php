@@ -33,11 +33,11 @@ class SortParser implements SortInterface
             $parts = array_map('trim', $parts);
             foreach ($parts as $part) {
                 if (
-                    preg_match(
-                        '/^(?P<sort>(-|))(?P<field>([a-zA-Z0-9]([a-zA-Z0-9-_.]+[a-zA-Z0-9])?))$/',
-                        $part,
-                        $matches
-                    )
+                preg_match(
+                    '/^(?P<sort>(-|))(?P<field>([a-zA-Z0-9]([a-zA-Z0-9-_.]+[a-zA-Z0-9])?))$/',
+                    $part,
+                    $matches
+                )
                 ) {
                     $this->sort[$matches['field']] = strlen($matches['sort']) ? SortInterface::DESC
                         : SortInterface::ASC;

@@ -23,8 +23,8 @@ use JSONAPI\Annotation as API;
  * Class GettersExample
  *
  * @package JSONAPI
- * @API\Resource(type="getter")
  */
+#[API\Resource("getter")]
 class GettersExample implements Resource
 {
     /**
@@ -62,7 +62,7 @@ class GettersExample implements Resource
     private DummyRelation $relation;
 
     /**
-     * @var Collection|DummyRelation[]
+     * @var Collection<DummyRelation>
      */
     private Collection $collection;
 
@@ -83,9 +83,9 @@ class GettersExample implements Resource
     }
 
     /**
-     * @API\Id
      * @return string
      */
+    #[API\Id]
     public function getId(): string
     {
         return $this->id;
@@ -100,9 +100,9 @@ class GettersExample implements Resource
     }
 
     /**
-     * @API\Attribute
      * @return string
      */
+    #[API\Attribute]
     public function getStringProperty(): string
     {
         return $this->stringProperty;
@@ -117,9 +117,9 @@ class GettersExample implements Resource
     }
 
     /**
-     * @API\Attribute
      * @return int
      */
+    #[API\Attribute]
     public function getIntProperty(): int
     {
         return $this->intProperty;
@@ -136,9 +136,9 @@ class GettersExample implements Resource
     /**
      * Return array property value
      *
-     * @API\Attribute
      * @return int[]
      */
+    #[API\Attribute]
     public function getArrayProperty(): array
     {
         return $this->arrayProperty;
@@ -153,9 +153,9 @@ class GettersExample implements Resource
     }
 
     /**
-     * @API\Attribute
      * @return bool
      */
+    #[API\Attribute]
     public function isBoolProperty(): bool
     {
         return $this->boolProperty;
@@ -170,9 +170,9 @@ class GettersExample implements Resource
     }
 
     /**
-     * @API\Attribute
      * @return DtoValue
      */
+    #[API\Attribute]
     public function getDtoProperty(): DtoValue
     {
         return $this->dtoProperty;
@@ -187,9 +187,9 @@ class GettersExample implements Resource
     }
 
     /**
-     * @API\Relationship(target=DummyRelation::class)
      * @return DummyRelation
      */
+    #[API\Relationship(DummyRelation::class)]
     public function getRelation(): DummyRelation
     {
         return $this->relation;
@@ -204,16 +204,16 @@ class GettersExample implements Resource
     }
 
     /**
-     * @API\Relationship(target=DummyRelation::class)
-     * @return Collection|DummyRelation[]
+     * @return Collection<DummyRelation>
      */
+    #[API\Relationship(DummyRelation::class)]
     public function getCollection(): Collection
     {
         return $this->collection;
     }
 
     /**
-     * @param Collection|DummyRelation[] $collection
+     * @param Collection<DummyRelation> $collection
      */
     public function setCollection(Collection $collection): void
     {

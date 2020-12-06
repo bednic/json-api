@@ -12,10 +12,13 @@ namespace JSONAPI\Metadata;
 class Meta
 {
     /**
-     * @var string
-     * @Required
+     * Meta constructor.
+     *
+     * @param string $getter
      */
-    public string $getter;
+    protected function __construct(public string $getter)
+    {
+    }
 
     /**
      * @param string $getter
@@ -24,8 +27,6 @@ class Meta
      */
     public static function create(string $getter): Meta
     {
-        $self = new self();
-        $self->getter = $getter;
-        return $self;
+        return new self($getter);
     }
 }

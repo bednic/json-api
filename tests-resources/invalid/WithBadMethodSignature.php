@@ -10,16 +10,16 @@ use JSONAPI\Annotation as API;
  * Class WithBadMethodSignature
  *
  * @package JSONAPI\Test\Resources\Invalid
- * @API\Resource("bad-signature")
  */
+#[API\Resource("bad-signature")]
 class WithBadMethodSignature
 {
     private $property;
 
     /**
-     * @API\Attribute
      * @return mixed
      */
+    #[API\Attribute]
     public function getProperty()
     {
         return $this->property;

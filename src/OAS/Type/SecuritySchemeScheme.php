@@ -24,14 +24,14 @@ use MyCLabs\Enum\Enum;
 class SecuritySchemeScheme extends Enum
 {
 
-    public const BASIC = 'Basic';
-    public const BEARER = 'Bearer';
-    public const DIGEST = 'Digest';
-    public const HOBA = 'HOBA';
-    public const MUTUAL = 'Mutual';
-    public const NEGOTIATE = 'Negotiate';
-    public const OAUTH = 'OAuth';
-    public const SCRAM_SHA_1 = 'SCRAM-SHA-1';
+    public const BASIC         = 'Basic';
+    public const BEARER        = 'Bearer';
+    public const DIGEST        = 'Digest';
+    public const HOBA          = 'HOBA';
+    public const MUTUAL        = 'Mutual';
+    public const NEGOTIATE     = 'Negotiate';
+    public const OAUTH         = 'OAuth';
+    public const SCRAM_SHA_1   = 'SCRAM-SHA-1';
     public const SCRAM_SHA_256 = 'SCRAM-SHA-256';
-    public const VAPID = 'vapid';
+    public const VAPID         = 'vapid';
 }

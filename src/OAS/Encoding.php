@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Type\Style;
 use JSONAPI\Document\Serializable;
+use JSONAPI\OAS\Type\Style;
 
 /**
  * Class Encoding

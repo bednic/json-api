@@ -12,6 +12,7 @@ use JSONAPI\Annotation as API;
  * @package JSONAPI\Test\exceptions
  * @API\Resource("test")
  */
+#[API\Resource("test")]
 class BadAnnotationPlacement
 {
 
@@ -26,10 +27,9 @@ class BadAnnotationPlacement
     }
 
     /**
-     * @param mixed $property
-     *
-     * @API\Attribute
+     * @param $property
      */
+    #[API\Attribute]
     public function setProperty($property): void
     {
         $this->property = $property;

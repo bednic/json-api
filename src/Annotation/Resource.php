@@ -5,31 +5,29 @@ declare(strict_types=1);
 namespace JSONAPI\Annotation;
 
 /**
- * Class ResourceMetadata
+ * Class Resource
  *
  * @package JSONAPI\Annotation
- * @Annotation
- * @Target({"CLASS"})
  */
+#[\Attribute(\Attribute::TARGET_CLASS)]
 final class Resource
 {
     /**
-     * @var string
-     */
-    public ?string $type = null;
-
-    /**
-     * @var bool
-     */
-    public bool $readOnly = false;
-
-    /**
-     * @var \JSONAPI\Annotation\Meta
+     * @var Meta|null
      */
     public ?Meta $meta = null;
 
-    public function __construct()
-    {
-        // Override parent constructor cause Doctrine Annotations need public constructor
+    /**
+     * Resource constructor.
+     *
+     * @param string|null $type
+     * @param bool        $readOnly
+     */
+    public function __construct(
+        public ?string $type = null,
+        public bool $readOnly = false
+    ) {
     }
+
+
 }

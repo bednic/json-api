@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use ReflectionClass;
 use JSONAPI\Document\Serializable;
+use ReflectionClass;
 
 /**
  * Class Response

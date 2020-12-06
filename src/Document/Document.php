@@ -48,6 +48,14 @@ final class Document implements Serializable, HasLinks, HasMeta
     }
 
     /**
+     * @return PrimaryData|null
+     */
+    public function getData(): ?PrimaryData
+    {
+        return $this->data;
+    }
+
+    /**
      * @param PrimaryData|null $data
      */
     public function setData(?PrimaryData $data): void
@@ -55,14 +63,6 @@ final class Document implements Serializable, HasLinks, HasMeta
         if (!(count($this->errors) > 0)) {
             $this->data = $data;
         }
-    }
-
-    /**
-     * @return PrimaryData|null
-     */
-    public function getData(): ?PrimaryData
-    {
-        return $this->data;
     }
 
     /**

@@ -19,7 +19,7 @@ trait DoctrineProxyTrait
      *
      * @return string
      */
-    final private static function clearDoctrineProxyPrefix(string $class): string
+    private static function clearDoctrineProxyPrefix(string $class): string
     {
         $marker = '__CG__';
         if (false === $pos = strrpos($class, '\\' . $marker . '\\')) {

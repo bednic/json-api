@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use JSONAPI\Document\Serializable;
 use JSONAPI\Exception\OAS\DuplicationEntryException;
 use JSONAPI\Exception\OAS\InvalidArgumentException;
 use JSONAPI\Exception\OAS\ReferencedObjectNotExistsException;
-use JSONAPI\Document\Serializable;
 
 /**
  * Class Components

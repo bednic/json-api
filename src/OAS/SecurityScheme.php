@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use JSONAPI\Document\Serializable;
+use JSONAPI\Exception\OAS\InvalidArgumentException;
+use JSONAPI\Exception\OAS\InvalidFormatException;
 use JSONAPI\OAS\Type\In;
 use JSONAPI\OAS\Type\SecuritySchemeScheme;
 use JSONAPI\OAS\Type\SecuritySchemeType;
-use JSONAPI\Exception\OAS\InvalidArgumentException;
-use JSONAPI\Exception\OAS\InvalidFormatException;
 use ReflectionClass;
-use JSONAPI\Document\Serializable;
 
 /**
  * Class SecurityScheme

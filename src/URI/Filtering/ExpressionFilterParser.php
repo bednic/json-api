@@ -72,14 +72,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     }
 
     /**
-     * @inheritDoc
-     */
-    public function __toString(): string
-    {
-        return $this->lexer ? 'filter=' . rawurlencode($this->lexer->getExpressionText()) : '';
-    }
-
-    /**
      * @return mixed Expression
      * @throws ExpressionException
      */
@@ -288,109 +280,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      * @return mixed
      * @throws ExpressionException
      */
-    private function parseParentExpression()
-    {
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::OPENPARAM())) {
-            throw new ExpressionException(Messages::syntaxError());
-        }
-        $this->lexer->nextToken();
-        $expr = $this->parseExpression();
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM())) {
-            throw new ExpressionException(Messages::syntaxError());
-        }
-        $this->lexer->nextToken();
-        return $expr;
-    }
-
-    /**
-     * @return mixed|string
-     * @throws ExpressionException
-     */
-    private function parseIdentifier()
-    {
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::IDENTIFIER())) {
-            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
-        }
-        $isFunction = $this->lexer->peekNextToken()->id->equals(ExpressionTokenId::OPENPARAM());
-        if ($isFunction) {
-            return $this->parseIdentifierAsFunction();
-        } else {
-            return $this->parsePropertyAccess();
-        }
-    }
-
-    /**
-     * @return mixed
-     * @throws ExpressionException
-     */
-    private function parseIdentifierAsFunction()
-    {
-        $functionToken = clone $this->lexer->getCurrentToken();
-        $this->lexer->nextToken();
-        $params = $this->parseArgumentList();
-        if (!method_exists($this->exp, $functionToken->text)) {
-            throw new ExpressionException(
-                Messages::expressionParserUnknownFunction($functionToken->text, $this->lexer->getPosition())
-            );
-        }
-        return $this->exp->{$functionToken->text}(...$params);
-    }
-
-    /**
-     * @return array
-     * @throws ExpressionException
-     */
-    private function parseArgumentList()
-    {
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::OPENPARAM())) {
-            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
-        }
-        $this->lexer->nextToken();
-        $args = $this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM()) ?
-            [] : $this->parseArguments();
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM())) {
-            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
-        }
-        $this->lexer->nextToken();
-        return $args;
-    }
-
-    /**
-     * @return array
-     * @throws ExpressionException
-     */
-    private function parseArguments()
-    {
-        $args = [];
-        while (true) {
-            $args[] = $this->parseExpression();
-            if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::COMMA())) {
-                break;
-            }
-            $this->lexer->nextToken();
-        }
-        return $args;
-    }
-
-    /**
-     * @return string
-     * @throws ExpressionException
-     */
-    private function parsePropertyAccess()
-    {
-        $property = $this->lexer->readDottedIdentifier();
-        if ($this->exp instanceof UseDottedIdentifier) {
-            $property = $this->exp->parseIdentifier($property);
-        }
-        return $property;
-    }
-
-    # PARSERS
-
-    /**
-     * @return mixed
-     * @throws ExpressionException
-     */
     private function parseBoolean()
     {
         $value = strcmp($this->lexer->getCurrentToken()->text, Constants::KEYWORD_TRUE) == 0;
@@ -446,6 +335,91 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     }
 
     /**
+     * @return mixed|string
+     * @throws ExpressionException
+     */
+    private function parseIdentifier()
+    {
+        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::IDENTIFIER())) {
+            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
+        }
+        $isFunction = $this->lexer->peekNextToken()->id->equals(ExpressionTokenId::OPENPARAM());
+        if ($isFunction) {
+            return $this->parseIdentifierAsFunction();
+        } else {
+            return $this->parsePropertyAccess();
+        }
+    }
+
+    /**
+     * @return mixed
+     * @throws ExpressionException
+     */
+    private function parseIdentifierAsFunction()
+    {
+        $functionToken = clone $this->lexer->getCurrentToken();
+        $this->lexer->nextToken();
+        $params = $this->parseArgumentList();
+        if (!method_exists($this->exp, $functionToken->text)) {
+            throw new ExpressionException(
+                Messages::expressionParserUnknownFunction($functionToken->text, $this->lexer->getPosition())
+            );
+        }
+        return $this->exp->{$functionToken->text}(...$params);
+    }
+
+    /**
+     * @return array
+     * @throws ExpressionException
+     */
+    private function parseArgumentList()
+    {
+        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::OPENPARAM())) {
+            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
+        }
+        $this->lexer->nextToken();
+        $args = $this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM()) ?
+            [] : $this->parseArguments();
+        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM())) {
+            throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
+        }
+        $this->lexer->nextToken();
+        return $args;
+    }
+
+    # PARSERS
+
+    /**
+     * @return array
+     * @throws ExpressionException
+     */
+    private function parseArguments()
+    {
+        $args = [];
+        while (true) {
+            $args[] = $this->parseExpression();
+            if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::COMMA())) {
+                break;
+            }
+            $this->lexer->nextToken();
+        }
+        return $args;
+    }
+
+    /**
+     * @return string
+     * @throws ExpressionException
+     */
+    private function parsePropertyAccess()
+    {
+        $property = $this->lexer->readDottedIdentifier();
+        if ($this->exp instanceof UseDottedIdentifier) {
+            $property = $this->exp->parseIdentifier($property);
+        }
+        return $property;
+    }
+
+    /**
      * @return mixed
      * @throws ExpressionException
      */
@@ -471,5 +445,31 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             return $value;
         }
         throw new ExpressionException(Messages::expressionLexerDigitExpected($this->lexer->getPosition()));
+    }
+
+    /**
+     * @return mixed
+     * @throws ExpressionException
+     */
+    private function parseParentExpression()
+    {
+        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::OPENPARAM())) {
+            throw new ExpressionException(Messages::syntaxError());
+        }
+        $this->lexer->nextToken();
+        $expr = $this->parseExpression();
+        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM())) {
+            throw new ExpressionException(Messages::syntaxError());
+        }
+        $this->lexer->nextToken();
+        return $expr;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function __toString(): string
+    {
+        return $this->lexer ? 'filter=' . rawurlencode($this->lexer->getExpressionText()) : '';
     }
 }

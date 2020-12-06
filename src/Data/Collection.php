@@ -40,14 +40,6 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     }
 
     /**
-     * @inheritDoc
-     */
-    public function offsetExists($offset): bool
-    {
-        return array_key_exists($offset, $this->items);
-    }
-
-    /**
      * @param int|string $key
      *
      * @return bool
@@ -60,9 +52,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @inheritDoc
      */
-    public function offsetGet($offset)
+    public function offsetExists($offset): bool
     {
-        return $this->items[$offset];
+        return array_key_exists($offset, $this->items);
     }
 
     /**
@@ -78,9 +70,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @inheritDoc
      */
-    public function offsetSet($offset, $value): void
+    public function offsetGet($offset)
     {
-        $this->items[$offset] = $value;
+        return $this->items[$offset];
     }
 
     /**
@@ -95,9 +87,9 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @inheritDoc
      */
-    public function offsetUnset($offset): void
+    public function offsetSet($offset, $value): void
     {
-        unset($this->items[$offset]);
+        $this->items[$offset] = $value;
     }
 
     /**
@@ -106,6 +98,14 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     public function unset($key): void
     {
         $this->offsetUnset($key);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function offsetUnset($offset): void
+    {
+        unset($this->items[$offset]);
     }
 
     /**

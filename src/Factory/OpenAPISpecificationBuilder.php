@@ -9,18 +9,16 @@ use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
-use JSONAPI\Metadata\Attribute;
-use JSONAPI\Metadata\ClassMetadata;
-use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Metadata\Relationship;
-use JSONAPI\OAS\Factory\DataType;
-use JSONAPI\OAS\Type\In;
-use JSONAPI\OAS\Type\Style;
 use JSONAPI\Exception\OAS\DuplicationEntryException;
 use JSONAPI\Exception\OAS\ExclusivityCheckException;
 use JSONAPI\Exception\OAS\InvalidArgumentException;
 use JSONAPI\Exception\OAS\InvalidFormatException;
 use JSONAPI\Exception\OAS\ReferencedObjectNotExistsException;
+use JSONAPI\Metadata\Attribute;
+use JSONAPI\Metadata\ClassMetadata;
+use JSONAPI\Metadata\MetadataRepository;
+use JSONAPI\Metadata\Relationship;
+use JSONAPI\OAS\Factory\DataType;
 use JSONAPI\OAS\Header;
 use JSONAPI\OAS\Info;
 use JSONAPI\OAS\MediaType;
@@ -33,9 +31,10 @@ use JSONAPI\OAS\Response;
 use JSONAPI\OAS\Responses;
 use JSONAPI\OAS\Schema;
 use JSONAPI\OAS\Server;
+use JSONAPI\OAS\Type\In;
+use JSONAPI\OAS\Type\Style;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-
 use function Symfony\Component\String\u;
 
 /**
@@ -57,10 +56,10 @@ class OpenAPISpecificationBuilder
      * @var LoggerInterface
      */
     private LoggerInterface $logger;
-    private bool $supportInclusion;
-    private bool $supportSort;
-    private bool $supportPagination;
-    private string $baseUrl;
+    private bool            $supportInclusion;
+    private bool            $supportSort;
+    private bool            $supportPagination;
+    private string          $baseUrl;
 
     /**
      * OpenAPISchemaFactory constructor.
@@ -86,11 +85,6 @@ class OpenAPISpecificationBuilder
         $this->supportSort        = $supportSort;
         $this->supportPagination  = $supportPagination;
         $this->baseUrl            = $baseUrl;
-    }
-
-    private static function shortName(string $className)
-    {
-        return u($className)->afterLast('\\')->toString();
     }
 
     /**
@@ -152,6 +146,11 @@ class OpenAPISpecificationBuilder
             $shortName = self::shortName($classMetadata->getClassName());
             $this->oas->getComponents()->addSchema($shortName, $this->createResource($classMetadata));
         }
+    }
+
+    private static function shortName(string $className)
+    {
+        return u($className)->afterLast('\\')->toString();
     }
 
     /**
@@ -362,6 +361,13 @@ class OpenAPISpecificationBuilder
         $document->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
         $document->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
         return $document;
+    }
+
+    private function createJsonApiObject(): Schema
+    {
+        return DataType::object()
+            ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
+            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
     }
 
     /**
@@ -654,13 +660,6 @@ class OpenAPISpecificationBuilder
                 ->setRequired(['data'])
         );
         return new RequestBody(Document::MEDIA_TYPE, $content);
-    }
-
-    private function createJsonApiObject(): Schema
-    {
-        return DataType::object()
-            ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
-            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
     }
 
     /**

@@ -12,15 +12,15 @@ use JSONAPI\Data\Collection;
  * Class BadRelationshipGetter
  *
  * @package JSONAPI\Test\Resources\Invalid
- * @API\Resource("bad-relationship-getter")
  */
+#[API\Resource("bad-relationship-getter")]
 class BadRelationshipGetter
 {
 
     /**
-     * @API\Relationship(target="SomeClass")
      * @return Collection
      */
+    #[API\Relationship("SomeClass")]
     public function getRelation()
     {
         return  new Collection();

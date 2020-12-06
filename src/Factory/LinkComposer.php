@@ -96,53 +96,6 @@ class LinkComposer
     }
 
     /**
-     * @param string                   $type
-     * @param PathInterface            $path
-     * @param FilterInterface|null     $filter
-     * @param InclusionInterface|null  $inclusion
-     * @param FieldsetInterface|null   $fieldset
-     * @param PaginationInterface|null $pagination
-     * @param SortInterface|null       $sort
-     *
-     * @return Link
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     */
-    private function createDocumentLink(
-        string $type,
-        PathInterface $path,
-        ?FilterInterface $filter,
-        ?InclusionInterface $inclusion,
-        ?FieldsetInterface $fieldset,
-        ?PaginationInterface $pagination,
-        ?SortInterface $sort
-    ): Link {
-        $url  = $this->baseURL;
-        $link = $url . (string)$path;
-        $mark = '?';
-        if (strlen((string)$filter)) {
-            $link .= $mark . $filter;
-            $mark = '&';
-        }
-        if (strlen((string)$inclusion)) {
-            $link .= $mark . $inclusion;
-            $mark = '&';
-        }
-        if (strlen((string)$fieldset)) {
-            $link .= $mark . $fieldset;
-            $mark = '&';
-        }
-        if (strlen((string)$pagination)) {
-            $link .= $mark . $pagination;
-            $mark = '&';
-        }
-        if (strlen((string)$sort)) {
-            $link .= $mark . $sort;
-        }
-        return new Link($type, $link);
-    }
-
-    /**
      * @param Document  $document
      * @param URIParser $parser
      *
@@ -225,5 +178,52 @@ class LinkComposer
             ));
         }
         return $document;
+    }
+
+    /**
+     * @param string                   $type
+     * @param PathInterface            $path
+     * @param FilterInterface|null     $filter
+     * @param InclusionInterface|null  $inclusion
+     * @param FieldsetInterface|null   $fieldset
+     * @param PaginationInterface|null $pagination
+     * @param SortInterface|null       $sort
+     *
+     * @return Link
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function createDocumentLink(
+        string $type,
+        PathInterface $path,
+        ?FilterInterface $filter,
+        ?InclusionInterface $inclusion,
+        ?FieldsetInterface $fieldset,
+        ?PaginationInterface $pagination,
+        ?SortInterface $sort
+    ): Link {
+        $url  = $this->baseURL;
+        $link = $url . (string)$path;
+        $mark = '?';
+        if (strlen((string)$filter)) {
+            $link .= $mark . $filter;
+            $mark = '&';
+        }
+        if (strlen((string)$inclusion)) {
+            $link .= $mark . $inclusion;
+            $mark = '&';
+        }
+        if (strlen((string)$fieldset)) {
+            $link .= $mark . $fieldset;
+            $mark = '&';
+        }
+        if (strlen((string)$pagination)) {
+            $link .= $mark . $pagination;
+            $mark = '&';
+        }
+        if (strlen((string)$sort)) {
+            $link .= $mark . $sort;
+        }
+        return new Link($type, $link);
     }
 }

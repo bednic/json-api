@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use JSONAPI\Document\Serializable;
 use JSONAPI\Exception\OAS\IncompleteObjectException;
 use JSONAPI\Exception\OAS\InvalidArgumentException;
 use ReflectionClass;
-use JSONAPI\Document\Serializable;
 
 /**
  * Class Schema

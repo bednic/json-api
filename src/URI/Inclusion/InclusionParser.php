@@ -49,6 +49,20 @@ class InclusionParser implements InclusionInterface
     }
 
     /**
+     * @param array  $arr
+     * @param string $path
+     * @param array  $value
+     */
+    private static function dot2tree(array &$arr, string $path, array $value)
+    {
+        $keys = explode('.', $path);
+        foreach ($keys as $key) {
+            $arr = &$arr[$key];
+        }
+        $arr = $value;
+    }
+
+    /**
      * @param Inclusion $parent
      * @param array     $branch
      */
@@ -87,21 +101,6 @@ class InclusionParser implements InclusionInterface
     public function contains(string $relation): bool
     {
         return array_key_exists($relation, $this->inclusions);
-    }
-
-
-    /**
-     * @param array  $arr
-     * @param string $path
-     * @param array  $value
-     */
-    private static function dot2tree(array &$arr, string $path, array $value)
-    {
-        $keys = explode('.', $path);
-        foreach ($keys as $key) {
-            $arr = &$arr[$key];
-        }
-        $arr = $value;
     }
 
     /**

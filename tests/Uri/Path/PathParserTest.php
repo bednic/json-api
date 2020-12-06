@@ -13,6 +13,8 @@ use JSONAPI\URI\Path\PathInterface;
 use JSONAPI\URI\Path\PathParser;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 /**
  * Class PathParserTest
@@ -32,7 +34,7 @@ class PathParserTest extends TestCase
     {
         self::$mr      = MetadataFactory::create(
             [RESOURCES . '/valid'],
-            new SimpleCacheAdapter(new ArrayCache()),
+            new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
         );
         self::$baseUrl = 'http://unit.test.org';

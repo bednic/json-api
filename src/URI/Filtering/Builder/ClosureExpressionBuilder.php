@@ -14,7 +14,6 @@ use JSONAPI\URI\Filtering\Messages;
 
 class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
 {
-
     /**
      * @inheritDoc
      */

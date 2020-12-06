@@ -51,7 +51,7 @@ class AnnotationDriverTest extends TestCase
     {
         $driver = new AnnotationDriver();
         $metadata = $driver->getClassMetadata(get_class($instance));
-        $this->assertRegExp('/[a-zA-Z0-9]+/', $metadata->getType());
+        $this->assertMatchesRegularExpression('/[a-zA-Z0-9]+/', $metadata->getType());
         $this->assertNotEmpty($metadata->getClassName());
         $this->assertInstanceOf(Id::class, $metadata->getId());
         $this->assertIsString($metadata->getType());

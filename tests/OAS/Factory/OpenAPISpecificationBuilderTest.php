@@ -17,6 +17,8 @@ use JSONAPI\OAS\OpenAPISpecification;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Swaggest\JsonSchema\Schema;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 /**
  * Class OpenAPISpecificationBuilderTest
@@ -39,7 +41,7 @@ class OpenAPISpecificationBuilderTest extends TestCase
     {
         self::$mr        = MetadataFactory::create(
             [RESOURCES . '/valid'],
-            new SimpleCacheAdapter(new ArrayCache()),
+            new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
         );
         self::$baseUrl   = 'http://unit.test.org';

@@ -11,6 +11,8 @@ use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use PHPUnit\Framework\TestCase;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 class MetadataFactoryTest extends TestCase
 {
@@ -19,13 +21,13 @@ class MetadataFactoryTest extends TestCase
     {
         $repository = MetadataFactory::create(
             [RESOURCES . '/valid'],
-            new SimpleCacheAdapter(new ArrayCache()),
+            new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
         );
         $this->assertInstanceOf(MetadataRepository::class, $repository);
         $repository = MetadataFactory::create(
             [RESOURCES . '/valid'],
-            new SimpleCacheAdapter(new ArrayCache()),
+            new Psr16Cache(new ArrayAdapter()),
             new SchemaDriver()
         );
         $this->assertInstanceOf(MetadataRepository::class, $repository);

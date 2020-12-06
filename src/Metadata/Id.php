@@ -11,21 +11,16 @@ namespace JSONAPI\Metadata;
  */
 class Id
 {
-    public static string $name = 'id';
-    /**
-     * @var string
-     */
-    public ?string $property = null;
-    /**
-     * @var string
-     */
-    public ?string $getter = null;
-
     /**
      * Id constructor.
+     *
+     * @param string|null $property
+     * @param string|null $getter
      */
-    private function __construct()
-    {
+    protected function __construct(
+        public ?string $property = null,
+        public ?string $getter = null
+    ) {
     }
 
     /**
@@ -35,7 +30,7 @@ class Id
      */
     public static function createByProperty(string $property): Id
     {
-        $self = new self();
+        $self           = new self();
         $self->property = $property;
         return $self;
     }
@@ -47,7 +42,7 @@ class Id
      */
     public static function createByMethod(string $getter): Id
     {
-        $self = new self();
+        $self         = new self();
         $self->getter = $getter;
         return $self;
     }

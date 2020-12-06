@@ -13,7 +13,7 @@ use Fig\Http\Message\StatusCodeInterface;
  */
 class Conflict extends BadRequest
 {
-    protected $code = StatusCodeInterface::STATUS_CONFLICT;
+    protected $code    = StatusCodeInterface::STATUS_CONFLICT;
     protected $message = 'Conflict';
 
     /**

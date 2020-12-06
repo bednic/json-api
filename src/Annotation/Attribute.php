@@ -8,14 +8,21 @@ namespace JSONAPI\Annotation;
  * Class Attribute
  *
  * @package JSONAPI\Annotation
- * @Annotation
- * @Target({"METHOD", "PROPERTY"})
  */
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY)]
 final class Attribute extends \JSONAPI\Metadata\Attribute
 {
-
-    public function __construct()
-    {
-        // Override parent constructor cause Doctrine Annotations need public constructor
+    /**
+     * @inheritDoc
+     */
+    public function __construct(
+        string $name = null,
+        string $property = null,
+        string $getter = null,
+        string $setter = null,
+        string $type = null,
+        string $of = null
+    ) {
+        parent::__construct($name, $property, $getter, $setter, $type, $of);
     }
 }

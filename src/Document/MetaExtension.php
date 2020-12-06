@@ -18,14 +18,6 @@ trait MetaExtension
     private ?Meta $meta = null;
 
     /**
-     * @param Meta $meta
-     */
-    public function setMeta(Meta $meta): void
-    {
-        $this->meta = $meta;
-    }
-
-    /**
      * @return Meta
      */
     public function getMeta(): Meta
@@ -34,6 +26,14 @@ trait MetaExtension
             $this->meta = new Meta();
         }
         return $this->meta;
+    }
+
+    /**
+     * @param Meta $meta
+     */
+    public function setMeta(Meta $meta): void
+    {
+        $this->meta = $meta;
     }
 
     /**

@@ -22,26 +22,26 @@ use JSONAPI\Schema\ResourceSchema;
  * Class DummyRelation
  *
  * @package JSONAPI\Test
- * @API\Resource("relation")
  */
+#[API\Resource("relation")]
 class DummyRelation implements Resource
 {
     /**
      * @var string
-     * @API\Id
      */
+    #[API\Id]
     public string $id;
 
     /**
      * @var string|null
-     * @API\Attribute
      */
+    #[API\Attribute]
     public ?string $property = null;
 
     /**
      * @var ThirdLevel
-     * @API\Relationship(target=PropsExample::class)
      */
+    #[API\Relationship(PropsExample::class)]
     public ThirdLevel $example;
 
     public function __construct(string $id)

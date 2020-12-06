@@ -8,14 +8,20 @@ namespace JSONAPI\Annotation;
  * Class Id
  *
  * @package JSONAPI\Annotation
- * @Annotation
- * @Target({"METHOD", "PROPERTY"})
  */
+
+#[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY)]
 final class Id extends \JSONAPI\Metadata\Id
 {
-
-    public function __construct()
+    /**
+     * Id constructor.
+     *
+     * @param string|null $property
+     * @param string|null $getter
+     */
+    public function __construct(string $property = null, string $getter = null)
     {
-        // Override parent constructor cause Doctrine Annotations need public constructor
+        $this->property = $property;
+        $this->getter   = $getter;
     }
 }

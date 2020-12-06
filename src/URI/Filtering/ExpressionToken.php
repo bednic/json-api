@@ -49,6 +49,7 @@ class ExpressionToken
                 strcmp($this->text, Constants::LOGICAL_IN) === 0
             );
     }
+
     /**
      * Checks whether this token is a valid token for a key value.
      *

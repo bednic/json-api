@@ -63,6 +63,14 @@ final class Error implements Serializable, HasLinks, HasMeta
     }
 
     /**
+     * @return int
+     */
+    public function getStatus(): int
+    {
+        return (int)$this->status;
+    }
+
+    /**
      * the HTTP status code applicable to this problem, expressed as a string value.
      *
      * @param int $status
@@ -71,15 +79,6 @@ final class Error implements Serializable, HasLinks, HasMeta
     {
         $this->status = (string)$status;
     }
-
-    /**
-     * @return int
-     */
-    public function getStatus(): int
-    {
-        return (int)$this->status;
-    }
-
 
     /**
      * a human-readable explanation specific to this occurrence of the problem. Like title, this field’s value can be

@@ -22,6 +22,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
 use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Psr16Cache;
 
 class UriParserTest extends TestCase
 {
@@ -32,7 +34,7 @@ class UriParserTest extends TestCase
     {
         self::$mr      = MetadataFactory::create(
             [RESOURCES . '/valid'],
-            new SimpleCacheAdapter(new ArrayCache()),
+            new Psr16Cache(new ArrayAdapter()),
             new SchemaDriver()
         );
         self::$baseURL = 'http://unit.test.org';

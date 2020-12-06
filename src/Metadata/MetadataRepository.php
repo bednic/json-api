@@ -19,22 +19,8 @@ class MetadataRepository
 
     public function __construct()
     {
-        $this->collection = new Collection();
+        $this->collection     = new Collection();
         $this->typeToClassMap = new Collection();
-    }
-
-    /**
-     * @param string $className
-     *
-     * @return ClassMetadata
-     * @throws MetadataNotFound
-     */
-    public function getByClass(string $className): ClassMetadata
-    {
-        if ($this->collection->hasKey($className)) {
-            return $this->collection[$className];
-        }
-        throw new MetadataNotFound($className);
     }
 
     /**
@@ -49,6 +35,20 @@ class MetadataRepository
             return $this->getByClass($this->typeToClassMap->get($type));
         }
         throw new MetadataNotFound($type);
+    }
+
+    /**
+     * @param string $className
+     *
+     * @return ClassMetadata
+     * @throws MetadataNotFound
+     */
+    public function getByClass(string $className): ClassMetadata
+    {
+        if ($this->collection->hasKey($className)) {
+            return $this->collection[$className];
+        }
+        throw new MetadataNotFound($className);
     }
 
     /**

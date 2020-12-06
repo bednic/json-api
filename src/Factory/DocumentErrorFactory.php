@@ -73,7 +73,7 @@ class DocumentErrorFactory implements ErrorFactory
             return self::parseInvalidValue($error->subErrors[0]);
         } else {
             return [
-                (string)preg_replace('/, data.+/', '', $error->error),
+                (string)preg_replace('/, data.+/', '', $error->error ?? ''),
                 Source::pointer($error->dataPointer)
             ];
         }

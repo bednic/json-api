@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace JSONAPI\Document;
 
 use JSONAPI\Data\Collection;
-use JSONAPI\Exception\Document\AttributeNotExist;
 use JSONAPI\Exception\Document\AlreadyInUse;
+use JSONAPI\Exception\Document\AttributeNotExist;
 use JSONAPI\Exception\Document\RelationshipNotExist;
 
 /**
@@ -56,6 +56,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
 
     /**
      * @param string $key
+     *
      * @return bool
      */
     public function hasAttribute(string $key): bool
@@ -63,6 +64,15 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
         return $this->getAttributes()->offsetExists($key);
     }
 
+    /**
+     * @return Collection
+     */
+    private function getAttributes(): Collection
+    {
+        return $this->fields->filter(function ($element) {
+            return $element instanceof Attribute;
+        });
+    }
 
     /**
      * Reruns Relationship value
@@ -82,21 +92,12 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
 
     /**
      * @param string $key
+     *
      * @return bool
      */
     public function hasRelationship(string $key): bool
     {
         return $this->getRelationships()->offsetExists($key);
-    }
-
-    /**
-     * @return Collection
-     */
-    private function getAttributes(): Collection
-    {
-        return $this->fields->filter(function ($element) {
-            return $element instanceof Attribute;
-        });
     }
 
     /**

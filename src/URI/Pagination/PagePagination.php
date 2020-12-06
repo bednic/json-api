@@ -53,13 +53,20 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     }
 
     /**
-     * Sets total pages count
-     *
-     * @param int $total
+     * @return PaginationInterface|null
      */
-    public function setTotal(int $total): void
+    public function next(): ?PaginationInterface
     {
-        $this->total = $total;
+        $static = null;
+        if ($this->total !== null) {
+            if ($this->getNumber() + 1 <= $this->total) {
+                $static = new self($this->getNumber() + 1, $this->getSize());
+                $static->setTotal($this->total);
+            }
+        } else {
+            $static = new self($this->getNumber() + 1, $this->getSize());
+        }
+        return $static;
     }
 
     /**
@@ -79,20 +86,13 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     }
 
     /**
-     * @return PaginationInterface|null
+     * Sets total pages count
+     *
+     * @param int $total
      */
-    public function next(): ?PaginationInterface
+    public function setTotal(int $total): void
     {
-        $static = null;
-        if ($this->total !== null) {
-            if ($this->getNumber() + 1 <= $this->total) {
-                $static = new self($this->getNumber() + 1, $this->getSize());
-                $static->setTotal($this->total);
-            }
-        } else {
-            $static = new self($this->getNumber() + 1, $this->getSize());
-        }
-        return $static;
+        $this->total = $total;
     }
 
     /**

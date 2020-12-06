@@ -24,7 +24,7 @@ use Symfony\Component\String\Slugger\AsciiSlugger;
  * Class MetadataFactory
  *
  * @package JSONAPI\Metadata
- * @todo This deserve refactor
+ * @todo    This deserve refactor
  */
 class MetadataFactory
 {
@@ -86,39 +86,6 @@ class MetadataFactory
     }
 
     /**
-     * @param string $className
-     *
-     * @return ClassMetadata
-     * @throws DriverException
-     * @throws MetadataException
-     */
-    private function getMetadataByClass(string $className): ClassMetadata
-    {
-
-        try {
-            $key       = $this->slugger->slug($className)->toString();
-            $className = self::clearDoctrineProxyPrefix($className);
-            if ($this->cache->has($key)) {
-                return $this->cache->get($key);
-            } else {
-                $classMetadata = $this->driver->getClassMetadata($className);
-                $this->cache->set($key, $classMetadata);
-                return $classMetadata;
-            }
-        } catch (CacheException $exception) {
-            throw new ClassNotResource($className);
-        }
-    }
-
-    /**
-     * @return ClassMetadata[]
-     */
-    private function getAllMetadata(): array
-    {
-        return $this->metadata;
-    }
-
-    /**
      * @throws DriverException
      * @throws InvalidArgumentException
      * @throws MetadataException
@@ -153,6 +120,31 @@ class MetadataFactory
     }
 
     /**
+     * @param string $className
+     *
+     * @return ClassMetadata
+     * @throws DriverException
+     * @throws MetadataException
+     */
+    private function getMetadataByClass(string $className): ClassMetadata
+    {
+
+        try {
+            $key       = $this->slugger->slug($className)->toString();
+            $className = self::clearDoctrineProxyPrefix($className);
+            if ($this->cache->has($key)) {
+                return $this->cache->get($key);
+            } else {
+                $classMetadata = $this->driver->getClassMetadata($className);
+                $this->cache->set($key, $classMetadata);
+                return $classMetadata;
+            }
+        } catch (CacheException $exception) {
+            throw new ClassNotResource($className);
+        }
+    }
+
+    /**
      * @throws DriverException
      * @throws InvalidArgumentException
      * @throws MetadataException
@@ -167,9 +159,7 @@ class MetadataFactory
             foreach ($map as $className => $file) {
                 try {
                     $this->loadMetadata($className);
-                } catch (ClassNotResource $ignored) {
-                    // NO-SONAR
-                } catch (ClassNotExist $ignored) {
+                } catch (ClassNotResource | ClassNotExist $ignored) {
                     // NO-SONAR
                 }
             }
@@ -204,5 +194,13 @@ class MetadataFactory
             $repository->add($metadata);
         }
         return $repository;
+    }
+
+    /**
+     * @return ClassMetadata[]
+     */
+    private function getAllMetadata(): array
+    {
+        return $this->metadata;
     }
 }

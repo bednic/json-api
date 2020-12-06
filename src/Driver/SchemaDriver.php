@@ -59,8 +59,8 @@ class SchemaDriver extends Driver
             if ($res->implementsInterface(Resource::class)) {
                 /** @var Resource $className */
                 $classMetadata = $className::getSchema();
-                $ref = new ReflectionClass($classMetadata->getClassName());
-                $attributes = $this->parseAttributes($ref, $classMetadata->getAttributes());
+                $ref           = new ReflectionClass($classMetadata->getClassName());
+                $attributes    = $this->parseAttributes($ref, $classMetadata->getAttributes());
                 $relationships = $this->parseRelationships($ref, $classMetadata->getRelationships());
                 return new ClassMetadata(
                     $classMetadata->getClassName(),
@@ -101,28 +101,6 @@ class SchemaDriver extends Driver
     }
 
     /**
-     * @param ReflectionClass $reflectionClass
-     * @param array           $metadata
-     *
-     * @return Collection
-     * @throws AnnotationMisplace
-     * @throws MethodNotExist
-     * @throws PropertyNotExist
-     * @throws BadSignature
-     */
-    private function parseRelationships(ReflectionClass $reflectionClass, iterable $metadata): Collection
-    {
-        $relationships = new Collection();
-        /** @var Relationship $relationship */
-        foreach ($metadata as $relationship) {
-            $reflection = $this->getReflection($relationship, $reflectionClass);
-            $this->fillUpRelationship($relationship, $reflection, $reflectionClass);
-            $relationships->set($relationship->name, $relationship);
-        }
-        return $relationships;
-    }
-
-    /**
      * @param Field           $metadata
      * @param ReflectionClass $reflectionClass
      *
@@ -148,5 +126,27 @@ class SchemaDriver extends Driver
             $this->isGetter($reflection);
         }
         return $reflection;
+    }
+
+    /**
+     * @param ReflectionClass $reflectionClass
+     * @param array           $metadata
+     *
+     * @return Collection
+     * @throws AnnotationMisplace
+     * @throws MethodNotExist
+     * @throws PropertyNotExist
+     * @throws BadSignature
+     */
+    private function parseRelationships(ReflectionClass $reflectionClass, iterable $metadata): Collection
+    {
+        $relationships = new Collection();
+        /** @var Relationship $relationship */
+        foreach ($metadata as $relationship) {
+            $reflection = $this->getReflection($relationship, $reflectionClass);
+            $this->fillUpRelationship($relationship, $reflection, $reflectionClass);
+            $relationships->set($relationship->name, $relationship);
+        }
+        return $relationships;
     }
 }

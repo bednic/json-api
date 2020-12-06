@@ -18,8 +18,8 @@ use MyCLabs\Enum\Enum;
 class In extends Enum
 {
 
-    public const QUERY = 'query';
+    public const QUERY  = 'query';
     public const HEADER = 'header';
-    public const PATH = 'path';
+    public const PATH   = 'path';
     public const COOKIE = 'cookie';
 }

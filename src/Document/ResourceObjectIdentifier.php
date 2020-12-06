@@ -39,6 +39,19 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
     }
 
     /**
+     * @param Field $field
+     *
+     * @throws AlreadyInUse
+     */
+    protected function addField(Field $field): void
+    {
+        if ($this->fields->hasKey($field->getKey())) {
+            throw new AlreadyInUse($field->getKey());
+        }
+        $this->fields->set($field->getKey(), $field);
+    }
+
+    /**
      * @return string|null
      */
     public function getId(): ?string
@@ -58,19 +71,6 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
     }
 
     /**
-     * @param Field $field
-     *
-     * @throws AlreadyInUse
-     */
-    protected function addField(Field $field): void
-    {
-        if ($this->fields->hasKey($field->getKey())) {
-            throw new AlreadyInUse($field->getKey());
-        }
-        $this->fields->set($field->getKey(), $field);
-    }
-
-    /**
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
@@ -82,7 +82,7 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
     {
         $ret = [
             'type' => $this->fields->get('type'),
-            'id' => $this->fields->get('id')
+            'id'   => $this->fields->get('id')
         ];
         if ($this->hasMeta()) {
             $ret['meta'] = $this->getMeta();

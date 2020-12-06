@@ -48,19 +48,19 @@ class Inclusion
     }
 
     /**
-     * @return Inclusion[]
-     */
-    public function getInclusions(): array
-    {
-        return $this->inclusions;
-    }
-
-    /**
      * @return string
      */
     public function getRelationName(): string
     {
         return $this->relationName;
+    }
+
+    /**
+     * @return Inclusion[]
+     */
+    public function getInclusions(): array
+    {
+        return $this->inclusions;
     }
 
     /**

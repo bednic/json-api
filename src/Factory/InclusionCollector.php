@@ -114,14 +114,6 @@ class InclusionCollector
     }
 
     /**
-     * @return ResourceCollection
-     */
-    public function getIncluded(): ResourceCollection
-    {
-        return $this->included;
-    }
-
-    /**
      * @param object $item
      *
      * @throws DocumentException
@@ -135,5 +127,13 @@ class InclusionCollector
         } else {
             throw new InclusionOverflow($this->maxIncludedItems);
         }
+    }
+
+    /**
+     * @return ResourceCollection
+     */
+    public function getIncluded(): ResourceCollection
+    {
+        return $this->included;
     }
 }

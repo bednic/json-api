@@ -18,53 +18,54 @@ use JSONAPI\Schema\ResourceSchema;
  * @package JSONAPI\Test
  * @API\Resource(type="prop")
  */
+#[API\Resource("prop")]
 class PropsExample implements Resource
 {
     /**
      * @var string
-     * @API\Id
      */
+    #[API\Id]
     public string $id;
 
     /**
      * @var string
-     * @API\Attribute
      */
+    #[API\Attribute]
     public string $stringProperty = 'string value';
     /**
      * @var int
-     * @API\Attribute
      */
+    #[API\Attribute]
     public int $intProperty = 1;
 
     /**
-     * @var array
-     * @API\Attribute(of="int")
+     * @var int[]
      */
+    #[API\Attribute(of: 'int')]
     public array $arrayProperty = [1, 2, 3];
 
     /**
      * @var bool
-     * @API\Attribute
      */
+    #[API\Attribute]
     public bool $boolProperty = true;
 
     /**
      * @var DtoValue
-     * @API\Attribute
      */
+    #[API\Attribute]
     public DtoValue $dtoProperty;
 
     /**
      * @var DummyRelation
-     * @API\Relationship(target=DummyRelation::class)
      */
+    #[API\Relationship(DummyRelation::class)]
     public DummyRelation $relation;
 
     /**
-     * @var Collection|DummyRelation[]
-     * @API\Relationship(target=DummyRelation::class)
+     * @var Collection<DummyRelation>
      */
+    #[API\Relationship(DummyRelation::class)]
     public Collection $collection;
 
     /**

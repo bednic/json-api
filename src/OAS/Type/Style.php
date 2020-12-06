@@ -20,11 +20,11 @@ use MyCLabs\Enum\Enum;
  */
 class Style extends Enum
 {
-    public const MATRIX = 'matrix';
-    public const LABEL = 'label';
-    public const FORM = 'form';
-    public const SIMPLE = 'simple';
+    public const MATRIX          = 'matrix';
+    public const LABEL           = 'label';
+    public const FORM            = 'form';
+    public const SIMPLE          = 'simple';
     public const SPACE_DELIMITED = 'spaceDelimited';
-    public const PIPE_DELIMITED = 'pipeDelimited';
-    public const DEEP_OBJECT = 'deepObject';
+    public const PIPE_DELIMITED  = 'pipeDelimited';
+    public const DEEP_OBJECT     = 'deepObject';
 }

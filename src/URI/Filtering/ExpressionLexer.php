@@ -28,18 +28,18 @@ use Exception;
  */
 class ExpressionLexer
 {
-    public const A = 65;
-    public const Z = 90;
-    public const SMALL_A = 97;
-    public const SMALL_Z = 122;
-    public const F = 70;
-    public const SMALL_F = 102;
-    public const ZERO = 48;
-    public const NINE = 57;
-    public const TAB = 9;
-    public const NEWLINE = 10;
+    public const A               = 65;
+    public const Z               = 90;
+    public const SMALL_A         = 97;
+    public const SMALL_Z         = 122;
+    public const F               = 70;
+    public const SMALL_F         = 102;
+    public const ZERO            = 48;
+    public const NINE            = 57;
+    public const TAB             = 9;
+    public const NEWLINE         = 10;
     public const CARRIAGE_RETURN = 13;
-    public const SPACE = 32;
+    public const SPACE           = 32;
 
 
     /**
@@ -100,9 +100,9 @@ class ExpressionLexer
      */
     public function __construct(string $expression)
     {
-        $this->text = $expression;
+        $this->text    = $expression;
         $this->textLen = strlen($this->text);
-        $this->token = new ExpressionToken();
+        $this->token   = new ExpressionToken();
         $this->setTextPos(0);
         $this->nextToken();
     }
@@ -118,7 +118,7 @@ class ExpressionLexer
     {
         $this->pos = $pos;
         $this->ch
-            = $this->pos < $this->textLen
+                   = $this->pos < $this->textLen
             ? $this->text[$this->pos] : '\0';
     }
 
@@ -132,7 +132,7 @@ class ExpressionLexer
             $this->nextChar();
         }
 
-        $t = null;
+        $t        = null;
         $tokenPos = $this->pos;
         switch ($this->ch) {
             case '(':
@@ -244,8 +244,8 @@ class ExpressionLexer
                 );
         }
 
-        $this->token->id = $t;
-        $this->token->text = substr($this->text, $tokenPos, $this->pos - $tokenPos);
+        $this->token->id       = $t;
+        $this->token->text     = substr($this->text, $tokenPos, $this->pos - $tokenPos);
         $this->token->position = $tokenPos;
 
         // Handle type-prefixed literals such as binary, datetime or guid.
@@ -322,7 +322,7 @@ class ExpressionLexer
      */
     private function parseFromDigit(): ExpressionTokenId
     {
-        $result = null;
+        $result    = null;
         $startChar = $this->ch;
         $this->nextChar();
         if ($startChar == '0' && $this->ch == 'x' || $this->ch == 'X') {
@@ -538,7 +538,7 @@ class ExpressionLexer
         }
 
         $this->nextChar();
-        $this->token->id = $id;
+        $this->token->id   = $id;
         $this->token->text = substr($this->text, $tokenPos, $this->pos - $tokenPos);
     }
 
@@ -635,15 +635,15 @@ class ExpressionLexer
     public function peekNextToken(): ExpressionToken
     {
         $savedTextPos = $this->pos;
-        $savedChar = $this->ch;
-        $savedToken = clone $this->token;
+        $savedChar    = $this->ch;
+        $savedToken   = clone $this->token;
         $this->nextToken();
-        $result = clone $this->token;
-        $this->pos = $savedTextPos;
-        $this->ch = $savedChar;
-        $this->token->id = $savedToken->id;
+        $result                = clone $this->token;
+        $this->pos             = $savedTextPos;
+        $this->ch              = $savedChar;
+        $this->token->id       = $savedToken->id;
         $this->token->position = $savedToken->position;
-        $this->token->text = $savedToken->text;
+        $this->token->text     = $savedToken->text;
         return $result;
     }
 

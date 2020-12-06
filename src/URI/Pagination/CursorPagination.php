@@ -18,14 +18,6 @@ abstract class CursorPagination implements PaginationInterface, PaginationParser
     private string $cursor;
 
     /**
-     * @return string
-     */
-    public function getCursor(): string
-    {
-        return $this->cursor;
-    }
-
-    /**
      * @param array|null $data
      *
      * @return PaginationInterface
@@ -44,5 +36,13 @@ abstract class CursorPagination implements PaginationInterface, PaginationParser
     public function __toString(): string
     {
         return urlencode('page[cursor]=' . $this->getCursor());
+    }
+
+    /**
+     * @return string
+     */
+    public function getCursor(): string
+    {
+        return $this->cursor;
     }
 }

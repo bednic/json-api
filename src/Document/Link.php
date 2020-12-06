@@ -16,13 +16,13 @@ final class Link extends Field implements HasMeta
 {
     use MetaExtension;
 
-    public const SELF = 'self';
+    public const SELF    = 'self';
     public const RELATED = 'related';
-    public const FIRST = 'first';
-    public const LAST = 'last';
-    public const NEXT = 'next';
-    public const PREV = 'prev';
-    public const ABOUT = 'about';
+    public const FIRST   = 'first';
+    public const LAST    = 'last';
+    public const NEXT    = 'next';
+    public const PREV    = 'prev';
+    public const ABOUT   = 'about';
 
     /**
      * Link constructor.
@@ -43,18 +43,6 @@ final class Link extends Field implements HasMeta
         }
     }
 
-    public function getData()
-    {
-        if ($this->meta) {
-            return [
-                'href' => parent::getData(),
-                'meta' => $this->meta
-            ];
-        } else {
-            return parent::getData();
-        }
-    }
-
     /**
      * @param string $data
      *
@@ -66,6 +54,18 @@ final class Link extends Field implements HasMeta
             parent::setData($data);
         } else {
             throw new ForbiddenDataType("Data are not valid URL.");
+        }
+    }
+
+    public function getData()
+    {
+        if ($this->meta) {
+            return [
+                'href' => parent::getData(),
+                'meta' => $this->meta
+            ];
+        } else {
+            return parent::getData();
         }
     }
 }

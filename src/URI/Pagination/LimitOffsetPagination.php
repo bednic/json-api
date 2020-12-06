@@ -54,22 +54,6 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     }
 
     /**
-     * @return int
-     */
-    public function getOffset(): int
-    {
-        return $this->offset;
-    }
-
-    /**
-     * @return int
-     */
-    public function getLimit(): int
-    {
-        return $this->limit;
-    }
-
-    /**
      * @param array|null $data
      *
      * @return PaginationInterface
@@ -99,14 +83,6 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     }
 
     /**
-     * @param int $total
-     */
-    public function setTotal(int $total): void
-    {
-        $this->total = $total;
-    }
-
-    /**
      * @return LimitOffsetPagination|null
      */
     public function next(): ?PaginationInterface
@@ -121,6 +97,30 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
             $static = new self($this->getOffset() + $this->getLimit(), $this->getLimit());
         }
         return $static;
+    }
+
+    /**
+     * @return int
+     */
+    public function getOffset(): int
+    {
+        return $this->offset;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLimit(): int
+    {
+        return $this->limit;
+    }
+
+    /**
+     * @param int $total
+     */
+    public function setTotal(int $total): void
+    {
+        $this->total = $total;
     }
 
     /**

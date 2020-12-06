@@ -17,8 +17,8 @@ use MyCLabs\Enum\Enum;
  */
 class SecuritySchemeType extends Enum
 {
-    public const API_KEY = 'apiKey';
-    public const HTTP = 'http';
-    public const OAUTH2 = 'oauth2';
+    public const API_KEY         = 'apiKey';
+    public const HTTP            = 'http';
+    public const OAUTH2          = 'oauth2';
     public const OPEN_ID_CONNECT = 'openIdConnect';
 }

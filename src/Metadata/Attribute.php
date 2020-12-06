@@ -12,21 +12,26 @@ namespace JSONAPI\Metadata;
 class Attribute extends Field
 {
     /**
-     * @var string
-     */
-    public ?string $type = null;
-
-    /**
-     * In case of type=array, this represents items data type
+     * Attribute constructor.
      *
-     * @var string
+     * @param string|null $name
+     * @param string|null $property
+     * @param string|null $getter
+     * @param string|null $setter
+     * @param string|null $type
+     * @param string|null $of
      */
-    public ?string $of = null;
-
-    private function __construct()
-    {
-        // Instance can be created only via static factory methods
+    protected function __construct(
+        string $name = null,
+        string $property = null,
+        string $getter = null,
+        string $setter = null,
+        public ?string $type = null,
+        public ?string $of = null
+    ) {
+        parent::__construct($name, $property, $getter, $setter);
     }
+
 
     /**
      * @param string      $property
@@ -42,12 +47,7 @@ class Attribute extends Field
         string $name = null,
         string $type = null
     ): self {
-        $self = new self();
-        $self->property = $property;
-        $self->name = $name;
-        $self->type = $type;
-        $self->of = $of;
-        return $self;
+        return new self($name, $property, null, null, $type, $of);
     }
 
     /**
@@ -66,12 +66,6 @@ class Attribute extends Field
         string $type = null,
         string $of = null
     ): self {
-        $self = new self();
-        $self->getter = $getter;
-        $self->setter = $setter;
-        $self->name = $name;
-        $self->type = $type;
-        $self->of = $of;
-        return $self;
+        return new self($name, null, $getter, $setter, $type, $of);
     }
 }

@@ -20,7 +20,6 @@ use ReflectionMethod;
 use ReflectionNamedType;
 use ReflectionParameter;
 use ReflectionProperty;
-use Reflector;
 
 /**
  * Interface Driver
@@ -62,52 +61,6 @@ abstract class Driver
     }
 
     /**
-     * @param ReflectionClass $reflectionClass
-     * @param Field           $metadata
-     *
-     * @return string|null
-     */
-    protected function getSetter(ReflectionClass $reflectionClass, Field $metadata): ?string
-    {
-        $setter = preg_replace(self::GETTER, 'set', $metadata->getter);
-        if ($reflectionClass->hasMethod($setter)) {
-            return $setter;
-        }
-        return null;
-    }
-
-    /**
-     * @param ReflectionMethod $setter
-     *
-     * @return string
-     * @throws BadSignature
-     */
-    protected function getSetterParameterType(ReflectionMethod $setter): ?string
-    {
-        if ($setter->getNumberOfRequiredParameters() > 1) {
-            throw new BadSignature($setter->getName(), $setter->class);
-        }
-        $parameters = $setter->getParameters();
-
-        $parameter = array_shift($parameters);
-        return $this->getType($parameter);
-    }
-
-    /**
-     * @param ReflectionMethod|ReflectionProperty $reflection
-     *
-     * @return string
-     */
-    protected function getName($reflection): string
-    {
-        if ($reflection instanceof ReflectionProperty) {
-            return $reflection->getName();
-        } else {
-            return lcfirst(preg_replace(self::GETTER, '', $reflection->getName()));
-        }
-    }
-
-    /**
      * @param ReflectionMethod|ReflectionProperty|ReflectionParameter $reflection
      *
      * @return string|null
@@ -120,52 +73,13 @@ abstract class Driver
     }
 
     /**
-     * @param ReflectionProperty|ReflectionMethod $reflection
-     *
-     * @return bool|null
-     * @throws BadSignature
-     */
-    protected function isCollection($reflection): ?bool
-    {
-        $type = $this->getType($reflection);
-        if (is_null($type)) {
-            throw new BadSignature($reflection->getName(), $reflection->getDeclaringClass()->getName());
-        } elseif ($type === 'array') {
-            return true;
-        } elseif ($type === Collection::class) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * @param ReflectionMethod|ReflectionProperty $reflection
-     *
-     * @return string|null
-     */
-    protected function tryGetArrayType($reflection): ?string
-    {
-        if (
-            preg_match(
-                '~@return ((null|array)\|)*?((?P<type>\w+)\[\])(\|(null|array))*?~',
-                $reflection->getDocComment(),
-                $match
-            )
-        ) {
-            return $match['type'];
-        }
-        return null;
-    }
-
-    /**
      * @param Attribute                           $attribute
      * @param ReflectionProperty|ReflectionMethod $reflection
      * @param ReflectionClass                     $reflectionClass
      *
      * @throws BadSignature
      */
-    protected function fillUpAttribute(Attribute $attribute, $reflection, ReflectionClass $reflectionClass)
+    protected function fillUpAttribute(Attribute $attribute, ReflectionProperty|ReflectionMethod $reflection, ReflectionClass $reflectionClass)
     {
         if (!$attribute->name) {
             $attribute->name = $this->getName($reflection);
@@ -191,16 +105,81 @@ abstract class Driver
     }
 
     /**
-     * @param Relationship                                  $relationship
-     * @param ReflectionProperty|ReflectionMethod|Reflector $reflection
-     * @param ReflectionClass                               $reflectionClass
+     * @param ReflectionMethod|ReflectionProperty $reflection
+     *
+     * @return string
+     */
+    protected function getName($reflection): string
+    {
+        if ($reflection instanceof ReflectionProperty) {
+            return $reflection->getName();
+        } else {
+            return lcfirst(preg_replace(self::GETTER, '', $reflection->getName()));
+        }
+    }
+
+    /**
+     * @param ReflectionClass $reflectionClass
+     * @param Field           $metadata
+     *
+     * @return string|null
+     */
+    protected function getSetter(ReflectionClass $reflectionClass, Field $metadata): ?string
+    {
+        $setter = preg_replace(self::GETTER, 'set', $metadata->getter);
+        if ($reflectionClass->hasMethod($setter)) {
+            return $setter;
+        }
+        return null;
+    }
+
+    /**
+     * @param ReflectionMethod $setter
+     *
+     * @return string|null
+     * @throws BadSignature
+     */
+    protected function getSetterParameterType(ReflectionMethod $setter): ?string
+    {
+        if ($setter->getNumberOfRequiredParameters() > 1) {
+            throw new BadSignature($setter->getName(), $setter->class);
+        }
+        $parameters = $setter->getParameters();
+
+        $parameter = array_shift($parameters);
+        return $this->getType($parameter);
+    }
+
+    /**
+     * @param ReflectionMethod|ReflectionProperty $reflection
+     *
+     * @return string|null
+     */
+    protected function tryGetArrayType(ReflectionProperty|ReflectionMethod $reflection): ?string
+    {
+        if (
+        preg_match(
+            '~@return ((null|array)\|)*?((?P<type>\w+)\[\])(\|(null|array))*?~',
+            $reflection->getDocComment(),
+            $match
+        )
+        ) {
+            return $match['type'];
+        }
+        return null;
+    }
+
+    /**
+     * @param Relationship                        $relationship
+     * @param ReflectionProperty|ReflectionMethod $reflection
+     * @param ReflectionClass                     $reflectionClass
      *
      * @throws BadSignature
      * @throws MethodNotExist
      */
     protected function fillUpRelationship(
         Relationship $relationship,
-        Reflector $reflection,
+        ReflectionProperty|ReflectionMethod $reflection,
         ReflectionClass $reflectionClass
     ) {
         if (!$relationship->name) {
@@ -214,6 +193,26 @@ abstract class Driver
         }
         if ($relationship->getter && is_null($relationship->setter)) {
             $relationship->setter = $this->getSetter($reflectionClass, $relationship);
+        }
+    }
+
+    /**
+     * @param ReflectionProperty|ReflectionMethod $reflection
+     *
+     * @return bool|null
+     * @throws BadSignature
+     */
+    protected function isCollection($reflection): ?bool
+    {
+        $type = $this->getType($reflection);
+        if (is_null($type)) {
+            throw new BadSignature($reflection->getName(), $reflection->getDeclaringClass()->getName());
+        } elseif ($type === 'array') {
+            return true;
+        } elseif ($type === Collection::class) {
+            return true;
+        } else {
+            return false;
         }
     }
 }

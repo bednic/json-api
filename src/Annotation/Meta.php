@@ -8,13 +8,16 @@ namespace JSONAPI\Annotation;
  * Class Meta
  *
  * @package JSONAPI\Annotation
- * @Annotation
- * @Target({"ANNOTATION"})
  */
+
+#[\Attribute]
 final class Meta extends \JSONAPI\Metadata\Meta
 {
-    public function __construct()
+    /**
+     * @inheritDoc
+     */
+    public function __construct(string $getter)
     {
-        // Override parent constructor cause Doctrine Annotations need public constructor
+        $this->getter = $getter;
     }
 }

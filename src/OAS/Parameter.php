@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
-use JSONAPI\OAS\Type\In;
-use JSONAPI\OAS\Type\Style;
+use JSONAPI\Document\Serializable;
 use JSONAPI\Exception\OAS\ExclusivityCheckException;
 use JSONAPI\Exception\OAS\IncompleteObjectException;
+use JSONAPI\OAS\Type\In;
+use JSONAPI\OAS\Type\Style;
 use ReflectionClass;
-use JSONAPI\Document\Serializable;
 
 /**
  * Class Parameter

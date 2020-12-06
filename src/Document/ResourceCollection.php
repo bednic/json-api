@@ -38,6 +38,16 @@ final class ResourceCollection extends Collection implements PrimaryData, Serial
     }
 
     /**
+     * @param ResourceObjectIdentifier $resource
+     *
+     * @return string
+     */
+    private function key(ResourceObjectIdentifier $resource): string
+    {
+        return $resource->getType() . $resource->getId();
+    }
+
+    /**
      * @inheritDoc
      */
     public function push($item): int
@@ -72,16 +82,6 @@ final class ResourceCollection extends Collection implements PrimaryData, Serial
         } else {
             return false;
         }
-    }
-
-    /**
-     * @param ResourceObjectIdentifier $resource
-     *
-     * @return string
-     */
-    private function key(ResourceObjectIdentifier $resource): string
-    {
-        return $resource->getType() . $resource->getId();
     }
 
     /**

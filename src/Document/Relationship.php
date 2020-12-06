@@ -20,17 +20,6 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
     private bool $modified = false;
 
     /**
-     * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
-     */
-    public function getData()
-    {
-        if ($this->data instanceof Collection) {
-            return $this->data->values();
-        }
-        return $this->data;
-    }
-
-    /**
      * @param ResourceObjectIdentifier|ResourceCollection<ResourceObjectIdentifier>|null $data
      *
      * @throws ForbiddenDataType
@@ -50,14 +39,6 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
     }
 
     /**
-     * @return bool
-     */
-    private function hasData(): bool
-    {
-        return $this->modified;
-    }
-
-    /**
      * @return array|mixed
      */
     public function jsonSerialize()
@@ -73,5 +54,24 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
             $ret['meta'] = $this->getMeta();
         }
         return $ret;
+    }
+
+    /**
+     * @return bool
+     */
+    private function hasData(): bool
+    {
+        return $this->modified;
+    }
+
+    /**
+     * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
+     */
+    public function getData()
+    {
+        if ($this->data instanceof Collection) {
+            return $this->data->values();
+        }
+        return $this->data;
     }
 }

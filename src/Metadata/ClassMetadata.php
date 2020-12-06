@@ -6,9 +6,9 @@ namespace JSONAPI\Metadata;
 
 use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Metadata\AlreadyInUse;
-use JSONAPI\Metadata;
 use JSONAPI\Exception\Metadata\AttributeNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
+use JSONAPI\Metadata;
 
 /**
  * Class ClassMetadata
@@ -36,7 +36,7 @@ final class ClassMetadata
     private Metadata\Id $id;
 
     /**
-     * @var Collection|Field[]
+     * @var Collection
      */
     private Collection $fields;
     /**
@@ -66,12 +66,12 @@ final class ClassMetadata
         bool $readOnly = false,
         ?Meta $resourceMeta = null
     ) {
-        $this->fields = new Collection();
+        $this->fields    = new Collection();
         $this->className = $className;
-        $this->id = $id;
-        $this->type = $type;
-        $this->readOnly = $readOnly;
-        $this->meta = $resourceMeta;
+        $this->id        = $id;
+        $this->type      = $type;
+        $this->readOnly  = $readOnly;
+        $this->meta      = $resourceMeta;
         $this->fields->set('id', $id);
         $this->fields->set('type', $type);
         foreach ($attributes as $attribute) {
@@ -102,12 +102,6 @@ final class ClassMetadata
     public function getId(): Id
     {
         return $this->id;
-    }
-
-
-    public function getType(): string
-    {
-        return $this->type;
     }
 
     /**
@@ -149,6 +143,16 @@ final class ClassMetadata
     }
 
     /**
+     * @param string $fieldName
+     *
+     * @return bool
+     */
+    public function hasAttribute(string $fieldName): bool
+    {
+        return $this->fields->filter(fn($i) => $i instanceof Attribute)->hasKey($fieldName);
+    }
+
+    /**
      * @return Relationship[]
      */
     public function getRelationships(): array
@@ -180,14 +184,9 @@ final class ClassMetadata
         return $this->fields->filter(fn($i) => $i instanceof Relationship)->hasKey($fieldName);
     }
 
-    /**
-     * @param string $fieldName
-     *
-     * @return bool
-     */
-    public function hasAttribute(string $fieldName): bool
+    public function getType(): string
     {
-        return $this->fields->filter(fn($i) => $i instanceof Attribute)->hasKey($fieldName);
+        return $this->type;
     }
 
     /**

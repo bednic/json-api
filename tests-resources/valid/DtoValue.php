@@ -6,6 +6,11 @@ namespace JSONAPI\Test\Resources\Valid;
 
 use JSONAPI\Document\Convertible;
 
+/**
+ * Class DtoValue
+ *
+ * @package JSONAPI\Test\Resources\Valid
+ */
 class DtoValue implements Convertible
 {
 

@@ -6,17 +6,17 @@ namespace JSONAPI\Metadata;
 
 use DateTimeInterface;
 use JSONAPI\Data\Collection;
-use JSONAPI\Factory\LinkComposer;
-use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Document;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
+use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
+use JSONAPI\Factory\LinkComposer;
+use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\URI\Fieldset\FieldsetInterface;
 use JSONAPI\URI\Inclusion\InclusionInterface;
 use Psr\Log\LoggerInterface;
@@ -96,7 +96,7 @@ final class Encoder
      * @param MetadataRepository   $metadataRepository
      * @param FieldsetInterface    $fieldset
      * @param InclusionInterface   $inclusion
-     * @param LinkComposer          $linkFactory
+     * @param LinkComposer         $linkFactory
      * @param bool                 $relationshipData
      * @param int                  $relationshipLimit
      * @param LoggerInterface|null $logger
@@ -117,21 +117,6 @@ final class Encoder
         $this->linkFactory       = $linkFactory;
         $this->withData          = $relationshipData;
         $this->relationshipLimit = $relationshipLimit;
-    }
-
-
-    /**
-     * @param object $object
-     *
-     * @return ResourceObjectIdentifier
-     * @throws ClassNotExist
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     * @throws MetadataNotFound
-     */
-    public function getIdentifier(object $object): ResourceObjectIdentifier
-    {
-        return $this->for($object)->createIdentifier()->setMeta()->resource;
     }
 
     /**
@@ -155,94 +140,9 @@ final class Encoder
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    private function createIdentifier(): Encoder
-    {
-        $this->resource = new ResourceObjectIdentifier($this->getType(), $this->getId());
-        return $this;
-    }
-
-    /**
-     * @return self
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     */
-    private function createResource(): Encoder
-    {
-        $this->resource = new ResourceObject($this->getType(), $this->getId());
-        return $this;
-    }
-
-    /**
-     * @return $this
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     */
     private function setLinks(): Encoder
     {
         $this->linkFactory->setResourceLink($this->resource);
-        return $this;
-    }
-
-    /**
-     * @param object $object
-     *
-     * @return Encoder
-     * @throws ClassNotExist
-     * @throws MetadataNotFound
-     */
-    private function for(object $object): Encoder
-    {
-        $encoder   = clone $this;
-        $className = Encoder::clearDoctrineProxyPrefix(get_class($object));
-        try {
-            $this->logger->debug("Init encoding of {$className}.");
-            $encoder->object   = $object;
-            $encoder->metadata = $this->repository->getByClass($className);
-            $encoder->ref      = new ReflectionClass($className);
-        } catch (ReflectionException $exception) {
-            throw new ClassNotExist($className);
-        }
-        return $encoder;
-    }
-
-    /**
-     * @return Document\Type
-     * @throws ForbiddenCharacter
-     */
-    private function getType(): Document\Type
-    {
-        return new Document\Type($this->metadata->getType());
-    }
-
-    /**
-     * @return Document\Id
-     * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
-     */
-    private function getId(): Document\Id
-    {
-        $value = null;
-        if ($this->metadata->getId()->property != null) {
-            try {
-                $value = (string)$this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
-            } catch (ReflectionException $ignored) {
-                // NO SONAR
-            }
-        } else {
-            $value = (string)call_user_func([$this->object, $this->metadata->getId()->getter]);
-        }
-        return new Document\Id($value);
-    }
-
-    /**
-     * @return $this
-     */
-    private function setMeta(): Encoder
-    {
-        if ($meta = $this->metadata->getMeta()) {
-            $meta = call_user_func([$this->object, $meta->getter]);
-            $this->resource->setMeta($meta);
-        }
         return $this;
     }
 
@@ -315,6 +215,105 @@ final class Encoder
                 }
             }
         }
+        return $this;
+    }
+
+    /**
+     * @param object $object
+     *
+     * @return ResourceObjectIdentifier
+     * @throws ClassNotExist
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     * @throws MetadataNotFound
+     */
+    public function getIdentifier(object $object): ResourceObjectIdentifier
+    {
+        return $this->for($object)->createIdentifier()->setMeta()->resource;
+    }
+
+    /**
+     * @return $this
+     */
+    private function setMeta(): Encoder
+    {
+        if ($meta = $this->metadata->getMeta()) {
+            $meta = call_user_func([$this->object, $meta->getter]);
+            $this->resource->setMeta($meta);
+        }
+        return $this;
+    }
+
+    /**
+     * @return $this
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function createIdentifier(): Encoder
+    {
+        $this->resource = new ResourceObjectIdentifier($this->getType(), $this->getId());
+        return $this;
+    }
+
+    /**
+     * @return Document\Type
+     * @throws ForbiddenCharacter
+     */
+    private function getType(): Document\Type
+    {
+        return new Document\Type($this->metadata->getType());
+    }
+
+    /**
+     * @return Document\Id
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function getId(): Document\Id
+    {
+        $value = null;
+        if ($this->metadata->getId()->property != null) {
+            try {
+                $value = (string)$this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
+            } catch (ReflectionException $ignored) {
+                // NO SONAR
+            }
+        } else {
+            $value = (string)call_user_func([$this->object, $this->metadata->getId()->getter]);
+        }
+        return new Document\Id($value);
+    }
+
+    /**
+     * @param object $object
+     *
+     * @return Encoder
+     * @throws ClassNotExist
+     * @throws MetadataNotFound
+     */
+    private function for(object $object): Encoder
+    {
+        $encoder   = clone $this;
+        $className = Encoder::clearDoctrineProxyPrefix(get_class($object));
+        try {
+            $this->logger->debug("Init encoding of {$className}.");
+            $encoder->object   = $object;
+            $encoder->metadata = $this->repository->getByClass($className);
+            $encoder->ref      = new ReflectionClass($className);
+        } catch (ReflectionException $exception) {
+            throw new ClassNotExist($className);
+        }
+        return $encoder;
+    }
+
+    /**
+     * @return self
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
+     */
+    private function createResource(): Encoder
+    {
+        $this->resource = new ResourceObject($this->getType(), $this->getId());
         return $this;
     }
 }

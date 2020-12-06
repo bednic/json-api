@@ -15,8 +15,9 @@ use JSONAPI\Schema\ResourceSchema;
  * Class MetaExample
  *
  * @package JSONAPI\Test
- * @API\Resource(type="meta", meta=@API\Meta(getter="getMeta"))
  */
+#[API\Resource("meta")]
+#[API\Meta("getMeta")]
 class MetaExample implements Resource
 {
     /**
@@ -35,9 +36,9 @@ class MetaExample implements Resource
     }
 
     /**
-     * @API\Id
      * @return string
      */
+    #[API\Id]
     public function getId(): string
     {
         return $this->id;
@@ -45,6 +46,8 @@ class MetaExample implements Resource
 
     /**
      * @return Meta
+     * @throws \JSONAPI\Exception\Document\ForbiddenCharacter
+     * @throws \JSONAPI\Exception\Document\ForbiddenDataType
      */
     public function getMeta(): Meta
     {
@@ -55,8 +58,9 @@ class MetaExample implements Resource
 
     /**
      * @return DummyRelation
-     * @API\Relationship(target=DummyRelation::class, meta=@API\Meta(getter="getRelationMeta"))
      */
+    #[API\Relationship(DummyRelation::class)]
+    #[API\Meta("getRelationMeta")]
     public function getRelation(): DummyRelation
     {
         return new DummyRelation('relation1');
@@ -64,6 +68,8 @@ class MetaExample implements Resource
 
     /**
      * @return Meta
+     * @throws \JSONAPI\Exception\Document\ForbiddenCharacter
+     * @throws \JSONAPI\Exception\Document\ForbiddenDataType
      */
     public function getRelationMeta(): Meta
     {
@@ -83,8 +89,14 @@ class MetaExample implements Resource
             Id::createByMethod('getId'),
             [],
             [
-                Relationship::createByMethod('getRelation', DummyRelation::class, null, null, false,
-                    \JSONAPI\Metadata\Meta::create('getRelationMeta'))
+                Relationship::createByMethod(
+                    'getRelation',
+                    DummyRelation::class,
+                    null,
+                    null,
+                    false,
+                    \JSONAPI\Metadata\Meta::create('getRelationMeta')
+                )
             ],
             false,
             \JSONAPI\Metadata\Meta::create('getMeta')

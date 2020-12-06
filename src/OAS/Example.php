@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use JSONAPI\Document\Serializable;
 use JSONAPI\Exception\OAS\ExclusivityCheckException;
 use ReflectionClass;
-use JSONAPI\Document\Serializable;
 
 /**
  * Class Example

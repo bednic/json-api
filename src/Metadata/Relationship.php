@@ -12,27 +12,28 @@ namespace JSONAPI\Metadata;
 class Relationship extends Field
 {
     /**
-     * @var string
-     * @Required
-     */
-    public string $target;
-
-    /**
-     * @var bool
-     */
-    public ?bool $isCollection = null;
-
-    /**
-     * @var \JSONAPI\Metadata\Meta
-     */
-    public ?Meta $meta = null;
-
-    /**
      * Relationship constructor.
+     *
+     * @param string|null $target
+     * @param string|null $name
+     * @param string|null $property
+     * @param string|null $getter
+     * @param string|null $setter
+     * @param bool|null   $isCollection
+     * @param Meta|null   $meta
      */
-    private function __construct()
-    {
+    protected function __construct(
+        public ?string $target,
+        string $name = null,
+        string $property = null,
+        string $getter = null,
+        string $setter = null,
+        public ?bool $isCollection = null,
+        public ?Meta $meta = null
+    ) {
+        parent::__construct($name, $property, $getter, $setter);
     }
+
 
     /**
      * @param string      $property
@@ -50,13 +51,7 @@ class Relationship extends Field
         bool $isCollection = null,
         Meta $meta = null
     ): Relationship {
-        $self = new self();
-        $self->property = $property;
-        $self->name = $name;
-        $self->target = $target;
-        $self->isCollection = $isCollection;
-        $self->meta = $meta;
-        return $self;
+        return new self($target, $name, $property, null, null, $isCollection, $meta);
     }
 
     /**
@@ -77,13 +72,6 @@ class Relationship extends Field
         bool $isCollection = null,
         Meta $meta = null
     ): Relationship {
-        $self = new self();
-        $self->getter = $getter;
-        $self->name = $name;
-        $self->setter = $setter;
-        $self->target = $target;
-        $self->isCollection = $isCollection;
-        $self->meta = $meta;
-        return $self;
+        return new self($target, $name, null, $getter, $setter, $isCollection, $meta);
     }
 }

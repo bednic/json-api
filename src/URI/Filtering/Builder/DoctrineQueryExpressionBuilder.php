@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\URI\Filtering\Builder;
 
+use DateTimeInterface;
 use Doctrine\ORM\Query\Expr;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
@@ -14,6 +15,7 @@ use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
 use JSONAPI\URI\Path\PathInterface;
+use RuntimeException;
 
 /**
  * Class DoctrineQueryExpressionBuilder
@@ -43,13 +45,13 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     public function __construct(MetadataRepository $metadataRepository, PathInterface $path)
     {
         if (!class_exists('Doctrine\ORM\Query\Expr')) {
-            throw new \RuntimeException(
+            throw new RuntimeException(
                 'For using ' . __CLASS__ . ' you need install [doctrine/orm] <i>composer require doctrine/orm</i>.'
             );
         }
-        $this->exp = new Expr();
+        $this->exp                = new Expr();
         $this->metadataRepository = $metadataRepository;
-        $this->path = $path;
+        $this->path               = $path;
     }
 
     /**
@@ -316,7 +318,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      */
     public function literal($value)
     {
-        if ($value instanceof \DateTimeInterface) {
+        if ($value instanceof DateTimeInterface) {
             $value = $value->format(DATE_ATOM);
         }
         return $this->exp->literal($value);
@@ -334,13 +336,13 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     public function parseIdentifier(string $identifier)
     {
         $classMetadata = $this->metadataRepository->getByType($this->path->getPrimaryResourceType());
-        $parts = [...explode(".", $identifier)];
+        $parts         = [...explode(".", $identifier)];
         while ($part = array_shift($parts)) {
             if ($classMetadata->hasRelationship($part)) {
-                $rm = $this->metadataRepository->getByClass($classMetadata->getRelationship($part)->target);
+                $rm                          = $this->metadataRepository->getByClass($classMetadata->getRelationship($part)->target);
                 $this->joins[$rm->getType()] = $classMetadata->getType() . '.' . $part;
-                $identifier = $classMetadata->getType() . '.' . $part;
-                $classMetadata = $this->metadataRepository->getByClass($classMetadata->getRelationship($part)->target);
+                $identifier                  = $classMetadata->getType() . '.' . $part;
+                $classMetadata               = $this->metadataRepository->getByClass($classMetadata->getRelationship($part)->target);
             } elseif ($classMetadata->hasAttribute($part) || $part === 'id') {
                 $identifier = $classMetadata->getType() . '.' . $part;
             } else {
