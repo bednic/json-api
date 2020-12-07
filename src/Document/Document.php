@@ -33,11 +33,9 @@ final class Document implements Serializable, HasLinks, HasMeta
     private ResourceCollection $included;
 
     /**
-     * @var array<mixed>
+     * @var object
      */
-    private array $jsonapi = [
-        'version' => self::VERSION
-    ];
+    private object $jsonapi;
 
     /**
      * Document constructor.
@@ -45,6 +43,8 @@ final class Document implements Serializable, HasLinks, HasMeta
     public function __construct()
     {
         $this->included = new ResourceCollection();
+        $this->jsonapi = new \stdClass();
+        $this->jsonapi->version = self::VERSION;
     }
 
     /**
@@ -86,34 +86,34 @@ final class Document implements Serializable, HasLinks, HasMeta
      */
     public function setJSONAPIObjectMeta(Meta $meta): void
     {
-        $this->jsonapi['meta'] = $meta;
+        $this->jsonapi->meta = $meta;
     }
 
     /**
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * @return object data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
-        $ret = ['jsonapi' => $this->jsonapi];
-
+        $ret = new \stdClass();
+        $ret->jsonapi = $this->jsonapi;
         if (count($this->errors) > 0) {
-            $ret['errors'] = $this->errors;
+            $ret->errors = $this->errors;
         } else {
-            $ret['data'] = $this->data;
+            $ret->data = $this->data;
             if ($this->included->count() > 0) {
-                $ret['included'] = $this->included;
+                $ret->included = $this->included;
             }
         }
         if ($this->hasLinks()) {
-            $ret['links'] = $this->links;
+            $ret->links = $this->links;
         }
         if ($this->hasMeta()) {
-            $ret['meta'] = $this->meta;
+            $ret->meta = $this->meta;
         }
         return $ret;
     }

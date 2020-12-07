@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\URI\Filtering;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\QueryExpressionVisitor;
@@ -18,7 +17,6 @@ use JSONAPI\URI\Filtering\Builder\DoctrineQueryExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionFilterParser;
 use JSONAPI\URI\URIParser;
 use PHPUnit\Framework\TestCase;
-use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;

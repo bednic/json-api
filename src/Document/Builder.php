@@ -82,7 +82,7 @@ final class Builder
      * @throws DriverException
      * @throws MetadataException
      */
-    public function setData($data): Builder
+    public function setData(object|iterable $data): Builder
     {
         $this->logger->debug('Setting data.');
         if ($this->uri->getPath()->isCollection() && is_iterable($data)) {

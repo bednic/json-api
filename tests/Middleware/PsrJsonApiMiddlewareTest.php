@@ -10,12 +10,12 @@ use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Document;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Middleware\PsrJsonApiMiddleware;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ResponseFactory;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Slim\Psr7\Factory\StreamFactory;
@@ -27,12 +27,11 @@ use Symfony\Component\Cache\Psr16Cache;
  * Class PsrJsonApiMiddlewareTest
  *
  * @package JSONAPI\Test\Middleware
- * @coversDefaultClass \JSONAPI\Middleware\PsrJsonApiMiddleware
  */
 class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterface
 {
 
-    private static \JSONAPI\Metadata\MetadataRepository $mf;
+    private static MetadataRepository $mf;
     private static $baseURL = 'http://unit.test.org/';
 
     public static function setUpBeforeClass(): void

@@ -17,7 +17,7 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
     use MetaExtension;
 
     /**
-     * @var Collection|Field[]
+     * @var Collection<Field>
      */
     protected Collection $fields;
 
@@ -74,18 +74,17 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * @return object data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
-        $ret = [
-            'type' => $this->fields->get('type'),
-            'id'   => $this->fields->get('id')
-        ];
+        $ret = new \stdClass();
+        $ret->type = $this->fields->get('type');
+        $ret->id = $this->fields->get('id');
         if ($this->hasMeta()) {
-            $ret['meta'] = $this->getMeta();
+            $ret->meta = $this->getMeta();
         }
         return $ret;
     }

@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace JSONAPI\URI\Filtering\Builder;
 
 use Doctrine\Common\Collections\Expr\Comparison;
+use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\Common\Collections\ExpressionBuilder as Expr;
 use JSONAPI\URI\Filtering\Constants;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
+use RuntimeException;
 
 /**
  * Class DoctrineCriteriaExpressionBuilder
@@ -24,13 +26,19 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
 
     public function __construct()
     {
+        if (!class_exists('Doctrine\Common\Collections\ExpressionBuilder')) {
+            throw new RuntimeException(
+                'For using ' . __CLASS__ . ' you need install [doctrine/collection] ' .
+                '<i>composer require doctrine/collection</i>.'
+            );
+        }
         $this->exp = new Expr();
     }
 
     /**
      * @inheritDoc
      */
-    public function and($left, $right)
+    public function and(mixed $left, mixed $right): CompositeExpression
     {
         return $this->exp->andX($left, $right);
     }
@@ -38,7 +46,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function or($left, $right)
+    public function or(mixed $left, mixed $right): CompositeExpression
     {
         return $this->exp->orX($left, $right);
     }
@@ -46,7 +54,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function eq($left, $right)
+    public function eq(mixed $left, mixed $right): Comparison
     {
         return $this->exp->eq($left, $right);
     }
@@ -54,7 +62,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function ne($left, $right)
+    public function ne(mixed $left, mixed $right): Comparison
     {
         return $this->exp->neq($left, $right);
     }
@@ -62,7 +70,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function gt($left, $right)
+    public function gt(mixed $left, mixed $right): Comparison
     {
         return $this->exp->gt($left, $right);
     }
@@ -70,7 +78,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function ge($left, $right)
+    public function ge(mixed $left, mixed $right): Comparison
     {
         return $this->exp->gte($left, $right);
     }
@@ -78,7 +86,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function lt($left, $right)
+    public function lt(mixed $left, mixed $right): Comparison
     {
         return $this->exp->lt($left, $right);
     }
@@ -86,7 +94,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function le($left, $right)
+    public function le(mixed $left, mixed $right): Comparison
     {
         return $this->exp->lte($left, $right);
     }
@@ -94,7 +102,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function in($column, $args)
+    public function in(mixed $column, mixed $args): Comparison
     {
         return $this->exp->in($column, $args);
     }
@@ -102,7 +110,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function add($left, $right)
+    public function add(mixed $left, mixed $right): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_ADDITION));
     }
@@ -110,7 +118,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function sub($left, $right)
+    public function sub(mixed $left, mixed $right): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_SUBTRACTION));
     }
@@ -118,7 +126,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function mul($left, $right)
+    public function mul(mixed $left, mixed $right): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_MULTIPLICATION));
     }
@@ -126,7 +134,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function div($left, $right)
+    public function div(mixed $left, mixed $right): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_DIVISION));
     }
@@ -134,7 +142,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function mod($left, $right)
+    public function mod(mixed $left, mixed $right): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_MODULO));
     }
@@ -142,7 +150,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function not($args)
+    public function not(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::LOGICAL_NOT));
     }
@@ -150,7 +158,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function upper($args)
+    public function upper(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TO_UPPER));
     }
@@ -158,7 +166,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function lower($args)
+    public function lower(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TO_LOWER));
     }
@@ -166,7 +174,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function trim($args)
+    public function trim(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TRIM));
     }
@@ -174,7 +182,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function length($args)
+    public function length(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_LENGTH));
     }
@@ -182,7 +190,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function concat($column, $args)
+    public function concat(mixed $column, mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_CONCAT));
     }
@@ -190,7 +198,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function contains($column, $args)
+    public function contains(mixed $column, mixed $args): Comparison
     {
         return $this->exp->contains($column, $args);
     }
@@ -198,7 +206,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function startsWith($column, $args)
+    public function startsWith(mixed $column, mixed $args): Comparison
     {
         return $this->exp->startsWith($column, $args);
     }
@@ -206,7 +214,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function endsWith($column, $args)
+    public function endsWith(mixed $column, mixed $args): Comparison
     {
         return $this->exp->endsWith($column, $args);
     }
@@ -214,7 +222,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function substring($column, $start, $end = null)
+    public function substring(mixed $column, mixed $start, $end = null): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_SUBSTRING));
     }
@@ -222,7 +230,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function indexOf($column, $args)
+    public function indexOf(mixed $column, mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_INDEX_OF));
     }
@@ -230,7 +238,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function pattern($column, $args)
+    public function pattern(mixed $column, mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_MATCHES_PATTERN));
     }
@@ -238,7 +246,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function ceil($args)
+    public function ceil(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_CEILING));
     }
@@ -246,7 +254,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function floor($args)
+    public function floor(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_FLOOR));
     }
@@ -254,7 +262,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function round($args)
+    public function round(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND));
     }
@@ -262,12 +270,12 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function isNull($column)
+    public function isNull(mixed $column): Comparison
     {
         return $this->exp->isNull($column);
     }
 
-    public function isNotNull($column)
+    public function isNotNull(mixed $column): Comparison
     {
         return new Comparison($column, Comparison::NEQ, new Value(null));
     }
@@ -275,68 +283,68 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function literal($value)
+    public function literal(mixed $value): mixed
     {
         return $value;
     }
 
-    public function date($column)
+    public function date(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function day($column)
+    public function day(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function hour($column)
+    public function hour(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function minute($column)
+    public function minute(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function month($column)
+    public function month(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function now()
+    public function now(): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function second($column)
+    public function second(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function time($column)
+    public function time(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function year($column)
+    public function year(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)

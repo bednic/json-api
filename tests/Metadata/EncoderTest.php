@@ -4,26 +4,30 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Metadata;
 
-use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Factory\LinkComposer;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Test\Resources\Valid\GettersExample;
 use JSONAPI\Test\Resources\Valid\MetaExample;
 use JSONAPI\URI\Fieldset\FieldsetParser;
 use JSONAPI\URI\Inclusion\InclusionParser;
 use PHPUnit\Framework\TestCase;
-use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
+/**
+ * Class EncoderTest
+ *
+ * @package JSONAPI\Test\Metadata
+ */
 class EncoderTest extends TestCase
 {
 
-    private static \JSONAPI\Metadata\MetadataRepository $metadata;
+    private static MetadataRepository $metadata;
 
     public static function setUpBeforeClass(): void
     {
@@ -74,6 +78,6 @@ class EncoderTest extends TestCase
         $object = new MetaExample('meta');
         $resource = $encoder->getResource($object);
         $this->assertInstanceOf(ResourceObject::class, $resource);
-        $this->assertFalse($resource->jsonSerialize()['relationships']['relation']->getMeta()->isEmpty());
+        $this->assertFalse($resource->jsonSerialize()->relationships->relation->getMeta()->isEmpty());
     }
 }

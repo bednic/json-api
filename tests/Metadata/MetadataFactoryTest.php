@@ -4,16 +4,19 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Metadata;
 
-use Doctrine\Common\Cache\ArrayCache;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use PHPUnit\Framework\TestCase;
-use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
+/**
+ * Class MetadataFactoryTest
+ *
+ * @package JSONAPI\Test\Metadata
+ */
 class MetadataFactoryTest extends TestCase
 {
 

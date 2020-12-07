@@ -47,7 +47,7 @@ final class Encoder
     /**
      * @var ResourceObjectIdentifier|ResourceObject
      */
-    private ResourceObjectIdentifier $resource;
+    private ResourceObjectIdentifier|ResourceObject $resource;
 
     /**
      * @var object

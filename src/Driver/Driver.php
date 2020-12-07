@@ -65,7 +65,7 @@ abstract class Driver
      *
      * @return string|null
      */
-    protected function getType($reflection): ?string
+    protected function getType(ReflectionMethod|ReflectionProperty|ReflectionParameter $reflection): ?string
     {
         /** @var ReflectionNamedType $type */
         $type = $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
@@ -94,7 +94,7 @@ abstract class Driver
             if ($attribute->type === null && $attribute->setter) {
                 try {
                     $attribute->type = $this->getSetterParameterType($reflectionClass->getMethod($attribute->setter));
-                } catch (ReflectionException $ignored) {
+                } catch (ReflectionException) {
                     // Can't happen
                 }
             }
@@ -109,7 +109,7 @@ abstract class Driver
      *
      * @return string
      */
-    protected function getName($reflection): string
+    protected function getName(ReflectionMethod|ReflectionProperty $reflection): string
     {
         if ($reflection instanceof ReflectionProperty) {
             return $reflection->getName();
@@ -202,7 +202,7 @@ abstract class Driver
      * @return bool|null
      * @throws BadSignature
      */
-    protected function isCollection($reflection): ?bool
+    protected function isCollection(ReflectionMethod|ReflectionProperty $reflection): ?bool
     {
         $type = $this->getType($reflection);
         if (is_null($type)) {

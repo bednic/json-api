@@ -64,7 +64,7 @@ class DoctrineCollectionAdapter extends Collection
     /**
      * @inheritDoc
      */
-    public function offsetGet($offset)
+    public function offsetGet($offset): mixed
     {
         return $this->collection->offsetGet($offset);
     }
@@ -72,7 +72,7 @@ class DoctrineCollectionAdapter extends Collection
     /**
      * @inheritDoc
      */
-    public function get($key)
+    public function get($key): mixed
     {
         return $this->collection->get($key);
     }
@@ -112,7 +112,7 @@ class DoctrineCollectionAdapter extends Collection
     /**
      * @inheritDoc
      */
-    public function slice(int $offset, $length = null): Collection
+    public function slice(int $offset, int $length = null): Collection
     {
         return new DoctrineCollectionAdapter($this->collection->slice($offset, $length));
     }

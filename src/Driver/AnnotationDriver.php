@@ -16,6 +16,7 @@ use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Driver\MethodNotExist;
+use JSONAPI\Exception\Metadata\AlreadyInUse;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\ClassMetadata;
 use Psr\Log\LoggerInterface;
@@ -58,8 +59,6 @@ class AnnotationDriver extends Driver
     }
 
     /**
-     * Returns metadata for provided class name
-     *
      * @param string $className
      *
      * @return ClassMetadata
@@ -101,7 +100,7 @@ class AnnotationDriver extends Driver
             } else {
                 throw new ClassNotResource($className);
             }
-        } catch (ReflectionException $e) {
+        } catch (ReflectionException) {
             throw new ClassNotExist($className);
         }
     }

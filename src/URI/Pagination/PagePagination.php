@@ -123,7 +123,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     }
 
     /**
-     * @return PaginationInterface
+     * @return PaginationInterface|null
      */
     public function last(): ?PaginationInterface
     {

@@ -66,7 +66,7 @@ abstract class Field implements Serializable
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->getData();
     }
@@ -74,21 +74,16 @@ abstract class Field implements Serializable
     /**
      * @return mixed
      */
-    public function getData()
+    public function getData(): mixed
     {
         return $this->data;
     }
 
     /**
      * @param mixed $data
-     *
-     * @throws ForbiddenDataType
      */
-    protected function setData($data): void
+    protected function setData(mixed $data): void
     {
-        if (!in_array(gettype($data), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
-            throw new ForbiddenDataType(gettype($data));
-        }
         $this->data = $data;
     }
 }

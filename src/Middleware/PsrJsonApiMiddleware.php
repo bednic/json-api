@@ -39,6 +39,7 @@ use stdClass;
 use Swaggest\JsonSchema\Exception as SchemaException;
 use Swaggest\JsonSchema\InvalidValue;
 use Swaggest\JsonSchema\Schema;
+use Swaggest\JsonSchema\SchemaContract;
 use Throwable;
 use JSONAPI\Document\Deserializable;
 
@@ -70,13 +71,13 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      */
     private string $baseURL;
     /**
-     * @var Schema
+     * @var SchemaContract
      */
-    private Schema $input;
+    private SchemaContract $input;
     /**
-     * @var Schema
+     * @var SchemaContract
      */
-    private Schema $output;
+    private SchemaContract $output;
     /**
      * @var ErrorFactory
      */
@@ -219,7 +220,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         stdClass $object,
         ClassMetadata $metadata,
         PathInterface $path
-    ): ResourceObjectIdentifier {
+    ): ResourceObjectIdentifier|ResourceObject {
         if ($object->type !== $metadata->getType()) {
             throw new Conflict();
         }

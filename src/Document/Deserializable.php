@@ -19,5 +19,5 @@ interface Deserializable
      *
      * @return static
      */
-    public static function jsonDeserialize($json): self;
+    public static function jsonDeserialize(mixed $json): self;
 }

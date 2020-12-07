@@ -29,16 +29,16 @@ final class Id extends Field
     }
 
     /**
-     * @param string $id
+     * @param string|null $data
      *
      * @throws ForbiddenDataType
      */
-    protected function setData($id): void
+    protected function setData(mixed $data): void
     {
-        if (is_string($id) || is_null($id)) {
-            $this->data = $id;
+        if (is_string($data) || is_null($data)) {
+            $this->data = $data;
         } else {
-            throw new ForbiddenDataType(gettype($id));
+            throw new ForbiddenDataType(gettype($data));
         }
     }
 }

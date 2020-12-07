@@ -23,7 +23,7 @@ final class Attribute extends Field
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    public function __construct(string $key, $data)
+    public function __construct(string $key, mixed $data)
     {
         parent::__construct($key);
         $this->setData($data);

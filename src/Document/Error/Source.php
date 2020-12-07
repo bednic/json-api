@@ -60,7 +60,7 @@ class Source implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [];
         if (!is_null($this->parameter)) {
@@ -68,6 +68,6 @@ class Source implements Serializable
         } else {
             $ret['pointer'] = $this->pointer;
         }
-        return $ret;
+        return (object)$ret;
     }
 }

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\OAS\Factory;
+namespace JSONAPI\OAS\Type;
 
 use JSONAPI\OAS\Schema;
 

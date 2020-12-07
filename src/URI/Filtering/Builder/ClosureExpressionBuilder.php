@@ -7,6 +7,9 @@ namespace JSONAPI\URI\Filtering\Builder;
 use ExpressionBuilder\Ex;
 use ExpressionBuilder\Expression\Field;
 use ExpressionBuilder\Expression\Literal;
+use ExpressionBuilder\Expression\TBoolean;
+use ExpressionBuilder\Expression\TNumeric;
+use ExpressionBuilder\Expression\TString;
 use JSONAPI\URI\Filtering\Constants;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
@@ -17,7 +20,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function and($left, $right)
+    public function and(mixed $left, mixed $right): TBoolean
     {
         return Ex::and($left, $right);
     }
@@ -25,7 +28,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function or($left, $right)
+    public function or(mixed $left, mixed $right): TBoolean
     {
         return Ex::or($left, $right);
     }
@@ -33,7 +36,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function eq($left, $right)
+    public function eq(mixed $left, mixed $right): TBoolean
     {
         return Ex::eq($left, $right);
     }
@@ -41,7 +44,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function ne($left, $right)
+    public function ne(mixed $left, mixed $right): TBoolean
     {
         return Ex::ne($left, $right);
     }
@@ -49,7 +52,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function gt($left, $right)
+    public function gt(mixed $left, mixed $right): TBoolean
     {
         return Ex::gt($left, $right);
     }
@@ -57,7 +60,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function ge($left, $right)
+    public function ge(mixed $left, mixed $right): TBoolean
     {
         return Ex::ge($left, $right);
     }
@@ -65,7 +68,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function lt($left, $right)
+    public function lt(mixed $left, mixed $right): TBoolean
     {
         return Ex::lt($left, $right);
     }
@@ -73,7 +76,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function le($left, $right)
+    public function le(mixed $left, mixed $right): TBoolean
     {
         return Ex::le($left, $right);
     }
@@ -81,7 +84,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function in($column, $args)
+    public function in(mixed $column, mixed $args): TBoolean
     {
         return Ex::in($column, new Literal($args));
     }
@@ -89,7 +92,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function add($left, $right)
+    public function add(mixed $left, mixed $right): TNumeric
     {
         return Ex::add($left, $right);
     }
@@ -97,7 +100,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function sub($left, $right)
+    public function sub(mixed $left, mixed $right): TNumeric
     {
         return Ex::sub($left, $right);
     }
@@ -105,7 +108,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function mul($left, $right)
+    public function mul(mixed $left, mixed $right): TNumeric
     {
         return Ex::mul($left, $right);
     }
@@ -113,7 +116,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function div($left, $right)
+    public function div(mixed $left, mixed $right): TNumeric
     {
         return Ex::div($left, $right);
     }
@@ -121,7 +124,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function mod($left, $right)
+    public function mod(mixed $left, mixed $right): TNumeric
     {
         return Ex::mod($left, $right);
     }
@@ -129,7 +132,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function not($args)
+    public function not(mixed $args): TBoolean
     {
         return Ex::not($args);
     }
@@ -137,7 +140,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function upper($args)
+    public function upper(mixed $args): TString
     {
         return Ex::toUpper($args);
     }
@@ -145,7 +148,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function lower($args)
+    public function lower(mixed $args): TString
     {
         return Ex::toLower($args);
     }
@@ -153,7 +156,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function trim($args)
+    public function trim(mixed $args): TString
     {
         return Ex::trim($args);
     }
@@ -161,7 +164,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function length($args)
+    public function length(mixed $args): TNumeric
     {
         return Ex::length($args);
     }
@@ -169,7 +172,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function concat($column, $args)
+    public function concat(mixed $column, mixed $args): TString
     {
         return Ex::concat($column, $args);
     }
@@ -177,7 +180,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function contains($column, $args)
+    public function contains(mixed $column, mixed $args): TBoolean
     {
         return Ex::contains($column, $args);
     }
@@ -185,7 +188,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function startsWith($column, $args)
+    public function startsWith(mixed $column, mixed $args): TBoolean
     {
         return Ex::startsWith($column, $args);
     }
@@ -193,7 +196,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function endsWith($column, $args)
+    public function endsWith(mixed $column, mixed $args): TBoolean
     {
         return Ex::endsWith($column, $args);
     }
@@ -201,7 +204,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function substring($column, $start, $end = null)
+    public function substring(mixed $column, mixed $start, $end = null): TString
     {
         return Ex::substring($column, $start, $end);
     }
@@ -209,7 +212,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function indexOf($column, $args)
+    public function indexOf(mixed $column, mixed $args): TNumeric
     {
         return Ex::indexOf($column, $args);
     }
@@ -217,7 +220,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function pattern($column, $args)
+    public function pattern(mixed $column, mixed $args): TBoolean
     {
         return Ex::matchesPattern($column, $args);
     }
@@ -225,7 +228,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function ceil($args)
+    public function ceil(mixed $args): TNumeric
     {
         return Ex::ceiling($args);
     }
@@ -233,7 +236,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function floor($args)
+    public function floor(mixed $args): TNumeric
     {
         return Ex::floor($args);
     }
@@ -241,7 +244,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function round($args)
+    public function round(mixed $args): TNumeric
     {
         return Ex::round($args);
     }
@@ -249,7 +252,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function isNull($column)
+    public function isNull(mixed $column): TBoolean
     {
         return Ex::eq($column, new Literal(null));
     }
@@ -257,7 +260,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function isNotNull($column)
+    public function isNotNull(mixed $column): TBoolean
     {
         return Ex::ne($column, new Literal(null));
     }
@@ -265,7 +268,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function literal($value)
+    public function literal(mixed $value): Literal
     {
         return Ex::literal($value);
     }
@@ -273,7 +276,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function date($column)
+    public function date(mixed $column): TNumeric
     {
         return Ex::date($column);
     }
@@ -281,7 +284,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function day($column)
+    public function day(mixed $column): TNumeric
     {
         return Ex::day($column);
     }
@@ -289,7 +292,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function hour($column)
+    public function hour(mixed $column): TNumeric
     {
         return Ex::hour($column);
     }
@@ -297,7 +300,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function minute($column)
+    public function minute(mixed $column): TNumeric
     {
         return Ex::minute($column);
     }
@@ -305,7 +308,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function month($column)
+    public function month(mixed $column): TNumeric
     {
         return Ex::month($column);
     }
@@ -313,7 +316,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function now()
+    public function now(): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_NOW));
     }
@@ -321,7 +324,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function second($column)
+    public function second(mixed $column): TNumeric
     {
         return Ex::second($column);
     }
@@ -329,7 +332,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function time($column)
+    public function time(mixed $column): TNumeric
     {
         return Ex::time($column);
     }
@@ -337,7 +340,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function year($column)
+    public function year(mixed $column): TNumeric
     {
         return Ex::year($column);
     }
@@ -345,7 +348,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function parseIdentifier(string $identifier)
+    public function parseIdentifier(string $identifier): Field
     {
         return new Field($identifier);
     }

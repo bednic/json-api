@@ -44,11 +44,11 @@ final class Link extends Field implements HasMeta
     }
 
     /**
-     * @param string $data
+     * @param string|null $data
      *
      * @throws ForbiddenDataType
      */
-    protected function setData($data): void
+    protected function setData(mixed $data): void
     {
         if (filter_var($data, FILTER_VALIDATE_URL) || is_null($data)) {
             parent::setData($data);
@@ -57,10 +57,10 @@ final class Link extends Field implements HasMeta
         }
     }
 
-    public function getData()
+    public function getData(): string|object
     {
         if ($this->meta) {
-            return [
+            return (object)[
                 'href' => parent::getData(),
                 'meta' => $this->meta
             ];

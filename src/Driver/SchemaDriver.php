@@ -73,7 +73,7 @@ class SchemaDriver extends Driver
                 );
             }
             throw new ClassNotResource($className);
-        } catch (ReflectionException $reflectionException) {
+        } catch (ReflectionException) {
             throw new ClassNotExist($className);
         }
     }

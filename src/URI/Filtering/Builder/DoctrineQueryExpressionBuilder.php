@@ -6,6 +6,7 @@ namespace JSONAPI\URI\Filtering\Builder;
 
 use DateTimeInterface;
 use Doctrine\ORM\Query\Expr;
+use ExpressionBuilder\Ex;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
@@ -57,7 +58,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function and($left, $right)
+    public function and(mixed $left, mixed $right): Expr\Andx
     {
         return $this->exp->andX($left, $right);
     }
@@ -65,7 +66,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function or($left, $right)
+    public function or(mixed $left, mixed $right): Expr\Orx
     {
         return $this->exp->orX($left, $right);
     }
@@ -73,7 +74,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function eq($left, $right)
+    public function eq(mixed $left, mixed $right): Expr\Comparison
     {
         return $this->exp->eq($left, $right);
     }
@@ -81,7 +82,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function ne($left, $right)
+    public function ne(mixed $left, mixed $right): Expr\Comparison
     {
         return $this->exp->neq($left, $right);
     }
@@ -89,7 +90,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function gt($left, $right)
+    public function gt(mixed $left, mixed $right): Expr\Comparison
     {
         return $this->exp->gt($left, $right);
     }
@@ -97,7 +98,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function ge($left, $right)
+    public function ge(mixed $left, mixed $right): Expr\Comparison
     {
         return $this->exp->gte($left, $right);
     }
@@ -105,7 +106,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function lt($left, $right)
+    public function lt(mixed $left, mixed $right): Expr\Comparison
     {
         return $this->exp->lt($left, $right);
     }
@@ -113,7 +114,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function le($left, $right)
+    public function le(mixed $left, mixed $right): Expr\Comparison
     {
         return $this->exp->lte($left, $right);
     }
@@ -121,7 +122,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function in($column, $args)
+    public function in(mixed $column, mixed $args): Expr\Func
     {
         return $this->exp->in($column, $args);
     }
@@ -129,7 +130,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function add($left, $right)
+    public function add(mixed $left, mixed $right): Expr\Math
     {
         return $this->exp->sum($left, $right);
     }
@@ -137,7 +138,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function sub($left, $right)
+    public function sub(mixed $left, mixed $right): Expr\Math
     {
         return $this->exp->diff($left, $right);
     }
@@ -145,7 +146,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function mul($left, $right)
+    public function mul(mixed $left, mixed $right): Expr\Math
     {
         return $this->exp->prod($left, $right);
     }
@@ -153,7 +154,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function div($left, $right)
+    public function div(mixed $left, mixed $right): Expr\Math
     {
         return $this->exp->quot($left, $right);
     }
@@ -161,7 +162,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function mod($left, $right)
+    public function mod(mixed $left, mixed $right): Expr\Math
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_MODULO));
     }
@@ -169,7 +170,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function not($args)
+    public function not(mixed $args): Expr\Func
     {
         return $this->exp->not($args);
     }
@@ -177,7 +178,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function upper($args)
+    public function upper(mixed $args): Expr\Func
     {
         return $this->exp->upper($args);
     }
@@ -185,7 +186,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function lower($args)
+    public function lower(mixed $args): Expr\Func
     {
         return $this->exp->lower($args);
     }
@@ -193,7 +194,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function trim($args)
+    public function trim(mixed $args): Expr\Func
     {
         return $this->exp->trim($args);
     }
@@ -201,7 +202,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function length($args)
+    public function length(mixed $args): Expr\Func
     {
         return $this->exp->length($args);
     }
@@ -209,7 +210,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function concat($column, $args)
+    public function concat(mixed $column, mixed $args): Expr\Func
     {
         return $this->exp->concat($column, $args);
     }
@@ -217,7 +218,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function contains($column, $args)
+    public function contains(mixed $column, mixed $args): Expr\Comparison
     {
         $args = trim((string)$args, '\'');
         return $this->exp->like($column, "'%{$args}%'");
@@ -226,7 +227,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function startsWith($column, $args)
+    public function startsWith(mixed $column, mixed $args): Expr\Comparison
     {
         $args = trim((string)$args, '\'');
         return $this->exp->like($column, "'{$args}%'");
@@ -235,7 +236,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function endsWith($column, $args)
+    public function endsWith(mixed $column, mixed $args): Expr\Comparison
     {
         $args = trim((string)$args, '\'');
         return $this->exp->like($column, "'%{$args}'");
@@ -244,7 +245,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function substring($column, $start, $end = null)
+    public function substring(mixed $column, mixed $start, $end = null): Expr\Func
     {
         return $this->exp->substring($column, $start, $end);
     }
@@ -252,7 +253,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function indexOf($column, $args)
+    public function indexOf(mixed $column, mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_INDEX_OF));
     }
@@ -260,7 +261,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function pattern($column, $args)
+    public function pattern(mixed $column, mixed $args): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_MATCHES_PATTERN)
@@ -270,7 +271,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function ceil($args)
+    public function ceil(mixed $args): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_CEILING)
@@ -280,7 +281,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function floor($args)
+    public function floor(mixed $args): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_FLOOR)
@@ -290,7 +291,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function round($args)
+    public function round(mixed $args): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
@@ -300,7 +301,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function isNull($column)
+    public function isNull(mixed $column): string
     {
         return $this->exp->isNull($column);
     }
@@ -308,7 +309,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function isNotNull($column)
+    public function isNotNull(mixed $column): string
     {
         return $this->exp->isNotNull($column);
     }
@@ -316,7 +317,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function literal($value)
+    public function literal(mixed $value): Expr\Literal
     {
         if ($value instanceof DateTimeInterface) {
             $value = $value->format(DATE_ATOM);
@@ -333,7 +334,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      * @throws MetadataNotFound
      * @throws RelationNotFound
      */
-    public function parseIdentifier(string $identifier)
+    public function parseIdentifier(string $identifier): string
     {
         $classMetadata = $this->metadataRepository->getByType($this->path->getPrimaryResourceType());
         $parts         = [...explode(".", $identifier)];
@@ -360,63 +361,63 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
         return $this->joins;
     }
 
-    public function date($column)
+    public function date(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function day($column)
+    public function day(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function hour($column)
+    public function hour(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function minute($column)
+    public function minute(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function month($column)
+    public function month(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function now()
+    public function now(): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function second($column)
+    public function second(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function time($column)
+    public function time(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
         );
     }
 
-    public function year($column)
+    public function year(mixed $column): mixed
     {
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)

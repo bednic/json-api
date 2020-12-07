@@ -119,7 +119,7 @@ final class Error implements Serializable, HasLinks, HasMeta
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [];
         if (isset($this->id)) {

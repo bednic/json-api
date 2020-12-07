@@ -27,9 +27,9 @@ final class ResourceCollection extends Collection implements PrimaryData, Serial
     }
 
     /**
-     * @param ResourceObjectIdentifier|ResourceObject $resource
+     * @param ResourceObjectIdentifier | ResourceObject $resource
      */
-    public function add(ResourceObjectIdentifier $resource): void
+    public function add(ResourceObjectIdentifier | ResourceObject $resource): void
     {
         $key = $this->key($resource);
         if (!$this->hasKey($key)) {
@@ -48,9 +48,11 @@ final class ResourceCollection extends Collection implements PrimaryData, Serial
     }
 
     /**
-     * @inheritDoc
+     * @param ResourceObjectIdentifier | ResourceObject $item
+     *
+     * @return int
      */
-    public function push($item): int
+    public function push(mixed $item): int
     {
         $this->add($item);
         return $this->count();
@@ -60,9 +62,9 @@ final class ResourceCollection extends Collection implements PrimaryData, Serial
      * @param string $type Type of resource
      * @param string $id   ID of resource
      *
-     * @return ResourceObjectIdentifier|ResourceObject|null
+     * @return ResourceObjectIdentifier | ResourceObject | null
      */
-    public function find(string $type, string $id): ?ResourceObjectIdentifier
+    public function find(string $type, string $id): ResourceObjectIdentifier | ResourceObject | null
     {
         $key = $type . $id;
         return $this->hasKey($key) ? $this->get($key) : null;
@@ -98,11 +100,11 @@ final class ResourceCollection extends Collection implements PrimaryData, Serial
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * @return array data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->values();
     }

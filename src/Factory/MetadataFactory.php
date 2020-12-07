@@ -159,7 +159,7 @@ class MetadataFactory
             foreach ($map as $className => $file) {
                 try {
                     $this->loadMetadata($className);
-                } catch (ClassNotResource | ClassNotExist $ignored) {
+                } catch (ClassNotResource | ClassNotExist) {
                     // NO-SONAR
                 }
             }

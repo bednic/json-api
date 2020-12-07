@@ -17,7 +17,7 @@ interface UseDottedIdentifier
      *
      * @return mixed
      */
-    public function parseIdentifier(string $identifier);
+    public function parseIdentifier(string $identifier): mixed;
 
     /**
      * @return array

@@ -46,7 +46,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      * @return mixed
      * @throws AttributeNotExist
      */
-    public function getAttribute(string $key)
+    public function getAttribute(string $key): mixed
     {
         if (!$this->hasAttribute($key)) {
             throw new AttributeNotExist($key);
@@ -82,7 +82,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      * @throws RelationshipNotExist
      */
-    public function getRelationship(string $key)
+    public function getRelationship(string $key): ResourceObjectIdentifier|array
     {
         if (!$this->hasRelationship($key)) {
             throw new RelationshipNotExist($key);
@@ -114,21 +114,21 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * @return object data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = parent::jsonSerialize();
         if ($this->getAttributes()->count() > 0) {
-            $ret['attributes'] = $this->getAttributes()->toArray();
+            $ret->attributes = (object)$this->getAttributes()->toArray();
         }
         if ($this->getRelationships()->count() > 0) {
-            $ret['relationships'] = $this->getRelationships()->toArray();
+            $ret->relationships = (object)$this->getRelationships()->toArray();
         }
         if ($this->hasLinks()) {
-            $ret['links'] = $this->getLinks();
+            $ret->links = (object)$this->getLinks();
         }
         return $ret;
     }

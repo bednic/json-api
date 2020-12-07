@@ -15,10 +15,11 @@ use JSONAPI\Document\Type;
 use JsonSerializable;
 use PHPUnit\Framework\TestCase;
 use Swaggest\JsonSchema\Schema;
+use Swaggest\JsonSchema\SchemaContract;
 
 class DocumentTest extends TestCase
 {
-    private static Schema $schema;
+    private static SchemaContract $schema;
 
     public static function setUpBeforeClass(): void
     {
@@ -93,6 +94,6 @@ class DocumentTest extends TestCase
         $document->setJSONAPIObjectMeta(new Meta(['prop' => 'value']));
         $document->setMeta(new Meta(['prop' => 'value']));
         $json = $document->jsonSerialize();
-        $this->assertArrayHasKey('meta', $json['jsonapi']);
+        $this->assertObjectHasAttribute('meta', $json->jsonapi);
     }
 }

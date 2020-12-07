@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\URI\Filtering\Builder;
 
-use Doctrine\Common\Cache\ArrayCache;
+
 use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Filtering\Builder\DoctrineQueryExpressionBuilder;
 use JSONAPI\URI\Path\PathInterface;
 use JSONAPI\URI\Path\PathParser;
 use PHPUnit\Framework\TestCase;
-use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
 class DoctrineQueryExpressionBuilderTest extends TestCase
 {
 
-    private static \JSONAPI\Metadata\MetadataRepository $mr;
+    private static MetadataRepository $mr;
     /**
      * @var PathInterface
      */

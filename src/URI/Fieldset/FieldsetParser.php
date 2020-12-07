@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\URI\Fieldset;
 
+use Stringable;
+
 /**
  * Class FieldsetParser
  *
@@ -45,6 +47,9 @@ class FieldsetParser implements FieldsetInterface
         }
     }
 
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
         $str = '';

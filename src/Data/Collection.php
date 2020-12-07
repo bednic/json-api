@@ -18,7 +18,9 @@ use Traversable;
  */
 class Collection implements ArrayAccess, Countable, IteratorAggregate
 {
-
+    /**
+     * @var array
+     */
     private array $items;
 
     /**
@@ -44,7 +46,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      *
      * @return bool
      */
-    public function hasKey($key): bool
+    public function hasKey(int|string $key): bool
     {
         return $this->offsetExists($key);
     }
@@ -52,7 +54,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @inheritDoc
      */
-    public function offsetExists($offset): bool
+    public function offsetExists(mixed $offset): bool
     {
         return array_key_exists($offset, $this->items);
     }
@@ -62,7 +64,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      *
      * @return mixed
      */
-    public function get($key)
+    public function get(int|string $key): mixed
     {
         return $this->offsetGet($key);
     }
@@ -70,7 +72,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @inheritDoc
      */
-    public function offsetGet($offset)
+    public function offsetGet(mixed $offset): mixed
     {
         return $this->items[$offset];
     }
@@ -79,7 +81,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      * @param int|string $key
      * @param mixed      $value
      */
-    public function set($key, $value): void
+    public function set(int|string $key, mixed $value): void
     {
         $this->offsetSet($key, $value);
     }
@@ -87,7 +89,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @inheritDoc
      */
-    public function offsetSet($offset, $value): void
+    public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->items[$offset] = $value;
     }
@@ -95,7 +97,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @param int|string $key
      */
-    public function unset($key): void
+    public function unset(int|string $key): void
     {
         $this->offsetUnset($key);
     }
@@ -103,18 +105,18 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @inheritDoc
      */
-    public function offsetUnset($offset): void
+    public function offsetUnset(mixed $offset): void
     {
         unset($this->items[$offset]);
     }
 
     /**
-     * @param int  $offset
-     * @param null $length
+     * @param int      $offset
+     * @param int|null $length
      *
      * @return Collection
      */
-    public function slice(int $offset, $length = null): self
+    public function slice(int $offset, int $length = null): self
     {
         return new self(array_slice($this->items, $offset, $length));
     }
@@ -155,7 +157,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      *
      * @return bool
      */
-    public function has($item, $strict = false): bool
+    public function has(mixed $item, bool $strict = false): bool
     {
         return in_array($item, $this->items, $strict);
     }
@@ -173,7 +175,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      *
      * @return int
      */
-    public function push($item): int
+    public function push(mixed $item): int
     {
         return array_push($this->items, $item);
     }

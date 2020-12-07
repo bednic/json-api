@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
 
 /**
  * Class Type
@@ -19,6 +20,7 @@ final class Type extends Field
      * @param string $type
      *
      * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      */
     public function __construct(string $type)
     {
@@ -27,10 +29,16 @@ final class Type extends Field
     }
 
     /**
-     * @param string $type
+     * @param string $data
+     *
+     * @throws ForbiddenDataType
      */
-    protected function setData($type): void
+    protected function setData(mixed $data): void
     {
-        $this->data = $type;
+        if (is_string($data)) {
+            $this->data = $data;
+        } else {
+            throw new ForbiddenDataType(gettype($data));
+        }
     }
 }

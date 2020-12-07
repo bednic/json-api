@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\URI;
 
+use Stringable;
+
 /**
  * Interface QueryPartInterface
  *
  * @package JSONAPI\URI
  */
-interface QueryPartInterface
+interface QueryPartInterface extends Stringable
 {
     public const FIELDS_PART_KEY     = 'fields';
     public const FILTER_PART_KEY     = 'filter';

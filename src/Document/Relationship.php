@@ -24,7 +24,7 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
      *
      * @throws ForbiddenDataType
      */
-    public function setData($data): void
+    public function setData(mixed $data): void
     {
         if (
             $data instanceof ResourceObjectIdentifier ||
@@ -39,9 +39,9 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
     }
 
     /**
-     * @return array|mixed
+     * @return object
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [];
         if ($this->hasData()) {
@@ -53,7 +53,7 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
         if ($this->hasMeta()) {
             $ret['meta'] = $this->getMeta();
         }
-        return $ret;
+        return (object)$ret;
     }
 
     /**
@@ -67,7 +67,7 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
     /**
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      */
-    public function getData()
+    public function getData(): ResourceObjectIdentifier | array
     {
         if ($this->data instanceof Collection) {
             return $this->data->values();

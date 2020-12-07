@@ -18,7 +18,7 @@ use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Metadata\Relationship;
-use JSONAPI\OAS\Factory\DataType;
+use JSONAPI\OAS\Type\DataType;
 use JSONAPI\OAS\Header;
 use JSONAPI\OAS\Info;
 use JSONAPI\OAS\MediaType;

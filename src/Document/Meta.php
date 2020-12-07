@@ -46,7 +46,7 @@ final class Meta implements Serializable
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    public function setProperty(string $key, $value): void
+    public function setProperty(string $key, mixed $value): void
     {
         if (!preg_match(Field::KEY_REGEX, $key)) {
             throw new ForbiddenCharacter($key);
@@ -69,11 +69,11 @@ final class Meta implements Serializable
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
+     * @return array data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return $this->properties;
     }
