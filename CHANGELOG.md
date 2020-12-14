@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.0-0](https://gitlab.com/bednic/json-api/compare/6.4.0...7.0.0-0) (2020-12-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* PHP8
+
+### Changed
+
+* **docs:** Move DocumentBuilder to Document\Builder ([38272a7](https://gitlab.com/bednic/json-api/commit/38272a7764a689feeabe919b2e8ba6a197603c25))
+* **Document:** Move helper traits to Document namespace ([daaaf07](https://gitlab.com/bednic/json-api/commit/daaaf073988ed4299c146fa78e5557c2d0061eb4))
+* **Exception:** Move OAS exceptions to Exception namespace ([b2f6162](https://gitlab.com/bednic/json-api/commit/b2f6162d26b25269f4960a272278f0ea9714d891))
+* **Factory:** Wrap factories to separate namespace Factory ([56e6670](https://gitlab.com/bednic/json-api/commit/56e6670cc13106dbf2ca00af89ef6f5b30de7d6e))
+* **OAS:** Rename OAS\Enum to OAS\Type ([589cd7d](https://gitlab.com/bednic/json-api/commit/589cd7d5506c7ea72e7f394d0e39e8d55a37b77f))
+* Rename Uri namespace to URI ([0a8f6aa](https://gitlab.com/bednic/json-api/commit/0a8f6aa6064525fb6fefd6455ced31a90c537344))
+
+
+### Fixed
+
+* Revert removing NotFound exception ([74f134e](https://gitlab.com/bednic/json-api/commit/74f134e8ff1a4f8ec2959d1dbdee634cb9dd07f6))
+* **Middleware:** Errors was not logged by logger ([cfd7e20](https://gitlab.com/bednic/json-api/commit/cfd7e200018d673833778907e9a9c77cc951f7d4))
+
+
+### Added
+
+* Migrate to PHP8 ([ddf9b76](https://gitlab.com/bednic/json-api/commit/ddf9b7670d446ed08a75a0542867682a5d85bf8d))
+* **Collection:** Create own Collection class ([80fd582](https://gitlab.com/bednic/json-api/commit/80fd582b4fc570825d53ac635c9c3eb41175032c))
+* **Helper:** Add DoctrineCollectionAdapter ([e5a114d](https://gitlab.com/bednic/json-api/commit/e5a114d8611ad2344de29ed177cc930487c8de02))
+
 ## [6.4.0](https://gitlab.com/bednic/json-api/compare/6.3.1...6.4.0) (2020-11-13)
 
 
