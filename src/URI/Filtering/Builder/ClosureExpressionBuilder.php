@@ -15,6 +15,11 @@ use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
 
+/**
+ * Class ClosureExpressionBuilder
+ *
+ * @package JSONAPI\URI\Filtering\Builder
+ */
 class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
 {
     /**
