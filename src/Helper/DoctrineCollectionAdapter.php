@@ -114,7 +114,7 @@ class DoctrineCollectionAdapter extends Collection
      */
     public function slice(int $offset, int $length = null): Collection
     {
-        return new DoctrineCollectionAdapter($this->collection->slice($offset, $length));
+        return new Collection($this->collection->slice($offset, $length));
     }
 
     /**
