@@ -6,7 +6,7 @@ namespace JSONAPI\URI\Filtering;
 
 use DateTime;
 use Exception;
-use JSONAPI\URI\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
+use JSONAPI\URI\Filtering\Builder\ClosureExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\UseDottedIdentifier;
 
 /**
@@ -39,7 +39,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     public function __construct(ExpressionBuilder $exp = null)
     {
-        $this->exp = $exp ?? new DoctrineCriteriaExpressionBuilder();
+        $this->exp = $exp ?? new ClosureExpressionBuilder();
     }
 
     public function getRequiredJoins(): array
@@ -298,12 +298,14 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         try {
             $value = new DateTime(trim($value, " \t\n\r\0\x0Bdatetime\'"));
             $value = $this->exp->literal($value);
-        } catch (Exception $e) {
-            throw new ExpressionException(Messages::expressionParserUnrecognizedLiteral(
-                'datetime',
-                $value,
-                $this->lexer->getPosition()
-            ));
+        } catch (Exception) {
+            throw new ExpressionException(
+                Messages::expressionParserUnrecognizedLiteral(
+                    'datetime',
+                    $value,
+                    $this->lexer->getPosition()
+                )
+            );
         }
         $this->lexer->nextToken();
         return $value;
