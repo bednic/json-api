@@ -6,6 +6,7 @@ namespace JSONAPI\Middleware;
 
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Document\Attribute;
+use JSONAPI\Document\Deserializable;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error\ErrorFactory;
 use JSONAPI\Document\Id;
@@ -41,7 +42,6 @@ use Swaggest\JsonSchema\InvalidValue;
 use Swaggest\JsonSchema\Schema;
 use Swaggest\JsonSchema\SchemaContract;
 use Throwable;
-use JSONAPI\Document\Deserializable;
 
 /**
  * Class PsrJsonApiMiddleware
@@ -134,11 +134,14 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     {
         try {
             if (
-                in_array($request->getMethod(), [
-                RequestMethodInterface::METHOD_POST,
-                RequestMethodInterface::METHOD_PATCH,
-                RequestMethodInterface::METHOD_DELETE
-                ])
+                in_array(
+                    $request->getMethod(),
+                    [
+                    RequestMethodInterface::METHOD_POST,
+                    RequestMethodInterface::METHOD_PATCH,
+                    RequestMethodInterface::METHOD_DELETE
+                    ]
+                )
             ) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
@@ -220,7 +223,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         stdClass $object,
         ClassMetadata $metadata,
         PathInterface $path
-    ): ResourceObjectIdentifier|ResourceObject {
+    ): ResourceObjectIdentifier | ResourceObject {
         if ($object->type !== $metadata->getType()) {
             throw new Conflict();
         }
@@ -238,7 +241,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                             /** @var Deserializable $className */
                             $value = $className::jsonDeserialize($value);
                         }
-                    } catch (ReflectionException $ignored) {
+                    } catch (ReflectionException) {
                         //NOSONAR
                     }
                     $resource->addAttribute(new Attribute($attribute->name, $value));

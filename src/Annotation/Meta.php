@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Created by tomas.benedikt@gmail.com
+ */
+
 declare(strict_types=1);
 
 namespace JSONAPI\Annotation;
@@ -9,7 +13,6 @@ namespace JSONAPI\Annotation;
  *
  * @package JSONAPI\Annotation
  */
-
 #[\Attribute]
 final class Meta extends \JSONAPI\Metadata\Meta
 {
@@ -18,6 +21,6 @@ final class Meta extends \JSONAPI\Metadata\Meta
      */
     public function __construct(string $getter)
     {
-        $this->getter = $getter;
+        parent::__construct($getter);
     }
 }

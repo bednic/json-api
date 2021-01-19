@@ -18,7 +18,6 @@ use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Metadata\Relationship;
-use JSONAPI\OAS\Type\DataType;
 use JSONAPI\OAS\Header;
 use JSONAPI\OAS\Info;
 use JSONAPI\OAS\MediaType;
@@ -31,10 +30,12 @@ use JSONAPI\OAS\Response;
 use JSONAPI\OAS\Responses;
 use JSONAPI\OAS\Schema;
 use JSONAPI\OAS\Server;
+use JSONAPI\OAS\Type\DataType;
 use JSONAPI\OAS\Type\In;
 use JSONAPI\OAS\Type\Style;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
+
 use function Symfony\Component\String\u;
 
 /**
@@ -56,10 +57,10 @@ class OpenAPISpecificationBuilder
      * @var LoggerInterface
      */
     private LoggerInterface $logger;
-    private bool            $supportInclusion;
-    private bool            $supportSort;
-    private bool            $supportPagination;
-    private string          $baseUrl;
+    private bool $supportInclusion;
+    private bool $supportSort;
+    private bool $supportPagination;
+    private string $baseUrl;
 
     /**
      * OpenAPISchemaFactory constructor.

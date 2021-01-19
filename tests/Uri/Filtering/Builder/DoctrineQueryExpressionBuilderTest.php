@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\URI\Filtering\Builder;
 
-
 use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;

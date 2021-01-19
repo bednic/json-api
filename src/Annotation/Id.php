@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Created by tomas.benedikt@gmail.com
+ */
+
 declare(strict_types=1);
 
 namespace JSONAPI\Annotation;
@@ -9,7 +13,6 @@ namespace JSONAPI\Annotation;
  *
  * @package JSONAPI\Annotation
  */
-
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY)]
 final class Id extends \JSONAPI\Metadata\Id
 {
@@ -21,7 +24,6 @@ final class Id extends \JSONAPI\Metadata\Id
      */
     public function __construct(string $property = null, string $getter = null)
     {
-        $this->property = $property;
-        $this->getter   = $getter;
+        parent::__construct($property, $getter);
     }
 }

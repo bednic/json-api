@@ -47,7 +47,7 @@ final class Encoder
     /**
      * @var ResourceObjectIdentifier|ResourceObject
      */
-    private ResourceObjectIdentifier|ResourceObject $resource;
+    private ResourceObjectIdentifier | ResourceObject $resource;
 
     /**
      * @var object
@@ -171,7 +171,7 @@ final class Encoder
                     } else {
                         try {
                             $value = $this->ref->getProperty($field->property)->getValue($this->object);
-                        } catch (ReflectionException $ignored) {
+                        } catch (ReflectionException) {
                             // NO SONAR Can't happen
                         }
                     }
@@ -258,6 +258,7 @@ final class Encoder
     /**
      * @return Document\Type
      * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      */
     private function getType(): Document\Type
     {
@@ -275,7 +276,7 @@ final class Encoder
         if ($this->metadata->getId()->property != null) {
             try {
                 $value = (string)$this->ref->getProperty($this->metadata->getId()->property)->getValue($this->object);
-            } catch (ReflectionException $ignored) {
+            } catch (ReflectionException) {
                 // NO SONAR
             }
         } else {
@@ -300,7 +301,7 @@ final class Encoder
             $encoder->object   = $object;
             $encoder->metadata = $this->repository->getByClass($className);
             $encoder->ref      = new ReflectionClass($className);
-        } catch (ReflectionException $exception) {
+        } catch (ReflectionException) {
             throw new ClassNotExist($className);
         }
         return $encoder;

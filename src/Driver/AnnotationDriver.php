@@ -16,7 +16,6 @@ use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Driver\MethodNotExist;
-use JSONAPI\Exception\Metadata\AlreadyInUse;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\ClassMetadata;
 use Psr\Log\LoggerInterface;
@@ -27,6 +26,7 @@ use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
 use Symfony\Component\String\Inflector\EnglishInflector;
+
 use function Symfony\Component\String\s;
 
 /**

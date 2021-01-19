@@ -16,8 +16,9 @@ class Meta
      *
      * @param string $getter
      */
-    protected function __construct(public string $getter)
-    {
+    protected function __construct(
+    public string $getter
+    ) {
     }
 
     /**

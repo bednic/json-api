@@ -11,13 +11,15 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Resources\Valid;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use JSONAPI\Annotation as API;
 use JSONAPI\Data\Collection;
+use JSONAPI\Helper\DoctrineCollectionAdapter;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\Id;
 use JSONAPI\Metadata\Relationship;
 use JSONAPI\Schema\Resource;
 use JSONAPI\Schema\ResourceSchema;
-use JSONAPI\Annotation as API;
 
 /**
  * Class GettersExample
@@ -73,12 +75,14 @@ class GettersExample implements Resource
      */
     public function __construct(string $id)
     {
-        $this->id = $id;
-        $this->relation = new DummyRelation('relation1');
-        $this->collection = new Collection([
-            new DummyRelation('relation2'),
-            new DummyRelation('relation3')
-        ]);
+        $this->id          = $id;
+        $this->relation    = new DummyRelation('relation1');
+        $this->collection  = new Collection(
+            [
+                new DummyRelation('relation2'),
+                new DummyRelation('relation3')
+            ]
+        );
         $this->dtoProperty = new DtoValue();
     }
 
@@ -218,6 +222,15 @@ class GettersExample implements Resource
     public function setCollection(Collection $collection): void
     {
         $this->collection = $collection;
+    }
+
+    /**
+     * @return DoctrineCollectionAdapter
+     */
+    #[API\Relationship(DummyRelation::class)]
+    public function getDoctrineCollection(): DoctrineCollectionAdapter
+    {
+        return new DoctrineCollectionAdapter(new ArrayCollection([]));
     }
 
     public static function getSchema(): ResourceSchema

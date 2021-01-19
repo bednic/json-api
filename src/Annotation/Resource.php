@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Created by tomas.benedikt@gmail.com
+ */
+
 declare(strict_types=1);
 
 namespace JSONAPI\Annotation;
@@ -28,6 +32,4 @@ final class Resource
         public bool $readOnly = false
     ) {
     }
-
-
 }

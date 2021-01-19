@@ -52,7 +52,7 @@ abstract class Driver
     protected function isGetter(ReflectionMethod $getter): void
     {
         $type = $this->getType($getter);
-        if (!(($type && $type !== 'void') || preg_match(self::GETTER, $getter->getName()))) {
+        if (!(($type && $type->getName() !== 'void') || preg_match(self::GETTER, $getter->getName()))) {
             throw new AnnotationMisplace(
                 $getter->getName(),
                 $getter->class
@@ -63,13 +63,13 @@ abstract class Driver
     /**
      * @param ReflectionMethod|ReflectionProperty|ReflectionParameter $reflection
      *
-     * @return string|null
+     * @return ReflectionNamedType|null
      */
-    protected function getType(ReflectionMethod|ReflectionProperty|ReflectionParameter $reflection): ?string
-    {
+    protected function getType(
+        ReflectionMethod | ReflectionProperty | ReflectionParameter $reflection
+    ): ?ReflectionNamedType {
         /** @var ReflectionNamedType $type */
-        $type = $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
-        return $type ? $type->getName() : null;
+        return $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
     }
 
     /**
@@ -79,13 +79,16 @@ abstract class Driver
      *
      * @throws BadSignature
      */
-    protected function fillUpAttribute(Attribute $attribute, ReflectionProperty|ReflectionMethod $reflection, ReflectionClass $reflectionClass)
-    {
+    protected function fillUpAttribute(
+        Attribute $attribute,
+        ReflectionProperty | ReflectionMethod $reflection,
+        ReflectionClass $reflectionClass
+    ) {
         if (!$attribute->name) {
             $attribute->name = $this->getName($reflection);
         }
         if ($attribute->type === null) {
-            $attribute->type = $this->getType($reflection);
+            $attribute->type = $this->getType($reflection)?->getName();
         }
         if ($attribute->getter) {
             if ($attribute->setter === null) {
@@ -109,7 +112,7 @@ abstract class Driver
      *
      * @return string
      */
-    protected function getName(ReflectionMethod|ReflectionProperty $reflection): string
+    protected function getName(ReflectionMethod | ReflectionProperty $reflection): string
     {
         if ($reflection instanceof ReflectionProperty) {
             return $reflection->getName();
@@ -147,7 +150,7 @@ abstract class Driver
         $parameters = $setter->getParameters();
 
         $parameter = array_shift($parameters);
-        return $this->getType($parameter);
+        return $this->getType($parameter)?->getName();
     }
 
     /**
@@ -155,14 +158,14 @@ abstract class Driver
      *
      * @return string|null
      */
-    protected function tryGetArrayType(ReflectionProperty|ReflectionMethod $reflection): ?string
+    protected function tryGetArrayType(ReflectionProperty | ReflectionMethod $reflection): ?string
     {
         if (
-        preg_match(
-            '~@return ((null|array)\|)*?((?P<type>\w+)\[\])(\|(null|array))*?~',
-            $reflection->getDocComment(),
-            $match
-        )
+            preg_match(
+                '~@return ((null|array)\|)*?((?P<type>\w+)\[])(\|(null|array))*?~',
+                $reflection->getDocComment(),
+                $match
+            )
         ) {
             return $match['type'];
         }
@@ -179,7 +182,7 @@ abstract class Driver
      */
     protected function fillUpRelationship(
         Relationship $relationship,
-        ReflectionProperty|ReflectionMethod $reflection,
+        ReflectionProperty | ReflectionMethod $reflection,
         ReflectionClass $reflectionClass
     ) {
         if (!$relationship->name) {
@@ -199,20 +202,24 @@ abstract class Driver
     /**
      * @param ReflectionProperty|ReflectionMethod $reflection
      *
-     * @return bool|null
+     * @return bool
      * @throws BadSignature
      */
-    protected function isCollection(ReflectionMethod|ReflectionProperty $reflection): ?bool
+    protected function isCollection(ReflectionMethod | ReflectionProperty $reflection): bool
     {
         $type = $this->getType($reflection);
         if (is_null($type)) {
             throw new BadSignature($reflection->getName(), $reflection->getDeclaringClass()->getName());
-        } elseif ($type === 'array') {
-            return true;
-        } elseif ($type === Collection::class) {
+        } elseif ($type->isBuiltin()) {
+            return 'array' === $type->getName();
+        } elseif ($type->getName() === Collection::class) {
             return true;
         } else {
-            return false;
+            try {
+                return (new ReflectionClass($type->getName()))->isSubclassOf(Collection::class);
+            } catch (ReflectionException) {
+                return false;
+            }
         }
     }
 }

@@ -53,7 +53,7 @@ sonar:
 
 phpstan:
     stage: analyse
-    allow_failure: true # until code-sniffer start support php8 attributes
+    allow_failure: true # until phpstan start support php8 attributes
     script:
         - vendor/bin/phpstan -n --no-ansi analyse
 

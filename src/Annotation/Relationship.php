@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * Created by tomas.benedikt@gmail.com
+ */
+
 declare(strict_types=1);
 
 namespace JSONAPI\Annotation;
@@ -11,7 +15,6 @@ use JSONAPI\Metadata\Meta;
  *
  * @package JSONAPI\Annotation
  */
-
 #[\Attribute(\Attribute::TARGET_METHOD | \Attribute::TARGET_PROPERTY)]
 final class Relationship extends \JSONAPI\Metadata\Relationship
 {

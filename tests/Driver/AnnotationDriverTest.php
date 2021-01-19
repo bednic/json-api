@@ -15,7 +15,6 @@ use JSONAPI\Test\Resources\Valid\MetaExample;
 use JSONAPI\Test\Resources\Valid\PropsExample;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\NullLogger;
-use ReflectionNamedType;
 
 /**
  * Class AnnotationDriverTest
@@ -35,7 +34,7 @@ class AnnotationDriverTest extends TestCase
 
     public function testMetaAnnotation()
     {
-        $driver = new AnnotationDriver();
+        $driver   = new AnnotationDriver();
         $resource = new MetaExample('test');
         $metadata = $driver->getClassMetadata(get_class($resource));
         $this->assertInstanceOf(Meta::class, $metadata->getMeta());
@@ -49,7 +48,7 @@ class AnnotationDriverTest extends TestCase
      */
     public function testGetClassMetadata($instance)
     {
-        $driver = new AnnotationDriver();
+        $driver   = new AnnotationDriver();
         $metadata = $driver->getClassMetadata(get_class($instance));
         $this->assertMatchesRegularExpression('/[a-zA-Z0-9]+/', $metadata->getType());
         $this->assertNotEmpty($metadata->getClassName());
@@ -68,6 +67,13 @@ class AnnotationDriverTest extends TestCase
         $this->assertEquals(DtoValue::class, $metadata->getAttribute('dtoProperty')->type);
         $this->assertInstanceOf(Relationship::class, $metadata->getRelationship('relation'));
         $this->assertInstanceOf(Relationship::class, $metadata->getRelationship('collection'));
+    }
+
+    public function testDoctrineCollectionAdapter()
+    {
+        $driver   = new AnnotationDriver();
+        $metadata = $driver->getClassMetadata(GettersExample::class);
+        $this->assertTrue($metadata->getRelationship('doctrineCollection')->isCollection);
     }
 
     public function classProvider()
