@@ -99,7 +99,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
      */
     public function has(mixed $column, mixed $args): TBoolean
     {
-        return Ex::has($column, new Literal($args));
+        return Ex::has($column, $args);
     }
 
 
