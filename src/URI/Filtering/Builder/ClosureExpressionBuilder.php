@@ -97,6 +97,15 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
+    public function has(mixed $column, mixed $args): TBoolean
+    {
+        return Ex::has($column, new Literal($args));
+    }
+
+
+    /**
+     * @inheritDoc
+     */
     public function add(mixed $left, mixed $right): TNumeric
     {
         return Ex::add($left, $right);

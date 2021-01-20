@@ -95,6 +95,15 @@ interface ExpressionBuilder
     public function in(mixed $column, mixed $args): mixed;
 
     /**
+     * @param mixed $column
+     * @param mixed $args
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function has(mixed $column, mixed $args): mixed;
+
+    /**
      * Addition
      *
      * @param mixed $left
@@ -337,6 +346,7 @@ interface ExpressionBuilder
 
     /**
      * @return mixed
+     * @throws ExpressionException
      */
     public function now(): mixed;
 

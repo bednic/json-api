@@ -291,63 +291,70 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     public function date(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_DATE)
         );
     }
 
     public function day(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_DAY)
         );
     }
 
     public function hour(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_HOUR)
         );
     }
 
     public function minute(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_MINUTE)
         );
     }
 
     public function month(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_MONTH)
         );
     }
 
     public function now(): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_NOW)
         );
     }
 
     public function second(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_SECOND)
         );
     }
 
     public function time(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TIME)
         );
     }
 
     public function year(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_YEAR)
+        );
+    }
+
+    public function has(mixed $column, mixed $args): mixed
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(Constants::LOGICAL_HAS)
         );
     }
 }
