@@ -65,9 +65,9 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
     }
 
     /**
-     * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
+     * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]|null
      */
-    public function getData(): ResourceObjectIdentifier | array
+    public function getData(): ResourceObjectIdentifier|array|null
     {
         if ($this->data instanceof Collection) {
             return $this->data->values();
