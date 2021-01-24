@@ -8,7 +8,11 @@ use ArrayAccess;
 use ArrayIterator;
 use Closure;
 use Countable;
+use ExpressionBuilder\Accessor\ObjectPropertyAccessor;
+use ExpressionBuilder\Exception\ExpressionBuilderError;
 use IteratorAggregate;
+use JSONAPI\Exception\Data\CollectionException;
+use JSONAPI\Exception\Data\NonObjectValue;
 use Traversable;
 
 /**
@@ -18,6 +22,8 @@ use Traversable;
  */
 class Collection implements ArrayAccess, Countable, IteratorAggregate
 {
+    public const SORT_DESC = 'DESC';
+    public const SORT_ASC = 'ASC';
     /**
      * @var array
      */
@@ -186,5 +192,59 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     public function getIterator(): Traversable
     {
         return new ArrayIterator($this->items);
+    }
+
+    /**
+     * Sort function for scalar collection
+     *
+     * @param string $orientation
+     *
+     * @return Collection
+     */
+    public function sort($orientation = self::SORT_ASC): self
+    {
+        assert(
+            $this->items === array_filter($this->items, 'is_scalar'),
+            '::sort can be used only on scalar data'
+        );
+        $orientation === self::SORT_DESC ? rsort($this->items) : sort($this->items);
+        return $this;
+    }
+
+    /**
+     * Sort function for object collection
+     *
+     * @param array $order
+     *
+     * @return Collection
+     * @throws CollectionException
+     */
+    public function orderBy(array $order): self
+    {
+        assert(
+            $this->items === array_filter($this->items, 'is_object'),
+            '::orderBy works only on object collection'
+        );
+        $next = static function (): int {
+            return 0;
+        };
+        foreach (array_reverse($order) as $field => $ordering) {
+            $orientation = $ordering === self::SORT_DESC ? -1 : 1;
+            $next        = static function ($a, $b) use ($field, $next, $orientation): int {
+                $accessor = new ObjectPropertyAccessor();
+                try {
+                    $aValue = $accessor($a, $field);
+                    $bValue = $accessor($b, $field);
+                } catch (ExpressionBuilderError $exception) {
+                    throw new CollectionException("Accessor error", 510, $exception);
+                }
+                if ($aValue === $bValue) {
+                    return $next($a, $b);
+                }
+                return ($aValue > $bValue ? 1 : -1) * $orientation;
+            };
+        }
+        uasort($this->items, $next);
+        return $this;
     }
 }
