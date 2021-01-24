@@ -28,11 +28,11 @@ test:unit:
         paths:
             - tmp
 
-code_sniffer:
-    stage: analyse
-    script:
-        - vendor/bin/phpcs
-    allow_failure: true # until code-sniffer start support php8 attributes
+# until code-sniffer start support php8 attributes
+#code_sniffer:
+#    stage: analyse
+#    script:
+#        - vendor/bin/phpcs
 
 sonar:
     stage: analyse
@@ -40,22 +40,21 @@ sonar:
         - '/^[0-9]+\.x/'
     image:
         name: sonarsource/sonar-scanner-cli:latest
-        entrypoint: [""]
+        entrypoint: [ "" ]
     cache:
         key: "${CI_JOB_NAME}"
         paths:
             - .sonar/cache
     script:
         - sonar-scanner
-    allow_failure: true
     dependencies:
         - test:unit
 
-phpstan:
-    stage: analyse
-    allow_failure: true # until phpstan start support php8 attributes
-    script:
-        - vendor/bin/phpstan -n --no-ansi analyse
+# until php-stan start support php8 syntax
+#phpstan:
+#    stage: analyse
+#    script:
+#        - vendor/bin/phpstan -n --no-ansi analyse
 
 pages:
     stage: docs
@@ -63,7 +62,7 @@ pages:
         - tags
     image:
         name: phpdoc/phpdoc:3
-        entrypoint: [""]
+        entrypoint: [ "" ]
     services: [ ]
     script:
         - phpdoc -d src -t public
