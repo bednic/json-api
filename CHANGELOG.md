@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0](https://gitlab.com/bednic/json-api/compare/7.0.0...7.1.0) (2021-01-24)
+
+
+### Fixed
+
+* bad class instance in slice method ([133b0bc](https://gitlab.com/bednic/json-api/commit/133b0bc34969b8f4f3bfdcfa023869ca50a1639e))
+* fix has implementation ([b99d823](https://gitlab.com/bednic/json-api/commit/b99d823c83b51ed316630dd13d1105d021fff63b))
+* Change default filter expression builder ([05f7d63](https://gitlab.com/bednic/json-api/commit/05f7d63f9149eb6d68903cc1a9deaac5b21ba89e))
+* Method isCollection bad behavior ([5323dbb](https://gitlab.com/bednic/json-api/commit/5323dbb48b5792c40f3575870b889643332f869e))
+* Relationship::getData return type ([ec2729e](https://gitlab.com/bednic/json-api/commit/ec2729e3d717a6a9a2837f43f2168bd9d3f06b1a))
+* wrong parameters passed to parent ctor in Relationship annotation ([d29095f](https://gitlab.com/bednic/json-api/commit/d29095f87e068a3e35abae6c009213b8d13b0aef))
+
+
+### Added
+
+* Add has filter function ([eb7d3d8](https://gitlab.com/bednic/json-api/commit/eb7d3d823968e6524b223ade287fc8965597f4dd))
+* Add sort functions to Collection ([ba3a214](https://gitlab.com/bednic/json-api/commit/ba3a2140354efec439ac6a94f374328308360c70))
+
 ## [7.0.0](https://gitlab.com/bednic/json-api/compare/7.0.0-0...7.0.0) (2021-01-17)
 
 ## [7.0.0-0](https://gitlab.com/bednic/json-api/compare/6.4.0...7.0.0-0) (2020-12-14)
