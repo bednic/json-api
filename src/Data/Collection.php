@@ -12,7 +12,6 @@ use ExpressionBuilder\Accessor\ObjectPropertyAccessor;
 use ExpressionBuilder\Exception\ExpressionBuilderError;
 use IteratorAggregate;
 use JSONAPI\Exception\Data\CollectionException;
-use JSONAPI\Exception\Data\NonObjectValue;
 use Traversable;
 
 /**
@@ -52,7 +51,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      *
      * @return bool
      */
-    public function hasKey(int|string $key): bool
+    public function hasKey(int | string $key): bool
     {
         return $this->offsetExists($key);
     }
@@ -70,7 +69,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      *
      * @return mixed
      */
-    public function get(int|string $key): mixed
+    public function get(int | string $key): mixed
     {
         return $this->offsetGet($key);
     }
@@ -87,7 +86,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      * @param int|string $key
      * @param mixed      $value
      */
-    public function set(int|string $key, mixed $value): void
+    public function set(int | string $key, mixed $value): void
     {
         $this->offsetSet($key, $value);
     }
@@ -103,7 +102,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @param int|string $key
      */
-    public function unset(int|string $key): void
+    public function unset(int | string $key): void
     {
         $this->offsetUnset($key);
     }
