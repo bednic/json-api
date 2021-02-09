@@ -320,29 +320,47 @@ class OpenAPISpecificationBuilder
     {
         $document = $this->createEmptyDocument();
         $document->addProperty(
-            'error',
-            DataType::object()
-                ->addProperty('id', DataType::string()
-                    ->setDescription('A unique identifier for this particular occurrence of the problem'))
-                ->addProperty('links', DataType::object()
+            'errors',
+            DataType::array(
+                DataType::object()
                     ->addProperty(
-                        'about',
-                        $this->createLink()
-                            ->setDescription('A link that leads to further details
-                        about this particular occurrence of the problem')
-                    ))
-                ->addProperty('status', DataType::string()
-                    ->setDescription('The HTTP status code applicable to this problem, expressed as a string value'))
-                ->addProperty('code', DataType::string())
-                ->addProperty('title', DataType::string())
-                ->addProperty('detail', DataType::string())
-                ->addProperty('source', DataType::object()
-                    ->addProperty('pointer', DataType::string()->setFormat('JSON Pointer'))
-                    ->addProperty('parameter', DataType::string()))
-                ->addProperty(
-                    'meta',
-                    $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class))
-                )
+                        'id',
+                        DataType::string()
+                            ->setDescription('A unique identifier for this particular occurrence of the problem')
+                    )
+                    ->addProperty(
+                        'links',
+                        DataType::object()
+                            ->addProperty(
+                                'about',
+                                $this->createLink()
+                                    ->setDescription(
+                                        'A link that leads to further details
+                            about this particular occurrence of the problem'
+                                    )
+                            )
+                    )
+                    ->addProperty(
+                        'status',
+                        DataType::string()
+                            ->setDescription(
+                                'The HTTP status code applicable to this problem, expressed as a string value'
+                            )
+                    )
+                    ->addProperty('code', DataType::string())
+                    ->addProperty('title', DataType::string())
+                    ->addProperty('detail', DataType::string())
+                    ->addProperty(
+                        'source',
+                        DataType::object()
+                            ->addProperty('pointer', DataType::string()->setFormat('JSON Pointer'))
+                            ->addProperty('parameter', DataType::string())
+                    )
+                    ->addProperty(
+                        'meta',
+                        $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class))
+                    )
+            )
         );
         $response = new Response('A generic error message, given when no more specific message is suitable');
         $response->addContent(Document::MEDIA_TYPE, (new MediaType())->setSchema(
