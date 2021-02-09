@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [7.1.1](https://gitlab.com/bednic/json-api/compare/7.1.0...7.1.1) (2021-02-09)
+
+
+### Fixed
+
+* **OAS:** Bad error document response description ([63222cd](https://gitlab.com/bednic/json-api/commit/63222cd4d43adbb04036bfe7456b22c1efc8741b))
+* Fix sort parsing ([e743c6d](https://gitlab.com/bednic/json-api/commit/e743c6d17b7c0d16ffd5f967b8b3756315806b99))
+
 ## [7.1.0](https://gitlab.com/bednic/json-api/compare/7.0.0...7.1.0) (2021-01-24)
 
 
