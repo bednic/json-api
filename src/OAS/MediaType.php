@@ -15,13 +15,13 @@ use JSONAPI\Exception\OAS\ExclusivityCheckException;
 class MediaType implements Serializable
 {
     /**
-     * @var Schema
+     * @var Schema|null
      */
-    private Schema $schema;
+    private ?Schema $schema = null;
     /**
      * @var mixed
      */
-    private $example;
+    private mixed $example = null;
     /**
      * @var Example[]
      */
