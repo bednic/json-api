@@ -96,16 +96,16 @@ class DocumentBuilderFactory
         LoggerInterface $logger = null
     ) {
         $this->metadataRepository = $metadataRepository;
-        $this->paginationParser   = $paginationParser;
-        $this->filterParser       = $filterParser;
-        $this->baseURL            = $baseURL;
-        $this->maxIncludedItems   = $maxIncludedItems;
-        $this->relationshipLimit  = $relationshipLimit;
-        $this->relationshipData   = $relationshipData;
-        $this->supportInclusion   = $supportInclusion;
-        $this->supportSort        = $supportSort;
-        $this->supportPagination  = $supportPagination;
-        $this->logger             = $logger ?? new NullLogger();
+        $this->paginationParser = $paginationParser;
+        $this->filterParser = $filterParser;
+        $this->baseURL = $baseURL;
+        $this->maxIncludedItems = $maxIncludedItems;
+        $this->relationshipLimit = $relationshipLimit;
+        $this->relationshipData = $relationshipData;
+        $this->supportInclusion = $supportInclusion;
+        $this->supportSort = $supportSort;
+        $this->supportPagination = $supportPagination;
+        $this->logger = $logger ?? new NullLogger();
     }
 
     /**
@@ -117,8 +117,8 @@ class DocumentBuilderFactory
     public function new(ServerRequestInterface $request): Builder
     {
         $linkFactory = new LinkComposer($this->baseURL);
-        $uriParser   = $this->uri($request);
-        $encoder     = new Encoder(
+        $uriParser = $this->uri($request);
+        $encoder = new Encoder(
             $this->metadataRepository,
             $uriParser->getFieldset(),
             $uriParser->getInclusion(),
@@ -127,7 +127,7 @@ class DocumentBuilderFactory
             $this->relationshipLimit,
             $this->logger
         );
-        $collector   = new InclusionCollector(
+        $collector = new InclusionCollector(
             $this->metadataRepository,
             $encoder,
             $this->maxIncludedItems,

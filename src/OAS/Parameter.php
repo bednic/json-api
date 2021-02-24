@@ -94,10 +94,10 @@ class Parameter extends Reference implements Serializable
     public function __construct(string $name, In $in)
     {
         $this->name = $name;
-        $this->in   = $in;
+        $this->in = $in;
         if ($in->equals(In::PATH())) {
             $this->required = true;
-            $this->style    = Style::SIMPLE();
+            $this->style = Style::SIMPLE();
         }
         if ($in->equals(In::QUERY())) {
             $this->style = Style::FORM();
@@ -270,7 +270,7 @@ class Parameter extends Reference implements Serializable
      */
     public function setContent(string $key, MediaType $content): Parameter
     {
-        $this->content       = [];
+        $this->content = [];
         $this->content[$key] = $content;
         return $this;
     }

@@ -79,7 +79,7 @@ class Components implements Serializable
         if (!array_key_exists($key, $this->schemas)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to     = '#/components/schemas/' . $key;
+        $to = '#/components/schemas/' . $key;
         $origin = $this->schemas[$key];
         return Schema::createReference($to, $origin);
     }
@@ -107,7 +107,7 @@ class Components implements Serializable
         if (!array_key_exists($key, $this->responses)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to     = '#/components/responses/' . $key;
+        $to = '#/components/responses/' . $key;
         $origin = $this->responses[$key];
         return Response::createReference($to, $origin);
     }
@@ -145,7 +145,7 @@ class Components implements Serializable
         if (!array_key_exists($key, $this->parameters)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to     = '#/components/parameters/' . $key;
+        $to = '#/components/parameters/' . $key;
         $origin = $this->parameters[$key];
         return Parameter::createReference($to, $origin);
     }
@@ -177,7 +177,7 @@ class Components implements Serializable
             throw new ReferencedObjectNotExistsException();
         }
         $origin = $this->examples[$key];
-        $to     = '#/components/examples/' . $key;
+        $to = '#/components/examples/' . $key;
         return Example::createReference($to, $origin);
     }
 
@@ -207,7 +207,7 @@ class Components implements Serializable
         if (!array_key_exists($key, $this->requestBodies)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to     = '#/components/requestBodies/' . $key;
+        $to = '#/components/requestBodies/' . $key;
         $origin = $this->requestBodies[$key];
         return RequestBody::createReference($to, $origin);
     }
@@ -237,7 +237,7 @@ class Components implements Serializable
         if (!array_key_exists($key, $this->headers)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to     = '#/components/headers/' . $key;
+        $to = '#/components/headers/' . $key;
         $origin = $this->headers[$key];
         return Header::createReference($to, $origin);
     }
@@ -268,7 +268,7 @@ class Components implements Serializable
         if (!array_key_exists($key, $this->securitySchemes)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to     = '#/components/securitySchemes/' . $key;
+        $to = '#/components/securitySchemes/' . $key;
         $origin = $this->securitySchemes[$key];
         return SecurityScheme::createReference($to, $origin);
     }
@@ -296,7 +296,7 @@ class Components implements Serializable
         if (!array_key_exists($key, $this->links)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to     = '#/components/links/' . $key;
+        $to = '#/components/links/' . $key;
         $origin = $this->links[$key];
         return Link::createReference($to, $origin);
     }
@@ -324,7 +324,7 @@ class Components implements Serializable
         if (!array_key_exists($key, $this->callbacks)) {
             throw new ReferencedObjectNotExistsException();
         }
-        $to     = '#/components/callbacks/' . $key;
+        $to = '#/components/callbacks/' . $key;
         $origin = $this->callbacks[$key];
         return Callback::createReference($to, $origin);
     }

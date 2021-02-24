@@ -11,6 +11,9 @@ namespace JSONAPI\Metadata;
  */
 class Attribute extends Field
 {
+    public ?string $of = null;
+    public ?string $type = null;
+
     /**
      * Attribute constructor.
      *
@@ -26,10 +29,12 @@ class Attribute extends Field
         string $property = null,
         string $getter = null,
         string $setter = null,
-        public ?string $type = null,
-        public ?string $of = null
+        ?string $type = null,
+        ?string $of = null
     ) {
         parent::__construct($name, $property, $getter, $setter);
+        $this->type = $type;
+        $this->of = $of;
     }
 
 

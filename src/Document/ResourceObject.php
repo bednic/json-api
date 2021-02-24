@@ -69,9 +69,11 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      */
     private function getAttributes(): Collection
     {
-        return $this->fields->filter(function ($element) {
-            return $element instanceof Attribute;
-        });
+        return $this->fields->filter(
+            function ($element) {
+                return $element instanceof Attribute;
+            }
+        );
     }
 
     /**
@@ -82,7 +84,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      * @throws RelationshipNotExist
      */
-    public function getRelationship(string $key): ResourceObjectIdentifier|array
+    public function getRelationship(string $key): ResourceObjectIdentifier | array
     {
         if (!$this->hasRelationship($key)) {
             throw new RelationshipNotExist($key);
@@ -105,9 +107,11 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      */
     private function getRelationships(): Collection
     {
-        return $this->fields->filter(function ($element) {
-            return $element instanceof Relationship;
-        });
+        return $this->fields->filter(
+            function ($element) {
+                return $element instanceof Relationship;
+            }
+        );
     }
 
     /**

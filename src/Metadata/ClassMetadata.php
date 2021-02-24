@@ -66,12 +66,12 @@ final class ClassMetadata
         bool $readOnly = false,
         ?Meta $resourceMeta = null
     ) {
-        $this->fields    = new Collection();
+        $this->fields = new Collection();
         $this->className = $className;
-        $this->id        = $id;
-        $this->type      = $type;
-        $this->readOnly  = $readOnly;
-        $this->meta      = $resourceMeta;
+        $this->id = $id;
+        $this->type = $type;
+        $this->readOnly = $readOnly;
+        $this->meta = $resourceMeta;
         $this->fields->set('id', $id);
         $this->fields->set('type', $type);
         foreach ($attributes as $attribute) {

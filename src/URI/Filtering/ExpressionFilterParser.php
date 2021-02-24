@@ -66,7 +66,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         $this->lexer = null;
         $this->condition = null;
         if ($data && is_string($data) && strlen($data) > 0) {
-            $this->lexer     = new ExpressionLexer($data);
+            $this->lexer = new ExpressionLexer($data);
             $this->condition = $this->parseExpression();
         }
         return $this;
@@ -93,7 +93,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         while ($this->lexer->getCurrentToken()->identifierIs(Constants::LOGICAL_OR)) {
             $this->lexer->nextToken();
             $right = $this->parseLogicalAnd();
-            $left  = $this->exp->or($left, $right);
+            $left = $this->exp->or($left, $right);
         }
 
         return $left;
@@ -111,7 +111,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         while ($this->lexer->getCurrentToken()->identifierIs(Constants::LOGICAL_AND)) {
             $this->lexer->nextToken();
             $right = $this->parseComparison();
-            $left  = $this->exp->and($left, $right);
+            $left = $this->exp->and($left, $right);
         }
         return $left;
     }
@@ -130,22 +130,24 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             $this->lexer->nextToken();
             if ($comparisonToken->identifierIs(Constants::LOGICAL_IN)) {
                 $right = $this->parseArgumentList();
-                $left  = $this->exp->{$comparisonToken->text}($left, $right);
+                $left = $this->exp->{$comparisonToken->text}($left, $right);
             } elseif ($this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::NULL_LITERAL())) {
                 if ($comparisonToken->identifierIs(Constants::LOGICAL_EQUAL)) {
                     $left = $this->exp->isNull($left);
                 } elseif ($comparisonToken->identifierIs(Constants::LOGICAL_NOT_EQUAL)) {
                     $left = $this->exp->isNotNull($left);
                 } else {
-                    throw new ExpressionException(Messages::expressionParserOperatorNotSupportNull(
-                        $comparisonToken->text,
-                        $this->lexer->getPosition()
-                    ));
+                    throw new ExpressionException(
+                        Messages::expressionParserOperatorNotSupportNull(
+                            $comparisonToken->text,
+                            $this->lexer->getPosition()
+                        )
+                    );
                 }
                 $this->lexer->nextToken();
             } else {
                 $right = $this->parseAdditive();
-                $left  = $this->exp->{$comparisonToken->text}($left, $right);
+                $left = $this->exp->{$comparisonToken->text}($left, $right);
             }
         }
         return $left;
@@ -167,7 +169,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             $additiveToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
             $right = $this->parseMultiplicative();
-            $left  = $this->exp->{$additiveToken->text}($left, $right);
+            $left = $this->exp->{$additiveToken->text}($left, $right);
         }
         return $left;
     }
@@ -189,7 +191,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             $multiplicativeToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
             $right = $this->parseUnary();
-            $left  = $this->exp->{$multiplicativeToken->text}($left, $right);
+            $left = $this->exp->{$multiplicativeToken->text}($left, $right);
         }
         return $left;
     }
@@ -212,8 +214,8 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
                 $op->id->equals(ExpressionTokenId::MINUS()) &&
                 ExpressionLexer::isNumeric($this->lexer->getCurrentToken()->id)
             ) {
-                $numberLiteral           = $this->lexer->getCurrentToken();
-                $numberLiteral->text     = '-' . $numberLiteral->text;
+                $numberLiteral = $this->lexer->getCurrentToken();
+                $numberLiteral->text = '-' . $numberLiteral->text;
                 $numberLiteral->position = $op->position;
                 $this->lexer->setCurrentToken($numberLiteral);
                 return $this->parsePrimary();

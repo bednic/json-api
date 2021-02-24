@@ -14,5 +14,4 @@ use Exception;
 abstract class OpenAPIException extends Exception
 {
     protected $code = 560;
-
 }

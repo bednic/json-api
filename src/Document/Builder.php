@@ -65,12 +65,12 @@ final class Builder
         URIParser $uri,
         LoggerInterface $logger = null
     ) {
-        $this->encoder          = $encoder;
+        $this->encoder = $encoder;
         $this->inclusionFetcher = $inclusionFetcher;
-        $this->linkFactory      = $linkFactory;
-        $this->uri              = $uri;
-        $this->logger           = $logger ?? new NullLogger();
-        $this->document         = new Document();
+        $this->linkFactory = $linkFactory;
+        $this->uri = $uri;
+        $this->logger = $logger ?? new NullLogger();
+        $this->document = new Document();
     }
 
     /**
@@ -82,7 +82,7 @@ final class Builder
      * @throws DriverException
      * @throws MetadataException
      */
-    public function setData(object|iterable $data): Builder
+    public function setData(object | iterable $data): Builder
     {
         $this->logger->debug('Setting data.');
         if ($this->uri->getPath()->isCollection() && is_iterable($data)) {

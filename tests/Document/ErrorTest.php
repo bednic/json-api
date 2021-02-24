@@ -22,7 +22,7 @@ class ErrorTest extends TestCase
     public function testSetters()
     {
         $source = Error\Source::parameter(QueryPartInterface::SORT_PART_KEY);
-        $error  = new Error();
+        $error = new Error();
         $error->setMeta(new Meta(['custom' => 'property']));
         $error->setId('id');
         $error->setStatus(StatusCodeInterface::STATUS_OK);

@@ -50,7 +50,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     public function __construct(int $offset = 0, int $limit = 25)
     {
         $this->defaultOffset = $this->offset = $offset;
-        $this->defaultLimit  = $this->limit = $limit;
+        $this->defaultLimit = $this->limit = $limit;
     }
 
     /**
@@ -60,23 +60,31 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
      */
     public function parse(?array $data): PaginationInterface
     {
-        $this->limit  = $this->defaultLimit;
+        $this->limit = $this->defaultLimit;
         $this->offset = $this->defaultOffset;
         if ($data) {
             if (isset($data[self::PAGE_SIZE_KEY])) {
-                $this->limit = filter_var($data[self::PAGE_SIZE_KEY], FILTER_VALIDATE_INT, [
-                    'options' => [
-                        'default' => $this->defaultLimit
+                $this->limit = filter_var(
+                    $data[self::PAGE_SIZE_KEY],
+                    FILTER_VALIDATE_INT,
+                    [
+                        'options' => [
+                            'default' => $this->defaultLimit
+                        ]
                     ]
-                ]);
+                );
             }
 
             if (isset($data[self::PAGE_START_KEY])) {
-                $this->offset = filter_var($data[self::PAGE_START_KEY], FILTER_VALIDATE_INT, [
-                    'options' => [
-                        'default' => $this->defaultOffset
+                $this->offset = filter_var(
+                    $data[self::PAGE_START_KEY],
+                    FILTER_VALIDATE_INT,
+                    [
+                        'options' => [
+                            'default' => $this->defaultOffset
+                        ]
                     ]
-                ]);
+                );
             }
         }
         return $this;

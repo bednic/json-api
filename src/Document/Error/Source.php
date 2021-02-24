@@ -40,7 +40,7 @@ class Source implements Serializable
      */
     public static function pointer(string $pointer): self
     {
-        $static          = new self();
+        $static = new self();
         $static->pointer = $pointer;
         return $static;
     }
@@ -52,7 +52,7 @@ class Source implements Serializable
      */
     public static function parameter(string $parameter): self
     {
-        $static            = new self();
+        $static = new self();
         $static->parameter = $parameter;
         return $static;
     }

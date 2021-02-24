@@ -4,8 +4,8 @@ Implemtation of [JSON API Standard Specification](https://jsonapi.org/)
 
 This project goal is create easy-to-use library to implement JSON API specification.
 
-Whole project is at the beginning of development. So don't hesitate to help.
-I'm open to some good ideas how make this more customizable and friendly.
+Whole project is at the beginning of development. So don't hesitate to help. I'm open to some good ideas how make this
+more customizable and friendly.
 
 This library is tested in production with Doctrine2 and SlimPHP.
 
@@ -13,12 +13,13 @@ Library only provides wrappers to create valid JSON API document. Controllers an
 
 ## Issues
 
-You can write [email](mailto://incoming+bednic-json-api-10827057-issue-@incoming.gitlab.com) or
-create issue in [gitlab](https://gitlab.com/bednic/json-api/issues)
+You can write [email](mailto://incoming+bednic-json-api-10827057-issue-@incoming.gitlab.com) or create issue
+in [gitlab](https://gitlab.com/bednic/json-api/issues)
 
 ## Installation
 
 Install library via Composer
+
 ```
 composer require bednic/json-api
 ```
@@ -28,7 +29,9 @@ composer require bednic/json-api
 > For simplicity, we use `$container` as some dependency provider (Dependency Injection).
 
 ### MetadataRepository
+
 First we need create `MetadataRepository`. That we get from `MetadataFactory`.
+
 ```php
 <?php
 /** @var $container Psr\Container\ContainerInterface */
@@ -87,8 +90,9 @@ $data = new MyObject();
 $doc = $builder->setData($data)->build();
 
 ```
-Now if you encode `$doc` to JSON, you gonna get full JSON API Document.
-More information about UriParser is [here](UriParser)
+
+Now if you encode `$doc` to JSON, you gonna get full JSON API Document. More information about UriParser
+is [here](UriParser)
 
 ### Describing your objects
 
@@ -301,7 +305,8 @@ class GettersExample
 
 ```
 
-How you can see, setting up resource object is quiet easy. Just annotate your getter with ``@Attribute`` or ``@Relationship`` annotation.
+How you can see, setting up resource object is quiet easy. Just annotate your getter with ``@Attribute``
+or ``@Relationship`` annotation.
 > Remember: You must use Annotation namespace like ``use JSONAPI\Annotation as API`
 
 #### Schema
@@ -309,6 +314,7 @@ How you can see, setting up resource object is quiet easy. Just annotate your ge
 The importat part is to implement Resource interface. Then fill up static method `getSchema`.
 
 > Note: If you want to use schema you have to use `SchemaDriver` in `MetadataFactory`
+
 ```php
 
 <?php
@@ -571,33 +577,45 @@ This object works with url, and parse required keywors as described at JSON API 
 |logger|null|LoggerInterface instance, PSR compliant logger instance.|
 
 ### PathInterface
+
 Provides information about path, like resource type, resource ID, relation type, is it collection or is it relationship
 
 ### Fieldset
+
 https://jsonapi.org/format/#fetching-sparse-fieldsets
 
 ### Filter
+
 https://jsonapi.org/format/#fetching-filtering
 
-As described, specification is agnostic about filter implementation. So I created, more like borrowed, expression filter from OData. So now you can use something like this:
+As described, specification is agnostic about filter implementation. So I created, more like borrowed, expression filter
+from OData. So now you can use something like this:
 
 `filter=stringProperty eq 'string' and contains(stringProperty,'asdf') and intProperty in (1,2,3) or boolProperty ne true and relation.property eq null`
 
 There are for now two `ExpressionBuilder`s:
-*  `DoctrineQueryExpressionBuilder` creates expression for Doctrine QueryBuilder, it comes hadny if you are using Doctrine and want more complex filtering
-*  `DoctrineCriteriaExpressionBuilder` works well with ArrayCollection or PersistentCollection which is dependency of this library so it's default and you can use it too. But it provides only some basic expressions like eq, ne, etc... But you can't filter by relation property or use some functions, or expressions.
+
+* `DoctrineQueryExpressionBuilder` creates expression for Doctrine QueryBuilder, it comes hadny if you are using
+  Doctrine and want more complex filtering
+* `DoctrineCriteriaExpressionBuilder` works well with ArrayCollection or PersistentCollection which is dependency of
+  this library so it's default and you can use it too. But it provides only some basic expressions like eq, ne, etc...
+  But you can't filter by relation property or use some functions, or expressions.
 
 ### Pagination
+
 https://jsonapi.org/format/#fetching-pagination
 
 I implement two of three pagination technics
-*  LimitOffsetPagination
-*  PagePagination
-*  CursorPagination which is only abstract, cause it need more then just several number, so if you want use cursor based pagination, you have to implement it by yourself.
 
+* LimitOffsetPagination
+* PagePagination
+* CursorPagination which is only abstract, cause it need more then just several number, so if you want use cursor based
+  pagination, you have to implement it by yourself.
 
 ### Includes
+
 https://jsonapi.org/format/#fetching-includes
 
 ### Sort
+
 https://jsonapi.org/format/#fetching-sorting

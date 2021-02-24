@@ -81,11 +81,11 @@ class SecurityScheme extends Reference implements Serializable
         if (filter_var($openIdConnectUrl, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE) === null) {
             throw new InvalidFormatException();
         }
-        $this->type             = $type;
-        $this->name             = $name;
-        $this->in               = $in;
-        $this->scheme           = $scheme;
-        $this->flows            = $flows;
+        $this->type = $type;
+        $this->name = $name;
+        $this->in = $in;
+        $this->scheme = $scheme;
+        $this->flows = $flows;
         $this->openIdConnectUrl = $openIdConnectUrl;
     }
 

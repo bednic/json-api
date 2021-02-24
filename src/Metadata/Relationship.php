@@ -11,6 +11,10 @@ namespace JSONAPI\Metadata;
  */
 class Relationship extends Field
 {
+    public ?bool $isCollection = null;
+    public ?Meta $meta = null;
+    public ?string $target;
+
     /**
      * Relationship constructor.
      *
@@ -23,15 +27,18 @@ class Relationship extends Field
      * @param Meta|null   $meta
      */
     protected function __construct(
-        public ?string $target,
+        ?string $target,
         string $name = null,
         string $property = null,
         string $getter = null,
         string $setter = null,
-        public ?bool $isCollection = null,
-        public ?Meta $meta = null
+        ?bool $isCollection = null,
+        ?Meta $meta = null
     ) {
         parent::__construct($name, $property, $getter, $setter);
+        $this->target = $target;
+        $this->meta = $meta;
+        $this->isCollection = $isCollection;
     }
 
 

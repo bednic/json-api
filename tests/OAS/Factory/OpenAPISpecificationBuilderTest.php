@@ -38,12 +38,12 @@ class OpenAPISpecificationBuilderTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr        = MetadataFactory::create(
+        self::$mr = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
         );
-        self::$baseUrl   = 'http://unit.test.org';
+        self::$baseUrl = 'http://unit.test.org';
         self::$validator = Schema::import(
             json_decode(file_get_contents(RESOURCES . DIRECTORY_SEPARATOR . 'openapi-v3.0.json'))
         );

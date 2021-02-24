@@ -49,9 +49,9 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
                 'For using ' . __CLASS__ . ' you need install [doctrine/orm] <i>composer require doctrine/orm</i>.'
             );
         }
-        $this->exp                = new Expr();
+        $this->exp = new Expr();
         $this->metadataRepository = $metadataRepository;
-        $this->path               = $path;
+        $this->path = $path;
     }
 
     /**
@@ -346,15 +346,15 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     public function parseIdentifier(string $identifier): string
     {
         $classMetadata = $this->metadataRepository->getByType($this->path->getPrimaryResourceType());
-        $parts         = [...explode(".", $identifier)];
+        $parts = [...explode(".", $identifier)];
         while ($part = array_shift($parts)) {
             if ($classMetadata->hasRelationship($part)) {
-                $rm                          = $this->metadataRepository->getByClass(
+                $rm = $this->metadataRepository->getByClass(
                     $classMetadata->getRelationship($part)->target
                 );
                 $this->joins[$rm->getType()] = $classMetadata->getType() . '.' . $part;
-                $identifier                  = $classMetadata->getType() . '.' . $part;
-                $classMetadata               = $this->metadataRepository->getByClass(
+                $identifier = $classMetadata->getType() . '.' . $part;
+                $classMetadata = $this->metadataRepository->getByClass(
                     $classMetadata->getRelationship($part)->target
                 );
             } elseif ($classMetadata->hasAttribute($part) || $part === 'id') {

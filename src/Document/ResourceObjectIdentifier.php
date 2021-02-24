@@ -6,6 +6,7 @@ namespace JSONAPI\Document;
 
 use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Document\AlreadyInUse;
+use stdClass;
 
 /**
  * Class ResourceObjectIdentifier
@@ -80,7 +81,7 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
      */
     public function jsonSerialize(): object
     {
-        $ret = new \stdClass();
+        $ret = new stdClass();
         $ret->type = $this->fields->get('type');
         $ret->id = $this->fields->get('id');
         if ($this->hasMeta()) {

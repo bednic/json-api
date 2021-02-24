@@ -30,8 +30,9 @@ class BadAnnotationPlacement
      * @param $property
      */
     #[API\Attribute]
-    public function setProperty($property): void
-    {
+    public function setProperty(
+        $property
+    ): void {
         $this->property = $property;
     }
 }

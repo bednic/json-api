@@ -77,10 +77,12 @@ class PropsExample implements Resource
     {
         $this->id = $id;
         $this->relation = new DummyRelation('relation1');
-        $this->collection = new Collection([
-            new DummyRelation('relation2'),
-            new DummyRelation('relation3')
-        ]);
+        $this->collection = new Collection(
+            [
+                new DummyRelation('relation2'),
+                new DummyRelation('relation3')
+            ]
+        );
         $this->dtoProperty = new DtoValue();
     }
 
@@ -93,12 +95,12 @@ class PropsExample implements Resource
             [
                 Attribute::createByProperty('stringProperty'),
                 Attribute::createByProperty('intProperty'),
-                Attribute::createByProperty('arrayProperty','int'),
+                Attribute::createByProperty('arrayProperty', 'int'),
                 Attribute::createByProperty('boolProperty'),
                 Attribute::createByProperty('dtoProperty'),
             ],
             [
-                Relationship::createByProperty('relation',DummyRelation::class),
+                Relationship::createByProperty('relation', DummyRelation::class),
                 Relationship::createByProperty('collection', DummyRelation::class)
             ]
         );

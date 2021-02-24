@@ -5,6 +5,8 @@
 #### Why should we implement it?
 
 ---
+
 ###### Will you do it yourself?
+
 * [ ] yes
 * [ ] no

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
+use stdClass;
+
 /**
  * Class Document
  *
@@ -43,7 +45,7 @@ final class Document implements Serializable, HasLinks, HasMeta
     public function __construct()
     {
         $this->included = new ResourceCollection();
-        $this->jsonapi = new \stdClass();
+        $this->jsonapi = new stdClass();
         $this->jsonapi->version = self::VERSION;
     }
 
@@ -99,7 +101,7 @@ final class Document implements Serializable, HasLinks, HasMeta
      */
     public function jsonSerialize(): object
     {
-        $ret = new \stdClass();
+        $ret = new stdClass();
         $ret->jsonapi = $this->jsonapi;
         if (count($this->errors) > 0) {
             $ret->errors = $this->errors;

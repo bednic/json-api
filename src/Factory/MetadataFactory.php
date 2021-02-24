@@ -77,10 +77,10 @@ class MetadataFactory
         Driver $driver,
         LoggerInterface $logger = null
     ) {
-        $this->paths   = $paths;
-        $this->cache   = $cache;
-        $this->driver  = $driver;
-        $this->logger  = $logger ?? new NullLogger();
+        $this->paths = $paths;
+        $this->cache = $cache;
+        $this->driver = $driver;
+        $this->logger = $logger ?? new NullLogger();
         $this->slugger = new AsciiSlugger();
         $this->load();
     }
@@ -114,8 +114,8 @@ class MetadataFactory
      */
     private function loadMetadata(string $className)
     {
-        $classMetadata                                   = $this->getMetadataByClass($className);
-        $this->metadata[$className]                      = $classMetadata;
+        $classMetadata = $this->getMetadataByClass($className);
+        $this->metadata[$className] = $classMetadata;
         $this->typeToClassMap[$classMetadata->getType()] = $className;
     }
 
@@ -128,9 +128,8 @@ class MetadataFactory
      */
     private function getMetadataByClass(string $className): ClassMetadata
     {
-
         try {
-            $key       = $this->slugger->slug($className)->toString();
+            $key = $this->slugger->slug($className)->toString();
             $className = self::clearDoctrineProxyPrefix($className);
             if ($this->cache->has($key)) {
                 return $this->cache->get($key);
@@ -188,7 +187,7 @@ class MetadataFactory
         Driver $driver,
         LoggerInterface $logger = null
     ): MetadataRepository {
-        $self       = new static($paths, $cache, $driver, $logger);
+        $self = new static($paths, $cache, $driver, $logger);
         $repository = new MetadataRepository();
         foreach ($self->getAllMetadata() as $metadata) {
             $repository->add($metadata);

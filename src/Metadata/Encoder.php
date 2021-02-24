@@ -110,12 +110,12 @@ final class Encoder
         int $relationshipLimit = 25,
         LoggerInterface $logger = null
     ) {
-        $this->repository        = $metadataRepository;
-        $this->fieldset          = $fieldset;
-        $this->inclusion         = $inclusion;
-        $this->logger            = $logger ?? new NullLogger();
-        $this->linkFactory       = $linkFactory;
-        $this->withData          = $relationshipData;
+        $this->repository = $metadataRepository;
+        $this->fieldset = $fieldset;
+        $this->inclusion = $inclusion;
+        $this->logger = $logger ?? new NullLogger();
+        $this->linkFactory = $linkFactory;
+        $this->withData = $relationshipData;
         $this->relationshipLimit = $relationshipLimit;
     }
 
@@ -182,7 +182,7 @@ final class Encoder
                                 if (!($value instanceof Collection)) {
                                     $value = new Collection($value);
                                 }
-                                $data  = new Document\ResourceCollection();
+                                $data = new Document\ResourceCollection();
                                 $total = $value->count();
                                 $limit = min($this->relationshipLimit, $total);
                                 foreach ($value->slice(0, $limit) as $object) {
@@ -294,13 +294,13 @@ final class Encoder
      */
     private function for(object $object): Encoder
     {
-        $encoder   = clone $this;
+        $encoder = clone $this;
         $className = Encoder::clearDoctrineProxyPrefix(get_class($object));
         try {
             $this->logger->debug("Init encoding of {$className}.");
-            $encoder->object   = $object;
+            $encoder->object = $object;
             $encoder->metadata = $this->repository->getByClass($className);
-            $encoder->ref      = new ReflectionClass($className);
+            $encoder->ref = new ReflectionClass($className);
         } catch (ReflectionException) {
             throw new ClassNotExist($className);
         }

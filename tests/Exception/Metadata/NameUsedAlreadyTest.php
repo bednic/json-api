@@ -19,6 +19,7 @@ class NameUsedAlreadyTest extends TestCase
         $this->assertInstanceOf(AlreadyInUse::class, $e);
         $this->assertStringContainsString('someName', $e->getMessage());
     }
+
     public function testUsage()
     {
         $this->expectException(AlreadyInUse::class);

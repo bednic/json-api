@@ -11,14 +11,17 @@ namespace JSONAPI\Metadata;
  */
 class Meta
 {
+    public string $getter;
+
     /**
      * Meta constructor.
      *
      * @param string $getter
      */
     protected function __construct(
-    public string $getter
+        string $getter
     ) {
+        $this->getter = $getter;
     }
 
     /**

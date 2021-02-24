@@ -41,7 +41,6 @@ class EncoderTest extends TestCase
 
     public function testConstruct()
     {
-
         $fieldset = (new FieldsetParser())->parse([]);
         $inc = (new InclusionParser())->parse('');
         $baseUrl = 'http://unit.test.org/api';
@@ -60,6 +59,7 @@ class EncoderTest extends TestCase
         $identifier = $encoder->getIdentifier($object);
         $this->assertInstanceOf(ResourceObjectIdentifier::class, $identifier);
     }
+
     /**
      * @depends testConstruct
      */

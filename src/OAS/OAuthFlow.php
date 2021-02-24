@@ -41,8 +41,8 @@ class OAuthFlow implements Serializable
     public function __construct(string $authorizationUrl, string $tokenUrl, array $scopes = [])
     {
         $this->authorizationUrl = $authorizationUrl;
-        $this->tokenUrl         = $tokenUrl;
-        $this->scopes           = $scopes;
+        $this->tokenUrl = $tokenUrl;
+        $this->scopes = $scopes;
     }
 
     /**

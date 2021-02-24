@@ -69,7 +69,7 @@ class DocumentTest extends TestCase
     public function testSetData()
     {
         $document = new Document();
-        $data     = new ResourceCollection();
+        $data = new ResourceCollection();
         $document->setData($data);
         $this->assertTrue($this->isValid($document));
     }
@@ -77,7 +77,7 @@ class DocumentTest extends TestCase
     public function testAddError()
     {
         $document = new Document();
-        $error    = new Error();
+        $error = new Error();
         $document->addError($error);
         $this->assertTrue($this->isValid($document));
     }

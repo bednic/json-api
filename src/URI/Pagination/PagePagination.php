@@ -49,7 +49,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     public function __construct(int $number = 1, int $size = 25)
     {
         $this->defaultNumber = $this->number = $number;
-        $this->defaultSize   = $this->size = $size;
+        $this->defaultSize = $this->size = $size;
     }
 
     /**
@@ -145,22 +145,30 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
     public function parse(?array $data): PaginationInterface
     {
         $this->number = $this->defaultNumber;
-        $this->size   = $this->defaultSize;
+        $this->size = $this->defaultSize;
         if ($data) {
             if (isset($data[self::PAGE_START_KEY])) {
-                $this->number = filter_var($data[self::PAGE_START_KEY], FILTER_VALIDATE_INT, [
-                    'options' => [
-                        'default' => $this->defaultNumber
+                $this->number = filter_var(
+                    $data[self::PAGE_START_KEY],
+                    FILTER_VALIDATE_INT,
+                    [
+                        'options' => [
+                            'default' => $this->defaultNumber
+                        ]
                     ]
-                ]);
+                );
             }
 
             if (isset($data[self::PAGE_SIZE_KEY])) {
-                $this->size = filter_var($data[self::PAGE_SIZE_KEY], FILTER_VALIDATE_INT, [
-                    'options' => [
-                        'default' => $this->size
+                $this->size = filter_var(
+                    $data[self::PAGE_SIZE_KEY],
+                    FILTER_VALIDATE_INT,
+                    [
+                        'options' => [
+                            'default' => $this->size
+                        ]
                     ]
-                ]);
+                );
             }
         }
         return $this;

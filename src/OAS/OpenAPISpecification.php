@@ -51,8 +51,8 @@ class OpenAPISpecification implements Serializable
      */
     public function __construct(Info $info)
     {
-        $this->info       = $info;
-        $this->paths      = new Paths();
+        $this->info = $info;
+        $this->paths = new Paths();
         $this->components = new Components();
     }
 

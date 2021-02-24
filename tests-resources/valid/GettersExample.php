@@ -75,9 +75,9 @@ class GettersExample implements Resource
      */
     public function __construct(string $id)
     {
-        $this->id          = $id;
-        $this->relation    = new DummyRelation('relation1');
-        $this->collection  = new Collection(
+        $this->id = $id;
+        $this->relation = new DummyRelation('relation1');
+        $this->collection = new Collection(
             [
                 new DummyRelation('relation2'),
                 new DummyRelation('relation3')

@@ -19,7 +19,7 @@ class MetadataRepository
 
     public function __construct()
     {
-        $this->collection     = new Collection();
+        $this->collection = new Collection();
         $this->typeToClassMap = new Collection();
     }
 

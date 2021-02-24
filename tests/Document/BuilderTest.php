@@ -14,6 +14,7 @@ use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Test\Resources\Valid\GettersExample;
 use PHPUnit\Framework\TestCase;
+use ReflectionClass;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Swaggest\JsonSchema\Schema;
 use Swaggest\JsonSchema\SchemaContract;
@@ -36,12 +37,12 @@ class BuilderTest extends TestCase
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
-        self::$mr      = MetadataFactory::create(
+        self::$mr = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
         );
-        self::$schema  = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../src/Middleware/out.json')));
+        self::$schema = Schema::import(json_decode(file_get_contents(__DIR__ . '/../../src/Middleware/out.json')));
         self::$baseUrl = 'http://unit.test.org/api';
         self::$factory = new DocumentBuilderFactory(self::$mr, self::$baseUrl);
     }
@@ -49,15 +50,14 @@ class BuilderTest extends TestCase
     public function testCreate()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $db      = self::$factory->new($request);
+        $db = self::$factory->new($request);
         $this->assertInstanceOf(Builder::class, $db);
     }
 
     public function testSetTotal()
     {
-
         $request = ServerRequestFactory::createFromGlobals();
-        $db      = self::$factory->new($request);
+        $db = self::$factory->new($request);
         $this->assertInstanceOf(
             Builder::class,
             $db->setTotal(10)
@@ -67,33 +67,33 @@ class BuilderTest extends TestCase
     public function testSetData()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $single  = new GettersExample('uuid');
-        $db      = self::$factory->new($request);
+        $single = new GettersExample('uuid');
+        $db = self::$factory->new($request);
         $this->assertInstanceOf(Builder::class, $db->setData($single));
 
         $_SERVER['REQUEST_URI'] = 'getter';
-        $request                = ServerRequestFactory::createFromGlobals();
-        $collection             = [new GettersExample('uuid')];
-        $db                     = self::$factory->new($request);
+        $request = ServerRequestFactory::createFromGlobals();
+        $collection = [new GettersExample('uuid')];
+        $db = self::$factory->new($request);
         $this->assertInstanceOf(Builder::class, $db->setData($collection));
     }
 
     public function testBuild()
     {
-        new \ReflectionClass(Collection::class);
+        new ReflectionClass(Collection::class);
         $request = ServerRequestFactory::createFromGlobals();
-        $single  = new GettersExample('uuid');
-        $db      = self::$factory->new($request);
-        $doc     = $db->setData($single)->build();
+        $single = new GettersExample('uuid');
+        $db = self::$factory->new($request);
+        $doc = $db->setData($single)->build();
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));
 
         $_SERVER['REQUEST_URI'] = 'getter';
-        $request                = ServerRequestFactory::createFromGlobals();
-        $collection             = [new GettersExample('uuid')];
-        $db                     = self::$factory->new($request);
-        $doc                    = $db->setData($collection)->build();
-        $self                   = $doc->getLinks()[Link::SELF];
+        $request = ServerRequestFactory::createFromGlobals();
+        $collection = [new GettersExample('uuid')];
+        $db = self::$factory->new($request);
+        $doc = $db->setData($collection)->build();
+        $self = $doc->getLinks()[Link::SELF];
         $this->assertStringContainsString('http://unit.test.org/api', (string)$self->getData());
         $this->assertInstanceOf(Document::class, $doc);
         $this->assertTrue($this->isValid($doc));

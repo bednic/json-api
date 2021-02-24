@@ -22,7 +22,7 @@ use Traversable;
 class Collection implements ArrayAccess, Countable, IteratorAggregate
 {
     public const SORT_DESC = 'DESC';
-    public const SORT_ASC = 'ASC';
+    public const SORT_ASC  = 'ASC';
     /**
      * @var array
      */
@@ -229,7 +229,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
         };
         foreach (array_reverse($order) as $field => $ordering) {
             $orientation = $ordering === self::SORT_DESC ? -1 : 1;
-            $next        = static function ($a, $b) use ($field, $next, $orientation): int {
+            $next = static function ($a, $b) use ($field, $next, $orientation): int {
                 $accessor = new ObjectPropertyAccessor();
                 try {
                     $aValue = $accessor($a, $field);

@@ -11,6 +11,11 @@ namespace JSONAPI\Metadata;
  */
 abstract class Field
 {
+    public ?string $setter = null;
+    public ?string $getter = null;
+    public ?string $name = null;
+    public ?string $property = null;
+
     /**
      * Field constructor.
      *
@@ -20,10 +25,14 @@ abstract class Field
      * @param string|null $setter
      */
     public function __construct(
-        public ?string $name = null,
-        public ?string $property = null,
-        public ?string $getter = null,
-        public ?string $setter = null
+        ?string $name = null,
+        ?string $property = null,
+        ?string $getter = null,
+        ?string $setter = null
     ) {
+        $this->name = $name;
+        $this->property = $property;
+        $this->getter = $getter;
+        $this->setter = $setter;
     }
 }

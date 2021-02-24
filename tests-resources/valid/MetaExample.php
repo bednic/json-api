@@ -6,6 +6,8 @@ namespace JSONAPI\Test\Resources\Valid;
 
 use JSONAPI\Annotation as API;
 use JSONAPI\Document\Meta;
+use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Metadata\Id;
 use JSONAPI\Metadata\Relationship;
 use JSONAPI\Schema\Resource;
@@ -46,14 +48,16 @@ class MetaExample implements Resource
 
     /**
      * @return Meta
-     * @throws \JSONAPI\Exception\Document\ForbiddenCharacter
-     * @throws \JSONAPI\Exception\Document\ForbiddenDataType
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      */
     public function getMeta(): Meta
     {
-        return new Meta([
-            'for' => MetaExample::class
-        ]);
+        return new Meta(
+            [
+                'for' => MetaExample::class
+            ]
+        );
     }
 
     /**
@@ -68,14 +72,16 @@ class MetaExample implements Resource
 
     /**
      * @return Meta
-     * @throws \JSONAPI\Exception\Document\ForbiddenCharacter
-     * @throws \JSONAPI\Exception\Document\ForbiddenDataType
+     * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      */
     public function getRelationMeta(): Meta
     {
-        return new Meta([
-            'for' => DummyRelation::class
-        ]);
+        return new Meta(
+            [
+                'for' => DummyRelation::class
+            ]
+        );
     }
 
     /**

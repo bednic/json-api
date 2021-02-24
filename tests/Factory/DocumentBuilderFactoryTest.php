@@ -32,9 +32,9 @@ class DocumentBuilderFactoryTest extends TestCase
 
     public function testNew()
     {
-        $baseUrl  = 'http://unit.test.org';
-        $request  = ServerRequestFactory::createFromGlobals();
-        $factory  = new DocumentBuilderFactory(self::$metadata, $baseUrl);
+        $baseUrl = 'http://unit.test.org';
+        $request = ServerRequestFactory::createFromGlobals();
+        $factory = new DocumentBuilderFactory(self::$metadata, $baseUrl);
         $composer = $factory->new($request);
         $this->assertInstanceOf(Builder::class, $composer);
     }

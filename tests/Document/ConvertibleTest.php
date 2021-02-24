@@ -20,7 +20,7 @@ class ConvertibleTest extends TestCase
 
     public function testJsonDeserialize()
     {
-        $stdTest   = json_decode(json_encode(['key' => 'value']), false);
+        $stdTest = json_decode(json_encode(['key' => 'value']), false);
         $arrayTest = json_decode(json_encode(['key' => 'value']), true);
 
         $obj = JSONTestObject::jsonDeserialize($stdTest);

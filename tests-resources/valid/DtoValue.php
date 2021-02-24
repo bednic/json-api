@@ -84,7 +84,7 @@ class DtoValue implements Convertible
      */
     public static function jsonDeserialize($json): self
     {
-        $json = (array) $json;
+        $json = (array)$json;
         $self = new static();
         $self->setStringProperty($json['stringProperty']);
         $self->setIntProperty($json['intProperty']);
@@ -104,8 +104,8 @@ class DtoValue implements Convertible
     {
         return [
             'stringProperty' => $this->getStringProperty(),
-            'intProperty' => $this->getIntProperty(),
-            'boolProperty' => $this->isBoolProperty()
+            'intProperty'    => $this->getIntProperty(),
+            'boolProperty'   => $this->isBoolProperty()
         ];
     }
 }

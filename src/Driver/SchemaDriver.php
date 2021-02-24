@@ -57,10 +57,10 @@ class SchemaDriver extends Driver
         try {
             $res = new ReflectionClass($className);
             if ($res->implementsInterface(Resource::class)) {
-                /** @var Resource $className */
+                /** @var \JSONAPI\Schema\Resource $className */
                 $classMetadata = $className::getSchema();
-                $ref           = new ReflectionClass($classMetadata->getClassName());
-                $attributes    = $this->parseAttributes($ref, $classMetadata->getAttributes());
+                $ref = new ReflectionClass($classMetadata->getClassName());
+                $attributes = $this->parseAttributes($ref, $classMetadata->getAttributes());
                 $relationships = $this->parseRelationships($ref, $classMetadata->getRelationships());
                 return new ClassMetadata(
                     $classMetadata->getClassName(),

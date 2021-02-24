@@ -54,7 +54,7 @@ class AnnotationDriver extends Driver
      */
     public function __construct(LoggerInterface $logger = null)
     {
-        $this->logger    = $logger ? $logger : new NullLogger();
+        $this->logger = $logger ? $logger : new NullLogger();
         $this->inflector = new EnglishInflector();
     }
 
@@ -70,7 +70,8 @@ class AnnotationDriver extends Driver
         try {
             $ref = new ReflectionClass($className);
 
-            /** @var Resource|null $resource */
+            /** @var \JSONAPI\Annotation\Resource|null $resource
+             */
             $resource = (@$ref->getAttributes(Resource::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance();
             if ($resource) {
                 $this->logger->debug('Found resource ' . $ref->getShortName());
@@ -82,8 +83,8 @@ class AnnotationDriver extends Driver
                 if ($meta && !$ref->hasMethod($meta->getter)) {
                     throw new MethodNotExist($meta->getter, $ref->getName());
                 }
-                $id            = null;
-                $attributes    = new Collection();
+                $id = null;
+                $attributes = new Collection();
                 $relationships = new Collection();
                 $this->parseProperties($ref, $id, $attributes, $relationships);
                 $this->parseMethods($ref, $id, $attributes, $relationships);
@@ -122,22 +123,42 @@ class AnnotationDriver extends Driver
     ): void {
         foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
-            if (!$id && $id = (@$reflectionProperty->getAttributes(Id::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance()) {
+            if (
+                !$id && $id = (@$reflectionProperty->getAttributes(
+                    Id::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                )[0])?->newInstance()
+            ) {
                 $id->property = $reflectionProperty->getName();
                 $this->logger->debug('Found resource ID.');
             }
             /** @var Attribute | null $attribute */
-            if ($attribute = (@$reflectionProperty->getAttributes(Attribute::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance()) {
+            if (
+                $attribute = (@$reflectionProperty->getAttributes(
+                    Attribute::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                )[0])?->newInstance()
+            ) {
                 $attribute->property = $reflectionProperty->getName();
                 $this->fillUpAttribute($attribute, $reflectionProperty, $reflectionClass);
                 $attributes->push($attribute);
                 $this->logger->debug('Found resource attribute ' . $attribute->name);
             }
             /** @var Relationship | null $relationship */
-            if ($relationship = (@$reflectionProperty->getAttributes(Relationship::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance()) {
+            if (
+                $relationship = (@$reflectionProperty->getAttributes(
+                    Relationship::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                )[0])?->newInstance()
+            ) {
                 $relationship->property = $reflectionProperty->getName();
                 /** @var Meta | null $meta */
-                if ($meta = (@$reflectionProperty->getAttributes(Meta::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance()) {
+                if (
+                    $meta = (@$reflectionProperty->getAttributes(
+                        Meta::class,
+                        ReflectionAttribute::IS_INSTANCEOF
+                    )[0])?->newInstance()
+                ) {
                     $relationship->meta = $meta;
                 }
                 $this->fillUpRelationship($relationship, $reflectionProperty, $reflectionClass);
@@ -166,13 +187,23 @@ class AnnotationDriver extends Driver
         foreach ($reflectionClass->getMethods(ReflectionMethod::IS_PUBLIC) as $reflectionMethod) {
             if (!$reflectionMethod->isConstructor() && !$reflectionMethod->isDestructor()) {
                 /** @var Id $id */
-                if (!$id && ($id = (@$reflectionMethod->getAttributes(Id::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance())) {
+                if (
+                    !$id && ($id = (@$reflectionMethod->getAttributes(
+                        Id::class,
+                        ReflectionAttribute::IS_INSTANCEOF
+                    )[0])?->newInstance())
+                ) {
                     $this->isGetter($reflectionMethod);
                     $id->getter = $reflectionMethod->getName();
                     $this->logger->debug('Found resource ID.');
                 }
                 /** @var Attribute $attribute */
-                if ($attribute = (@$reflectionMethod->getAttributes(Attribute::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance()) {
+                if (
+                    $attribute = (@$reflectionMethod->getAttributes(
+                        Attribute::class,
+                        ReflectionAttribute::IS_INSTANCEOF
+                    )[0])?->newInstance()
+                ) {
                     $this->isGetter($reflectionMethod);
                     $attribute->getter = $reflectionMethod->getName();
                     $this->fillUpAttribute($attribute, $reflectionMethod, $reflectionClass);
@@ -180,11 +211,21 @@ class AnnotationDriver extends Driver
                     $this->logger->debug('Found resource attribute ' . $attribute->name);
                 }
                 /** @var Relationship $relationship */
-                if ($relationship = (@$reflectionMethod->getAttributes(Relationship::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance()) {
+                if (
+                    $relationship = (@$reflectionMethod->getAttributes(
+                        Relationship::class,
+                        ReflectionAttribute::IS_INSTANCEOF
+                    )[0])?->newInstance()
+                ) {
                     $this->isGetter($reflectionMethod);
                     $relationship->getter = $reflectionMethod->getName();
                     /** @var Meta | null $meta */
-                    if ($meta = (@$reflectionMethod->getAttributes(Meta::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance()) {
+                    if (
+                        $meta = (@$reflectionMethod->getAttributes(
+                            Meta::class,
+                            ReflectionAttribute::IS_INSTANCEOF
+                        )[0])?->newInstance()
+                    ) {
                         $relationship->meta = $meta;
                     }
                     $this->fillUpRelationship($relationship, $reflectionMethod, $reflectionClass);

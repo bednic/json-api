@@ -100,9 +100,9 @@ class ExpressionLexer
      */
     public function __construct(string $expression)
     {
-        $this->text    = $expression;
+        $this->text = $expression;
         $this->textLen = strlen($this->text);
-        $this->token   = new ExpressionToken();
+        $this->token = new ExpressionToken();
         $this->setTextPos(0);
         $this->nextToken();
     }
@@ -118,7 +118,7 @@ class ExpressionLexer
     {
         $this->pos = $pos;
         $this->ch
-                   = $this->pos < $this->textLen
+            = $this->pos < $this->textLen
             ? $this->text[$this->pos] : '\0';
     }
 
@@ -127,12 +127,11 @@ class ExpressionLexer
      */
     public function nextToken()
     {
-
         while (self::isWhiteSpace($this->ch)) {
             $this->nextChar();
         }
 
-        $t        = null;
+        $t = null;
         $tokenPos = $this->pos;
         switch ($this->ch) {
             case '(':
@@ -244,8 +243,8 @@ class ExpressionLexer
                 );
         }
 
-        $this->token->id       = $t;
-        $this->token->text     = substr($this->text, $tokenPos, $this->pos - $tokenPos);
+        $this->token->id = $t;
+        $this->token->text = substr($this->text, $tokenPos, $this->pos - $tokenPos);
         $this->token->position = $tokenPos;
 
         // Handle type-prefixed literals such as binary, datetime or guid.
@@ -273,7 +272,7 @@ class ExpressionLexer
      *
      * @param string $char character to check
      *
-     * @return boolean
+     * @return bool
      */
     public static function isWhiteSpace($char)
     {
@@ -305,7 +304,7 @@ class ExpressionLexer
      *
      * @param string $char character to check
      *
-     * @return boolean
+     * @return bool
      */
     public static function isDigit($char)
     {
@@ -322,7 +321,7 @@ class ExpressionLexer
      */
     private function parseFromDigit(): ExpressionTokenId
     {
-        $result    = null;
+        $result = null;
         $startChar = $this->ch;
         $this->nextChar();
         if ($startChar == '0' && $this->ch == 'x' || $this->ch == 'X') {
@@ -438,7 +437,7 @@ class ExpressionLexer
      *
      * @param string $char character to check
      *
-     * @return boolean
+     * @return bool
      */
     public static function isLetterOrDigit($char)
     {
@@ -450,7 +449,7 @@ class ExpressionLexer
      *
      * @param string $char character to check
      *
-     * @return boolean
+     * @return bool
      */
     public static function isLetter($char)
     {
@@ -464,7 +463,7 @@ class ExpressionLexer
      *
      * @param string $text Text to look in
      *
-     * @return boolean true if match found, false otherwise
+     * @return bool true if match found, false otherwise
      */
     private static function isInfinityLiteralDouble($text)
     {
@@ -538,7 +537,7 @@ class ExpressionLexer
         }
 
         $this->nextChar();
-        $this->token->id   = $id;
+        $this->token->id = $id;
         $this->token->text = substr($this->text, $tokenPos, $this->pos - $tokenPos);
     }
 
@@ -547,7 +546,7 @@ class ExpressionLexer
      *
      * @param string $tokenText Text to look in
      *
-     * @return boolean true if match found, false otherwise
+     * @return bool true if match found, false otherwise
      */
     private static function isInfinityOrNaNDouble($tokenText)
     {
@@ -635,15 +634,15 @@ class ExpressionLexer
     public function peekNextToken(): ExpressionToken
     {
         $savedTextPos = $this->pos;
-        $savedChar    = $this->ch;
-        $savedToken   = clone $this->token;
+        $savedChar = $this->ch;
+        $savedToken = clone $this->token;
         $this->nextToken();
-        $result                = clone $this->token;
-        $this->pos             = $savedTextPos;
-        $this->ch              = $savedChar;
-        $this->token->id       = $savedToken->id;
+        $result = clone $this->token;
+        $this->pos = $savedTextPos;
+        $this->ch = $savedChar;
+        $this->token->id = $savedToken->id;
         $this->token->position = $savedToken->position;
-        $this->token->text     = $savedToken->text;
+        $this->token->text = $savedToken->text;
         return $result;
     }
 

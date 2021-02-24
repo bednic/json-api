@@ -57,7 +57,7 @@ final class Link extends Field implements HasMeta
         }
     }
 
-    public function getData(): string|object
+    public function getData(): string | object
     {
         if ($this->meta) {
             return (object)[

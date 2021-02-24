@@ -49,7 +49,7 @@ class Info implements Serializable
         string $title,
         string $version
     ) {
-        $this->title   = $title;
+        $this->title = $title;
         $this->version = $version;
     }
 

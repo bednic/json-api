@@ -34,7 +34,7 @@ class AnnotationDriverTest extends TestCase
 
     public function testMetaAnnotation()
     {
-        $driver   = new AnnotationDriver();
+        $driver = new AnnotationDriver();
         $resource = new MetaExample('test');
         $metadata = $driver->getClassMetadata(get_class($resource));
         $this->assertInstanceOf(Meta::class, $metadata->getMeta());
@@ -48,7 +48,7 @@ class AnnotationDriverTest extends TestCase
      */
     public function testGetClassMetadata($instance)
     {
-        $driver   = new AnnotationDriver();
+        $driver = new AnnotationDriver();
         $metadata = $driver->getClassMetadata(get_class($instance));
         $this->assertMatchesRegularExpression('/[a-zA-Z0-9]+/', $metadata->getType());
         $this->assertNotEmpty($metadata->getClassName());
@@ -71,7 +71,7 @@ class AnnotationDriverTest extends TestCase
 
     public function testDoctrineCollectionAdapter()
     {
-        $driver   = new AnnotationDriver();
+        $driver = new AnnotationDriver();
         $metadata = $driver->getClassMetadata(GettersExample::class);
         $this->assertTrue($metadata->getRelationship('doctrineCollection')->isCollection);
     }

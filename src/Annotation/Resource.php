@@ -20,6 +20,8 @@ final class Resource
      * @var Meta|null
      */
     public ?Meta $meta = null;
+    public ?string $type = null;
+    public bool $readOnly = false;
 
     /**
      * Resource constructor.
@@ -28,8 +30,10 @@ final class Resource
      * @param bool        $readOnly
      */
     public function __construct(
-        public ?string $type = null,
-        public bool $readOnly = false
+        ?string $type = null,
+        bool $readOnly = false
     ) {
+        $this->readOnly = $readOnly;
+        $this->type = $type;
     }
 }

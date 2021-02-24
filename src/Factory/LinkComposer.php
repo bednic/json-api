@@ -82,16 +82,20 @@ class LinkComposer
         ResourceObject $resource,
         Meta $meta = null
     ): Relationship {
-        $relationship->setLink(new Link(
-            Link::SELF,
-            $this->getResourceLink($resource) . '/relationships/' . $relationship->getKey(),
-            $meta
-        ));
-        $relationship->setLink(new Link(
-            Link::RELATED,
-            $this->getResourceLink($resource) . '/' . $relationship->getKey(),
-            $meta
-        ));
+        $relationship->setLink(
+            new Link(
+                Link::SELF,
+                $this->getResourceLink($resource) . '/relationships/' . $relationship->getKey(),
+                $meta
+            )
+        );
+        $relationship->setLink(
+            new Link(
+                Link::RELATED,
+                $this->getResourceLink($resource) . '/' . $relationship->getKey(),
+                $meta
+            )
+        );
         return $relationship;
     }
 
@@ -106,76 +110,88 @@ class LinkComposer
      */
     public function setDocumentLinks(Document $document, URIParser $parser): Document
     {
-        $path       = $parser->getPath();
-        $filter     = $parser->getFilter();
-        $inclusion  = $parser->getInclusion();
-        $fieldset   = $parser->getFieldset();
-        $sort       = $parser->getSort();
+        $path = $parser->getPath();
+        $filter = $parser->getFilter();
+        $inclusion = $parser->getInclusion();
+        $fieldset = $parser->getFieldset();
+        $sort = $parser->getSort();
         $pagination = $parser->getPagination();
         if ($document->getData() instanceof ResourceCollection) {
-            $document->setLink($this->createDocumentLink(
-                Link::SELF,
-                $path,
-                $filter,
-                $inclusion,
-                $fieldset,
-                $pagination,
-                $sort
-            ));
-            if ($first = $pagination->first()) {
-                $document->setLink($this->createDocumentLink(
-                    Link::FIRST,
+            $document->setLink(
+                $this->createDocumentLink(
+                    Link::SELF,
                     $path,
                     $filter,
                     $inclusion,
                     $fieldset,
-                    $first,
+                    $pagination,
                     $sort
-                ));
+                )
+            );
+            if ($first = $pagination->first()) {
+                $document->setLink(
+                    $this->createDocumentLink(
+                        Link::FIRST,
+                        $path,
+                        $filter,
+                        $inclusion,
+                        $fieldset,
+                        $first,
+                        $sort
+                    )
+                );
             }
             if ($last = $pagination->last()) {
-                $document->setLink($this->createDocumentLink(
-                    Link::LAST,
-                    $path,
-                    $filter,
-                    $inclusion,
-                    $fieldset,
-                    $last,
-                    $sort
-                ));
+                $document->setLink(
+                    $this->createDocumentLink(
+                        Link::LAST,
+                        $path,
+                        $filter,
+                        $inclusion,
+                        $fieldset,
+                        $last,
+                        $sort
+                    )
+                );
             }
             if ($prev = $pagination->prev()) {
-                $document->setLink($this->createDocumentLink(
-                    Link::PREV,
-                    $path,
-                    $filter,
-                    $inclusion,
-                    $fieldset,
-                    $prev,
-                    $sort
-                ));
+                $document->setLink(
+                    $this->createDocumentLink(
+                        Link::PREV,
+                        $path,
+                        $filter,
+                        $inclusion,
+                        $fieldset,
+                        $prev,
+                        $sort
+                    )
+                );
             }
             if ($next = $pagination->next()) {
-                $document->setLink($this->createDocumentLink(
-                    Link::NEXT,
-                    $path,
-                    $filter,
-                    $inclusion,
-                    $fieldset,
-                    $next,
-                    $sort
-                ));
+                $document->setLink(
+                    $this->createDocumentLink(
+                        Link::NEXT,
+                        $path,
+                        $filter,
+                        $inclusion,
+                        $fieldset,
+                        $next,
+                        $sort
+                    )
+                );
             }
         } else {
-            $document->setLink($this->createDocumentLink(
-                Link::SELF,
-                $parser->getPath(),
-                null,
-                $parser->getInclusion(),
-                $parser->getFieldset(),
-                null,
-                null
-            ));
+            $document->setLink(
+                $this->createDocumentLink(
+                    Link::SELF,
+                    $parser->getPath(),
+                    null,
+                    $parser->getInclusion(),
+                    $parser->getFieldset(),
+                    null,
+                    null
+                )
+            );
         }
         return $document;
     }
@@ -202,7 +218,7 @@ class LinkComposer
         ?PaginationInterface $pagination,
         ?SortInterface $sort
     ): Link {
-        $url  = $this->baseURL;
+        $url = $this->baseURL;
         $link = $url . (string)$path;
         $mark = '?';
         if (strlen((string)$filter)) {

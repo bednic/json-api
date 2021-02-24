@@ -46,9 +46,8 @@ class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterfa
 
     public function testConstruct()
     {
-
-        $rf         = new ResponseFactory();
-        $sf         = new StreamFactory();
+        $rf = new ResponseFactory();
+        $sf = new StreamFactory();
         $middleware = new PsrJsonApiMiddleware(self::$mf, self::$baseURL, $rf, $sf);
         $this->assertInstanceOf(PsrJsonApiMiddleware::class, $middleware);
         return $middleware;
@@ -62,8 +61,8 @@ class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterfa
      */
     public function testProcess(PsrJsonApiMiddleware $middleware)
     {
-        $rf       = new ServerRequestFactory();
-        $request  = $rf
+        $rf = new ServerRequestFactory();
+        $request = $rf
             ->createServerRequest(RequestMethodInterface::METHOD_POST, 'http://unit.test.org/getter')
             ->withBody(
                 (new Stream(fopen(RESOURCES . DIRECTORY_SEPARATOR . 'request.json', 'r')))
@@ -73,7 +72,7 @@ class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterfa
         $this->assertEquals(Document::MEDIA_TYPE, $response->getHeader('Content-Type')[0]);
         $this->assertEquals(StatusCodeInterface::STATUS_UNSUPPORTED_MEDIA_TYPE, $response->getStatusCode());
 
-        $request  = $rf->createServerRequest(RequestMethodInterface::METHOD_POST, 'http://unit.test.org/getter')
+        $request = $rf->createServerRequest(RequestMethodInterface::METHOD_POST, 'http://unit.test.org/getter')
             ->withAddedHeader('Content-Type', Document::MEDIA_TYPE)
             ->withBody(
                 (new Stream(fopen(RESOURCES . DIRECTORY_SEPARATOR . 'request.json', 'r')))
@@ -83,7 +82,7 @@ class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterfa
         $this->assertEquals(Document::MEDIA_TYPE, $response->getHeader('Content-Type')[0]);
         $this->assertEquals(StatusCodeInterface::STATUS_OK, $response->getStatusCode());
 
-        $request  = $rf->createServerRequest(RequestMethodInterface::METHOD_GET, 'http://unit.test.org/getter');
+        $request = $rf->createServerRequest(RequestMethodInterface::METHOD_GET, 'http://unit.test.org/getter');
         $response = $middleware->process($request, $this);
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals(Document::MEDIA_TYPE, $response->getHeader('Content-Type')[0]);
@@ -93,11 +92,14 @@ class PsrJsonApiMiddlewareTest extends TestCase implements RequestHandlerInterfa
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         if (
-            in_array($request->getMethod(), [
-            RequestMethodInterface::METHOD_POST,
-            RequestMethodInterface::METHOD_PATCH,
-            RequestMethodInterface::METHOD_DELETE
-            ])
+            in_array(
+                $request->getMethod(),
+                [
+                RequestMethodInterface::METHOD_POST,
+                RequestMethodInterface::METHOD_PATCH,
+                RequestMethodInterface::METHOD_DELETE
+                ]
+            )
         ) {
             $this->assertInstanceOf(Document::class, $request->getParsedBody());
         }

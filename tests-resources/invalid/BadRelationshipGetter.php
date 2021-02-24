@@ -4,7 +4,6 @@
 namespace JSONAPI\Test\Resources\Invalid;
 
 
-
 use JSONAPI\Annotation as API;
 use JSONAPI\Data\Collection;
 
@@ -23,6 +22,6 @@ class BadRelationshipGetter
     #[API\Relationship("SomeClass")]
     public function getRelation()
     {
-        return  new Collection();
+        return new Collection();
     }
 }

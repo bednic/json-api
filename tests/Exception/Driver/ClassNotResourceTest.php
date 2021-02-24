@@ -19,6 +19,7 @@ class ClassNotResourceTest extends TestCase
         $this->assertInstanceOf(ClassNotResource::class, $e);
         $this->assertStringContainsString('MyClass', $e->getMessage());
     }
+
     public function testUsage()
     {
         $this->expectException(ClassNotResource::class);

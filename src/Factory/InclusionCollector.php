@@ -62,11 +62,11 @@ class InclusionCollector
         int $maxIncludedItems = 625,
         LoggerInterface $logger = null
     ) {
-        $this->included           = new ResourceCollection();
+        $this->included = new ResourceCollection();
         $this->metadataRepository = $metadataRepository;
-        $this->encoder            = $encoder;
-        $this->logger             = $logger ?? new NullLogger();
-        $this->maxIncludedItems   = $maxIncludedItems;
+        $this->encoder = $encoder;
+        $this->logger = $logger ?? new NullLogger();
+        $this->maxIncludedItems = $maxIncludedItems;
     }
 
     /**
@@ -86,7 +86,7 @@ class InclusionCollector
         foreach ($inclusions as $sub) {
             try {
                 $relationship = $classMetadata->getRelationship($sub->getRelationName());
-                $data         = null;
+                $data = null;
                 if ($relationship->property) {
                     $data = $object->{$relationship->property};
                 } elseif ($relationship->getter) {

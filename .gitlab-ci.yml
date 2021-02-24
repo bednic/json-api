@@ -28,11 +28,10 @@ test:unit:
         paths:
             - tmp
 
-# until code-sniffer start support php8 attributes
-#code_sniffer:
-#    stage: analyse
-#    script:
-#        - vendor/bin/phpcs
+code_sniffer:
+    stage: analyse
+    script:
+        - vendor/bin/phpcs
 
 sonar:
     stage: analyse
@@ -50,11 +49,10 @@ sonar:
     dependencies:
         - test:unit
 
-# until php-stan start support php8 syntax
-#phpstan:
-#    stage: analyse
-#    script:
-#        - vendor/bin/phpstan -n --no-ansi analyse
+phpstan:
+    stage: analyse
+    script:
+        - vendor/bin/phpstan -n --no-ansi analyse
 
 pages:
     stage: docs

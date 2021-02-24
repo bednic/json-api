@@ -54,8 +54,8 @@ abstract class Reference
      */
     protected function setRef(string $to, $origin)
     {
-        $this->isRef  = true;
-        $this->ref    = $to;
+        $this->isRef = true;
+        $this->ref = $to;
         $this->origin = $origin;
     }
 }

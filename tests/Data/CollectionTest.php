@@ -23,10 +23,10 @@ class CollectionTest extends TestCase
     {
         $items = [];
         for ($i = 0; $i < 10; $i++) {
-            $item        = new stdClass();
-            $item->id    = $i;
+            $item = new stdClass();
+            $item->id = $i;
             $item->value = "value" . ($i % 2);
-            $items[]     = $item;
+            $items[] = $item;
         }
         return [
             [$items]
@@ -101,10 +101,10 @@ class CollectionTest extends TestCase
      */
     public function testHas($items)
     {
-        $item        = new stdClass();
-        $item->id    = 0;
+        $item = new stdClass();
+        $item->id = 0;
         $item->value = 'value0';
-        $collection  = new Collection($items);
+        $collection = new Collection($items);
         $this->assertTrue($collection->has($item));
     }
 
@@ -121,7 +121,7 @@ class CollectionTest extends TestCase
     public function testFilter($items)
     {
         $collection = new Collection($items);
-        $filter     = function ($item) {
+        $filter = function ($item) {
             return $item->id < 5;
         };
         $this->assertCount(5, $collection->filter($filter));
@@ -152,7 +152,7 @@ class CollectionTest extends TestCase
 
     public function testOffsetUnset()
     {
-        $item       = new stdClass();
+        $item = new stdClass();
         $collection = new Collection([1 => $item]);
         $this->assertEquals($item, $collection[1]);
         $collection->offsetUnset(1);
@@ -178,7 +178,7 @@ class CollectionTest extends TestCase
         $this->assertEquals(10, $collection->count());
     }
 
-    public function test__construct()
+    public function testConstruct()
     {
         $collection = new Collection();
         $this->assertInstanceOf(Collection::class, $collection);
@@ -206,7 +206,7 @@ class CollectionTest extends TestCase
         $collection->orderBy(
             [
                 'value' => Collection::SORT_ASC,
-                'id' => Collection::SORT_DESC
+                'id'    => Collection::SORT_DESC
             ]
         );
         $objects = $collection->toArray();

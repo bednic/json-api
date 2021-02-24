@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Exception\Data;
 
-
 use JSONAPI\Exception\JsonApiException;
 
 class CollectionException extends JsonApiException

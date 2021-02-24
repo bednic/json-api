@@ -32,7 +32,7 @@ class Callback extends Reference implements Serializable
     public function __construct(string $expression, PathItem $pathItem)
     {
         $this->expression = $expression;
-        $this->pathItem   = $pathItem;
+        $this->pathItem = $pathItem;
     }
 
     /**

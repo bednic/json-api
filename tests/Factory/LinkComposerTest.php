@@ -36,7 +36,7 @@ class LinkComposerTest extends TestCase
             new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
         );
-        $request  = ServerRequestFactory::createFromGlobals();
+        $request = ServerRequestFactory::createFromGlobals();
         self::$baseURL = 'http://unit.test.org/api';
         self::$up = new URIParser($request, $metadata, self::$baseURL);
     }
@@ -60,7 +60,7 @@ class LinkComposerTest extends TestCase
 
     public function testSetRelationshipLinks()
     {
-        $resource     = new ResourceObject(new Type('resource'), new Id('id'));
+        $resource = new ResourceObject(new Type('resource'), new Id('id'));
         $relationship = new Relationship('test');
         $relationship->setData(null);
         $factory = new LinkComposer(self::$baseURL);

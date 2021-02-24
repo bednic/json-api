@@ -31,7 +31,7 @@ class ExpressionToken
     /**
      * Checks whether this token is a comparison operator.
      *
-     * @return boolean True if this token represent a comparison operator
+     * @return bool True if this token represent a comparison operator
      *                 False otherwise.
      */
     public function isComparisonOperator(): bool
@@ -53,7 +53,7 @@ class ExpressionToken
     /**
      * Checks whether this token is a valid token for a key value.
      *
-     * @return boolean True if this token represent valid key value
+     * @return bool True if this token represent valid key value
      *                 False otherwise.
      */
     public function isKeyValueToken()

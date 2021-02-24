@@ -57,8 +57,8 @@ class PathParser implements PathInterface
         string $method = RequestMethodInterface::METHOD_GET
     ) {
         $this->metadataRepository = $metadataRepository;
-        $this->baseURL            = $baseURL;
-        $this->method             = $method;
+        $this->baseURL = $baseURL;
+        $this->method = $method;
     }
 
     /**
@@ -69,27 +69,26 @@ class PathParser implements PathInterface
      */
     public function parse(string $data): PathInterface
     {
-
-        $req             = explode('/', $data);
-        $base            = explode('/', parse_url($this->baseURL, PHP_URL_PATH) ?? '');
-        $diff            = array_diff($req, $base);
-        $data            = implode('/', $diff);
-        $resourceKey     = 'resource';
-        $idKey           = 'id';
+        $req = explode('/', $data);
+        $base = explode('/', parse_url($this->baseURL, PHP_URL_PATH) ?? '');
+        $diff = array_diff($req, $base);
+        $data = implode('/', $diff);
+        $resourceKey = 'resource';
+        $idKey = 'id';
         $relationshipKey = 'relationship';
-        $relatedKey      = 'related';
-        $pattern         = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
+        $relatedKey = 'related';
+        $pattern = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
 
         if (preg_match($pattern, $data, $matches)) {
             $this->resource = $matches[$resourceKey];
-            $this->id       = isset($matches[$idKey]) ? $matches[$idKey] : null;
+            $this->id = isset($matches[$idKey]) ? $matches[$idKey] : null;
             if (isset($matches[$relationshipKey]) && strlen($matches[$relationshipKey]) > 0) {
                 $this->isRelationship = true;
-                $this->relationship   = $matches[$relationshipKey];
+                $this->relationship = $matches[$relationshipKey];
             } elseif (isset($matches[$relatedKey]) && strlen($matches[$relatedKey]) > 0) {
                 $this->isRelationship = false;
-                $this->relationship   = $matches[$relatedKey];
+                $this->relationship = $matches[$relatedKey];
             }
         } else {
             throw new BadRequest();

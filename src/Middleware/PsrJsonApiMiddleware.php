@@ -105,16 +105,16 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         LoggerInterface $logger = null,
         ErrorFactory $errorFactory = null
     ) {
-        $this->repository      = $repository;
-        $this->baseURL         = $baseURL;
+        $this->repository = $repository;
+        $this->baseURL = $baseURL;
         $this->responseFactory = $responseFactory;
-        $this->streamFactory   = $streamFactory;
-        $this->logger          = $logger ?? new NullLogger();
-        $this->errorFactory    = $errorFactory ?? new DocumentErrorFactory();
-        $this->input           = Schema::import(
+        $this->streamFactory = $streamFactory;
+        $this->logger = $logger ?? new NullLogger();
+        $this->errorFactory = $errorFactory ?? new DocumentErrorFactory();
+        $this->input = Schema::import(
             json_decode(file_get_contents(__DIR__ . '/in.json'))
         );
-        $this->output          = Schema::import(
+        $this->output = Schema::import(
             json_decode(file_get_contents(__DIR__ . '/out.json'))
         );
     }
@@ -159,7 +159,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $request = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
-            $content  = $response->getBody()->getContents();
+            $content = $response->getBody()->getContents();
             $response->getBody()->rewind();
             if (strlen($content) > 0) {
                 $this->output->in(
@@ -169,7 +169,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage(), ['exception' => $exception]);
             $document = new Document();
-            $error    = $this->errorFactory->fromThrowable($exception);
+            $error = $this->errorFactory->fromThrowable($exception);
             $document->addError($error);
             $response = $this->responseFactory
                 ->createResponse($error->getStatus())
@@ -192,7 +192,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         if ($path->isCollection()) {
             $data = new ResourceCollection();
             if ($body) {
-                $type     = $path->getPrimaryResourceType();
+                $type = $path->getPrimaryResourceType();
                 $metadata = $this->repository->getByType($type);
                 foreach ($body->data as $object) {
                     $resource = $this->jsonToResourceObject($object, $metadata, $path);
@@ -202,9 +202,9 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         } else {
             $data = null;
             if ($body) {
-                $type     = $path->getPrimaryResourceType();
+                $type = $path->getPrimaryResourceType();
                 $metadata = $this->repository->getByType($type);
-                $data     = $this->jsonToResourceObject($body->data, $metadata, $path);
+                $data = $this->jsonToResourceObject($body->data, $metadata, $path);
             }
         }
         return $data;
@@ -227,8 +227,8 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         if ($object->type !== $metadata->getType()) {
             throw new Conflict();
         }
-        $type     = new Type($object->type);
-        $id       = new Id(@$object->id);
+        $type = new Type($object->type);
+        $id = new Id(@$object->id);
         $resource = new ResourceObjectIdentifier($type, $id);
         if (!$path->isRelationship()) {
             $resource = new ResourceObject($type, $id);

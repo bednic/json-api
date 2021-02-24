@@ -31,7 +31,7 @@ class InclusionParser implements InclusionInterface
     public function parse(?string $data): InclusionInterface
     {
         $this->inclusions = [];
-        $this->data       = $data;
+        $this->data = $data;
         if ($data && strlen($data) > 0) {
             $t = explode(',', $data);
             foreach ($t as $i) {

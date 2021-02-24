@@ -65,13 +65,13 @@ final class ResourceSchema
         bool $readOnly = false,
         ?Meta $resourceMeta = null
     ) {
-        $this->className     = $className;
-        $this->type          = $type;
-        $this->id            = $id;
-        $this->attributes    = $attributes;
+        $this->className = $className;
+        $this->type = $type;
+        $this->id = $id;
+        $this->attributes = $attributes;
         $this->relationships = $relationships;
-        $this->readOnly      = $readOnly;
-        $this->meta          = $resourceMeta;
+        $this->readOnly = $readOnly;
+        $this->meta = $resourceMeta;
     }
 
     /**
