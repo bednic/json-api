@@ -63,6 +63,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     public function parse($data): FilterInterface
     {
+        $this->lexer = null;
         $this->condition = null;
         if ($data && is_string($data) && strlen($data) > 0) {
             $this->lexer     = new ExpressionLexer($data);
