@@ -14,20 +14,22 @@ use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
-use JSONAPI\Document\Type;
 use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Factory\LinkComposer;
-use JSONAPI\Metadata\ClassMetadata;
-use JSONAPI\Metadata\Field;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Fieldset\FieldsetInterface;
 use JSONAPI\URI\Inclusion\InclusionInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class RelationshipsProcessor
+ *
+ * @package JSONAPI\Encoding
+ */
 class RelationshipsProcessor extends FieldsProcessor implements Processor
 {
     /**

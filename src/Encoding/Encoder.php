@@ -9,26 +9,23 @@ declare(strict_types=1);
 
 namespace JSONAPI\Encoding;
 
-use DateTimeInterface;
-use JSONAPI\Data\Collection;
 use JSONAPI\Document\Id;
-use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Document\Type;
-use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\Metadata\InvalidField;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Helper\DoctrineProxyTrait;
-use JSONAPI\Metadata\Attribute;
-use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\Metadata\Relationship;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class Encoder
+ *
+ * @package JSONAPI\Encoding
+ */
 class Encoder
 {
     use DoctrineProxyTrait;

@@ -24,6 +24,11 @@ use JSONAPI\Metadata\Relationship;
 use JSONAPI\URI\Fieldset\FieldsetInterface;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Class FieldsProcessor
+ *
+ * @package JSONAPI\Encoding
+ */
 abstract class FieldsProcessor
 {
 

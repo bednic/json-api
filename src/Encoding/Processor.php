@@ -11,8 +11,21 @@ namespace JSONAPI\Encoding;
 
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
+use JSONAPI\Exception\JsonApiException;
 
+/**
+ * Interface Processor
+ *
+ * @package JSONAPI\Encoding
+ */
 interface Processor
 {
+    /**
+     * @param ResourceObjectIdentifier|ResourceObject $resource
+     * @param object                                  $object
+     *
+     * @return ResourceObjectIdentifier|ResourceObject
+     * @throws JsonApiException
+     */
     public function process(ResourceObjectIdentifier | ResourceObject $resource, object $object): ResourceObjectIdentifier | ResourceObject;
 }

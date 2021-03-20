@@ -27,7 +27,7 @@ use ReflectionException;
 /**
  * Class Encoder
  *
- * @package JSONAPI
+ * @package JSONAPI\Metadata
  * @deprecated
  */
 final class Encoder

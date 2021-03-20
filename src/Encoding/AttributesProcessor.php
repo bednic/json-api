@@ -18,6 +18,11 @@ use JSONAPI\URI\Fieldset\FieldsetInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
+/**
+ * Class AttributesProcessor
+ *
+ * @package JSONAPI\Encoding
+ */
 class AttributesProcessor extends FieldsProcessor implements Processor
 {
 
