@@ -32,7 +32,7 @@ class PathParserTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr      = MetadataFactory::create(
+        self::$mr = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
@@ -42,25 +42,25 @@ class PathParserTest extends TestCase
 
     public function testGetId()
     {
-        $test   = '/resource/uuid/relationships/relation';
+        $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path   = $parser->parse($test);
+        $path = $parser->parse($test);
         $this->assertEquals('uuid', $path->getId());
     }
 
     public function testGetResourceType()
     {
-        $test   = '/resource/uuid/relationships/relation';
+        $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path   = $parser->parse($test);
+        $path = $parser->parse($test);
         $this->assertEquals('resource', $path->getResourceType());
     }
 
     public function testToString()
     {
-        $test   = '/resource/uuid/relationships/relation';
+        $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path   = $parser->parse($test);
+        $path = $parser->parse($test);
         $result = (string)$path;
         $this->assertIsString($result);
         $this->assertEquals($test, $result);
@@ -69,8 +69,8 @@ class PathParserTest extends TestCase
     public function testGetPrimaryResourceType()
     {
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $data   = '/getter/uuid';
-        $path   = $parser->parse($data);
+        $data = '/getter/uuid';
+        $path = $parser->parse($data);
         $this->assertEquals('getter', $path->getPrimaryResourceType());
     }
 
@@ -83,8 +83,8 @@ class PathParserTest extends TestCase
     public function testParse()
     {
         $parser = new PathParser(self::$mr, self::$baseUrl . '/api');
-        $data   = '/api/resource/uuid';
-        $path   = $parser->parse($data);
+        $data = '/api/resource/uuid';
+        $path = $parser->parse($data);
         $this->assertInstanceOf(PathInterface::class, $path);
 
         $this->assertEquals('resource', $path->getResourceType());
@@ -96,8 +96,8 @@ class PathParserTest extends TestCase
     public function testProxyUrl()
     {
         $parser = new PathParser(self::$mr, self::$baseUrl . '/resources');
-        $data   = '/resources/somethings';
-        $path   = $parser->parse($data);
+        $data = '/resources/somethings';
+        $path = $parser->parse($data);
         $this->assertTrue($path->isCollection());
         $this->assertEquals('somethings', $path->getResourceType());
         $data = '/resources/somethings/some-uuid';
@@ -108,25 +108,25 @@ class PathParserTest extends TestCase
 
     public function testIsRelationship()
     {
-        $test   = '/resource/uuid/relationships/relation';
+        $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path   = $parser->parse($test);
+        $path = $parser->parse($test);
         $this->assertTrue($path->isRelationship());
     }
 
     public function testIsCollection()
     {
-        $test   = '/resource';
+        $test = '/resource';
         $parser = new PathParser(self::$mr, self::$baseUrl, RequestMethodInterface::METHOD_GET);
-        $path   = $parser->parse($test);
+        $path = $parser->parse($test);
         $this->assertTrue($path->isCollection());
     }
 
     public function testGetRelationshipName()
     {
-        $test   = '/resource/uuid/relationships/relation';
+        $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path   = $parser->parse($test);
+        $path = $parser->parse($test);
         $this->assertEquals('relation', $path->getRelationshipName());
     }
 }

@@ -32,7 +32,7 @@ class UriParserTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr      = MetadataFactory::create(
+        self::$mr = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new Psr16Cache(new ArrayAdapter()),
             new SchemaDriver()
@@ -43,28 +43,28 @@ class UriParserTest extends TestCase
     public function testGetFieldset()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser($request, self::$mr, self::$baseURL);
+        $up = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(FieldsetInterface::class, $up->getFieldset());
     }
 
     public function testGetFilter()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser($request, self::$mr, self::$baseURL);
+        $up = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(FilterInterface::class, $up->getFilter());
     }
 
     public function testGetSort()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser($request, self::$mr, self::$baseURL);
+        $up = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(SortInterface::class, $up->getSort());
     }
 
     public function testConstruct()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser(
+        $up = new URIParser(
             $request,
             self::$mr,
             self::$baseURL,
@@ -81,14 +81,14 @@ class UriParserTest extends TestCase
     public function testGetInclusion()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser($request, self::$mr, self::$baseURL);
+        $up = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(InclusionInterface::class, $up->getInclusion());
     }
 
     public function testGetPath()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser($request, self::$mr, self::$baseURL);
+        $up = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(PathInterface::class, $up->getPath());
     }
 
@@ -96,15 +96,15 @@ class UriParserTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser($request, self::$mr, self::$baseURL);
-        $parser  = new ExpressionFilterParser();
+        $up = new URIParser($request, self::$mr, self::$baseURL);
+        $parser = new ExpressionFilterParser();
         $up->setFilterParser($parser);
     }
 
     public function testGetPagination()
     {
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser($request, self::$mr, self::$baseURL);
+        $up = new URIParser($request, self::$mr, self::$baseURL);
         $this->assertInstanceOf(PaginationInterface::class, $up->getPagination());
     }
 
@@ -112,8 +112,8 @@ class UriParserTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         $request = ServerRequestFactory::createFromGlobals();
-        $up      = new URIParser($request, self::$mr, self::$baseURL);
-        $parser  = new LimitOffsetPagination();
+        $up = new URIParser($request, self::$mr, self::$baseURL);
+        $parser = new LimitOffsetPagination();
         $up->setPaginationParser($parser);
     }
 }

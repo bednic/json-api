@@ -15,7 +15,7 @@ class SortParserTest extends TestCase
     {
         return [
             ['0', ['0' => SortParser::ASC]],
-            ['00',['00' => SortParser::ASC]],
+            ['00', ['00' => SortParser::ASC]],
             ['0-0', ['0-0' => SortParser::ASC]],
             ['-asdf', ['asdf' => SortParser::DESC]],
             ['asdf', ['asdf' => SortParser::ASC]],

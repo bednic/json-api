@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Factory;
 
 use JSONAPI\Document\ResourceCollection;
+use JSONAPI\Encoding\Encoder;
 use JSONAPI\Exception\Document\DocumentException;
 use JSONAPI\Exception\Document\InclusionOverflow;
 use JSONAPI\Exception\Driver\DriverException;
@@ -12,7 +13,6 @@ use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Helper\DoctrineProxyTrait;
-use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Inclusion\Inclusion;
 use Psr\Log\LoggerInterface;
@@ -123,7 +123,7 @@ class InclusionCollector
     private function addInclusion(object $item): void
     {
         if ($this->maxIncludedItems < 0 || $this->included->count() < $this->maxIncludedItems) {
-            $this->included->add($this->encoder->getResource($item));
+            $this->included->add($this->encoder->encode($item));
         } else {
             throw new InclusionOverflow($this->maxIncludedItems);
         }

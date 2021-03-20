@@ -31,7 +31,7 @@ class ExpressionFilterParserTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr      = MetadataFactory::create(
+        self::$mr = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new Psr16Cache(new ArrayAdapter()),
             new SchemaDriver()
@@ -48,11 +48,11 @@ class ExpressionFilterParserTest extends TestCase
     public function testQuoted()
     {
         $filter = new ExpressionFilterParser(new DoctrineCriteriaExpressionBuilder());
-        $text   = "property eq '''va''lue''' and property ne ''''";
+        $text = "property eq '''va''lue''' and property ne ''''";
         $filter->parse($text);
         /** @var CompositeExpression $condition */
         $condition = $filter->getCondition();
-        $visitor   = new QueryExpressionVisitor(['alias']);
+        $visitor = new QueryExpressionVisitor(['alias']);
         $visitor->dispatch($condition);
         /** @var Parameter[] $params */
         $params = $visitor->getParameters();
@@ -64,9 +64,9 @@ class ExpressionFilterParserTest extends TestCase
     {
         $_SERVER["REQUEST_URI"] =
             "/getter?filter=stringProperty eq 'O''Neil' and contains(stringProperty,'asdf') and intProperty in (1,2,3) or boolProperty ne true and relation.property eq null and stringProperty eq datetime'2018-12-01'";
-        $request                = ServerRequestFactory::createFromGlobals();
-        $up                     = new URIParser($request, self::$mr, self::$baseURL);
-        $parser                 = new ExpressionFilterParser(
+        $request = ServerRequestFactory::createFromGlobals();
+        $up = new URIParser($request, self::$mr, self::$baseURL);
+        $parser = new ExpressionFilterParser(
             new DoctrineQueryExpressionBuilder(
                 self::$mr,
                 $up->getPath()
@@ -86,11 +86,11 @@ class ExpressionFilterParserTest extends TestCase
 
     public function testDoctrineCriteriaExpression()
     {
-        $url    = "stringProperty eq 'O''Neil' and intProperty in (1,2,3) or boolProperty ne true and stringProperty eq datetime'2018-12-01'";
+        $url = "stringProperty eq 'O''Neil' and intProperty in (1,2,3) or boolProperty ne true and stringProperty eq datetime'2018-12-01'";
         $parser = new ExpressionFilterParser(new DoctrineCriteriaExpressionBuilder());
         $parser->parse($url);
         $visitor = new QueryExpressionVisitor(['t']);
-        $result  = $visitor->dispatch($parser->getCondition());
+        $result = $visitor->dispatch($parser->getCondition());
         $this->assertEquals(
             "(t.stringProperty = :stringProperty AND t.intProperty IN(:intProperty)) OR (t.boolProperty <> :boolProperty AND t.stringProperty = :stringProperty_3)",
             (string)$result
@@ -99,13 +99,13 @@ class ExpressionFilterParserTest extends TestCase
 
     public function testClosureExpressionBuilderUsage()
     {
-        $std                 = new \stdClass();
+        $std = new \stdClass();
         $std->stringProperty = "O'Neil";
-        $std->intProperty    = 2;
-        $std->boolProperty   = true;
-        $std->dateProperty   = new \DateTime('2020-12-01');
-        $data                = [$std];
-        $url                 =
+        $std->intProperty = 2;
+        $std->boolProperty = true;
+        $std->dateProperty = new \DateTime('2020-12-01');
+        $data = [$std];
+        $url =
             "stringProperty eq 'O''Neil'" .
             " and " .
             "intProperty in (1,2,3)" .
@@ -113,11 +113,11 @@ class ExpressionFilterParserTest extends TestCase
             "boolProperty ne true" .
             " and " .
             "dateProperty eq datetime'2020-12-01'";
-        $parser              = new ExpressionFilterParser(new ClosureExpressionBuilder());
+        $parser = new ExpressionFilterParser(new ClosureExpressionBuilder());
         $parser->parse($url);
         $visitor = new ClosureResolver();
-        $filter  = $visitor->dispatch($parser->getCondition());
-        $result  = array_filter($data, $filter);
+        $filter = $visitor->dispatch($parser->getCondition());
+        $result = array_filter($data, $filter);
         $this->assertIsCallable($filter);
         $this->assertContains($std, $result);
     }

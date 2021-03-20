@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace JSONAPI\Factory;
 
 use JSONAPI\Document\Builder;
+use JSONAPI\Encoding\AttributesProcessor;
+use JSONAPI\Encoding\LinksProcessor;
+use JSONAPI\Encoding\MetaProcessor;
+use JSONAPI\Encoding\RelationshipsProcessor;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Metadata\Encoder;
 use JSONAPI\Metadata\MetadataRepository;
@@ -70,17 +74,17 @@ class DocumentBuilderFactory
     /**
      * DocumentInstantiationFactory constructor.
      *
-     * @param MetadataRepository             $metadataRepository
-     * @param string                         $baseURL
-     * @param int                            $maxIncludedItems
-     * @param int                            $relationshipLimit
-     * @param bool                           $relationshipData
-     * @param bool                           $supportInclusion
-     * @param bool                           $supportSort
-     * @param bool                           $supportPagination
+     * @param MetadataRepository $metadataRepository
+     * @param string $baseURL
+     * @param int $maxIncludedItems
+     * @param int $relationshipLimit
+     * @param bool $relationshipData
+     * @param bool $supportInclusion
+     * @param bool $supportSort
+     * @param bool $supportPagination
      * @param PaginationParserInterface|null $paginationParser
-     * @param FilterParserInterface|null     $filterParser
-     * @param LoggerInterface|null           $logger
+     * @param FilterParserInterface|null $filterParser
+     * @param LoggerInterface|null $logger
      */
     public function __construct(
         MetadataRepository $metadataRepository,
@@ -96,16 +100,16 @@ class DocumentBuilderFactory
         LoggerInterface $logger = null
     ) {
         $this->metadataRepository = $metadataRepository;
-        $this->paginationParser = $paginationParser;
-        $this->filterParser = $filterParser;
-        $this->baseURL = $baseURL;
-        $this->maxIncludedItems = $maxIncludedItems;
-        $this->relationshipLimit = $relationshipLimit;
-        $this->relationshipData = $relationshipData;
-        $this->supportInclusion = $supportInclusion;
-        $this->supportSort = $supportSort;
-        $this->supportPagination = $supportPagination;
-        $this->logger = $logger ?? new NullLogger();
+        $this->paginationParser   = $paginationParser;
+        $this->filterParser       = $filterParser;
+        $this->baseURL            = $baseURL;
+        $this->maxIncludedItems   = $maxIncludedItems;
+        $this->relationshipLimit  = $relationshipLimit;
+        $this->relationshipData   = $relationshipData;
+        $this->supportInclusion   = $supportInclusion;
+        $this->supportSort        = $supportSort;
+        $this->supportPagination  = $supportPagination;
+        $this->logger             = $logger ?? new NullLogger();
     }
 
     /**
@@ -117,17 +121,34 @@ class DocumentBuilderFactory
     public function new(ServerRequestInterface $request): Builder
     {
         $linkFactory = new LinkComposer($this->baseURL);
-        $uriParser = $this->uri($request);
-        $encoder = new Encoder(
+        $uriParser   = $this->uri($request);
+        $encoder     = new \JSONAPI\Encoding\Encoder(
             $this->metadataRepository,
-            $uriParser->getFieldset(),
-            $uriParser->getInclusion(),
-            $linkFactory,
-            $this->relationshipData,
-            $this->relationshipLimit,
-            $this->logger
+            $this->logger, [
+                new AttributesProcessor($this->metadataRepository, $this->logger, $uriParser->getFieldset()),
+                new RelationshipsProcessor(
+                    $this->metadataRepository,
+                    $this->logger,
+                    $linkFactory,
+                    $uriParser->getInclusion(),
+                    $uriParser->getFieldset(),
+                    $this->relationshipData,
+                    $this->relationshipLimit
+                ),
+                new MetaProcessor($this->metadataRepository,$this->logger),
+                new LinksProcessor($linkFactory)
+            ]
         );
-        $collector = new InclusionCollector(
+//        $encoder     = new Encoder(
+//            $this->metadataRepository,
+//            $uriParser->getFieldset(),
+//            $uriParser->getInclusion(),
+//            $linkFactory,
+//            $this->relationshipData,
+//            $this->relationshipLimit,
+//            $this->logger
+//        );
+        $collector   = new InclusionCollector(
             $this->metadataRepository,
             $encoder,
             $this->maxIncludedItems,

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Document;
 
+use JSONAPI\Encoding\Encoder;
 use JSONAPI\Exception\Document\DocumentException;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
@@ -11,7 +12,7 @@ use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Factory\InclusionCollector;
 use JSONAPI\Factory\LinkComposer;
 use JSONAPI\Helper\DoctrineProxyTrait;
-use JSONAPI\Metadata\Encoder;
+
 use JSONAPI\URI\Pagination\UseTotalCount;
 use JSONAPI\URI\URIParser;
 use Psr\Log\LoggerInterface;
@@ -90,9 +91,9 @@ final class Builder
             $collection = new ResourceCollection();
             foreach ($data as $item) {
                 if ($this->uri->getPath()->isRelationship()) {
-                    $collection->add($this->encoder->getIdentifier($item));
+                    $collection->add($this->encoder->identify($item));
                 } else {
-                    $collection->add($this->encoder->getResource($item));
+                    $collection->add($this->encoder->encode($item));
                 }
                 if ($this->uri->getInclusion()->hasInclusions()) {
                     $this->inclusionFetcher->fetchInclusions($item, $this->uri->getInclusion()->getInclusions());
@@ -102,9 +103,9 @@ final class Builder
         } elseif (is_object($data)) {
             $this->logger->debug('It is single resource');
             if ($this->uri->getPath()->isRelationship()) {
-                $this->document->setData($this->encoder->getIdentifier($data));
+                $this->document->setData($this->encoder->identify($data));
             } else {
-                $this->document->setData($this->encoder->getResource($data));
+                $this->document->setData($this->encoder->encode($data));
             }
             if ($this->uri->getInclusion()->hasInclusions()) {
                 $this->inclusionFetcher->fetchInclusions($data, $this->uri->getInclusion()->getInclusions());

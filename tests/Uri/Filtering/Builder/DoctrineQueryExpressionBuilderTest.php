@@ -40,7 +40,7 @@ class DoctrineQueryExpressionBuilderTest extends TestCase
         $identifier = $exp->parseIdentifier('relation.example.intProperty');
         $joins = [
             'relation' => 'getter.relation',
-            'prop' => 'relation.example'
+            'prop'     => 'relation.example'
         ];
         $this->assertEquals('prop.intProperty', $identifier);
         $this->assertEquals($joins, $exp->getRequiredJoins());
