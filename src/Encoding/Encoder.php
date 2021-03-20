@@ -110,14 +110,14 @@ class Encoder
     }
 
     /**
-     * @param $object
+     * @param object $object
      *
      * @return array
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws MetadataNotFound
      */
-    private function getTypeAndId($object): array
+    private function getTypeAndId(object $object): array
     {
         $className = Encoder::clearDoctrineProxyPrefix(get_class($object));
         $metadata  = $this->repository->getByClass($className);

@@ -140,15 +140,6 @@ class DocumentBuilderFactory
                 new LinksProcessor($linkFactory)
             ]
         );
-//        $encoder     = new Encoder(
-//            $this->metadataRepository,
-//            $uriParser->getFieldset(),
-//            $uriParser->getInclusion(),
-//            $linkFactory,
-//            $this->relationshipData,
-//            $this->relationshipLimit,
-//            $this->logger
-//        );
         $collector   = new InclusionCollector(
             $this->metadataRepository,
             $encoder,
