@@ -14,5 +14,5 @@ use JSONAPI\Document\ResourceObjectIdentifier;
 
 interface Processor
 {
-    public function process(ResourceObjectIdentifier|ResourceObject $resource, object $object): ResourceObjectIdentifier|ResourceObject;
+    public function process(ResourceObjectIdentifier | ResourceObject $resource, object $object): ResourceObjectIdentifier | ResourceObject;
 }

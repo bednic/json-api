@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Encoding;
 
-
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Factory\LinkComposer;
@@ -34,9 +33,9 @@ class LinksProcessor implements Processor
     }
 
     public function process(
-        ResourceObjectIdentifier|ResourceObject $resource,
+        ResourceObjectIdentifier | ResourceObject $resource,
         object $object
-    ): ResourceObjectIdentifier|ResourceObject {
+    ): ResourceObjectIdentifier | ResourceObject {
         if ($resource instanceof ResourceObject) {
             $resource = $this->linkFactory->setResourceLink($resource);
         }

@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Encoding;
 
-
 use JSONAPI\Data\Collection;
 use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceCollection;
@@ -102,9 +101,9 @@ class RelationshipsProcessor extends FieldsProcessor implements Processor
      * @throws MetadataNotFound
      */
     public function process(
-        ResourceObjectIdentifier|ResourceObject $resource,
+        ResourceObjectIdentifier | ResourceObject $resource,
         object $object
-    ): ResourceObjectIdentifier|ResourceObject {
+    ): ResourceObjectIdentifier | ResourceObject {
         if ($resource instanceof ResourceObject) {
             $metadata = $this->repository->getByType($resource->getType());
             foreach ($metadata->getRelationships() as $field) {
@@ -165,6 +164,4 @@ class RelationshipsProcessor extends FieldsProcessor implements Processor
     {
         return $this->withData || $this->inclusion?->hasInclusions();
     }
-
-
 }

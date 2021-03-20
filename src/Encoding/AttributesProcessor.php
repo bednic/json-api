@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Encoding;
 
-
 use DateTimeInterface;
 use JSONAPI\Document\Attribute;
 use JSONAPI\Document\ResourceObject;
@@ -43,9 +42,9 @@ class AttributesProcessor extends FieldsProcessor implements Processor
     }
 
     public function process(
-        ResourceObjectIdentifier|ResourceObject $resource,
+        ResourceObjectIdentifier | ResourceObject $resource,
         object $object
-    ): ResourceObjectIdentifier|ResourceObject {
+    ): ResourceObjectIdentifier | ResourceObject {
         if ($resource instanceof ResourceObject) {
             $metadata = $this->repository->getByType($resource->getType());
             foreach ($metadata->getAttributes() as $attribute) {

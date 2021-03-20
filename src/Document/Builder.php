@@ -12,7 +12,6 @@ use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Factory\InclusionCollector;
 use JSONAPI\Factory\LinkComposer;
 use JSONAPI\Helper\DoctrineProxyTrait;
-
 use JSONAPI\URI\Pagination\UseTotalCount;
 use JSONAPI\URI\URIParser;
 use Psr\Log\LoggerInterface;

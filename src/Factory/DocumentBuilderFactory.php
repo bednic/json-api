@@ -124,7 +124,8 @@ class DocumentBuilderFactory
         $uriParser   = $this->uri($request);
         $encoder     = new \JSONAPI\Encoding\Encoder(
             $this->metadataRepository,
-            $this->logger, [
+            $this->logger,
+            [
                 new AttributesProcessor($this->metadataRepository, $this->logger, $uriParser->getFieldset()),
                 new RelationshipsProcessor(
                     $this->metadataRepository,
@@ -135,7 +136,7 @@ class DocumentBuilderFactory
                     $this->relationshipData,
                     $this->relationshipLimit
                 ),
-                new MetaProcessor($this->metadataRepository,$this->logger),
+                new MetaProcessor($this->metadataRepository, $this->logger),
                 new LinksProcessor($linkFactory)
             ]
         );

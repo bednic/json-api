@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Encoding;
 
-
 use DateTimeInterface;
 use JSONAPI\Data\Collection;
 use JSONAPI\Document\Id;
@@ -63,14 +62,13 @@ class Encoder
     ) {
         $this->repository = $metadataRepository;
         $this->logger     = $logger ?? new NullLogger();
-        if(empty($processors)){
+        if (empty($processors)) {
             $this->processors = [
                 new AttributesProcessor($metadataRepository, $logger),
                 new RelationshipsProcessor($metadataRepository, $logger),
                 new MetaProcessor($metadataRepository)
             ];
-        }
-        else{
+        } else {
             $this->processors = $processors;
         }
     }

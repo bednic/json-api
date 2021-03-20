@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Encoding;
 
-
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Metadata\MetadataRepository;
@@ -45,9 +44,9 @@ class MetaProcessor implements Processor
     }
 
     public function process(
-        ResourceObjectIdentifier|ResourceObject $resource,
+        ResourceObjectIdentifier | ResourceObject $resource,
         object $object
-    ): ResourceObjectIdentifier|ResourceObject {
+    ): ResourceObjectIdentifier | ResourceObject {
         $metadata = $this->repository->getByType($resource->getType());
         if ($meta = $metadata->getMeta()) {
             $meta = call_user_func([$object, $meta->getter]);

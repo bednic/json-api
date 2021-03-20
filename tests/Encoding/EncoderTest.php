@@ -54,7 +54,9 @@ class EncoderTest extends TestCase
     public function testIdentify()
     {
         $encoder  = new Encoder(
-            self::$metadata, self::$logger, [
+            self::$metadata,
+            self::$logger,
+            [
                                new AttributesProcessor(self::$metadata, self::$logger, self::$fieldset),
                                new RelationshipsProcessor(
                                    self::$metadata,
@@ -73,13 +75,15 @@ class EncoderTest extends TestCase
         $resource = $encoder->identify($object);
         $result = json_encode($resource);
         $check = '{"type":"getter","id":"id"}';
-        $this->assertEquals($check,$result);
+        $this->assertEquals($check, $result);
     }
 
     public function testEncode()
     {
         $encoder  = new Encoder(
-            self::$metadata, self::$logger, [
+            self::$metadata,
+            self::$logger,
+            [
             new AttributesProcessor(self::$metadata, self::$logger, self::$fieldset),
             new RelationshipsProcessor(
                 self::$metadata,
@@ -92,12 +96,12 @@ class EncoderTest extends TestCase
             ),
             new MetaProcessor(self::$metadata, self::$logger),
             new LinksProcessor(self::$linkFactory)
-        ]
+            ]
         );
         $object   = new GettersExample('id');
         $resource = $encoder->encode($object);
         $result = json_encode($resource);
         $check = '{"type":"getter","id":"id","attributes":{"stringProperty":"string value","intProperty":1,"arrayProperty":[1,2,3],"boolProperty":true,"dtoProperty":{"stringProperty":"string-value","intProperty":1234,"boolProperty":true}},"relationships":{"relation":{"data":{"type":"relation","id":"relation1"},"links":{"self":"http:\/\/unit.test.org\/api\/getter\/id\/relationships\/relation","related":"http:\/\/unit.test.org\/api\/getter\/id\/relation"}},"collection":{"data":[{"type":"relation","id":"relation2"},{"type":"relation","id":"relation3"}],"links":{"self":"http:\/\/unit.test.org\/api\/getter\/id\/relationships\/collection","related":"http:\/\/unit.test.org\/api\/getter\/id\/collection"}},"doctrineCollection":{"data":[],"links":{"self":"http:\/\/unit.test.org\/api\/getter\/id\/relationships\/doctrineCollection","related":"http:\/\/unit.test.org\/api\/getter\/id\/doctrineCollection"}}},"links":{"self":"http:\/\/unit.test.org\/api\/getter\/id"}}';
-        $this->assertEquals($check,$result);
+        $this->assertEquals($check, $result);
     }
 }

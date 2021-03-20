@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\Encoding;
 
-
 use DateTimeInterface;
 use JSONAPI\Data\Collection;
 use JSONAPI\Document\ResourceCollection;
