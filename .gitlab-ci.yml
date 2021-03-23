@@ -37,6 +37,8 @@ sonar:
     stage: analyse
     only:
         - '/^[0-9]+\.x/'
+    except:
+        - merge_requests
     image:
         name: sonarsource/sonar-scanner-cli:latest
         entrypoint: [ "" ]
