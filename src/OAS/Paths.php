@@ -35,6 +35,24 @@ class Paths implements Serializable
         return $this;
     }
 
+    /**
+     * @param string $pattern
+     * @return bool
+     */
+    public function exists(string $pattern): bool
+    {
+        return isset($this->items[$pattern]);
+    }
+
+    /**
+     * @param string $pattern
+     * @return PathItem|null
+     */
+    public function getPath(string $pattern): ?PathItem
+    {
+        return $this->items[$pattern] ?? null;
+    }
+
     public function jsonSerialize()
     {
         return (object)$this->items;
