@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.4.0](https://gitlab.com/bednic/json-api/compare/7.3.0...7.4.0) (2021-03-30)
+
+
+### Added
+
+* Data true types ([89f22d2](https://gitlab.com/bednic/json-api/commit/89f22d20ec153a94b4e181a3a9c280b97d712ee4))
+* ResourceObject getAttributes, getRelationships ([72199b5](https://gitlab.com/bednic/json-api/commit/72199b50127f7a05db164141be5192283a2858cd))
+
+
+### Fixed
+
+* Remove trim in parseString ([4880cbf](https://gitlab.com/bednic/json-api/commit/4880cbf1b901d51a6b22b6b0381116d7261d80e6)), closes [#36](https://gitlab.com/bednic/json-api/issues/36)
+
 ## [7.3.0](https://gitlab.com/bednic/json-api/compare/7.2.0...7.3.0) (2021-03-23)
 
 
