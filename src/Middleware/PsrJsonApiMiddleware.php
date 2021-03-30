@@ -235,6 +235,20 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             foreach ($metadata->getAttributes() as $attribute) {
                 if (isset($object->attributes->{$attribute->name})) {
                     $value = $object->attributes->{$attribute->name};
+                    switch ($attribute->type) {
+                        case 'integer':
+                            $value = intval($value);
+                            break;
+                        case 'float':
+                        case 'double':
+                            $value = floatval($value);
+                            break;
+                        case 'boolean':
+                            $value = boolval($value);
+                            break;
+                        default:
+                            break;
+                    }
                     try {
                         $className = $attribute->type;
                         if ((new ReflectionClass($className))->implementsInterface(Deserializable::class)) {
