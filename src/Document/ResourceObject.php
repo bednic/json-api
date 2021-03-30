@@ -57,19 +57,32 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
     }
 
     /**
+     * @return array<string, mixed>
+     */
+    public function getAttributes(): array
+    {
+        $ret = [];
+        /** @var Attribute $attribute */
+        foreach ($this->attributes() as $attribute) {
+            $ret[$attribute->getKey()] = $attribute->getData();
+        }
+        return $ret;
+    }
+
+    /**
      * @param string $key
      *
      * @return bool
      */
     public function hasAttribute(string $key): bool
     {
-        return $this->getAttributes()->offsetExists($key);
+        return $this->attributes()->offsetExists($key);
     }
 
     /**
      * @return Collection
      */
-    private function getAttributes(): Collection
+    private function attributes(): Collection
     {
         return $this->fields->filter(
             function ($element) {
@@ -86,12 +99,25 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      * @throws RelationshipNotExist
      */
-    public function getRelationship(string $key): ResourceObjectIdentifier | array
+    public function getRelationship(string $key): ResourceObjectIdentifier|array
     {
         if (!$this->hasRelationship($key)) {
             throw new RelationshipNotExist($key);
         }
         return $this->fields->get($key)->getData();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function getRelationships(): array
+    {
+        $ret = [];
+        /** @var Relationship $relationship */
+        foreach ($this->relationships() as $relationship) {
+            $ret[$relationship->getKey()] = $relationship->getData();
+        }
+        return $ret;
     }
 
     /**
@@ -101,13 +127,13 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      */
     public function hasRelationship(string $key): bool
     {
-        return $this->getRelationships()->offsetExists($key);
+        return $this->relationships()->offsetExists($key);
     }
 
     /**
      * @return Collection
      */
-    private function getRelationships(): Collection
+    private function relationships(): Collection
     {
         return $this->fields->filter(
             function ($element) {
@@ -127,11 +153,11 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
     public function jsonSerialize(): object
     {
         $ret = parent::jsonSerialize();
-        if ($this->getAttributes()->count() > 0) {
-            $ret->attributes = (object)$this->getAttributes()->toArray();
+        if ($this->attributes()->count() > 0) {
+            $ret->attributes = (object)$this->attributes()->toArray();
         }
-        if ($this->getRelationships()->count() > 0) {
-            $ret->relationships = (object)$this->getRelationships()->toArray();
+        if ($this->relationships()->count() > 0) {
+            $ret->relationships = (object)$this->relationships()->toArray();
         }
         if ($this->hasLinks()) {
             $ret->links = (object)$this->getLinks();
