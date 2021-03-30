@@ -99,7 +99,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      * @return ResourceObjectIdentifier|ResourceObjectIdentifier[]
      * @throws RelationshipNotExist
      */
-    public function getRelationship(string $key): ResourceObjectIdentifier|array
+    public function getRelationship(string $key): ResourceObjectIdentifier | array
     {
         if (!$this->hasRelationship($key)) {
             throw new RelationshipNotExist($key);

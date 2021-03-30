@@ -431,7 +431,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseString(): mixed
     {
         $value = $this->lexer->getCurrentToken()->text;
-        $value = trim(str_replace("''", "'", substr($value, 1, strlen($value) - 2)));
+        $value = str_replace("''", "'", substr($value, 1, strlen($value) - 2));
         $value = $this->exp->literal((string)$value);
         $this->lexer->nextToken();
         return $value;
