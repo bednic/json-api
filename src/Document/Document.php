@@ -62,7 +62,7 @@ final class Document implements Serializable, HasLinks, HasMeta
      */
     public function setData(?PrimaryData $data): void
     {
-        if (!(count($this->errors) > 0)) {
+        if (count($this->errors) <= 0) {
             $this->data = $data;
         }
     }
