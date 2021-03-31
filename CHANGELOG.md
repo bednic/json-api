@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [7.4.1](https://gitlab.com/bednic/json-api/compare/7.4.0...7.4.1) (2021-03-31)
+
+
+### Fixed
+
+* **PsrJsonApiMiddleware:** replaces isset to property_exists ([91752cd](https://gitlab.com/bednic/json-api/commit/91752cd03e587eba2d88c7666ccabdca24afd510))
+
 ## [7.4.0](https://gitlab.com/bednic/json-api/compare/7.3.0...7.4.0) (2021-03-30)
 
 
