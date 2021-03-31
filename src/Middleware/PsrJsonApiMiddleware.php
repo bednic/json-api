@@ -218,6 +218,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * @return ResourceObjectIdentifier|ResourceObject
      * @throws BadRequest
      * @throws DocumentException
+     * @todo refactor!!!
      */
     private function jsonToResourceObject(
         stdClass $object,
@@ -232,49 +233,53 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         $resource = new ResourceObjectIdentifier($type, $id);
         if (!$path->isRelationship()) {
             $resource = new ResourceObject($type, $id);
-            foreach ($metadata->getAttributes() as $attribute) {
-                if (property_exists($object->attributes, $attribute->name)) {
-                    $value = $object->attributes->{$attribute->name};
-                    switch ($attribute->type) {
-                        case 'integer':
-                            $value = intval($value);
-                            break;
-                        case 'float':
-                        case 'double':
-                            $value = floatval($value);
-                            break;
-                        case 'boolean':
-                            $value = boolval($value);
-                            break;
-                        default:
-                            break;
-                    }
-                    try {
-                        $className = $attribute->type;
-                        if ((new ReflectionClass($className))->implementsInterface(Deserializable::class)) {
-                            /** @var Deserializable $className */
-                            $value = $className::jsonDeserialize($value);
+            if (property_exists($object, 'attributes')) {
+                foreach ($metadata->getAttributes() as $attribute) {
+                    if (property_exists($object->attributes, $attribute->name)) {
+                        $value = $object->attributes->{$attribute->name};
+                        switch ($attribute->type) {
+                            case 'integer':
+                                $value = intval($value);
+                                break;
+                            case 'float':
+                            case 'double':
+                                $value = floatval($value);
+                                break;
+                            case 'boolean':
+                                $value = boolval($value);
+                                break;
+                            default:
+                                break;
                         }
-                    } catch (ReflectionException) {
-                        //NOSONAR
+                        try {
+                            $className = $attribute->type;
+                            if ((new ReflectionClass($className))->implementsInterface(Deserializable::class)) {
+                                /** @var Deserializable $className */
+                                $value = $className::jsonDeserialize($value);
+                            }
+                        } catch (ReflectionException) {
+                            //NOSONAR
+                        }
+                        $resource->addAttribute(new Attribute($attribute->name, $value));
                     }
-                    $resource->addAttribute(new Attribute($attribute->name, $value));
                 }
             }
-            foreach ($metadata->getRelationships() as $relationship) {
-                if (property_exists($object->relationships, $relationship->name)) {
-                    $value = $object->relationships->{$relationship->name}->data;
-                    if ($relationship->isCollection) {
-                        $data = new ResourceCollection();
-                        foreach ($value as $item) {
-                            $data->add(new ResourceObjectIdentifier(new Type($item->type), new Id($item->id)));
+            if (property_exists($object, 'relationships')) {
+                foreach ($metadata->getRelationships() as $relationship) {
+                    if (property_exists($object->relationships, $relationship->name)) {
+                        $value = $object->relationships->{$relationship->name}->data;
+                        if ($relationship->isCollection) {
+                            $data = new ResourceCollection();
+                            foreach ($value as $item) {
+                                $data->add(new ResourceObjectIdentifier(new Type($item->type), new Id($item->id)));
+                            }
+                        } else {
+                            $data = new ResourceObjectIdentifier(new Type($value->type), new Id($value->id));
                         }
-                    } else {
-                        $data = new ResourceObjectIdentifier(new Type($value->type), new Id($value->id));
+                        $rel = new Relationship($relationship->name);
+                        $rel->setData($data);
+                        $resource->addRelationship($rel);
                     }
-                    $rel = new Relationship($relationship->name);
-                    $rel->setData($data);
-                    $resource->addRelationship($rel);
                 }
             }
         }
