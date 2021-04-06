@@ -73,7 +73,7 @@ class DocumentFactory
 
 
     /**
-     * @param $json
+     * @param string $json
      *
      * @return Document
      * @throws AlreadyInUse
@@ -102,7 +102,7 @@ class DocumentFactory
     }
 
     /**
-     * @param $collection
+     * @param array $collection
      *
      * @return ResourceCollection
      * @throws AlreadyInUse
@@ -110,7 +110,7 @@ class DocumentFactory
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    private function parseCollection($collection): ResourceCollection
+    private function parseCollection(array $collection): ResourceCollection
     {
         $data = new ResourceCollection();
         if (!empty($collection)) {
@@ -123,7 +123,7 @@ class DocumentFactory
     }
 
     /**
-     * @param $object
+     * @param object $object
      *
      * @return ResourceObject|ResourceObjectIdentifier
      * @throws Conflict
@@ -131,7 +131,7 @@ class DocumentFactory
      * @throws ForbiddenDataType
      * @throws AlreadyInUse
      */
-    private function parseResource($object): ResourceObject | ResourceObjectIdentifier
+    private function parseResource(object $object): ResourceObject | ResourceObjectIdentifier
     {
         if ($object->type !== $this->metadata->getType()) {
             throw new Conflict();
@@ -156,12 +156,12 @@ class DocumentFactory
     }
 
     /**
-     * @param $object
+     * @param object $object
      *
      * @return array
      * @throws ForbiddenCharacter
      */
-    private function parseAttributes($object): array
+    private function parseAttributes(object $object): array
     {
         $attributes = [];
         foreach ($this->metadata->getAttributes() as $attribute) {
@@ -197,13 +197,13 @@ class DocumentFactory
     }
 
     /**
-     * @param $object
+     * @param object $object
      *
      * @return array
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      */
-    private function parseRelationships($object): array
+    private function parseRelationships(object $object): array
     {
         $relationships = [];
         foreach ($this->metadata->getRelationships() as $relationship) {
