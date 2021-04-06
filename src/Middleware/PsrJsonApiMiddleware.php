@@ -5,26 +5,12 @@ declare(strict_types=1);
 namespace JSONAPI\Middleware;
 
 use Fig\Http\Message\RequestMethodInterface;
-use JSONAPI\Document\Attribute;
-use JSONAPI\Document\Deserializable;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error\ErrorFactory;
-use JSONAPI\Document\Id;
-use JSONAPI\Document\PrimaryData;
-use JSONAPI\Document\Relationship;
-use JSONAPI\Document\ResourceCollection;
-use JSONAPI\Document\ResourceObject;
-use JSONAPI\Document\ResourceObjectIdentifier;
-use JSONAPI\Document\Type;
-use JSONAPI\Exception\Document\DocumentException;
-use JSONAPI\Exception\Http\BadRequest;
-use JSONAPI\Exception\Http\Conflict;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
-use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Factory\DocumentErrorFactory;
-use JSONAPI\Metadata\ClassMetadata;
+use JSONAPI\Factory\DocumentFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\URI\Path\PathInterface;
 use JSONAPI\URI\Path\PathParser;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -34,9 +20,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use ReflectionClass;
-use ReflectionException;
-use stdClass;
 use Swaggest\JsonSchema\Exception as SchemaException;
 use Swaggest\JsonSchema\InvalidValue;
 use Swaggest\JsonSchema\Schema;
@@ -146,17 +129,15 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
                 }
-                $document = new Document();
-                $request->getBody()->rewind();
-                $data = $request->getBody()->getContents();
-                if (strlen($data) > 0) {
-                    $data = json_decode($data, false, 512, JSON_THROW_ON_ERROR);
-                    $this->input->in($data);
-                    $path = (new PathParser($this->repository, $this->baseURL, $request->getMethod()))
-                        ->parse($request->getUri()->getPath());
-                    $document->setData($this->loadRequestData($data, $path));
+                $path = (new PathParser($this->repository, $this->baseURL, $request->getMethod()))
+                    ->parse($request->getUri()->getPath());
+                if ($request->getMethod() !== RequestMethodInterface::METHOD_DELETE || $path->isRelationship()) {
+                    $documentBuilder = new DocumentFactory($this->repository, $path);
+                    $request->getBody()->rewind();
+                    $data     = $request->getBody()->getContents();
+                    $document = $documentBuilder->decode($data);
+                    $request  = $request->withParsedBody($document);
                 }
-                $request = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
             $content  = $response->getBody()->getContents();
@@ -176,113 +157,5 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 ->withBody($this->streamFactory->createStream(json_encode($document)));
         }
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
-    }
-
-    /**
-     * @param stdClass|null $body
-     * @param PathInterface $path
-     *
-     * @return PrimaryData|null
-     * @throws BadRequest
-     * @throws DocumentException
-     * @throws MetadataException
-     */
-    private function loadRequestData(?stdClass $body, PathInterface $path): ?PrimaryData
-    {
-        if ($path->isCollection()) {
-            $data = new ResourceCollection();
-            if ($body) {
-                $type     = $path->getPrimaryResourceType();
-                $metadata = $this->repository->getByType($type);
-                foreach ($body->data as $object) {
-                    $resource = $this->jsonToResourceObject($object, $metadata, $path);
-                    $data->add($resource);
-                }
-            }
-        } else {
-            $data = null;
-            if ($body) {
-                $type     = $path->getPrimaryResourceType();
-                $metadata = $this->repository->getByType($type);
-                $data     = $this->jsonToResourceObject($body->data, $metadata, $path);
-            }
-        }
-        return $data;
-    }
-
-    /**
-     * @param stdClass      $object
-     * @param ClassMetadata $metadata
-     * @param PathInterface $path
-     *
-     * @return ResourceObjectIdentifier|ResourceObject
-     * @throws BadRequest
-     * @throws DocumentException
-     * @todo refactor!!!
-     */
-    private function jsonToResourceObject(
-        stdClass $object,
-        ClassMetadata $metadata,
-        PathInterface $path
-    ): ResourceObjectIdentifier | ResourceObject {
-        if ($object->type !== $metadata->getType()) {
-            throw new Conflict();
-        }
-        $type     = new Type($object->type);
-        $id       = new Id(@$object->id);
-        $resource = new ResourceObjectIdentifier($type, $id);
-        if (!$path->isRelationship()) {
-            $resource = new ResourceObject($type, $id);
-            if (property_exists($object, 'attributes')) {
-                foreach ($metadata->getAttributes() as $attribute) {
-                    if (property_exists($object->attributes, $attribute->name)) {
-                        $value = $object->attributes->{$attribute->name};
-                        switch ($attribute->type) {
-                            case 'integer':
-                                $value = intval($value);
-                                break;
-                            case 'float':
-                            case 'double':
-                                $value = floatval($value);
-                                break;
-                            case 'boolean':
-                                $value = boolval($value);
-                                break;
-                            default:
-                                break;
-                        }
-                        try {
-                            $className = $attribute->type;
-                            if ((new ReflectionClass($className))->implementsInterface(Deserializable::class)) {
-                                /** @var Deserializable $className */
-                                $value = $className::jsonDeserialize($value);
-                            }
-                        } catch (ReflectionException) {
-                            //NOSONAR
-                        }
-                        $resource->addAttribute(new Attribute($attribute->name, $value));
-                    }
-                }
-            }
-            if (property_exists($object, 'relationships')) {
-                foreach ($metadata->getRelationships() as $relationship) {
-                    if (property_exists($object->relationships, $relationship->name)) {
-                        $value = $object->relationships->{$relationship->name}->data;
-                        if ($relationship->isCollection) {
-                            $data = new ResourceCollection();
-                            foreach ($value as $item) {
-                                $data->add(new ResourceObjectIdentifier(new Type($item->type), new Id($item->id)));
-                            }
-                        } else {
-                            $data = new ResourceObjectIdentifier(new Type($value->type), new Id($value->id));
-                        }
-                        $rel = new Relationship($relationship->name);
-                        $rel->setData($data);
-                        $resource->addRelationship($rel);
-                    }
-                }
-            }
-        }
-        return $resource;
     }
 }
