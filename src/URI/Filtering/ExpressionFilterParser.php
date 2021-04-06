@@ -221,8 +221,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
                 return $this->parsePrimary();
             }
 
-            $expr = $this->parsePrimary();
-
+            $expr = $this->parseExpression();
 
             if ($op->id->equals(ExpressionTokenId::MINUS())) {
                 $expr = '-' . $expr;
@@ -377,7 +376,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      * @return array
      * @throws ExpressionException
      */
-    private function parseArgumentList(): mixed
+    private function parseArgumentList(): array
     {
         if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::OPENPARAM())) {
             throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
