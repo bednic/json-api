@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [7.4.3](https://gitlab.com/bednic/json-api/compare/7.4.2...7.4.3) (2021-04-06)
+
+
+### Fixed
+
+* Fix not operand parsing ([e9597ab](https://gitlab.com/bednic/json-api/commit/e9597ab24eec6c5ea98679aebcd8cf96e0edd7de)), closes [#37](https://gitlab.com/bednic/json-api/issues/37)
+
+
+### Changed
+
+* Extract request body parsing to separate factory ([8c0cff5](https://gitlab.com/bednic/json-api/commit/8c0cff565915e318a4edb0be2193cf2e2a56aa7b))
+
 ### [7.4.2](https://gitlab.com/bednic/json-api/compare/7.4.1...7.4.2) (2021-03-31)
 
 
