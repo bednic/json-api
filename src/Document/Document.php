@@ -44,7 +44,6 @@ final class Document implements Serializable, HasLinks, HasMeta
      */
     public function __construct()
     {
-        $this->included = new ResourceCollection();
         $this->jsonapi = new stdClass();
         $this->jsonapi->version = self::VERSION;
     }
@@ -107,7 +106,7 @@ final class Document implements Serializable, HasLinks, HasMeta
             $ret->errors = $this->errors;
         } else {
             $ret->data = $this->data;
-            if ($this->included->count() > 0) {
+            if (isset($this->included)) {
                 $ret->included = $this->included;
             }
         }
