@@ -154,7 +154,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function upper(mixed $args): TString
+    public function toupper(mixed $args): TString
     {
         return Ex::toUpper($args);
     }
@@ -162,7 +162,7 @@ class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function lower(mixed $args): TString
+    public function tolower(mixed $args): TString
     {
         return Ex::toLower($args);
     }

@@ -187,7 +187,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function upper(mixed $args): Expr\Func
+    public function toupper(mixed $args): Expr\Func
     {
         return $this->exp->upper($args);
     }
@@ -195,7 +195,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function lower(mixed $args): Expr\Func
+    public function tolower(mixed $args): Expr\Func
     {
         return $this->exp->lower($args);
     }

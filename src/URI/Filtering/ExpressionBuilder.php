@@ -166,7 +166,7 @@ interface ExpressionBuilder
      * @return mixed
      * @throws ExpressionException
      */
-    public function upper(mixed $args): mixed;
+    public function toupper(mixed $args): mixed;
 
     /**
      * @param mixed $args
@@ -174,7 +174,7 @@ interface ExpressionBuilder
      * @return mixed
      * @throws ExpressionException
      */
-    public function lower(mixed $args): mixed;
+    public function tolower(mixed $args): mixed;
 
     /**
      * @param mixed $args

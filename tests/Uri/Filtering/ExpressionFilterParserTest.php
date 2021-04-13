@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\URI\Filtering;
 
+use DateTime;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\QueryExpressionVisitor;
@@ -15,10 +16,10 @@ use JSONAPI\URI\Filtering\Builder\ClosureExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\DoctrineQueryExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionFilterParser;
-use JSONAPI\URI\Path\PathParser;
 use JSONAPI\URI\URIParser;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
+use stdClass;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
@@ -100,11 +101,11 @@ class ExpressionFilterParserTest extends TestCase
 
     public function testClosureExpressionBuilderUsage()
     {
-        $std                 = new \stdClass();
+        $std                 = new stdClass();
         $std->stringProperty = "O'Neil";
         $std->intProperty    = 2;
         $std->boolProperty   = true;
-        $std->dateProperty   = new \DateTime('2020-12-01');
+        $std->dateProperty   = new DateTime('2020-12-01');
         $data                = [$std];
         $url                 =
             "stringProperty eq 'O''Neil'" .
@@ -125,9 +126,9 @@ class ExpressionFilterParserTest extends TestCase
 
     public function testIssue37()
     {
-        $obj1             = new \stdClass();
+        $obj1             = new stdClass();
         $obj1->collection = [1, 2, 3];
-        $obj2             = new \stdClass();
+        $obj2             = new stdClass();
         $obj2->collection = [2, 3, 4];
         $data             = [$obj1, $obj2];
         $example          = "not collection has 1";
@@ -137,5 +138,21 @@ class ExpressionFilterParserTest extends TestCase
         $filter  = $visitor->dispatch($parser->getCondition());
         $result  = array_filter($data, $filter);
         $this->assertContains($obj2, $result);
+    }
+
+    public function testIssue38()
+    {
+        $obj1       = new stdClass();
+        $obj1->name = "Foo";
+        $obj2       = new stdClass();
+        $obj2->name = "Bar";
+        $data       = [$obj1, $obj2];
+        $example    = "tolower(name) eq 'foo'";
+        $parser     = new ExpressionFilterParser();
+        $parser->parse($example);
+        $visitor = new ClosureResolver();
+        $filter  = $visitor->dispatch($parser->getCondition());
+        $result  = array_filter($data, $filter);
+        $this->assertContains($obj1, $result);
     }
 }

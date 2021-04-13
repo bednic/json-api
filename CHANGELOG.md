@@ -1,18 +1,25 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+All notable changes to this project will be documented in this file. The format is based
+on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
+to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-### [7.4.4](https://gitlab.com/bednic/json-api/compare/7.4.3...7.4.4) (2021-04-12)
-
+### [7.4.5](https://gitlab.com/bednic/json-api/compare/7.4.4...7.4.5) (2021-04-13)
 
 ### Fixed
 
-* included should be present even it it's empty, when called by uri ([16cf131](https://gitlab.com/bednic/json-api/commit/16cf1318a39079cbd028ad73b944b572e87f0893))
+* **ExpressionBuilder:** tolower and toupper functions not working in filter
+  parser ([9304b76](https://gitlab.com/bednic/json-api/commit/9304b76216ef1f59dc496a99027808c98d20cf4b)),
+  closes [#38](https://gitlab.com/bednic/json-api/issues/38)
+
+### [7.4.4](https://gitlab.com/bednic/json-api/compare/7.4.3...7.4.4) (2021-04-12)
+
+### Fixed
+
+* included should be present even it it's empty, when called by
+  uri ([16cf131](https://gitlab.com/bednic/json-api/commit/16cf1318a39079cbd028ad73b944b572e87f0893))
 
 ### [7.4.3](https://gitlab.com/bednic/json-api/compare/7.4.2...7.4.3) (2021-04-06)
-
 
 ### Fixed
 

@@ -158,7 +158,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function upper(mixed $args): mixed
+    public function toupper(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TO_UPPER));
     }
@@ -166,7 +166,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function lower(mixed $args): mixed
+    public function tolower(mixed $args): mixed
     {
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TO_LOWER));
     }
