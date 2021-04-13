@@ -16,14 +16,6 @@ renamed to ::tolower, ::toupper
 
 * **ExpressionBuilder:** tolower and toupper functions not working in filter parser ([9c0e4c5](https://gitlab.com/bednic/json-api/commit/9c0e4c5ae73406ada8e0fb5ea39c5ab3c856ca2b)), closes [#38](https://gitlab.com/bednic/json-api/issues/38)
 
-### [7.4.5](https://gitlab.com/bednic/json-api/compare/7.4.4...7.4.5) (2021-04-13)
-
-### Fixed
-
-* **ExpressionBuilder:** tolower and toupper functions not working in filter
-  parser ([9304b76](https://gitlab.com/bednic/json-api/commit/9304b76216ef1f59dc496a99027808c98d20cf4b)),
-  closes [#38](https://gitlab.com/bednic/json-api/issues/38)
-
 ### [7.4.4](https://gitlab.com/bednic/json-api/compare/7.4.3...7.4.4) (2021-04-12)
 
 ### Fixed
