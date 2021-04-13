@@ -1,8 +1,20 @@
 # Changelog
 
-All notable changes to this project will be documented in this file. The format is based
-on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres
-to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+All notable changes to this project will be documented in this file.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [8.0.0](https://gitlab.com/bednic/json-api/compare/7.4.4...8.0.0) (2021-04-13)
+
+
+### ⚠ BREAKING CHANGES
+
+* **ExpressionBuilder:** ExpressionBuilder methods ::toLower and ::toUpper
+renamed to ::tolower, ::toupper
+
+### Fixed
+
+* **ExpressionBuilder:** tolower and toupper functions not working in filter parser ([9c0e4c5](https://gitlab.com/bednic/json-api/commit/9c0e4c5ae73406ada8e0fb5ea39c5ab3c856ca2b)), closes [#38](https://gitlab.com/bednic/json-api/issues/38)
 
 ### [7.4.5](https://gitlab.com/bednic/json-api/compare/7.4.4...7.4.5) (2021-04-13)
 
