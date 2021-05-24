@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [8.0.2](https://gitlab.com/bednic/json-api/compare/8.0.1...8.0.2) (2021-05-24)
+
+
+### Fixed
+
+* **DocumentFactory:** reflection type name value ([47921c7](https://gitlab.com/bednic/json-api/commit/47921c79b16ca677510fe89c2947c2605c2bcf36))
+
 ### [8.0.1](https://gitlab.com/bednic/json-api/compare/8.0.0...8.0.1) (2021-05-24)
 
 
