@@ -334,8 +334,9 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     private function parseNull(): mixed
     {
+        $value = $this->exp->literal(null);
         $this->lexer->nextToken();
-        return null;
+        return $value;
     }
 
     /**
