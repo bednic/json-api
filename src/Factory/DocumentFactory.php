@@ -168,14 +168,14 @@ class DocumentFactory
             if (property_exists($object->attributes, $attribute->name)) {
                 $value = $object->attributes->{$attribute->name};
                 switch ($attribute->type) {
-                    case 'integer':
+                    case 'int':
                         $value = intval($value);
                         break;
                     case 'float':
                     case 'double':
                         $value = floatval($value);
                         break;
-                    case 'boolean':
+                    case 'bool':
                         $value = boolval($value);
                         break;
                     default:

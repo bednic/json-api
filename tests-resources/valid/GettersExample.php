@@ -44,6 +44,11 @@ class GettersExample implements Resource
     private int $intProperty = 1;
 
     /**
+     * @var float
+     */
+    private float $doubleProperty = .1;
+
+    /**
      * @var int[]
      */
     private array $arrayProperty = [1, 2, 3];
@@ -135,6 +140,23 @@ class GettersExample implements Resource
     public function setIntProperty(int $intProperty): void
     {
         $this->intProperty = $intProperty;
+    }
+
+    /**
+     * @return float
+     */
+    #[API\Attribute]
+    public function getDoubleProperty(): float
+    {
+        return $this->doubleProperty;
+    }
+
+    /**
+     * @param float $doubleProperty
+     */
+    public function setDoubleProperty(float $doubleProperty): void
+    {
+        $this->doubleProperty = $doubleProperty;
     }
 
     /**
