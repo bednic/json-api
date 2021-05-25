@@ -124,6 +124,6 @@ final class Document implements Serializable, HasLinks, HasMeta
      */
     public function __toString(): string
     {
-        return (string)json_encode($this);
+        return (string)json_encode($this, JSON_PRESERVE_ZERO_FRACTION);
     }
 }

@@ -154,7 +154,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             $document->addError($error);
             $response = $this->responseFactory
                 ->createResponse($error->getStatus())
-                ->withBody($this->streamFactory->createStream(json_encode($document)));
+                ->withBody($this->streamFactory->createStream(json_encode($document, JSON_PRESERVE_ZERO_FRACTION)));
         }
         return $response->withHeader("Content-Type", Document::MEDIA_TYPE);
     }

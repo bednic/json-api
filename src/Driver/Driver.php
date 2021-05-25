@@ -89,6 +89,9 @@ abstract class Driver
         if ($attribute->type === null) {
             $attribute->type = $this->getType($reflection)?->getName();
         }
+        if ($attribute->nullable === null) {
+            $attribute->nullable = $this->getType($reflection)?->allowsNull();
+        }
         if ($attribute->getter) {
             if ($attribute->setter === null) {
                 $attribute->setter = $this->getSetter($reflectionClass, $attribute);
@@ -186,6 +189,9 @@ abstract class Driver
     ) {
         if (!$relationship->name) {
             $relationship->name = $this->getName($reflection);
+        }
+        if ($relationship->nullable === null) {
+            $relationship->nullable = $this->getType($reflection)?->allowsNull();
         }
         if ($relationship->isCollection === null) {
             $relationship->isCollection = $this->isCollection($reflection);

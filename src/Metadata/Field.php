@@ -15,6 +15,7 @@ abstract class Field
     public ?string $getter = null;
     public ?string $name = null;
     public ?string $property = null;
+    public ?bool $nullable = null;
 
     /**
      * Field constructor.
@@ -23,16 +24,19 @@ abstract class Field
      * @param string|null $property
      * @param string|null $getter
      * @param string|null $setter
+     * @param bool|null   $nullable
      */
     public function __construct(
         ?string $name = null,
         ?string $property = null,
         ?string $getter = null,
-        ?string $setter = null
+        ?string $setter = null,
+        ?bool $nullable = null
     ) {
-        $this->name = $name;
+        $this->name     = $name;
         $this->property = $property;
-        $this->getter = $getter;
-        $this->setter = $setter;
+        $this->getter   = $getter;
+        $this->setter   = $setter;
+        $this->nullable = $nullable;
     }
 }

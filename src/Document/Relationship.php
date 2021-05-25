@@ -34,7 +34,7 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
             $this->modified = true;
             parent::setData($data);
         } else {
-            throw new ForbiddenDataType(gettype($data));
+            throw new ForbiddenDataType($this->getKey(), gettype($data));
         }
     }
 

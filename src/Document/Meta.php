@@ -52,7 +52,7 @@ final class Meta implements Serializable
             throw new ForbiddenCharacter($key);
         }
         if (!in_array(gettype($value), ["boolean", "integer", "double", "string", "array", "NULL", "object"])) {
-            throw new ForbiddenDataType(gettype($value));
+            throw new ForbiddenDataType($key, gettype($value));
         }
         $this->properties[$key] = $value;
     }

@@ -38,7 +38,7 @@ final class Id extends Field
         if (is_string($data) || is_null($data)) {
             $this->data = $data;
         } else {
-            throw new ForbiddenDataType(gettype($data));
+            throw new ForbiddenDataType('id', gettype($data));
         }
     }
 }

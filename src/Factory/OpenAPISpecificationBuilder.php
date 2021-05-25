@@ -81,11 +81,11 @@ class OpenAPISpecificationBuilder
         LoggerInterface $logger = null
     ) {
         $this->metadataRepository = $metadataRepository;
-        $this->logger = $logger ?? new NullLogger();
-        $this->supportInclusion = $supportInclusion;
-        $this->supportSort = $supportSort;
-        $this->supportPagination = $supportPagination;
-        $this->baseUrl = $baseUrl;
+        $this->logger             = $logger ?? new NullLogger();
+        $this->supportInclusion   = $supportInclusion;
+        $this->supportSort        = $supportSort;
+        $this->supportPagination  = $supportPagination;
+        $this->baseUrl            = $baseUrl;
     }
 
     /**
@@ -210,7 +210,7 @@ class OpenAPISpecificationBuilder
     private function attributeToSchema(Attribute $attribute): Schema
     {
         $schema = new Schema();
-        $type = $this->translateType($attribute->type);
+        $type   = $this->translateType($attribute->type);
         $schema->setType($type);
         if ($type == 'integer') {
             $schema->setFormat(PHP_INT_SIZE === 4 ? 'int32' : 'int64');
@@ -218,6 +218,9 @@ class OpenAPISpecificationBuilder
             $schema->setItems((new Schema())->setType($this->translateType($attribute->of)));
         } elseif ($type == 'number') {
             $schema->setFormat('float');
+        }
+        if ($attribute->nullable === true) {
+            $schema->setNullable(true);
         }
         return $schema;
     }
@@ -480,9 +483,9 @@ class OpenAPISpecificationBuilder
             $shortName = self::shortName($classMetadata->getClassName());
 
             // COLLECTION
-            $collection = '/' . $classMetadata->getType();
+            $collection         = '/' . $classMetadata->getType();
             $collectionPathItem = new PathItem();
-            $getOperation = new Operation();
+            $getOperation       = new Operation();
 
             $getOperation->addParameter($this->oas->getComponents()->createParameterReference('filter'));
             $getOperation->addParameter($this->oas->getComponents()->createParameterReference('fields'));
@@ -528,7 +531,7 @@ class OpenAPISpecificationBuilder
             $this->oas->getPaths()->addPath($collection, $collectionPathItem);
 
             //SINGLE
-            $single = $collection . '/{id}';
+            $single         = $collection . '/{id}';
             $singlePathItem = new PathItem();
             $singlePathItem->addParameter($this->oas->getComponents()->createParameterReference('id'));
             $getOperation = Operation::new()

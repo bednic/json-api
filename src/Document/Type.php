@@ -38,7 +38,7 @@ final class Type extends Field
         if (is_string($data)) {
             $this->data = $data;
         } else {
-            throw new ForbiddenDataType(gettype($data));
+            throw new ForbiddenDataType($this->getKey(), gettype($data));
         }
     }
 }

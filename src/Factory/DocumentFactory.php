@@ -160,6 +160,7 @@ class DocumentFactory
      *
      * @return array
      * @throws ForbiddenCharacter
+     * @throws ForbiddenDataType
      */
     private function parseAttributes(object $object): array
     {
@@ -167,19 +168,34 @@ class DocumentFactory
         foreach ($this->metadata->getAttributes() as $attribute) {
             if (property_exists($object->attributes, $attribute->name)) {
                 $value = $object->attributes->{$attribute->name};
-                switch ($attribute->type) {
-                    case 'int':
-                        $value = intval($value);
-                        break;
-                    case 'float':
-                    case 'double':
-                        $value = floatval($value);
-                        break;
-                    case 'bool':
-                        $value = boolval($value);
-                        break;
-                    default:
-                        break;
+                if (!is_null($value)) {
+                    switch ($attribute->type) {
+                        case 'int':
+                            if (!is_int($value)) {
+                                throw new ForbiddenDataType($attribute->name, gettype($value));
+                            }
+                            break;
+                        case 'bool':
+                            if (!is_bool($value)) {
+                                throw new ForbiddenDataType($attribute->name, gettype($value));
+                            }
+                            break;
+                        case 'float':
+                            if (!is_int($value) && !is_float($value)) {
+                                throw new ForbiddenDataType($attribute->name, gettype($value));
+                            }
+                            $value = floatval($value);
+                            break;
+                        case 'string':
+                            if (!is_string($value)) {
+                                throw new ForbiddenDataType($attribute->name, gettype($value));
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                } elseif ($attribute->nullable === false) {
+                    throw new ForbiddenDataType($attribute->name, gettype($value));
                 }
                 try {
                     $className = $attribute->type;
@@ -209,13 +225,19 @@ class DocumentFactory
         foreach ($this->metadata->getRelationships() as $relationship) {
             if (property_exists($object->relationships, $relationship->name)) {
                 $value = $object->relationships->{$relationship->name}->data;
-                if ($relationship->isCollection) {
-                    $data = new ResourceCollection();
-                    foreach ($value as $item) {
-                        $data->add(new ResourceObjectIdentifier(new Type($item->type), new Id($item->id)));
+                if (!is_null($value)) {
+                    if ($relationship->isCollection) {
+                        $data = new ResourceCollection();
+                        foreach ($value as $item) {
+                            $data->add(new ResourceObjectIdentifier(new Type($item->type), new Id($item->id)));
+                        }
+                    } else {
+                        $data = new ResourceObjectIdentifier(new Type($value->type), new Id($value->id));
                     }
+                } elseif ($relationship->nullable === false) {
+                    throw new ForbiddenDataType($relationship->name, gettype($value));
                 } else {
-                    $data = new ResourceObjectIdentifier(new Type($value->type), new Id($value->id));
+                    $data = $value;
                 }
                 $rel = new Relationship($relationship->name);
                 $rel->setData($data);

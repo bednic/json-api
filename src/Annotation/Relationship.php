@@ -32,8 +32,9 @@ final class Relationship extends \JSONAPI\Metadata\Relationship
         string $property = null,
         string $getter = null,
         string $setter = null,
-        ?bool $isCollection = null
+        ?bool $isCollection = null,
+        ?bool $nullable = null
     ) {
-        parent::__construct($target, $name, $property, $getter, $setter, $isCollection);
+        parent::__construct($target, $name, $property, $getter, $setter, $isCollection, $nullable);
     }
 }

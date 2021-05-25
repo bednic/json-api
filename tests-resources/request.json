@@ -5,6 +5,7 @@
         "attributes": {
             "stringProperty": "string",
             "intProperty": 1,
+            "doubleProperty": 1.0,
             "boolProperty": true
         },
         "relationships": {

@@ -23,6 +23,7 @@ class Attribute extends Field
      * @param string|null $setter
      * @param string|null $type
      * @param string|null $of
+     * @param bool|null   $nullable
      */
     protected function __construct(
         string $name = null,
@@ -30,9 +31,10 @@ class Attribute extends Field
         string $getter = null,
         string $setter = null,
         ?string $type = null,
-        ?string $of = null
+        ?string $of = null,
+        ?bool $nullable = null
     ) {
-        parent::__construct($name, $property, $getter, $setter);
+        parent::__construct($name, $property, $getter, $setter, $nullable);
         $this->type = $type;
         $this->of = $of;
     }
@@ -40,9 +42,10 @@ class Attribute extends Field
 
     /**
      * @param string      $property
+     * @param string|null $of
      * @param string|null $name
      * @param string|null $type
-     * @param string|null $of
+     * @param bool|null   $nullable
      *
      * @return self
      */
@@ -50,9 +53,10 @@ class Attribute extends Field
         string $property,
         string $of = null,
         string $name = null,
-        string $type = null
+        string $type = null,
+        bool $nullable = null
     ): self {
-        return new self($name, $property, null, null, $type, $of);
+        return new self($name, $property, null, null, $type, $of, $nullable);
     }
 
     /**
@@ -61,6 +65,7 @@ class Attribute extends Field
      * @param string|null $name
      * @param string|null $type
      * @param string|null $of
+     * @param bool|null   $nullable
      *
      * @return self
      */
@@ -69,8 +74,9 @@ class Attribute extends Field
         string $setter = null,
         string $name = null,
         string $type = null,
-        string $of = null
+        string $of = null,
+        bool $nullable = null
     ): self {
-        return new self($name, null, $getter, $setter, $type, $of);
+        return new self($name, null, $getter, $setter, $type, $of, $nullable);
     }
 }

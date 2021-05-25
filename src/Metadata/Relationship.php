@@ -25,6 +25,7 @@ class Relationship extends Field
      * @param string|null $setter
      * @param bool|null   $isCollection
      * @param Meta|null   $meta
+     * @param bool|null   $nullable
      */
     protected function __construct(
         ?string $target,
@@ -33,11 +34,12 @@ class Relationship extends Field
         string $getter = null,
         string $setter = null,
         ?bool $isCollection = null,
-        ?Meta $meta = null
+        ?Meta $meta = null,
+        ?bool $nullable = null
     ) {
-        parent::__construct($name, $property, $getter, $setter);
-        $this->target = $target;
-        $this->meta = $meta;
+        parent::__construct($name, $property, $getter, $setter, $nullable);
+        $this->target       = $target;
+        $this->meta         = $meta;
         $this->isCollection = $isCollection;
     }
 
@@ -48,6 +50,7 @@ class Relationship extends Field
      * @param string|null $name
      * @param bool        $isCollection
      * @param Meta|null   $meta
+     * @param bool|null   $nullable
      *
      * @return Relationship
      */
@@ -56,18 +59,20 @@ class Relationship extends Field
         string $target,
         string $name = null,
         bool $isCollection = null,
-        Meta $meta = null
+        Meta $meta = null,
+        bool $nullable = null
     ): Relationship {
-        return new self($target, $name, $property, null, null, $isCollection, $meta);
+        return new self($target, $name, $property, null, null, $isCollection, $meta, $nullable);
     }
 
     /**
      * @param string      $getter
-     * @param string|null $setter
      * @param string      $target
+     * @param string|null $setter
      * @param string|null $name
      * @param bool        $isCollection
      * @param Meta|null   $meta
+     * @param bool|null   $nullable
      *
      * @return Relationship
      */
@@ -77,8 +82,9 @@ class Relationship extends Field
         string $setter = null,
         string $name = null,
         bool $isCollection = null,
-        Meta $meta = null
+        Meta $meta = null,
+        bool $nullable = null
     ): Relationship {
-        return new self($target, $name, null, $getter, $setter, $isCollection, $meta);
+        return new self($target, $name, null, $getter, $setter, $isCollection, $meta, $nullable);
     }
 }

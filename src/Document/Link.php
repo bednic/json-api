@@ -16,13 +16,13 @@ final class Link extends Field implements HasMeta
 {
     use MetaExtension;
 
-    public const SELF    = 'self';
+    public const SELF = 'self';
     public const RELATED = 'related';
-    public const FIRST   = 'first';
-    public const LAST    = 'last';
-    public const NEXT    = 'next';
-    public const PREV    = 'prev';
-    public const ABOUT   = 'about';
+    public const FIRST = 'first';
+    public const LAST = 'last';
+    public const NEXT = 'next';
+    public const PREV = 'prev';
+    public const ABOUT = 'about';
 
     /**
      * Link constructor.
@@ -53,7 +53,7 @@ final class Link extends Field implements HasMeta
         if (filter_var($data, FILTER_VALIDATE_URL) || is_null($data)) {
             parent::setData($data);
         } else {
-            throw new ForbiddenDataType("Data are not valid URL.");
+            throw new ForbiddenDataType($this->getKey(), "Data are not valid URL.");
         }
     }
 

@@ -30,34 +30,29 @@ use JSONAPI\Schema\ResourceSchema;
 class GettersExample implements Resource
 {
     /**
-     * @var string
+     * @var bool
      */
-    private string $id;
-
+    public bool $boolProperty = true;
     /**
      * @var string
      */
-    private string $stringProperty = 'string value';
+    private string $id;
+    /**
+     * @var string|null
+     */
+    private ?string $stringProperty = 'string value';
     /**
      * @var int
      */
     private int $intProperty = 1;
-
     /**
      * @var float
      */
     private float $doubleProperty = .1;
-
     /**
      * @var int[]
      */
     private array $arrayProperty = [1, 2, 3];
-
-    /**
-     * @var bool
-     */
-    public bool $boolProperty = true;
-
     /**
      * @var DtoValue
      */
@@ -80,15 +75,35 @@ class GettersExample implements Resource
      */
     public function __construct(string $id)
     {
-        $this->id = $id;
-        $this->relation = new DummyRelation('relation1');
-        $this->collection = new Collection(
+        $this->id          = $id;
+        $this->relation    = new DummyRelation('relation1');
+        $this->collection  = new Collection(
             [
                 new DummyRelation('relation2'),
                 new DummyRelation('relation3')
             ]
         );
         $this->dtoProperty = new DtoValue();
+    }
+
+    public static function getSchema(): ResourceSchema
+    {
+        return new ResourceSchema(
+            __CLASS__,
+            'getter',
+            Id::createByMethod('getId'),
+            [
+                Attribute::createByMethod('getStringProperty'),
+                Attribute::createByMethod('getIntProperty'),
+                Attribute::createByMethod('getArrayProperty', of: 'int'),
+                Attribute::createByMethod('isBoolProperty'),
+                Attribute::createByMethod('getDtoProperty'),
+            ],
+            [
+                Relationship::createByMethod('getRelation', DummyRelation::class),
+                Relationship::createByMethod('getCollection', DummyRelation::class)
+            ]
+        );
     }
 
     /**
@@ -109,18 +124,18 @@ class GettersExample implements Resource
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     #[API\Attribute]
-    public function getStringProperty(): string
+    public function getStringProperty(): ?string
     {
         return $this->stringProperty;
     }
 
     /**
-     * @param string $stringProperty
+     * @param string|null $stringProperty
      */
-    public function setStringProperty(string $stringProperty): void
+    public function setStringProperty(?string $stringProperty): void
     {
         $this->stringProperty = $stringProperty;
     }
@@ -253,25 +268,5 @@ class GettersExample implements Resource
     public function getDoctrineCollection(): DoctrineCollectionAdapter
     {
         return new DoctrineCollectionAdapter(new ArrayCollection([]));
-    }
-
-    public static function getSchema(): ResourceSchema
-    {
-        return new ResourceSchema(
-            __CLASS__,
-            'getter',
-            Id::createByMethod('getId'),
-            [
-                Attribute::createByMethod('getStringProperty'),
-                Attribute::createByMethod('getIntProperty'),
-                Attribute::createByMethod('getArrayProperty', 'int'),
-                Attribute::createByMethod('isBoolProperty'),
-                Attribute::createByMethod('getDtoProperty'),
-            ],
-            [
-                Relationship::createByMethod('getRelation', DummyRelation::class),
-                Relationship::createByMethod('getCollection', DummyRelation::class)
-            ]
-        );
     }
 }
