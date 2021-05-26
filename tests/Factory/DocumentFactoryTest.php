@@ -11,7 +11,7 @@ namespace JSONAPI\Test\Factory;
 
 use JSONAPI\Document\Document;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Exception\Document\ForbiddenDataType;
+use JSONAPI\Exception\Http\UnexpectedFieldDataType;
 use JSONAPI\Factory\DocumentFactory;
 use JSONAPI\Factory\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
@@ -54,7 +54,7 @@ class DocumentFactoryTest extends TestCase
      */
     public function testErrors($object)
     {
-        $this->expectException(ForbiddenDataType::class);
+        $this->expectException(UnexpectedFieldDataType::class);
         $factory = new DocumentFactory(self::$metadata, self::$path);
         $data    = json_encode($object);
         $factory->decode($data);
@@ -86,6 +86,20 @@ class DocumentFactoryTest extends TestCase
                             "stringProperty" => null,
                             "intProperty"    => 0,
                             "doubleProperty" => 0.0,
+                            "boolProperty"   => false
+                        ]
+                    ]
+                ]
+            ],
+            [
+                [
+                    "data" => [
+                        "type"       => "getter",
+                        "id"         => "1",
+                        "attributes" => [
+                            "stringProperty" => null,
+                            "intProperty"    => 1e1,
+                            "doubleProperty" => 1e-1,
                             "boolProperty"   => false
                         ]
                     ]

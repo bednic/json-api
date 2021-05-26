@@ -22,6 +22,7 @@ use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Http\Conflict;
+use JSONAPI\Exception\Http\UnexpectedFieldDataType;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Metadata\ClassMetadata;
@@ -160,7 +161,7 @@ class DocumentFactory
      *
      * @return array
      * @throws ForbiddenCharacter
-     * @throws ForbiddenDataType
+     * @throws UnexpectedFieldDataType
      */
     private function parseAttributes(object $object): array
     {
@@ -172,30 +173,30 @@ class DocumentFactory
                     switch ($attribute->type) {
                         case 'int':
                             if (!is_int($value)) {
-                                throw new ForbiddenDataType($attribute->name, gettype($value));
+                                throw new UnexpectedFieldDataType($attribute->name, gettype($value), 'int');
                             }
                             break;
                         case 'bool':
                             if (!is_bool($value)) {
-                                throw new ForbiddenDataType($attribute->name, gettype($value));
+                                throw new UnexpectedFieldDataType($attribute->name, gettype($value), 'bool');
                             }
                             break;
                         case 'float':
                             if (!is_int($value) && !is_float($value)) {
-                                throw new ForbiddenDataType($attribute->name, gettype($value));
+                                throw new UnexpectedFieldDataType($attribute->name, gettype($value), 'float');
                             }
                             $value = floatval($value);
                             break;
                         case 'string':
                             if (!is_string($value)) {
-                                throw new ForbiddenDataType($attribute->name, gettype($value));
+                                throw new UnexpectedFieldDataType($attribute->name, gettype($value), 'string');
                             }
                             break;
                         default:
                             break;
                     }
                 } elseif ($attribute->nullable === false) {
-                    throw new ForbiddenDataType($attribute->name, gettype($value));
+                    throw new UnexpectedFieldDataType($attribute->name, gettype($value), 'not null');
                 }
                 try {
                     $className = $attribute->type;
@@ -218,6 +219,7 @@ class DocumentFactory
      * @return array
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
+     * @throws UnexpectedFieldDataType
      */
     private function parseRelationships(object $object): array
     {
@@ -235,7 +237,7 @@ class DocumentFactory
                         $data = new ResourceObjectIdentifier(new Type($value->type), new Id($value->id));
                     }
                 } elseif ($relationship->nullable === false) {
-                    throw new ForbiddenDataType($relationship->name, gettype($value));
+                    throw new UnexpectedFieldDataType($relationship->name, gettype($value), 'not null');
                 } else {
                     $data = $value;
                 }
