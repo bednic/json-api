@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.1.0](https://gitlab.com/bednic/json-api/compare/8.0.2...8.1.0) (2021-05-27)
+
+
+### Added
+
+* Add support for nullable ([36d2062](https://gitlab.com/bednic/json-api/commit/36d20628470f05eeeebb5b4ffe41a47f09bbcf42))
+
+
+### Changed
+
+* Add UnexpectedFieldDataType exception ([d947ea7](https://gitlab.com/bednic/json-api/commit/d947ea790192f23cc5bd03325ce39b6af625093b))
+
 ### [8.0.2](https://gitlab.com/bednic/json-api/compare/8.0.1...8.0.2) (2021-05-24)
 
 
