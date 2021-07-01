@@ -118,14 +118,14 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             $request->withAttribute(Builder::class, $docBuilder);
 
             if (
-            in_array(
-                $request->getMethod(),
-                [
+                in_array(
+                    $request->getMethod(),
+                    [
                     RequestMethodInterface::METHOD_POST,
                     RequestMethodInterface::METHOD_PATCH,
                     RequestMethodInterface::METHOD_DELETE
-                ]
-            )
+                    ]
+                )
             ) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
