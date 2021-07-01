@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace JSONAPI\Middleware;
 
 use Fig\Http\Message\RequestMethodInterface;
+use JSONAPI\Document\Builder;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error\ErrorFactory;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
+use JSONAPI\Factory\DocumentBuilderFactory;
 use JSONAPI\Factory\DocumentErrorFactory;
 use JSONAPI\Factory\DocumentFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\URI\Path\PathParser;
+use JSONAPI\URI\URIParser;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -20,8 +22,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Swaggest\JsonSchema\Exception as SchemaException;
-use Swaggest\JsonSchema\InvalidValue;
 use Swaggest\JsonSchema\Schema;
 use Swaggest\JsonSchema\SchemaContract;
 use Throwable;
@@ -50,14 +50,6 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      */
     private LoggerInterface $logger;
     /**
-     * @var string
-     */
-    private string $baseURL;
-    /**
-     * @var SchemaContract
-     */
-    private SchemaContract $input;
-    /**
      * @var SchemaContract
      */
     private SchemaContract $output;
@@ -65,20 +57,25 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      * @var ErrorFactory
      */
     private ErrorFactory $errorFactory;
+    /**
+     * @var DocumentBuilderFactory docBuilderFactory
+     */
+    private DocumentBuilderFactory $docBuilderFactory;
 
 
     /**
      * PsrJsonApiMiddleware constructor.
      *
-     * @param MetadataRepository       $repository
-     * @param string                   $baseURL
-     * @param ResponseFactoryInterface $responseFactory
-     * @param StreamFactoryInterface   $streamFactory
-     * @param LoggerInterface|null     $logger
-     * @param ErrorFactory|null        $errorFactory
+     * @param MetadataRepository                           $repository
+     * @param string                                       $baseURL
+     * @param ResponseFactoryInterface                     $responseFactory
+     * @param StreamFactoryInterface                       $streamFactory
+     * @param LoggerInterface|null                         $logger
+     * @param ErrorFactory|null                            $errorFactory
+     * @param \JSONAPI\Factory\DocumentBuilderFactory|null $documentBuilderFactory
      *
-     * @throws InvalidValue
-     * @throws SchemaException
+     * @throws \Swaggest\JsonSchema\Exception
+     * @throws \Swaggest\JsonSchema\InvalidValue
      */
     public function __construct(
         MetadataRepository $repository,
@@ -86,20 +83,19 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
         ResponseFactoryInterface $responseFactory,
         StreamFactoryInterface $streamFactory,
         LoggerInterface $logger = null,
-        ErrorFactory $errorFactory = null
+        ErrorFactory $errorFactory = null,
+        DocumentBuilderFactory $documentBuilderFactory = null
     ) {
-        $this->repository      = $repository;
-        $this->baseURL         = $baseURL;
-        $this->responseFactory = $responseFactory;
-        $this->streamFactory   = $streamFactory;
-        $this->logger          = $logger ?? new NullLogger();
-        $this->errorFactory    = $errorFactory ?? new DocumentErrorFactory();
-        $this->input           = Schema::import(
-            json_decode(file_get_contents(__DIR__ . '/in.json'))
-        );
-        $this->output          = Schema::import(
+        $this->repository        = $repository;
+        $this->responseFactory   = $responseFactory;
+        $this->streamFactory     = $streamFactory;
+        $this->logger            = $logger ?? new NullLogger();
+        $this->errorFactory      = $errorFactory ?? new DocumentErrorFactory();
+        $this->output            = Schema::import(
             json_decode(file_get_contents(__DIR__ . '/out.json'))
         );
+        $this->docBuilderFactory = $documentBuilderFactory ??
+            new DocumentBuilderFactory($repository, $baseURL, logger: $logger);
     }
 
     /**
@@ -116,21 +112,25 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
+            $uriParser  = $this->docBuilderFactory->uri($request);
+            $docBuilder = $this->docBuilderFactory->new($request);
+            $request->withAttribute(URIParser::class, $uriParser);
+            $request->withAttribute(Builder::class, $docBuilder);
+
             if (
-                in_array(
-                    $request->getMethod(),
-                    [
+            in_array(
+                $request->getMethod(),
+                [
                     RequestMethodInterface::METHOD_POST,
                     RequestMethodInterface::METHOD_PATCH,
                     RequestMethodInterface::METHOD_DELETE
-                    ]
-                )
+                ]
+            )
             ) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
                 }
-                $path = (new PathParser($this->repository, $this->baseURL, $request->getMethod()))
-                    ->parse($request->getUri()->getPath());
+                $path = $uriParser->getPath();
                 if ($request->getMethod() !== RequestMethodInterface::METHOD_DELETE || $path->isRelationship()) {
                     $documentBuilder = new DocumentFactory($this->repository, $path);
                     $request->getBody()->rewind();
