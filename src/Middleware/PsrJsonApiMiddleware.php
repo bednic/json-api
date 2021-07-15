@@ -117,27 +117,15 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             $request->withAttribute(URIParser::class, $uriParser);
             $request->withAttribute(Builder::class, $docBuilder);
 
-            if (
-                in_array(
-                    $request->getMethod(),
-                    [
-                    RequestMethodInterface::METHOD_POST,
-                    RequestMethodInterface::METHOD_PATCH,
-                    RequestMethodInterface::METHOD_DELETE
-                    ]
-                )
-            ) {
+            $request->getBody()->rewind();
+            if ($request->getBody()->getSize() > 0) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
                 }
-                $path = $uriParser->getPath();
-                if ($request->getMethod() !== RequestMethodInterface::METHOD_DELETE || $path->isRelationship()) {
-                    $documentBuilder = new DocumentFactory($this->repository, $path);
-                    $request->getBody()->rewind();
-                    $data     = $request->getBody()->getContents();
-                    $document = $documentBuilder->decode($data);
-                    $request  = $request->withParsedBody($document);
-                }
+                $documentBuilder = new DocumentFactory($this->repository, $uriParser->getPath());
+                $data     = $request->getBody()->getContents();
+                $document = $documentBuilder->decode($data);
+                $request  = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
             $content  = $response->getBody()->getContents();

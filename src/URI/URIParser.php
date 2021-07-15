@@ -102,18 +102,18 @@ final class URIParser
         PaginationParserInterface $paginationParser = null,
         LoggerInterface $logger = null
     ) {
-        $this->request = $request;
+        $this->request            = $request;
         $this->metadataRepository = $metadataRepository;
-        $this->logger = $logger ?? new NullLogger();
-        $this->fieldsetParser = new FieldsetParser();
-        $this->filterParser = $filterParser ?? new ExpressionFilterParser();
-        $this->inclusionParser = new InclusionParser();
-        $this->paginationParser = $paginationParser ?? new LimitOffsetPagination();
-        $this->pathParser = new PathParser($metadataRepository, $baseUrl, $request->getMethod());
-        $this->sortParser = new SortParser();
-        $this->supportInclusion = $supportInclusion;
-        $this->supportSort = $supportSort;
-        $this->supportPagination = $supportPagination;
+        $this->logger             = $logger ?? new NullLogger();
+        $this->fieldsetParser     = new FieldsetParser();
+        $this->filterParser       = $filterParser ?? new ExpressionFilterParser();
+        $this->inclusionParser    = new InclusionParser();
+        $this->paginationParser   = $paginationParser ?? new LimitOffsetPagination();
+        $this->pathParser         = new PathParser($metadataRepository, $baseUrl, $request->getMethod());
+        $this->sortParser         = new SortParser();
+        $this->supportInclusion   = $supportInclusion;
+        $this->supportSort        = $supportSort;
+        $this->supportPagination  = $supportPagination;
         $this->check($request);
     }
 
@@ -223,5 +223,29 @@ final class URIParser
     public function getPath(): PathInterface
     {
         return $this->pathParser->parse($this->request->getURI()->getPath());
+    }
+
+    /**
+     * @return bool
+     */
+    public function isInclusionEnabled(): bool
+    {
+        return $this->supportInclusion;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isSortEnabled(): bool
+    {
+        return $this->supportSort;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isPaginationEnabled(): bool
+    {
+        return $this->supportPagination;
     }
 }
