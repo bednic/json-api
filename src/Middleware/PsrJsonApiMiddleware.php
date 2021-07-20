@@ -116,7 +116,6 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             $docBuilder = $this->docBuilderFactory->new($request);
             $request->withAttribute(URIParser::class, $uriParser);
             $request->withAttribute(Builder::class, $docBuilder);
-
             $request->getBody()->rewind();
             if ($request->getBody()->getSize() > 0) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
