@@ -127,15 +127,17 @@ class DocumentFactory
      * @param object $object
      *
      * @return ResourceObject|ResourceObjectIdentifier
+     * @throws AlreadyInUse
      * @throws Conflict
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws AlreadyInUse
+     * @throws UnexpectedFieldDataType
      */
     private function parseResource(object $object): ResourceObject | ResourceObjectIdentifier
     {
         if ($object->type !== $this->metadata->getType()) {
-            throw new Conflict();
+            throw new Conflict("Provided resource type {$object->type} has different type
+            than expected {$this->metadata->getType()}.");
         }
         $type     = new Type($object->type);
         $id       = new Id(@$object->id);
