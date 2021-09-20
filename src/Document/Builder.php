@@ -74,7 +74,7 @@ final class Builder
     }
 
     /**
-     * @param iterable<object>|object $data
+     * @param iterable<object>|object|null $data
      *
      * @return $this
      * @throws BadRequest
@@ -82,7 +82,7 @@ final class Builder
      * @throws DriverException
      * @throws MetadataException
      */
-    public function setData(object|iterable $data): Builder
+    public function setData(object | iterable | null $data): Builder
     {
         $this->logger->debug('Setting data.');
         if ($this->uri->getPath()->isCollection() && is_iterable($data)) {
@@ -109,6 +109,8 @@ final class Builder
             if ($this->uri->getInclusion()->hasInclusions()) {
                 $this->inclusionFetcher->fetchInclusions($data, $this->uri->getInclusion()->getInclusions());
             }
+        } else {
+            $this->document->setData(null);
         }
         $this->logger->debug('Data set.');
         return $this;
