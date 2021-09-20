@@ -187,7 +187,7 @@ class MetadataFactory
         Driver $driver,
         LoggerInterface $logger = null
     ): MetadataRepository {
-        $self = new static($paths, $cache, $driver, $logger);
+        $self = new self($paths, $cache, $driver, $logger);
         $repository = new MetadataRepository();
         foreach ($self->getAllMetadata() as $metadata) {
             $repository->add($metadata);
