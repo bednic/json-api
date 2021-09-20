@@ -54,7 +54,7 @@ class AnnotationDriver extends Driver
      */
     public function __construct(LoggerInterface $logger = null)
     {
-        $this->logger = $logger ? $logger : new NullLogger();
+        $this->logger    = $logger ? $logger : new NullLogger();
         $this->inflector = new EnglishInflector();
     }
 
@@ -76,15 +76,17 @@ class AnnotationDriver extends Driver
             if ($resource) {
                 $this->logger->debug('Found resource ' . $ref->getShortName());
                 if ($resource->type === null) {
-                    $resource->type = $this->inflector->pluralize(s($ref->getShortName())->camel()->toString())[0];
+                    $resource->type = $this->inflector->pluralize(
+                        s($ref->getShortName())->snake()->replace('_', '-')->toString()
+                    )[0];
                 }
                 /** @var Meta $meta */
                 $meta = (@$ref->getAttributes(Meta::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance();
                 if ($meta && !$ref->hasMethod($meta->getter)) {
                     throw new MethodNotExist($meta->getter, $ref->getName());
                 }
-                $id = null;
-                $attributes = new Collection();
+                $id            = null;
+                $attributes    = new Collection();
                 $relationships = new Collection();
                 $this->parseProperties($ref, $id, $attributes, $relationships);
                 $this->parseMethods($ref, $id, $attributes, $relationships);
