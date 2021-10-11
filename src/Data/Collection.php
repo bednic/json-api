@@ -22,7 +22,7 @@ use Traversable;
 class Collection implements ArrayAccess, Countable, IteratorAggregate
 {
     public const SORT_DESC = 'DESC';
-    public const SORT_ASC  = 'ASC';
+    public const SORT_ASC = 'ASC';
     /**
      * @var array
      */
@@ -51,7 +51,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      *
      * @return bool
      */
-    public function hasKey(int | string $key): bool
+    public function hasKey(int|string $key): bool
     {
         return $this->offsetExists($key);
     }
@@ -69,7 +69,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      *
      * @return mixed
      */
-    public function get(int | string $key): mixed
+    public function get(int|string $key): mixed
     {
         return $this->offsetGet($key);
     }
@@ -86,7 +86,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      * @param int|string $key
      * @param mixed      $value
      */
-    public function set(int | string $key, mixed $value): void
+    public function set(int|string $key, mixed $value): void
     {
         $this->offsetSet($key, $value);
     }
@@ -102,7 +102,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * @param int|string $key
      */
-    public function unset(int | string $key): void
+    public function unset(int|string $key): void
     {
         $this->offsetUnset($key);
     }
@@ -199,13 +199,13 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
      * @param string $orientation
      *
      * @return Collection
+     * @throws CollectionException
      */
-    public function sort($orientation = self::SORT_ASC): self
+    public function sort(string $orientation = self::SORT_ASC): self
     {
-        assert(
-            $this->items === array_filter($this->items, 'is_scalar'),
-            '::sort can be used only on scalar data'
-        );
+        if ($this->items !== array_filter($this->items, 'is_scalar')) {
+            throw new CollectionException('::sort can be used only on scalar data');
+        }
         $orientation === self::SORT_DESC ? rsort($this->items) : sort($this->items);
         return $this;
     }
@@ -229,7 +229,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
         };
         foreach (array_reverse($order) as $field => $ordering) {
             $orientation = $ordering === self::SORT_DESC ? -1 : 1;
-            $next = static function ($a, $b) use ($field, $next, $orientation): int {
+            $next        = static function ($a, $b) use ($field, $next, $orientation): int {
                 $accessor = new ObjectPropertyAccessor();
                 try {
                     $aValue = $accessor($a, $field);
