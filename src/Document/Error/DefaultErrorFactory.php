@@ -18,7 +18,7 @@ use Throwable;
  *
  * @package JSONAPI\Factory
  */
-final class DefaultErrorFactory implements ErrorFactory
+class DefaultErrorFactory implements ErrorFactory
 {
     /**
      * @inheritDoc
