@@ -104,8 +104,9 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             $parsedUri = (new URIParser($this->configuration))->parse($request);
             $docBuilder = (new BuilderFactory($this->configuration))->create($request);
 
-            $request->withAttribute(self::PARSED_URI, $parsedUri);
-            $request->withAttribute(self::BUILDER, $docBuilder);
+            $request = $request
+                ->withAttribute(self::PARSED_URI, $parsedUri)
+                ->withAttribute(self::BUILDER, $docBuilder);
 
             $request->getBody()->rewind();
             if ($request->getBody()->getSize() > 0) {
