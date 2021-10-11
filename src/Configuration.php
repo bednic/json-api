@@ -171,7 +171,11 @@ class Configuration
     private function setMaxIncludedItems(int $maxIncludedItems): void
     {
         if ($maxIncludedItems < 0) {
-            throw new InvalidConfigurationParameter('maxIncludedItems', 'value greater then 0', $maxIncludedItems);
+            throw new InvalidConfigurationParameter(
+                'maxIncludedItems',
+                'value greater then 0',
+                (string)$maxIncludedItems
+            );
         }
         $this->maxIncludedItems = $maxIncludedItems;
     }
@@ -216,7 +220,11 @@ class Configuration
     public function setRelationshipLimit(int $relationshipLimit): void
     {
         if ($relationshipLimit < 0) {
-            throw new InvalidConfigurationParameter('relationshipLimit', 'value greater then 0', $relationshipLimit);
+            throw new InvalidConfigurationParameter(
+                'relationshipLimit',
+                'value greater then 0',
+                (string)$relationshipLimit
+            );
         }
         $this->relationshipLimit = $relationshipLimit;
     }
