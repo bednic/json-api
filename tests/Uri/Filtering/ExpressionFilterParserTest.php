@@ -9,14 +9,16 @@ use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Doctrine\ORM\Query\Parameter;
 use Doctrine\ORM\Query\QueryExpressionVisitor;
 use ExpressionBuilder\Dispatcher\ClosureResolver;
+use JSONAPI\Configuration;
 use JSONAPI\Driver\SchemaDriver;
-use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Filtering\Builder\ClosureExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\DoctrineQueryExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionFilterParser;
 use JSONAPI\URI\URIParser;
+use PHP_CodeSniffer\Config;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use stdClass;
@@ -29,16 +31,24 @@ class ExpressionFilterParserTest extends TestCase
      * @var MetadataRepository
      */
     private static MetadataRepository $mr;
+    /**
+     * @var Configuration configuration
+     */
+    private static Configuration $configuration;
+    /**
+     * @var string baseURL
+     */
     private static string $baseURL;
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr      = MetadataFactory::create(
+        self::$mr            = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new Psr16Cache(new ArrayAdapter()),
             new SchemaDriver()
         );
-        self::$baseURL = 'http://unit.test.org';
+        self::$baseURL       = 'http://unit.test.org';
+        self::$configuration = new Configuration(self::$mr, self::$baseURL);
     }
 
     /**
@@ -67,14 +77,16 @@ class ExpressionFilterParserTest extends TestCase
         $_SERVER["REQUEST_URI"] =
             "/getter?filter=stringProperty eq 'O''Neil' and contains(stringProperty,'asdf') and intProperty in (1,2,3) or boolProperty ne true and relation.property eq null and stringProperty eq datetime'2018-12-01'";
         $request                = ServerRequestFactory::createFromGlobals();
-        $up                     = new URIParser($request, self::$mr, self::$baseURL);
+        $configuration          = new Configuration(self::$mr, self::$baseURL);
+        $up                     = (new URIParser($configuration))->parse($request);
         $parser                 = new ExpressionFilterParser(
             new DoctrineQueryExpressionBuilder(
                 self::$mr,
                 $up->getPath()
             )
         );
-        $up->setFilterParser($parser);
+        $configuration          = new Configuration(self::$mr, self::$baseURL, filterParser: $parser);
+        $up                     = (new URIParser($configuration))->parse($request);
         $this->assertEquals(
             "((getter.stringProperty = 'O''Neil' AND getter.stringProperty LIKE '%asdf%') AND getter.intProperty IN(1, 2, 3)) OR ((getter.boolProperty <> true AND relation.property IS NULL) AND getter.stringProperty = '2018-12-01T00:00:00+01:00')",
             (string)$up->getFilter()->getCondition()

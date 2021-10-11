@@ -2,25 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Factory;
+namespace JSONAPI\Document;
 
-use JSONAPI\Document\Document;
-use JSONAPI\Document\Link;
-use JSONAPI\Document\Meta;
-use JSONAPI\Document\Relationship;
-use JSONAPI\Document\ResourceCollection;
-use JSONAPI\Document\ResourceObject;
-use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
-use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\URI\Fieldset\FieldsetInterface;
 use JSONAPI\URI\Filtering\FilterInterface;
 use JSONAPI\URI\Inclusion\InclusionInterface;
 use JSONAPI\URI\Pagination\PaginationInterface;
+use JSONAPI\URI\ParsedURI;
 use JSONAPI\URI\Path\PathInterface;
 use JSONAPI\URI\Sorting\SortInterface;
-use JSONAPI\URI\URIParser;
 
 /**
  * Class LinkComposer
@@ -101,14 +93,13 @@ class LinkComposer
 
     /**
      * @param Document  $document
-     * @param URIParser $parser
+     * @param ParsedURI $parser
      *
      * @return Document
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws BadRequest
      */
-    public function setDocumentLinks(Document $document, URIParser $parser): Document
+    public function setDocumentLinks(Document $document, ParsedURI $parser): Document
     {
         $path = $parser->getPath();
         $filter = $parser->getFilter();

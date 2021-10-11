@@ -7,9 +7,9 @@ namespace JSONAPI\Test\Metadata;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Factory\LinkComposer;
-use JSONAPI\Metadata\Encoder;
-use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Document\LinkComposer;
+use JSONAPI\Encoding\Encoder;
+use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Test\Resources\Valid\GettersExample;
 use JSONAPI\Test\Resources\Valid\MetaExample;
@@ -41,11 +41,7 @@ class EncoderTest extends TestCase
 
     public function testConstruct()
     {
-        $fieldset = (new FieldsetParser())->parse([]);
-        $inc = (new InclusionParser())->parse('');
-        $baseUrl = 'http://unit.test.org/api';
-        $links = new LinkComposer($baseUrl);
-        $encoder = new Encoder(self::$metadata, $fieldset, $inc, $links);
+        $encoder = new Encoder(self::$metadata);
         $this->assertInstanceOf(Encoder::class, $encoder);
         return $encoder;
     }
@@ -56,7 +52,7 @@ class EncoderTest extends TestCase
     public function testIdentify(Encoder $encoder)
     {
         $object = new GettersExample('id');
-        $identifier = $encoder->getIdentifier($object);
+        $identifier = $encoder->identify($object);
         $this->assertInstanceOf(ResourceObjectIdentifier::class, $identifier);
     }
 
@@ -66,7 +62,7 @@ class EncoderTest extends TestCase
     public function testEncode(Encoder $encoder)
     {
         $object = new GettersExample('id');
-        $resource = $encoder->getResource($object);
+        $resource = $encoder->encode($object);
         $this->assertInstanceOf(ResourceObject::class, $resource);
     }
 
@@ -76,7 +72,7 @@ class EncoderTest extends TestCase
     public function testRelationshipMetaEncode(Encoder $encoder)
     {
         $object = new MetaExample('meta');
-        $resource = $encoder->getResource($object);
+        $resource = $encoder->encode($object);
         $this->assertInstanceOf(ResourceObject::class, $resource);
         $this->assertFalse($resource->jsonSerialize()->relationships->relation->getMeta()->isEmpty());
     }

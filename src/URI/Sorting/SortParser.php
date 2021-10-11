@@ -12,7 +12,7 @@ use JSONAPI\URI\QueryPartInterface;
  *
  * @package JSONAPI\URI\Fieldset
  */
-class SortParser implements SortInterface
+class SortParser implements SortInterface, SortParserInterface
 {
     /**
      * @var array

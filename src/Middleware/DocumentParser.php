@@ -7,7 +7,7 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Factory;
+namespace JSONAPI\Middleware;
 
 use JSONAPI\Document\Attribute;
 use JSONAPI\Document\Deserializable;
@@ -36,7 +36,7 @@ use Swaggest\JsonSchema\InvalidValue;
 use Swaggest\JsonSchema\Schema;
 use Swaggest\JsonSchema\SchemaContract;
 
-class DocumentFactory
+class DocumentParser
 {
     /**
      * @var PathInterface
@@ -81,10 +81,11 @@ class DocumentFactory
      * @throws Conflict
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
-     * @throws MetadataException
-     * @throws MetadataNotFound
      * @throws InvalidValue
      * @throws JsonException
+     * @throws MetadataException
+     * @throws MetadataNotFound
+     * @throws UnexpectedFieldDataType
      */
     public function decode(string $json): Document
     {

@@ -11,7 +11,7 @@ namespace JSONAPI\Encoding;
 
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\ResourceObjectIdentifier;
-use JSONAPI\Factory\LinkComposer;
+use JSONAPI\Document\LinkComposer;
 
 /**
  * Class LinksProcessor

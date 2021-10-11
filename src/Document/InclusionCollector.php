@@ -2,9 +2,8 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Factory;
+namespace JSONAPI\Document;
 
-use JSONAPI\Document\ResourceCollection;
 use JSONAPI\Encoding\Encoder;
 use JSONAPI\Exception\Document\DocumentException;
 use JSONAPI\Exception\Document\InclusionOverflow;
@@ -76,7 +75,6 @@ class InclusionCollector
      * @throws BadRequest
      * @throws DocumentException
      * @throws DriverException
-     * @throws InclusionOverflow
      * @throws MetadataException
      */
     public function fetchInclusions(object $object, array $inclusions): void
@@ -116,9 +114,9 @@ class InclusionCollector
     /**
      * @param object $item
      *
+     * @throws InclusionOverflow
      * @throws DocumentException
      * @throws MetadataException
-     * @throws DriverException
      */
     private function addInclusion(object $item): void
     {

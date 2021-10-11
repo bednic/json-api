@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\OAS\Factory;
 
-use Doctrine\Common\Cache\ArrayCache;
+use JSONAPI\Configuration;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\OAS\Contact;
 use JSONAPI\OAS\ExternalDocumentation;
-use JSONAPI\Factory\OpenAPISpecificationBuilder;
+use JSONAPI\OAS\OpenAPISpecificationBuilder;
 use JSONAPI\OAS\Info;
 use JSONAPI\OAS\License;
 use JSONAPI\OAS\OpenAPISpecification;
@@ -27,31 +27,31 @@ use Symfony\Component\Cache\Psr16Cache;
 class OpenAPISpecificationBuilderTest extends TestCase
 {
     /**
-     * @var MetadataRepository
-     */
-    private static MetadataRepository $mr;
-    /**
      * @var Schema
      */
     private static $validator;
-    private static string $baseUrl;
+    /**
+     * @var Configuration configuration
+     */
+    private static Configuration $configuration;
 
     public static function setUpBeforeClass(): void
     {
-        self::$mr = MetadataFactory::create(
+        $mr                  = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
         );
-        self::$baseUrl = 'http://unit.test.org';
-        self::$validator = Schema::import(
+        $baseUrl             = 'http://unit.test.org';
+        self::$validator     = Schema::import(
             json_decode(file_get_contents(RESOURCES . DIRECTORY_SEPARATOR . 'openapi-v3.0.json'))
         );
+        self::$configuration = new Configuration($mr, $baseUrl);
     }
 
     public function testCreate()
     {
-        $factory = new OpenAPISpecificationBuilder(self::$mr, self::$baseUrl);
+        $factory = new OpenAPISpecificationBuilder(self::$configuration);
 
         $info = new Info('JSON:API OAS', '1.0.0');
         $info->setDescription('Test specification');

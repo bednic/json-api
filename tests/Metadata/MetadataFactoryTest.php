@@ -6,7 +6,7 @@ namespace JSONAPI\Test\Metadata;
 
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Driver\SchemaDriver;
-use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;

@@ -9,7 +9,7 @@ namespace JSONAPI\URI\Inclusion;
  *
  * @package JSONAPI\URI\Inclusion
  */
-class InclusionParser implements InclusionInterface
+class InclusionParser implements InclusionInterface, InclusionParserInterface
 {
     /**
      * @var Inclusion[]

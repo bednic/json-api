@@ -13,7 +13,7 @@ use JSONAPI\Metadata\MetadataRepository;
  *
  * @package JSONAPI\URI\Path
  */
-class PathParser implements PathInterface
+class PathParser implements PathInterface, PathParserInterface
 {
     /**
      * @var string
@@ -41,7 +41,10 @@ class PathParser implements PathInterface
     /**
      * @var string
      */
-    private string $method;
+    private string $method = RequestMethodInterface::METHOD_GET;
+    /**
+     * @var string baseURL
+     */
     private string $baseURL;
 
     /**
@@ -49,26 +52,25 @@ class PathParser implements PathInterface
      *
      * @param MetadataRepository $metadataRepository
      * @param string             $baseURL
-     * @param string             $method
      */
     public function __construct(
         MetadataRepository $metadataRepository,
-        string $baseURL,
-        string $method = RequestMethodInterface::METHOD_GET
+        string $baseURL
     ) {
         $this->metadataRepository = $metadataRepository;
         $this->baseURL = $baseURL;
-        $this->method = $method;
     }
 
     /**
      * @param string $data
+     * @param string $method
      *
      * @return PathInterface
      * @throws BadRequest
      */
-    public function parse(string $data): PathInterface
+    public function parse(string $data, string $method): PathInterface
     {
+        $this->method = $method;
         $req = explode('/', $data);
         $base = explode('/', parse_url($this->baseURL, PHP_URL_PATH) ?? '');
         $diff = array_diff($req, $base);
@@ -177,7 +179,7 @@ class PathParser implements PathInterface
     }
 
     /**
-     * @return string
+     * @return string|null
      */
     public function getId(): ?string
     {

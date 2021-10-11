@@ -14,10 +14,10 @@ use JSONAPI\Exception\Http\BadRequest;
 interface FilterParserInterface
 {
     /**
-     * @param string|array|null $data
+     * @param mixed $data
      *
      * @return FilterInterface
      * @throws BadRequest
      */
-    public function parse($data): FilterInterface;
+    public function parse(mixed $data): FilterInterface;
 }

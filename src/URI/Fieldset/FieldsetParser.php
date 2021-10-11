@@ -9,7 +9,7 @@ namespace JSONAPI\URI\Fieldset;
  *
  * @package JSONAPI\URI\Fieldset
  */
-class FieldsetParser implements FieldsetInterface
+class FieldsetParser implements FieldsetInterface, FieldsetParserInterface
 {
     /**
      * @var array
@@ -17,9 +17,7 @@ class FieldsetParser implements FieldsetInterface
     private array $fields = [];
 
     /**
-     * @param array|null $data
-     *
-     * @return FieldsetInterface
+     * @inheritDoc
      */
     public function parse(?array $data): FieldsetInterface
     {

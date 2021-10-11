@@ -9,11 +9,12 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Factory;
 
+use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Document\Document;
 use JSONAPI\Driver\AnnotationDriver;
 use JSONAPI\Exception\Http\UnexpectedFieldDataType;
-use JSONAPI\Factory\DocumentFactory;
-use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Middleware\DocumentParser;
+use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Path\PathInterface;
 use JSONAPI\URI\Path\PathParser;
@@ -35,7 +36,7 @@ class DocumentFactoryTest extends TestCase
             new AnnotationDriver()
         );
         self::$path     = (new PathParser(self::$metadata, 'http://unit.test.org'))
-            ->parse('/getter/1');
+            ->parse('/getter/1', RequestMethodInterface::METHOD_GET);
     }
 
     /**
@@ -43,7 +44,7 @@ class DocumentFactoryTest extends TestCase
      */
     public function testDecode($object)
     {
-        $factory = new DocumentFactory(self::$metadata, self::$path);
+        $factory = new DocumentParser(self::$metadata, self::$path);
         $data    = json_encode($object);
         $doc     = $factory->decode($data);
         $this->assertInstanceOf(Document::class, $doc);
@@ -55,7 +56,7 @@ class DocumentFactoryTest extends TestCase
     public function testErrors($object)
     {
         $this->expectException(UnexpectedFieldDataType::class);
-        $factory = new DocumentFactory(self::$metadata, self::$path);
+        $factory = new DocumentParser(self::$metadata, self::$path);
         $data    = json_encode($object);
         $factory->decode($data);
     }

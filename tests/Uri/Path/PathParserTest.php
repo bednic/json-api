@@ -4,15 +4,13 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\URI\Path;
 
-use Doctrine\Common\Cache\ArrayCache;
 use Fig\Http\Message\RequestMethodInterface;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Path\PathInterface;
 use JSONAPI\URI\Path\PathParser;
 use PHPUnit\Framework\TestCase;
-use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
 
@@ -44,7 +42,7 @@ class PathParserTest extends TestCase
     {
         $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path = $parser->parse($test);
+        $path = $parser->parse($test, RequestMethodInterface::METHOD_GET);
         $this->assertEquals('uuid', $path->getId());
     }
 
@@ -52,7 +50,7 @@ class PathParserTest extends TestCase
     {
         $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path = $parser->parse($test);
+        $path = $parser->parse($test, RequestMethodInterface::METHOD_GET);
         $this->assertEquals('resource', $path->getResourceType());
     }
 
@@ -60,7 +58,7 @@ class PathParserTest extends TestCase
     {
         $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path = $parser->parse($test);
+        $path = $parser->parse($test, RequestMethodInterface::METHOD_GET);
         $result = (string)$path;
         $this->assertIsString($result);
         $this->assertEquals($test, $result);
@@ -70,7 +68,7 @@ class PathParserTest extends TestCase
     {
         $parser = new PathParser(self::$mr, self::$baseUrl);
         $data = '/getter/uuid';
-        $path = $parser->parse($data);
+        $path = $parser->parse($data, RequestMethodInterface::METHOD_GET);
         $this->assertEquals('getter', $path->getPrimaryResourceType());
     }
 
@@ -84,12 +82,12 @@ class PathParserTest extends TestCase
     {
         $parser = new PathParser(self::$mr, self::$baseUrl . '/api');
         $data = '/api/resource/uuid';
-        $path = $parser->parse($data);
+        $path = $parser->parse($data, RequestMethodInterface::METHOD_GET);
         $this->assertInstanceOf(PathInterface::class, $path);
 
         $this->assertEquals('resource', $path->getResourceType());
         $data = '/resource/uuid';
-        $path = $parser->parse($data);
+        $path = $parser->parse($data, RequestMethodInterface::METHOD_GET);
         $this->assertEquals('resource', $path->getResourceType());
     }
 
@@ -97,11 +95,11 @@ class PathParserTest extends TestCase
     {
         $parser = new PathParser(self::$mr, self::$baseUrl . '/resources');
         $data = '/resources/somethings';
-        $path = $parser->parse($data);
+        $path = $parser->parse($data, RequestMethodInterface::METHOD_GET);
         $this->assertTrue($path->isCollection());
         $this->assertEquals('somethings', $path->getResourceType());
         $data = '/resources/somethings/some-uuid';
-        $path = $parser->parse($data);
+        $path = $parser->parse($data, RequestMethodInterface::METHOD_GET);
         $this->assertEquals('somethings', $path->getResourceType());
         $this->assertEquals('some-uuid', $path->getId());
     }
@@ -110,15 +108,15 @@ class PathParserTest extends TestCase
     {
         $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path = $parser->parse($test);
+        $path = $parser->parse($test, RequestMethodInterface::METHOD_GET);
         $this->assertTrue($path->isRelationship());
     }
 
     public function testIsCollection()
     {
         $test = '/resource';
-        $parser = new PathParser(self::$mr, self::$baseUrl, RequestMethodInterface::METHOD_GET);
-        $path = $parser->parse($test);
+        $parser = new PathParser(self::$mr, self::$baseUrl);
+        $path = $parser->parse($test, RequestMethodInterface::METHOD_GET);
         $this->assertTrue($path->isCollection());
     }
 
@@ -126,7 +124,7 @@ class PathParserTest extends TestCase
     {
         $test = '/resource/uuid/relationships/relation';
         $parser = new PathParser(self::$mr, self::$baseUrl);
-        $path = $parser->parse($test);
+        $path = $parser->parse($test, RequestMethodInterface::METHOD_GET);
         $this->assertEquals('relation', $path->getRelationshipName());
     }
 }

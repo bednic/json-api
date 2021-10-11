@@ -9,11 +9,9 @@ use JSONAPI\Exception\Document\DocumentException;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Exception\Metadata\MetadataException;
-use JSONAPI\Factory\InclusionCollector;
-use JSONAPI\Factory\LinkComposer;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\URI\Pagination\UseTotalCount;
-use JSONAPI\URI\URIParser;
+use JSONAPI\URI\ParsedURI;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 
@@ -47,7 +45,7 @@ final class Builder
      */
     private InclusionCollector $inclusionFetcher;
 
-    private URIParser $uri;
+    private ParsedURI $uri;
 
     /**
      * DocumentBuilder constructor.
@@ -55,14 +53,14 @@ final class Builder
      * @param Encoder              $encoder
      * @param InclusionCollector   $inclusionFetcher
      * @param LinkComposer         $linkFactory
-     * @param URIParser            $uri
+     * @param ParsedURI            $uri
      * @param LoggerInterface|null $logger
      */
     public function __construct(
         Encoder $encoder,
         InclusionCollector $inclusionFetcher,
         LinkComposer $linkFactory,
-        URIParser $uri,
+        ParsedURI $uri,
         LoggerInterface $logger = null
     ) {
         $this->encoder          = $encoder;
@@ -82,7 +80,7 @@ final class Builder
      * @throws DriverException
      * @throws MetadataException
      */
-    public function setData(object | iterable | null $data): Builder
+    public function setData(object|iterable|null $data): Builder
     {
         $this->logger->debug('Setting data.');
         if ($this->uri->getPath()->isCollection() && is_iterable($data)) {

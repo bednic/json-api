@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Factory;
+namespace JSONAPI\Document\Error;
 
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Document\Error;
-use JSONAPI\Document\Error\ErrorFactory;
-use JSONAPI\Document\Error\Source;
 use JSONAPI\Exception\HasParameter;
 use JSONAPI\Exception\HasPointer;
 use JSONAPI\Exception\JsonApiException;
@@ -20,9 +18,8 @@ use Throwable;
  *
  * @package JSONAPI\Factory
  */
-class DocumentErrorFactory implements ErrorFactory
+final class DefaultErrorFactory implements ErrorFactory
 {
-
     /**
      * @inheritDoc
      */

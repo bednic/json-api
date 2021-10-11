@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\Factory;
+namespace JSONAPI\OAS;
 
 use Fig\Http\Message\StatusCodeInterface;
+use JSONAPI\Configuration;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
@@ -18,23 +19,10 @@ use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\Metadata\Relationship;
-use JSONAPI\OAS\Header;
-use JSONAPI\OAS\Info;
-use JSONAPI\OAS\MediaType;
-use JSONAPI\OAS\OpenAPISpecification;
-use JSONAPI\OAS\Operation;
-use JSONAPI\OAS\Parameter;
-use JSONAPI\OAS\PathItem;
-use JSONAPI\OAS\RequestBody;
-use JSONAPI\OAS\Response;
-use JSONAPI\OAS\Responses;
-use JSONAPI\OAS\Schema;
-use JSONAPI\OAS\Server;
 use JSONAPI\OAS\Type\DataType;
 use JSONAPI\OAS\Type\In;
 use JSONAPI\OAS\Type\Style;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 use function Symfony\Component\String\u;
 
@@ -43,7 +31,7 @@ use function Symfony\Component\String\u;
  *
  * @package JSONAPI\OAS\Factory
  */
-class OpenAPISpecificationBuilder
+final class OpenAPISpecificationBuilder
 {
     /**
      * @var MetadataRepository
@@ -63,29 +51,18 @@ class OpenAPISpecificationBuilder
     private string $baseUrl;
 
     /**
-     * OpenAPISchemaFactory constructor.
+     * OpenAPISpecificationBuilder constructor.
      *
-     * @param MetadataRepository   $metadataRepository
-     * @param string               $baseUrl
-     * @param bool                 $supportInclusion
-     * @param bool                 $supportSort
-     * @param bool                 $supportPagination
-     * @param LoggerInterface|null $logger
+     * @param Configuration $configuration
      */
-    public function __construct(
-        MetadataRepository $metadataRepository,
-        string $baseUrl,
-        bool $supportInclusion = true,
-        bool $supportSort = true,
-        bool $supportPagination = true,
-        LoggerInterface $logger = null
-    ) {
-        $this->metadataRepository = $metadataRepository;
-        $this->logger             = $logger ?? new NullLogger();
-        $this->supportInclusion   = $supportInclusion;
-        $this->supportSort        = $supportSort;
-        $this->supportPagination  = $supportPagination;
-        $this->baseUrl            = $baseUrl;
+    public function __construct(Configuration $configuration)
+    {
+        $this->metadataRepository = $configuration->getMetadataRepository();
+        $this->logger             = $configuration->getLogger();
+        $this->supportInclusion   = $configuration->isSupportInclusion();
+        $this->supportSort        = $configuration->isSupportSort();
+        $this->supportPagination  = $configuration->isSupportPagination();
+        $this->baseUrl            = $configuration->getBaseURL();
     }
 
     /**

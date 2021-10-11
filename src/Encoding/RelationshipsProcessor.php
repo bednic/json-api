@@ -18,7 +18,7 @@ use JSONAPI\Exception\Document\AlreadyInUse;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
-use JSONAPI\Factory\LinkComposer;
+use JSONAPI\Document\LinkComposer;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Fieldset\FieldsetInterface;
 use JSONAPI\URI\Inclusion\InclusionInterface;

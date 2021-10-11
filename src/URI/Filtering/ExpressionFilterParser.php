@@ -61,7 +61,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     /**
      * @inheritDoc
      */
-    public function parse($data): FilterInterface
+    public function parse(mixed $data): FilterInterface
     {
         $this->lexer = null;
         $this->condition = null;

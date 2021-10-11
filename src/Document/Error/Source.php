@@ -11,7 +11,7 @@ use JSONAPI\Document\Serializable;
  *
  * @package JSONAPI\Document
  */
-class Source implements Serializable
+final class Source implements Serializable
 {
     /**
      * JSON Pointer [RFC6901] to the associated entity in the request document

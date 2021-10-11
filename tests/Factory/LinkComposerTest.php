@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Factory;
 
-use Doctrine\Common\Cache\ArrayCache;
+use JSONAPI\Configuration;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Id;
 use JSONAPI\Document\Link;
@@ -12,11 +12,10 @@ use JSONAPI\Document\Relationship;
 use JSONAPI\Document\ResourceObject;
 use JSONAPI\Document\Type;
 use JSONAPI\Driver\AnnotationDriver;
-use JSONAPI\Factory\LinkComposer;
-use JSONAPI\Factory\MetadataFactory;
+use JSONAPI\Document\LinkComposer;
+use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\URI\URIParser;
 use PHPUnit\Framework\TestCase;
-use Roave\DoctrineSimpleCache\SimpleCacheAdapter;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Psr16Cache;
@@ -28,24 +27,30 @@ class LinkComposerTest extends TestCase
      */
     private static URIParser $up;
     private static string $baseURL;
+    /**
+     * @var \JSONAPI\URI\ParsedURI parsedUri
+     */
+    private static \JSONAPI\URI\ParsedURI $parsedUri;
 
     public static function setUpBeforeClass(): void
     {
-        $metadata = MetadataFactory::create(
+        $metadata            = MetadataFactory::create(
             [RESOURCES . '/valid'],
             new Psr16Cache(new ArrayAdapter()),
             new AnnotationDriver()
         );
-        $request = ServerRequestFactory::createFromGlobals();
-        self::$baseURL = 'http://unit.test.org/api';
-        self::$up = new URIParser($request, $metadata, self::$baseURL);
+        $request             = ServerRequestFactory::createFromGlobals();
+        self::$baseURL       = 'http://unit.test.org/api';
+        $configuration = new Configuration($metadata, self::$baseURL);
+        $up            = new URIParser($configuration);
+        self::$parsedUri = $up->parse($request);
     }
 
     public function testSetDocumentLinks()
     {
         $document = new Document();
-        $factory = new LinkComposer(self::$baseURL);
-        $factory->setDocumentLinks($document, self::$up);
+        $factory  = new LinkComposer(self::$baseURL);
+        $factory->setDocumentLinks($document, self::$parsedUri);
         $links = $document->getLinks();
         $this->assertIsArray($links);
         $this->assertArrayHasKey(Link::SELF, $links);
@@ -60,7 +65,7 @@ class LinkComposerTest extends TestCase
 
     public function testSetRelationshipLinks()
     {
-        $resource = new ResourceObject(new Type('resource'), new Id('id'));
+        $resource     = new ResourceObject(new Type('resource'), new Id('id'));
         $relationship = new Relationship('test');
         $relationship->setData(null);
         $factory = new LinkComposer(self::$baseURL);
@@ -79,7 +84,7 @@ class LinkComposerTest extends TestCase
     public function testSetResourceLink()
     {
         $resource = new ResourceObject(new Type('resource'), new Id('id'));
-        $factory = new LinkComposer(self::$baseURL);
+        $factory  = new LinkComposer(self::$baseURL);
         $factory->setResourceLink($resource);
         $links = $resource->getLinks();
         $this->assertIsArray($links);

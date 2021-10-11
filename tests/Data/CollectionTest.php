@@ -11,6 +11,7 @@ namespace JSONAPI\Test\Data;
 
 use AssertionError;
 use JSONAPI\Data\Collection;
+use JSONAPI\Exception\Data\CollectionException;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use Traversable;
@@ -228,7 +229,7 @@ class CollectionTest extends TestCase
         $collection->sort();
         $this->assertTrue($collection->values() === [1, 2, 3, 4, 5, 6, 7, 8, 9]);
         $collection = new Collection($items);
-        $this->expectException(AssertionError::class);
+        $this->expectException(CollectionException::class);
         $collection->sort();
     }
 }

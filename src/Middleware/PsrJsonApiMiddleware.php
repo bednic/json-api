@@ -4,15 +4,14 @@ declare(strict_types=1);
 
 namespace JSONAPI\Middleware;
 
-use Fig\Http\Message\RequestMethodInterface;
+use JSONAPI\Configuration;
 use JSONAPI\Document\Builder;
 use JSONAPI\Document\Document;
+use JSONAPI\Document\Error\DefaultErrorFactory;
 use JSONAPI\Document\Error\ErrorFactory;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
-use JSONAPI\Factory\DocumentBuilderFactory;
-use JSONAPI\Factory\DocumentErrorFactory;
-use JSONAPI\Factory\DocumentFactory;
-use JSONAPI\Metadata\MetadataRepository;
+use JSONAPI\Document\BuilderFactory;
+use JSONAPI\URI\ParsedURI;
 use JSONAPI\URI\URIParser;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -21,7 +20,8 @@ use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
+use Swaggest\JsonSchema\Exception;
+use Swaggest\JsonSchema\InvalidValue;
 use Swaggest\JsonSchema\Schema;
 use Swaggest\JsonSchema\SchemaContract;
 use Throwable;
@@ -33,10 +33,8 @@ use Throwable;
  */
 class PsrJsonApiMiddleware implements MiddlewareInterface
 {
-    /**
-     * @var MetadataRepository
-     */
-    private MetadataRepository $repository;
+    public const PARSED_URI = '__jsonapi:parsed-uri__';
+    public const BUILDER = '__jsonapi:builder__';
     /**
      * @var ResponseFactoryInterface
      */
@@ -54,48 +52,39 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      */
     private SchemaContract $output;
     /**
-     * @var ErrorFactory
+     * @var DefaultErrorFactory
      */
-    private ErrorFactory $errorFactory;
+    private DefaultErrorFactory $errorFactory;
     /**
-     * @var DocumentBuilderFactory docBuilderFactory
+     * @var Configuration configuration
      */
-    private DocumentBuilderFactory $docBuilderFactory;
-
+    private Configuration $configuration;
 
     /**
      * PsrJsonApiMiddleware constructor.
      *
-     * @param MetadataRepository                           $repository
-     * @param string                                       $baseURL
-     * @param ResponseFactoryInterface                     $responseFactory
-     * @param StreamFactoryInterface                       $streamFactory
-     * @param LoggerInterface|null                         $logger
-     * @param ErrorFactory|null                            $errorFactory
-     * @param \JSONAPI\Factory\DocumentBuilderFactory|null $documentBuilderFactory
+     * @param Configuration            $configuration
+     * @param ResponseFactoryInterface $responseFactory
+     * @param StreamFactoryInterface   $streamFactory
+     * @param ErrorFactory|null $errorFactory
      *
-     * @throws \Swaggest\JsonSchema\Exception
-     * @throws \Swaggest\JsonSchema\InvalidValue
+     * @throws Exception
+     * @throws InvalidValue
      */
     public function __construct(
-        MetadataRepository $repository,
-        string $baseURL,
+        Configuration $configuration,
         ResponseFactoryInterface $responseFactory,
         StreamFactoryInterface $streamFactory,
-        LoggerInterface $logger = null,
-        ErrorFactory $errorFactory = null,
-        DocumentBuilderFactory $documentBuilderFactory = null
+        ErrorFactory $errorFactory = null
     ) {
-        $this->repository        = $repository;
-        $this->responseFactory   = $responseFactory;
-        $this->streamFactory     = $streamFactory;
-        $this->logger            = $logger ?? new NullLogger();
-        $this->errorFactory      = $errorFactory ?? new DocumentErrorFactory();
-        $this->output            = Schema::import(
+        $this->configuration   = $configuration;
+        $this->responseFactory = $responseFactory;
+        $this->streamFactory   = $streamFactory;
+        $this->logger          = $configuration->getLogger();
+        $this->errorFactory    = $errorFactory ?? new DefaultErrorFactory();
+        $this->output          = Schema::import(
             json_decode(file_get_contents(__DIR__ . '/out.json'))
         );
-        $this->docBuilderFactory = $documentBuilderFactory ??
-            new DocumentBuilderFactory($repository, $baseURL, logger: $logger);
     }
 
     /**
@@ -112,19 +101,24 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         try {
-            $uriParser  = $this->docBuilderFactory->uri($request);
-            $docBuilder = $this->docBuilderFactory->new($request);
-            $request->withAttribute(URIParser::class, $uriParser);
-            $request->withAttribute(Builder::class, $docBuilder);
+            $parsedUri = (new URIParser($this->configuration))->parse($request);
+            $docBuilder = (new BuilderFactory($this->configuration))->create($request);
+
+            $request->withAttribute(self::PARSED_URI, $parsedUri);
+            $request->withAttribute(self::BUILDER, $docBuilder);
+
             $request->getBody()->rewind();
             if ($request->getBody()->getSize() > 0) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
                 }
-                $documentBuilder = new DocumentFactory($this->repository, $uriParser->getPath());
-                $data     = $request->getBody()->getContents();
-                $document = $documentBuilder->decode($data);
-                $request  = $request->withParsedBody($document);
+                $documentParser = new DocumentParser(
+                    $this->configuration->getMetadataRepository(),
+                    $parsedUri->getPath()
+                );
+                $data           = $request->getBody()->getContents();
+                $document       = $documentParser->decode($data);
+                $request        = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
             $content  = $response->getBody()->getContents();
