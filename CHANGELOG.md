@@ -4,6 +4,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [9.0.0](https://gitlab.com/bednic/json-api/compare/8.1.0...9.0.0) (2021-11-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* * Factory namespace removed
+* Configuration class instead of parameters
+* ParsedURI interface instead URIParser
+
+### Added
+
+* Add Builder instance and URIParser instance to ServerRequestInstance ([908b2a4](https://gitlab.com/bednic/json-api/commit/908b2a4bb24118a61dc1c524550e91661e3e1c58))
+* Introduce Configuration ([d26b1df](https://gitlab.com/bednic/json-api/commit/d26b1df819b32a125fff2a79614684f4b772f9c6))
+
+
+### Changed
+
+* Enchant Conflict message ([5dfd81e](https://gitlab.com/bednic/json-api/commit/5dfd81e44ac4b3af6c33fbece5f5b35fc2dd3bed))
+* remove final from DefaultErrorFactory ([d530347](https://gitlab.com/bednic/json-api/commit/d530347e285c36978527b12220e3c117226f1022))
+* Replace assert with if ([e29cf74](https://gitlab.com/bednic/json-api/commit/e29cf74d7b789e8de7191e13cdae27e8114e2813))
+* Type naming strategy changed to kebab case ([5b86806](https://gitlab.com/bednic/json-api/commit/5b86806d6699b96f9785841e90471bfecb4b5e9b)), closes [#40](https://gitlab.com/bednic/json-api/issues/40)
+
+
+### Fixed
+
+* bad assignment of attributes to request ([bcc02db](https://gitlab.com/bednic/json-api/commit/bcc02db8d3bdf43eda788e3d934fd1de6759d50f))
+* Document Builder should accept null as parameter ([a5804a2](https://gitlab.com/bednic/json-api/commit/a5804a26ad1c89b283fe9902f89bc2b566969b74)), closes [#40](https://gitlab.com/bednic/json-api/issues/40)
+* fix bad type of parameter ([41b008f](https://gitlab.com/bednic/json-api/commit/41b008f62d920c33e67e6ad224d3b57988487fed))
+* check content-type header only if content is present ([00b0eb6](https://gitlab.com/bednic/json-api/commit/00b0eb6af1221f43185562a05a48d8cebdb9f6c7)), closes [#39](https://gitlab.com/bednic/json-api/issues/39)
+* Possible issue when extending Metadata class ([15a6626](https://gitlab.com/bednic/json-api/commit/15a66269ea70f46ab0679f291b8f0ae36363733c))
+
 ## [8.1.0](https://gitlab.com/bednic/json-api/compare/8.0.2...8.1.0) (2021-05-27)
 
 
