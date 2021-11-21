@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.2.0](https://gitlab.com/bednic/json-api/compare/8.1.0...8.2.0) (2021-11-21)
+
+
+### Added
+
+* Add Builder instance and URIParser instance to ServerRequestInstance ([908b2a4](https://gitlab.com/bednic/json-api/commit/908b2a4bb24118a61dc1c524550e91661e3e1c58))
+
+
+### Changed
+
+* Enchant Conflict message ([5dfd81e](https://gitlab.com/bednic/json-api/commit/5dfd81e44ac4b3af6c33fbece5f5b35fc2dd3bed))
+* Type naming strategy changed to kebab case ([5b86806](https://gitlab.com/bednic/json-api/commit/5b86806d6699b96f9785841e90471bfecb4b5e9b)), closes [#40](https://gitlab.com/bednic/json-api/issues/40)
+
+
+### Fixed
+
+* Document Builder should accept null as parameter ([a5804a2](https://gitlab.com/bednic/json-api/commit/a5804a26ad1c89b283fe9902f89bc2b566969b74)), closes [#40](https://gitlab.com/bednic/json-api/issues/40)
+* check content-type header only if content is present ([00b0eb6](https://gitlab.com/bednic/json-api/commit/00b0eb6af1221f43185562a05a48d8cebdb9f6c7)), closes [#39](https://gitlab.com/bednic/json-api/issues/39)
+* Possible issue when extending Metadata class ([15a6626](https://gitlab.com/bednic/json-api/commit/15a66269ea70f46ab0679f291b8f0ae36363733c))
+
 ## [8.1.0](https://gitlab.com/bednic/json-api/compare/8.0.2...8.1.0) (2021-05-27)
 
 
