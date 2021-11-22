@@ -29,7 +29,7 @@ final class Type extends Field
     }
 
     /**
-     * @param string $data
+     * @param mixed $data
      *
      * @throws ForbiddenDataType
      */

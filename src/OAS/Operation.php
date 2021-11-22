@@ -16,7 +16,7 @@ class Operation implements Serializable
 {
 
     /**
-     * @var string[]
+     * @var Tag[]
      */
     private array $tags = [];
     /**

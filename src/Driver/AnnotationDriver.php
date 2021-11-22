@@ -16,6 +16,7 @@ use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
 use JSONAPI\Exception\Driver\DriverException;
 use JSONAPI\Exception\Driver\MethodNotExist;
+use JSONAPI\Exception\Driver\UnexpectedAnnotationState;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\ClassMetadata;
 use Psr\Log\LoggerInterface;
@@ -68,11 +69,8 @@ class AnnotationDriver extends Driver
     public function getClassMetadata(string $className): ClassMetadata
     {
         try {
-            $ref = new ReflectionClass($className);
-
-            /** @var \JSONAPI\Annotation\Resource|null $resource
-             */
-            $resource = (@$ref->getAttributes(Resource::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance();
+            $ref      = new ReflectionClass($className);
+            $resource = $this->getResource($ref);
             if ($resource) {
                 $this->logger->debug('Found resource ' . $ref->getShortName());
                 if ($resource->type === null) {
@@ -80,8 +78,7 @@ class AnnotationDriver extends Driver
                         s($ref->getShortName())->snake()->replace('_', '-')->toString()
                     )[0];
                 }
-                /** @var Meta $meta */
-                $meta = (@$ref->getAttributes(Meta::class, ReflectionAttribute::IS_INSTANCEOF)[0])?->newInstance();
+                $meta = $this->getMeta($ref);
                 if ($meta && !$ref->hasMethod($meta->getter)) {
                     throw new MethodNotExist($meta->getter, $ref->getName());
                 }
@@ -125,21 +122,16 @@ class AnnotationDriver extends Driver
     ): void {
         foreach ($reflectionClass->getProperties(ReflectionProperty::IS_PUBLIC) as $reflectionProperty) {
             /** @var Id | null $id */
-            if (
-                !$id && $id = (@$reflectionProperty->getAttributes(
-                    Id::class,
-                    ReflectionAttribute::IS_INSTANCEOF
-                )[0])?->newInstance()
-            ) {
+            if (!$id && $id = $this->getId($reflectionProperty)) {
                 $id->property = $reflectionProperty->getName();
                 $this->logger->debug('Found resource ID.');
             }
             /** @var Attribute | null $attribute */
             if (
-                $attribute = (@$reflectionProperty->getAttributes(
-                    Attribute::class,
-                    ReflectionAttribute::IS_INSTANCEOF
-                )[0])?->newInstance()
+            $attribute = (@$reflectionProperty->getAttributes(
+                Attribute::class,
+                ReflectionAttribute::IS_INSTANCEOF
+            )[0])?->newInstance()
             ) {
                 $attribute->property = $reflectionProperty->getName();
                 $this->fillUpAttribute($attribute, $reflectionProperty, $reflectionClass);
@@ -148,18 +140,18 @@ class AnnotationDriver extends Driver
             }
             /** @var Relationship | null $relationship */
             if (
-                $relationship = (@$reflectionProperty->getAttributes(
-                    Relationship::class,
-                    ReflectionAttribute::IS_INSTANCEOF
-                )[0])?->newInstance()
+            $relationship = (@$reflectionProperty->getAttributes(
+                Relationship::class,
+                ReflectionAttribute::IS_INSTANCEOF
+            )[0])?->newInstance()
             ) {
                 $relationship->property = $reflectionProperty->getName();
                 /** @var Meta | null $meta */
                 if (
-                    $meta = (@$reflectionProperty->getAttributes(
-                        Meta::class,
-                        ReflectionAttribute::IS_INSTANCEOF
-                    )[0])?->newInstance()
+                $meta = (@$reflectionProperty->getAttributes(
+                    Meta::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                )[0])?->newInstance()
                 ) {
                     $relationship->meta = $meta;
                 }
@@ -201,10 +193,10 @@ class AnnotationDriver extends Driver
                 }
                 /** @var Attribute $attribute */
                 if (
-                    $attribute = (@$reflectionMethod->getAttributes(
-                        Attribute::class,
-                        ReflectionAttribute::IS_INSTANCEOF
-                    )[0])?->newInstance()
+                $attribute = (@$reflectionMethod->getAttributes(
+                    Attribute::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                )[0])?->newInstance()
                 ) {
                     $this->isGetter($reflectionMethod);
                     $attribute->getter = $reflectionMethod->getName();
@@ -214,19 +206,19 @@ class AnnotationDriver extends Driver
                 }
                 /** @var Relationship $relationship */
                 if (
-                    $relationship = (@$reflectionMethod->getAttributes(
-                        Relationship::class,
-                        ReflectionAttribute::IS_INSTANCEOF
-                    )[0])?->newInstance()
+                $relationship = (@$reflectionMethod->getAttributes(
+                    Relationship::class,
+                    ReflectionAttribute::IS_INSTANCEOF
+                )[0])?->newInstance()
                 ) {
                     $this->isGetter($reflectionMethod);
                     $relationship->getter = $reflectionMethod->getName();
                     /** @var Meta | null $meta */
                     if (
-                        $meta = (@$reflectionMethod->getAttributes(
-                            Meta::class,
-                            ReflectionAttribute::IS_INSTANCEOF
-                        )[0])?->newInstance()
+                    $meta = (@$reflectionMethod->getAttributes(
+                        Meta::class,
+                        ReflectionAttribute::IS_INSTANCEOF
+                    )[0])?->newInstance()
                     ) {
                         $relationship->meta = $meta;
                     }
@@ -236,5 +228,76 @@ class AnnotationDriver extends Driver
                 }
             }
         }
+    }
+
+    /**
+     * @param ReflectionClass $ref
+     *
+     * @return Resource|null
+     * @throws UnexpectedAnnotationState
+     */
+    private function getResource(ReflectionClass $ref): ?\JSONAPI\Annotation\Resource
+    {
+        $attributes = $ref->getAttributes(Resource::class, ReflectionAttribute::IS_INSTANCEOF);
+        if (count($attributes) < 1) {
+            return null;
+        }
+        if (count($attributes) > 1) {
+            throw new UnexpectedAnnotationState("Expected 1 Resource annotation, got " . count($attributes));
+        }
+        return array_shift($attributes)->newInstance();
+    }
+
+    /**
+     * @param ReflectionClass $ref
+     *
+     * @return Meta|null
+     * @throws UnexpectedAnnotationState
+     */
+    private function getMeta(ReflectionClass $ref): ?Meta
+    {
+        $attributes = $ref->getAttributes(Meta::class, ReflectionAttribute::IS_INSTANCEOF);
+        if (count($attributes) < 1) {
+            return null;
+        }
+        if (count($attributes) > 1) {
+            throw new UnexpectedAnnotationState("Expected 1 Resource annotation, got " . count($attributes));
+        }
+        return array_shift($attributes)->newInstance();
+    }
+
+    /**
+     * @param ReflectionProperty $ref
+     *
+     * @return Id|null
+     * @throws UnexpectedAnnotationState
+     */
+    private function getId(ReflectionProperty $ref): ?Id
+    {
+        $attributes = $ref->getAttributes(Id::class, ReflectionAttribute::IS_INSTANCEOF);
+        if (count($attributes) < 1) {
+            return null;
+        }
+        if (count($attributes) > 1) {
+            throw new UnexpectedAnnotationState("Expected 1 Resource annotation, got " . count($attributes));
+        }
+        return array_shift($attributes)->newInstance();
+    }
+    private function getAttribute(ReflectionProperty $ref): Attribute{
+
+    }
+}
+interface AttributeStrategy {
+    public function getAttribute(ReflectionMethod|ReflectionProperty): Attribute;
+}
+class PropertyAttributeStrategy implements AttributeStrategy {
+
+    private function getAttribute(ReflectionProperty $ref): Attribute{
+
+    }
+}
+class MethodAttributeStrategy implements AttributeStrategy {
+    private function getAttribute(ReflectionMethod $ref): Attribute{
+
     }
 }

@@ -119,19 +119,17 @@ class LinkComposer
                     $sort
                 )
             );
-            if ($first = $pagination->first()) {
-                $document->setLink(
-                    $this->createDocumentLink(
-                        Link::FIRST,
-                        $path,
-                        $filter,
-                        $inclusion,
-                        $fieldset,
-                        $first,
-                        $sort
-                    )
-                );
-            }
+            $document->setLink(
+                $this->createDocumentLink(
+                    Link::FIRST,
+                    $path,
+                    $filter,
+                    $inclusion,
+                    $fieldset,
+                    $pagination->first(),
+                    $sort
+                )
+            );
             if ($last = $pagination->last()) {
                 $document->setLink(
                     $this->createDocumentLink(

@@ -68,7 +68,8 @@ abstract class Driver
     protected function getType(
         ReflectionMethod | ReflectionProperty | ReflectionParameter $reflection
     ): ?ReflectionNamedType {
-        return $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
+        $type = $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
+        return $type instanceof ReflectionNamedType ? $type : null;
     }
 
     /**

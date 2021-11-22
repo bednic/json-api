@@ -61,9 +61,6 @@ class Components implements Serializable
      */
     public function addSchema(string $key, Schema $schema): Components
     {
-        if ($this->schemas === null) {
-            $this->schemas = [];
-        }
         $this->schemas[$key] = $schema;
         return $this;
     }
@@ -158,9 +155,6 @@ class Components implements Serializable
      */
     public function addExample(string $key, Example $example): Components
     {
-        if ($this->examples === null) {
-            $this->examples = [];
-        }
         $this->examples[$key] = $example;
         return $this;
     }
@@ -189,9 +183,6 @@ class Components implements Serializable
      */
     public function addRequestBody(string $key, RequestBody $requestBody): Components
     {
-        if ($this->requestBodies === null) {
-            $this->requestBodies = [];
-        }
         $this->requestBodies[$key] = $requestBody;
         return $this;
     }
@@ -219,9 +210,6 @@ class Components implements Serializable
      */
     public function addHeader(Header $header): Components
     {
-        if ($this->headers === null) {
-            $this->headers = [];
-        }
         $this->headers[$header->getName()] = $header;
         return $this;
     }
@@ -250,9 +238,6 @@ class Components implements Serializable
      */
     public function addSecurityScheme(string $key, SecurityScheme $securityScheme): Components
     {
-        if ($this->securitySchemes === null) {
-            $this->securitySchemes = [];
-        }
         $this->securitySchemes[$key] = $securityScheme;
         return $this;
     }
