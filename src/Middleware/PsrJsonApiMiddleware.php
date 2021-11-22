@@ -107,7 +107,8 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 ->withAttribute(self::BUILDER, $docBuilder);
 
             $request->getBody()->rewind();
-            if ($request->getBody()->getSize() > 0) {
+            $content = $request->getBody()->getContents();
+            if (strlen($content) > 0) {
                 if (!in_array(Document::MEDIA_TYPE, $request->getHeader("Content-Type"))) {
                     throw new UnsupportedMediaType();
                 }
@@ -119,7 +120,6 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $document       = $documentParser->decode($data);
                 $request        = $request->withParsedBody($document);
             }
-            $request->getBody()->rewind();
             $response = $handler->handle($request);
             $content  = $response->getBody()->getContents();
             $response->getBody()->rewind();

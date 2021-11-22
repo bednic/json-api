@@ -113,12 +113,18 @@ The important part is to implement Resource interface. Then fill up static metho
 
 ### [Example](tests-resources/valid/PropsExample.php)
 
-## OAS
+## Open API Schema
+
+This library provides lightweight wrapper around OAS. It can generate OAS v3.0.3 schema in json,
+so you can provide doc for your api easily.
 
 ### Basic Example
 
 ```php
-    $factory = new OpenAPISpecificationBuilder(self::$mr);
+    $factory = new OpenAPISpecificationBuilder(
+        $metadataRepository,
+        'https://your.api.url'
+    );
 
     $info = new Info('JSON:API OAS', '1.0.0');
     $info->setDescription('Test specification');
@@ -142,7 +148,7 @@ The important part is to implement Resource interface. Then fill up static metho
 
 ## UriParser
 
-This object works with url, and parse required keywors as described at JSON API Standard
+This object works with url, and parse required keywords as described at JSON API Standard
 
 ### Options
 
