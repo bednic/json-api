@@ -5,13 +5,11 @@ declare(strict_types=1);
 namespace JSONAPI\Middleware;
 
 use JSONAPI\Configuration;
-use JSONAPI\Document\Builder;
 use JSONAPI\Document\Document;
 use JSONAPI\Document\Error\DefaultErrorFactory;
 use JSONAPI\Document\Error\ErrorFactory;
 use JSONAPI\Exception\Http\UnsupportedMediaType;
 use JSONAPI\Document\BuilderFactory;
-use JSONAPI\URI\ParsedURI;
 use JSONAPI\URI\URIParser;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -52,9 +50,9 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
      */
     private SchemaContract $output;
     /**
-     * @var DefaultErrorFactory
+     * @var ErrorFactory
      */
-    private DefaultErrorFactory $errorFactory;
+    private ErrorFactory $errorFactory;
     /**
      * @var Configuration configuration
      */
@@ -121,6 +119,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                 $document       = $documentParser->decode($data);
                 $request        = $request->withParsedBody($document);
             }
+            $request->getBody()->rewind();
             $response = $handler->handle($request);
             $content  = $response->getBody()->getContents();
             $response->getBody()->rewind();
