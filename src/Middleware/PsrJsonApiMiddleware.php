@@ -105,7 +105,6 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
             $request = $request
                 ->withAttribute(self::PARSED_URI, $parsedUri)
                 ->withAttribute(self::BUILDER, $docBuilder);
-
             $request->getBody()->rewind();
             $content = $request->getBody()->getContents();
             if (strlen($content) > 0) {
@@ -116,8 +115,7 @@ class PsrJsonApiMiddleware implements MiddlewareInterface
                     $this->configuration->getMetadataRepository(),
                     $parsedUri->getPath()
                 );
-                $data           = $request->getBody()->getContents();
-                $document       = $documentParser->decode($data);
+                $document       = $documentParser->decode($content);
                 $request        = $request->withParsedBody($document);
             }
             $response = $handler->handle($request);
