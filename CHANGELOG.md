@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [9.0.1](https://gitlab.com/bednic/json-api/compare/9.0.0...9.0.1) (2021-11-24)
+
+
+### Fixed
+
+* get size returns emtpy even it it is not empty ([02599b6](https://gitlab.com/bednic/json-api/commit/02599b6818aef55dd23cb1137cd36ec572249acd))
+* remove usage of body::getSize ([3adb78d](https://gitlab.com/bednic/json-api/commit/3adb78d06f3016a10482ca0f3be530e6b3d4efd3))
+* usage of content in middleware ([a785a9f](https://gitlab.com/bednic/json-api/commit/a785a9faeca254eb0a03315a74843f72c8f00d19))
+
 ## [9.0.0](https://gitlab.com/bednic/json-api/compare/8.1.0...9.0.0) (2021-11-10)
 
 
