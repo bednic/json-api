@@ -71,6 +71,8 @@ class PathParser implements PathInterface, PathParserInterface
     public function parse(string $data, string $method): PathInterface
     {
         $this->method = $method;
+        $this->relationship = null;
+        $this->isRelationship = false;
         $req = explode('/', $data);
         $base = explode('/', parse_url($this->baseURL, PHP_URL_PATH) ?? '');
         $diff = array_diff($req, $base);
@@ -84,7 +86,7 @@ class PathParser implements PathInterface, PathParserInterface
 
         if (preg_match($pattern, $data, $matches)) {
             $this->resource = $matches[$resourceKey];
-            $this->id = isset($matches[$idKey]) ? $matches[$idKey] : null;
+            $this->id = $matches[$idKey] ?? null;
             if (isset($matches[$relationshipKey]) && strlen($matches[$relationshipKey]) > 0) {
                 $this->isRelationship = true;
                 $this->relationship = $matches[$relationshipKey];
