@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [9.0.3](https://gitlab.com/bednic/json-api/compare/9.0.2...9.0.3) (2022-02-07)
+
+
+### Fixed
+
+* URI parsing sequence ([e41a3fa](https://gitlab.com/bednic/json-api/commit/e41a3fac86d87c2cb87d3f05109d9ed366d348f5))
+
 ### [9.0.2](https://gitlab.com/bednic/json-api/compare/9.0.1...9.0.2) (2021-11-24)
 
 
