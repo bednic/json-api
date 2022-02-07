@@ -54,24 +54,24 @@ final class URIParser
     public function parse(ServerRequestInterface $request): ParsedURI
     {
         $this->check($request);
+        $path       = $this->configuration->getPathParser()->parse(
+            $request->getUri()->getPath(),
+            $request->getMethod()
+        );
+        $pagination = $this->configuration->getPaginationParser()->parse(
+            $request->getQueryParams()[QueryPartInterface::PAGINATION_PART_KEY] ?? null
+        );
+        $sort       = $this->configuration->getSortParser()->parse(
+            $request->getQueryParams()[QueryPartInterface::SORT_PART_KEY] ?? null
+        );
+        $inclusion  = $this->configuration->getInclusionParser()->parse(
+            $request->getQueryParams()[QueryPartInterface::INCLUSION_PART_KEY] ?? null
+        );
         $fieldset   = $this->configuration->getFieldsetParser()->parse(
             $request->getQueryParams()[QueryPartInterface::FIELDS_PART_KEY] ?? null
         );
         $filter     = $this->configuration->getFilterParser()->parse(
             $request->getQueryParams()[QueryPartInterface::FILTER_PART_KEY] ?? null
-        );
-        $inclusion  = $this->configuration->getInclusionParser()->parse(
-            $request->getQueryParams()[QueryPartInterface::INCLUSION_PART_KEY] ?? null
-        );
-        $pagination = $this->configuration->getPaginationParser()->parse(
-            $request->getQueryParams()[QueryPartInterface::PAGINATION_PART_KEY] ?? null
-        );
-        $path       = $this->configuration->getPathParser()->parse(
-            $request->getUri()->getPath(),
-            $request->getMethod()
-        );
-        $sort       = $this->configuration->getSortParser()->parse(
-            $request->getQueryParams()[QueryPartInterface::SORT_PART_KEY] ?? null
         );
         return new class ($fieldset, $filter, $inclusion, $pagination, $path, $sort) implements ParsedURI {
             public function __construct(
