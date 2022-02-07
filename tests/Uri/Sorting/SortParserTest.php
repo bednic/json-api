@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 class SortParserTest extends TestCase
 {
-
     public function goodDataProvider()
     {
         return [

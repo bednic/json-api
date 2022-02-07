@@ -17,7 +17,6 @@ use Symfony\Component\Cache\Psr16Cache;
 
 class DoctrineQueryExpressionBuilderTest extends TestCase
 {
-
     private static MetadataRepository $mr;
     /**
      * @var PathInterface

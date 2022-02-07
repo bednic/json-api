@@ -21,7 +21,6 @@ use Symfony\Component\Cache\Psr16Cache;
  */
 class PathParserTest extends TestCase
 {
-
     /**
      * @var MetadataRepository
      */

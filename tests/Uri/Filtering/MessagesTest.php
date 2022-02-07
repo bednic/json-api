@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 class MessagesTest extends TestCase
 {
-
     public function testFailedToAccessProperty()
     {
         $this->assertIsString(Messages::failedToAccessProperty('name', 'object'));
