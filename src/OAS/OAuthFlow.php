@@ -13,7 +13,6 @@ use JSONAPI\Document\Serializable;
  */
 class OAuthFlow implements Serializable
 {
-
     /**
      * @var string
      */

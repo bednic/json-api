@@ -14,7 +14,6 @@ use Psr\Log\NullLogger;
 
 class SchemaDriverTest extends TestCase
 {
-
     public function testGetClassMetadata()
     {
         $driver = new SchemaDriver();

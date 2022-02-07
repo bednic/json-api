@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 class IdTest extends TestCase
 {
-
     public function testConstruct()
     {
         $id = new Id('id');

@@ -11,8 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 class AnnotationMisplaceTest extends TestCase
 {
-
-
     public function testConstruct()
     {
         $e = new AnnotationMisplace('someMethod', 'MyClass');

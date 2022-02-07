@@ -11,8 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 class ClassNotResourceTest extends TestCase
 {
-
-
     public function testConstruct()
     {
         $e = new ClassNotResource('MyClass');

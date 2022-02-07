@@ -13,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 
 class ResourceObjectTest extends TestCase
 {
-
     public function testAlreadyInUse()
     {
         $this->expectException(AlreadyInUse::class);

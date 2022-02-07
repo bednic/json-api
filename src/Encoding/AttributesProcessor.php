@@ -25,7 +25,6 @@ use Psr\Log\NullLogger;
  */
 class AttributesProcessor extends FieldsProcessor implements Processor
 {
-
     private MetadataRepository $repository;
     private LoggerInterface $logger;
 

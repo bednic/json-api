@@ -14,7 +14,6 @@ use JSONAPI\Exception\Document\ForbiddenDataType;
  */
 final class Meta implements Serializable
 {
-
     /**
      * @var array
      */

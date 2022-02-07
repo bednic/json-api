@@ -13,7 +13,6 @@ use Swaggest\JsonSchema\InvalidValue;
 
 class DocumentErrorTest extends TestCase
 {
-
     public function testConstruct()
     {
         $instance = new DefaultErrorFactory();

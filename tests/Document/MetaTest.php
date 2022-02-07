@@ -10,7 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 class MetaTest extends TestCase
 {
-
     public function testSetProperty()
     {
         $meta = new Meta();

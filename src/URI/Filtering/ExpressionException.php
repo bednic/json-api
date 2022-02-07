@@ -14,7 +14,6 @@ use JSONAPI\Exception\Http\BadRequest;
  */
 class ExpressionException extends BadRequest implements HasParameter
 {
-
     public function getParameter(): string
     {
         return 'filter';

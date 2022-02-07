@@ -11,7 +11,6 @@ namespace JSONAPI\Document;
  */
 trait MetaExtension
 {
-
     /**
      * @var Meta|null
      */

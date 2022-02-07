@@ -17,8 +17,6 @@ use PHPUnit\Framework\TestCase;
  */
 class BadMethodSignatureTest extends TestCase
 {
-
-
     public function testConstruct()
     {
         $e = new BadSignature('someMethod', 'MyClass');

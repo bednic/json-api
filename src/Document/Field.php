@@ -13,7 +13,6 @@ use JSONAPI\Exception\Document\ForbiddenCharacter;
  */
 abstract class Field implements Serializable
 {
-
     public const KEY_REGEX = "/^([a-zA-Z0-9]+)([a-zA-Z-0-9_]*[a-zA-Z-0-9])?$/";
     /**
      * @var string

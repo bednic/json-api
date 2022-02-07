@@ -12,5 +12,4 @@ namespace JSONAPI\Document;
  */
 interface Convertible extends Serializable, Deserializable
 {
-
 }

@@ -13,7 +13,6 @@ use JSONAPI\URI\QueryPartInterface;
  */
 interface FilterInterface extends QueryPartInterface
 {
-
     /**
      * @return mixed
      */

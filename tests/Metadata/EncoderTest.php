@@ -26,7 +26,6 @@ use Symfony\Component\Cache\Psr16Cache;
  */
 class EncoderTest extends TestCase
 {
-
     private static MetadataRepository $metadata;
 
     public static function setUpBeforeClass(): void

@@ -13,7 +13,6 @@ use JSONAPI\Exception\HasPointer;
  */
 class AttributeNotExist extends FieldNotExist implements HasPointer
 {
-
     public function getPointer(): string
     {
         return '/data/attributes/' . $this->field;

@@ -11,8 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 class MethodNotExistTest extends TestCase
 {
-
-
     public function testConstruct()
     {
         $e = new MethodNotExist('someMethod', 'MyClass');

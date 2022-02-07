@@ -18,7 +18,6 @@ use PHPUnit\Framework\TestCase;
  */
 class ErrorTest extends TestCase
 {
-
     public function testSetters()
     {
         $source = Error\Source::parameter(QueryPartInterface::SORT_PART_KEY);

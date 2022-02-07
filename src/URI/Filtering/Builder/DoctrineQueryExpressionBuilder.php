@@ -24,7 +24,6 @@ use RuntimeException;
  */
 class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
 {
-
     /**
      * @var Expr
      */

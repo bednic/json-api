@@ -13,7 +13,6 @@ use Fig\Http\Message\StatusCodeInterface;
  */
 class UnsupportedMediaType extends BadRequest
 {
-
     protected $code = StatusCodeInterface::STATUS_UNSUPPORTED_MEDIA_TYPE;
     protected $message = "Unsupported Media Type";
 

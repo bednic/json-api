@@ -13,7 +13,6 @@ use JSONAPI\URI\QueryPartInterface;
  */
 interface SortInterface extends QueryPartInterface
 {
-
     public const ASC  = 'ASC';
     public const DESC = 'DESC';
 

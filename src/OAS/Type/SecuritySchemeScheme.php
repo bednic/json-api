@@ -23,7 +23,6 @@ use MyCLabs\Enum\Enum;
  */
 class SecuritySchemeScheme extends Enum
 {
-
     public const BASIC         = 'Basic';
     public const BEARER        = 'Bearer';
     public const DIGEST        = 'Digest';

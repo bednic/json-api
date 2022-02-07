@@ -19,7 +19,6 @@ use Symfony\Component\Cache\Psr16Cache;
  */
 class MetadataFactoryTest extends TestCase
 {
-
     public function testCreate()
     {
         $repository = MetadataFactory::create(

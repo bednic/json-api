@@ -14,7 +14,6 @@ use JSONAPI\Exception\OAS\DuplicationEntryException;
  */
 class Operation implements Serializable
 {
-
     /**
      * @var string[]
      */

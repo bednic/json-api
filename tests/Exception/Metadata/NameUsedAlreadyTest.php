@@ -11,8 +11,6 @@ use PHPUnit\Framework\TestCase;
 
 class NameUsedAlreadyTest extends TestCase
 {
-
-
     public function testConstruct()
     {
         $e = new AlreadyInUse('someName');

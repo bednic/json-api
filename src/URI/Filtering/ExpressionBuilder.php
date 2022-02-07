@@ -12,7 +12,6 @@ namespace JSONAPI\URI\Filtering;
  */
 interface ExpressionBuilder
 {
-
     /**
      * @param mixed $left
      * @param mixed $right

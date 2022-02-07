@@ -13,7 +13,6 @@ use JSONAPI\Document\Serializable;
  */
 class OpenAPISpecification implements Serializable
 {
-
     private const VERSION = '3.0.3';
     /**
      * @var Info

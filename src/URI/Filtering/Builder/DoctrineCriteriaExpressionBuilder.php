@@ -21,7 +21,6 @@ use RuntimeException;
  */
 class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
 {
-
     private Expr $exp;
 
     public function __construct()

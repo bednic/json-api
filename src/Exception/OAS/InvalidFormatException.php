@@ -11,5 +11,4 @@ namespace JSONAPI\Exception\OAS;
  */
 class InvalidFormatException extends OpenAPIException
 {
-
 }

@@ -18,8 +18,6 @@ use Traversable;
 
 class CollectionTest extends TestCase
 {
-
-
     public function dummyData()
     {
         $items = [];

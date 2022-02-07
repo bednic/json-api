@@ -10,8 +10,6 @@ use PHPUnit\Framework\TestCase;
 
 class ClassNotExistTest extends TestCase
 {
-
-
     public function testConstruct()
     {
         $e = new ClassNotExist('MyClass');

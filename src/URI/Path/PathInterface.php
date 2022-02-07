@@ -14,7 +14,6 @@ use JSONAPI\URI\QueryPartInterface;
  */
 interface PathInterface extends QueryPartInterface
 {
-
     /**
      * @return string
      */

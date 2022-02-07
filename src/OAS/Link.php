@@ -15,7 +15,6 @@ use ReflectionClass;
  */
 class Link extends Reference implements Serializable
 {
-
     /**
      * Exclusive of ::operationId
      *

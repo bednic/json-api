@@ -11,7 +11,6 @@ namespace JSONAPI\URI\Filtering\Builder;
  */
 interface UseDottedIdentifier
 {
-
     /**
      * @param string $identifier
      *

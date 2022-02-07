@@ -13,7 +13,6 @@ use JSONAPI\Document\Serializable;
  */
 class OAuthFlows implements Serializable
 {
-
     private ?OAuthFlow $implicit = null;
     private ?OAuthFlow $password = null;
     private ?OAuthFlow $clientCredentials = null;

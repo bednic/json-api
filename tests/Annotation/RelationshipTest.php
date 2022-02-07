@@ -15,7 +15,6 @@ use PHPUnit\Framework\TestCase;
 
 class RelationshipTest extends TestCase
 {
-
     public function testConstruct()
     {
         $rel = new Relationship(GettersExample::class, 'relationship', 'property', 'getter', 'setter', true);

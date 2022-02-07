@@ -31,7 +31,6 @@ use Psr\Log\LoggerInterface;
  */
 abstract class FieldsProcessor
 {
-
     private ?FieldsetInterface $fieldset;
 
     /**

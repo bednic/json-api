@@ -11,5 +11,4 @@ namespace JSONAPI\Exception\OAS;
  */
 class ReferencedObjectNotExistsException extends OpenAPIException
 {
-
 }

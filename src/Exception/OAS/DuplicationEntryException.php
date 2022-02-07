@@ -11,5 +11,4 @@ namespace JSONAPI\Exception\OAS;
  */
 class DuplicationEntryException extends OpenAPIException
 {
-
 }

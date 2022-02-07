@@ -14,7 +14,6 @@ use JSONAPI\Exception\OAS\InvalidFormatException;
  */
 class ExternalDocumentation implements Serializable
 {
-
     /**
      * @var string|null
      */

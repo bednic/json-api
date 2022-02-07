@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 
 class ConvertibleTest extends TestCase
 {
-
     public function testJsonSerialize()
     {
         $obj = new JSONTestObject();

@@ -11,7 +11,6 @@ namespace JSONAPI\Document;
  */
 trait LinksExtension
 {
-
     /**
      * @var Link[]
      */

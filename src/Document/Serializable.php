@@ -13,5 +13,4 @@ use JsonSerializable;
  */
 interface Serializable extends JsonSerializable
 {
-
 }
