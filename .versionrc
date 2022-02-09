@@ -38,5 +38,11 @@
     "commitUrlFormat": "{{host}}/bednic/json-api/commit/{{hash}}",
     "compareUrlFormat": "{{host}}/bednic/json-api/compare/{{previousTag}}...{{currentTag}}",
     "issueUrlFormat": "{{host}}/bednic/json-api/issues/{{id}}",
-    "userUrlFormat": "{{host}}/{{user}}"
+    "userUrlFormat": "{{host}}/{{user}}",
+    "bumpFiles": [
+        {
+            "filename": "VERSION.txt",
+            "type": "plain-text"
+        }
+    ]
 }
