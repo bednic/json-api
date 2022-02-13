@@ -67,7 +67,7 @@ class DefaultErrorFactory implements ErrorFactory
      */
     private static function parseInvalidValue(SchemaError $error): array
     {
-        if ($error->subErrors && !is_null($error->subErrors[0])) {
+        if ($error->subErrors) {
             return self::parseInvalidValue($error->subErrors[0]);
         } else {
             return [
