@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [9.0.6](https://gitlab.com/bednic/json-api/compare/9.0.5...9.0.6) (2022-02-13)
+
+
+### Changed
+
+* Stan to lvl 6, Remove Symfony ClassMapLoader, Remove MyClabs Enum, PHP 8.1 ([73b7a15](https://gitlab.com/bednic/json-api/commit/73b7a153469a2f4c01d4857c419fde581864094f))
+
+
+### Fixed
+
+* Stan error ([4053bc9](https://gitlab.com/bednic/json-api/commit/4053bc9b22ac6bbac4e23b9faff43cd225655fc3))
+
 ### [9.0.5](https://gitlab.com/bednic/json-api/compare/9.0.4...9.0.5) (2022-02-07)
 
 ### [9.0.4](https://gitlab.com/bednic/json-api/compare/9.0.3...9.0.4) (2022-02-07)
