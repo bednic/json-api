@@ -29,7 +29,7 @@ class MetaProcessor implements Processor
     /**
      * @var LoggerInterface
      */
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
 
     /**
      * MetaProcessor constructor.
@@ -49,6 +49,7 @@ class MetaProcessor implements Processor
     ): ResourceObjectIdentifier | ResourceObject {
         $metadata = $this->repository->getByType($resource->getType());
         if ($meta = $metadata->getMeta()) {
+            $this->logger->debug("Found meta for {$resource->getType()}");
             $meta = call_user_func([$object, $meta->getter]);
             $resource->setMeta($meta);
         }

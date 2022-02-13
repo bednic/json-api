@@ -20,7 +20,7 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
     private bool $modified = false;
 
     /**
-     * @param ResourceObjectIdentifier|ResourceCollection<ResourceObjectIdentifier>|null $data
+     * @param mixed $data
      *
      * @throws ForbiddenDataType
      */

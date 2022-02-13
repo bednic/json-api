@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\Document;
 
 use JSONAPI\Exception\Document\ForbiddenCharacter;
+use JSONAPI\Exception\Document\ForbiddenDataType;
 
 /**
  * Class FieldMetadata

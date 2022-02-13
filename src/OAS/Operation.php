@@ -231,7 +231,7 @@ class Operation implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [
             'responses' => $this->responses,

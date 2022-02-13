@@ -24,7 +24,6 @@ use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
 use ReflectionProperty;
-use Reflector;
 
 /**
  * Class SchemaDriver
@@ -57,10 +56,11 @@ class SchemaDriver extends Driver
         try {
             $res = new ReflectionClass($className);
             if ($res->implementsInterface(Resource::class)) {
-                /** @var \JSONAPI\Schema\Resource $className */
+                $this->logger->debug("Found new resource class $className.");
+                /** @var Resource $className */
                 $classMetadata = $className::getSchema();
-                $ref = new ReflectionClass($classMetadata->getClassName());
-                $attributes = $this->parseAttributes($ref, $classMetadata->getAttributes());
+                $ref           = new ReflectionClass($classMetadata->getClassName());
+                $attributes    = $this->parseAttributes($ref, $classMetadata->getAttributes());
                 $relationships = $this->parseRelationships($ref, $classMetadata->getRelationships());
                 return new ClassMetadata(
                     $classMetadata->getClassName(),
@@ -79,10 +79,10 @@ class SchemaDriver extends Driver
     }
 
     /**
-     * @param ReflectionClass $reflectionClass
-     * @param array           $metadata
+     * @param ReflectionClass<Resource> $reflectionClass
+     * @param array<Attribute>          $metadata
      *
-     * @return Collection
+     * @return Collection<Attribute>
      * @throws MethodNotExist
      * @throws PropertyNotExist
      * @throws AnnotationMisplace
@@ -101,16 +101,18 @@ class SchemaDriver extends Driver
     }
 
     /**
-     * @param Field           $metadata
-     * @param ReflectionClass $reflectionClass
+     * @param Field                     $metadata
+     * @param ReflectionClass<Resource> $reflectionClass
      *
      * @return ReflectionMethod|ReflectionProperty
      * @throws AnnotationMisplace
      * @throws MethodNotExist
      * @throws PropertyNotExist
      */
-    private function getReflection(Field $metadata, ReflectionClass $reflectionClass): Reflector
-    {
+    private function getReflection(
+        Field $metadata,
+        ReflectionClass $reflectionClass
+    ): ReflectionMethod|ReflectionProperty {
         if ($metadata->property) {
             try {
                 $reflection = $reflectionClass->getProperty($metadata->property);
@@ -129,10 +131,10 @@ class SchemaDriver extends Driver
     }
 
     /**
-     * @param ReflectionClass $reflectionClass
-     * @param array           $metadata
+     * @param ReflectionClass<Resource> $reflectionClass
+     * @param array<Relationship>       $metadata
      *
-     * @return Collection
+     * @return Collection<Relationship>
      * @throws AnnotationMisplace
      * @throws MethodNotExist
      * @throws PropertyNotExist

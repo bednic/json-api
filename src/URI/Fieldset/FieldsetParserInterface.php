@@ -14,7 +14,7 @@ use JSONAPI\Exception\Http\BadRequest;
 interface FieldsetParserInterface
 {
     /**
-     * @param array|null $data
+     * @param array<string, string>|null $data
      *
      * @return FieldsetInterface
      * @throws BadRequest

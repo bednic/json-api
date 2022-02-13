@@ -16,17 +16,17 @@ class ExpressionToken
     /**
      * @var ExpressionTokenId
      */
-    public $id;
+    public ExpressionTokenId $id;
 
     /**
      * @var string
      */
-    public $text;
+    public string $text;
 
     /**
      * @var int
      */
-    public $position;
+    public int $position;
 
     /**
      * Checks whether this token is a comparison operator.
@@ -37,7 +37,7 @@ class ExpressionToken
     public function isComparisonOperator(): bool
     {
         return
-            $this->id->equals(ExpressionTokenId::IDENTIFIER()) &&
+            $this->id === ExpressionTokenId::IDENTIFIER &&
             (
                 strcmp($this->text, Constants::LOGICAL_EQUAL) === 0 ||
                 strcmp($this->text, Constants::LOGICAL_NOT_EQUAL) === 0 ||
@@ -56,16 +56,17 @@ class ExpressionToken
      * @return bool True if this token represent valid key value
      *                 False otherwise.
      */
-    public function isKeyValueToken()
+    public function isKeyValueToken(): bool
     {
-        return
-            $this->id->equals(ExpressionTokenId::BINARY_LITERAL()) ||
-            $this->id->equals(ExpressionTokenId::BOOLEAN_LITERAL()) ||
-            $this->id->equals(ExpressionTokenId::DATETIME_LITERAL()) ||
-            $this->id->equals(ExpressionTokenId::GUID_LITERAL()) ||
-            $this->id->equals(ExpressionTokenId::STRING_LITERAL()) ||
-            $this->id->equals(ExpressionTokenId::NULL_LITERAL()) ||
-            ExpressionLexer::isNumeric($this->id);
+        return match ($this->id) {
+            ExpressionTokenId::BINARY_LITERAL,
+            ExpressionTokenId::BOOLEAN_LITERAL,
+            ExpressionTokenId::DATETIME_LITERAL,
+            ExpressionTokenId::GUID_LITERAL,
+            ExpressionTokenId::STRING_LITERAL,
+            ExpressionTokenId::NULL_LITERAL => true,
+            default => false
+        } || ExpressionLexer::isNumeric($this->id);
     }
 
     /**
@@ -76,7 +77,7 @@ class ExpressionToken
      */
     public function getIdentifier()
     {
-        if (!$this->id->equals(ExpressionTokenId::IDENTIFIER())) {
+        if ($this->id !== ExpressionTokenId::IDENTIFIER) {
             throw new ExpressionException(
                 'Identifier expected at position ' . $this->position
             );
@@ -94,7 +95,7 @@ class ExpressionToken
      */
     public function identifierIs(string $keyWord)
     {
-        return $this->id->equals(ExpressionTokenId::IDENTIFIER())
+        return $this->id === ExpressionTokenId::IDENTIFIER
             && strcmp($this->text, $keyWord) == 0;
     }
 }

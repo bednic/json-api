@@ -42,7 +42,7 @@ class Inclusion
     /**
      * @param Inclusion $inclusion
      */
-    public function addInclusion(Inclusion $inclusion)
+    public function addInclusion(Inclusion $inclusion): void
     {
         $this->inclusions[$inclusion->getRelationName()] = $inclusion;
     }

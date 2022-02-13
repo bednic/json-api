@@ -1,4 +1,4 @@
-image: registry.gitlab.com/bednic/json-api/ci:8.0
+image: registry.gitlab.com/bednic/json-api/ci:8.1
 
 stages:
     - build
@@ -81,6 +81,6 @@ release:
         - echo "Creating a release for version $CI_COMMIT_TAG"
     release:
         name: "$CI_COMMIT_TAG"
-        description: "see [changelog](CHANGELOG.md)"
+        description: "See [changelog](CHANGELOG.md)"
         tag_name: '$CI_COMMIT_TAG'
         ref: '$CI_COMMIT_TAG'

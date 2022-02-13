@@ -6,7 +6,9 @@ namespace JSONAPI\OAS;
 
 use JSONAPI\Document\Serializable;
 use JSONAPI\Exception\OAS\ExclusivityCheckException;
+use JSONAPI\Exception\OAS\OpenAPIException;
 use ReflectionClass;
+use ReflectionException;
 
 /**
  * Class Link
@@ -47,10 +49,14 @@ class Link extends Reference implements Serializable
      */
     public static function createReference(string $to, $origin): Link
     {
-        /** @var Link $static */
-        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
+        try {
+            /** @var Link $static */
+            $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor(); //NOSONAR
+            $static->setRef($to, $origin);
+            return $static;
+        } catch (ReflectionException $exception) {
+            throw OpenAPIException::createFromPrevious($exception);
+        }
     }
 
     /**
@@ -128,7 +134,7 @@ class Link extends Reference implements Serializable
         return $this;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         if ($this->isReference()) {
             return parent::jsonSerialize();

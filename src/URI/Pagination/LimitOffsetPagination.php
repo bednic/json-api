@@ -54,7 +54,7 @@ class LimitOffsetPagination implements PaginationInterface, PaginationParserInte
     }
 
     /**
-     * @param array|null $data
+     * @param array<string, int>|null $data
      *
      * @return PaginationInterface
      */

@@ -68,7 +68,7 @@ class Encoding implements Serializable
      */
     public function setStyle(Style $style): Encoding
     {
-        if ($style->equals(Style::FORM())) {
+        if ($style === Style::FORM) {
             $this->setExplode(true);
         }
         $this->style = $style;
@@ -97,7 +97,7 @@ class Encoding implements Serializable
         return $this;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [];
         if (!is_null($this->allowReserved)) {
@@ -113,7 +113,7 @@ class Encoding implements Serializable
             $ret['headers'] = $this->headers;
         }
         if ($this->style) {
-            $ret['style'] = $this->style;
+            $ret['style'] = $this->style->value;
         }
         return (object)$ret;
     }

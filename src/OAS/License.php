@@ -48,7 +48,7 @@ class License implements Serializable
         return $this;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = ['name' => $this->name];
         if ($this->url) {

@@ -13,6 +13,12 @@ use JSONAPI\Exception\JsonApiException;
 
 class CollectionException extends JsonApiException
 {
+    /**
+     * @var int
+     */
     protected $code = 510;
+    /**
+     * @var string
+     */
     protected $message = "Unknown Collection Exception";
 }

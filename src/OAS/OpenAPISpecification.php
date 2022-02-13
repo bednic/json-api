@@ -124,7 +124,7 @@ class OpenAPISpecification implements Serializable
     }
 
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         if (empty($this->servers)) {
             $this->servers[] = new Server('/');
@@ -135,9 +135,7 @@ class OpenAPISpecification implements Serializable
             'paths'   => $this->paths,
             'servers' => $this->servers
         ];
-        if ($this->components) {
-            $ret['components'] = $this->components;
-        }
+        $ret['components'] = $this->components;
         if ($this->security) {
             $ret['security'] = $this->security;
         }

@@ -49,7 +49,7 @@ class Responses implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = $this->byStatus;
         if ($this->default) {

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\OAS;
 
 use JSONAPI\Document\Serializable;
+use JSONAPI\Exception\OAS\OpenAPIException;
 use ReflectionClass;
 
 /**
@@ -57,13 +58,18 @@ class RequestBody extends Reference implements Serializable
      * @param SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback $origin
      *
      * @return RequestBody
+     * @throws OpenAPIException
      */
     public static function createReference(string $to, $origin): RequestBody
     {
-        /** @var RequestBody $static */
-        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
+        try {
+            /** @var RequestBody $static */
+            $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor(); //NOSONAR
+            $static->setRef($to, $origin);
+            return $static;
+        } catch (\ReflectionException $exception) {
+            throw OpenAPIException::createFromPrevious($exception);
+        }
     }
 
     /**
@@ -88,7 +94,10 @@ class RequestBody extends Reference implements Serializable
         return $this;
     }
 
-    public function jsonSerialize()
+    /**
+     * @return object
+     */
+    public function jsonSerialize(): object
     {
         if ($this->isReference()) {
             return parent::jsonSerialize();

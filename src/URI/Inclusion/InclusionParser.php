@@ -31,8 +31,8 @@ class InclusionParser implements InclusionInterface, InclusionParserInterface
     public function parse(?string $data): InclusionInterface
     {
         $this->inclusions = [];
-        $this->data = $data;
-        if ($data && strlen($data) > 0) {
+        $this->data       = $data;
+        if ($data) {
             $t = explode(',', $data);
             foreach ($t as $i) {
                 $branch = [];
@@ -49,11 +49,11 @@ class InclusionParser implements InclusionInterface, InclusionParserInterface
     }
 
     /**
-     * @param array  $arr
-     * @param string $path
-     * @param array  $value
+     * @param array<string, mixed> $arr
+     * @param string               $path
+     * @param array<string, mixed> $value
      */
-    private static function dot2tree(array &$arr, string $path, array $value)
+    private static function dot2tree(array &$arr, string $path, array $value): void
     {
         $keys = explode('.', $path);
         foreach ($keys as $key) {
@@ -63,10 +63,10 @@ class InclusionParser implements InclusionInterface, InclusionParserInterface
     }
 
     /**
-     * @param Inclusion $parent
-     * @param array     $branch
+     * @param Inclusion            $parent
+     * @param array<string, mixed> $branch
      */
-    private function makeInclusionTree(Inclusion $parent, array $branch)
+    private function makeInclusionTree(Inclusion $parent, array $branch): void
     {
         foreach ($branch as $name => $sub) {
             $child = new Inclusion($name);
@@ -78,7 +78,7 @@ class InclusionParser implements InclusionInterface, InclusionParserInterface
     }
 
     /**
-     * @return array
+     * @return Inclusion[]
      */
     public function getInclusions(): array
     {

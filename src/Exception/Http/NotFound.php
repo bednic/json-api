@@ -15,7 +15,13 @@ use JSONAPI\Exception\HasPointer;
  */
 class NotFound extends BadRequest implements HasPointer
 {
+    /**
+     * @var int
+     */
     protected $code = StatusCodeInterface::STATUS_NOT_FOUND;
+    /**
+     * @var string
+     */
     protected $message = 'Resource [%s] with ID [%s] not found.';
 
     /**

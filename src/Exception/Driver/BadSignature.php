@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Driver;
  */
 class BadSignature extends DriverException
 {
+    /**
+     * @var int
+     */
     protected $code = 532;
+    /**
+     * @var string
+     */
     protected $message = "Method or property %s on class %s does not seem valid. Please check:
     1) If it is getter, there should be method return type signature.
     2) If it is setter, there should be one and only one method parameter.

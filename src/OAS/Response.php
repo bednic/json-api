@@ -91,7 +91,7 @@ class Response extends Reference implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         if ($this->isReference()) {
             return parent::jsonSerialize();

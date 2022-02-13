@@ -12,7 +12,7 @@ namespace JSONAPI\URI\Fieldset;
 class FieldsetParser implements FieldsetInterface, FieldsetParserInterface
 {
     /**
-     * @var array
+     * @var array<string, array<string>>
      */
     private array $fields = [];
 

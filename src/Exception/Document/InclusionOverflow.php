@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Document;
  */
 class InclusionOverflow extends DocumentException
 {
+    /**
+     * @var int
+     */
     protected $code = 525;
+    /**
+     * @var string
+     */
     protected $message = "You reached max included items count [%d]. You can increase limit, or decrease items count.";
 
     /**

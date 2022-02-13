@@ -17,7 +17,7 @@ interface SortInterface extends QueryPartInterface
     public const DESC = 'DESC';
 
     /**
-     * @return array associative array contains field as key and order as value
+     * @return array<string, string> associative array contains field as key and order as value
      * @example [
      *      "fieldA" => "DESC",
      *      "fieldB" => "ASC"

@@ -101,11 +101,11 @@ class LinkComposer
      */
     public function setDocumentLinks(Document $document, ParsedURI $parser): Document
     {
-        $path = $parser->getPath();
-        $filter = $parser->getFilter();
-        $inclusion = $parser->getInclusion();
-        $fieldset = $parser->getFieldset();
-        $sort = $parser->getSort();
+        $path       = $parser->getPath();
+        $filter     = $parser->getFilter();
+        $inclusion  = $parser->getInclusion();
+        $fieldset   = $parser->getFieldset();
+        $sort       = $parser->getSort();
         $pagination = $parser->getPagination();
         if ($document->getData() instanceof ResourceCollection) {
             $document->setLink(
@@ -119,19 +119,18 @@ class LinkComposer
                     $sort
                 )
             );
-            if ($first = $pagination->first()) {
-                $document->setLink(
-                    $this->createDocumentLink(
-                        Link::FIRST,
-                        $path,
-                        $filter,
-                        $inclusion,
-                        $fieldset,
-                        $first,
-                        $sort
-                    )
-                );
-            }
+            $first = $pagination->first();
+            $document->setLink(
+                $this->createDocumentLink(
+                    Link::FIRST,
+                    $path,
+                    $filter,
+                    $inclusion,
+                    $fieldset,
+                    $first,
+                    $sort
+                )
+            );
             if ($last = $pagination->last()) {
                 $document->setLink(
                     $this->createDocumentLink(
@@ -209,7 +208,7 @@ class LinkComposer
         ?PaginationInterface $pagination,
         ?SortInterface $sort
     ): Link {
-        $url = $this->baseURL;
+        $url  = $this->baseURL;
         $link = $url . (string)$path;
         $mark = '?';
         if (strlen((string)$filter)) {

@@ -11,6 +11,12 @@ namespace JSONAPI\Exception;
  */
 class InvalidArgumentException extends JsonApiException
 {
+    /**
+     * @var int
+     */
     protected $code = 550;
+    /**
+     * @var string
+     */
     protected $message = "Unknown Invalid Argument Exception.";
 }

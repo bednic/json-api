@@ -19,7 +19,7 @@ interface UseDottedIdentifier
     public function parseIdentifier(string $identifier): mixed;
 
     /**
-     * @return array
+     * @return array<string, string>
      */
     public function getRequiredJoins(): array;
 }

@@ -32,6 +32,7 @@ class DefaultErrorFactory implements ErrorFactory
         if ($exception instanceof JsonApiException) {
             $this->processJsonApiException($exception, $error);
         } elseif ($exception instanceof SchemaInvalidValue) {
+            $exception->addPath('#->data');
             $this->processSchemaInvalidValue($exception, $error);
         }
         return $error;
@@ -66,11 +67,11 @@ class DefaultErrorFactory implements ErrorFactory
      */
     private static function parseInvalidValue(SchemaError $error): array
     {
-        if ($error->subErrors) {
+        if ($error->subErrors && !is_null($error->subErrors[0])) {
             return self::parseInvalidValue($error->subErrors[0]);
         } else {
             return [
-                (string)preg_replace('/, data.+/', '', $error->error ?? ''),
+                (string)preg_replace('/, data.+/', '', $error->error ?: ''),
                 Source::pointer($error->dataPointer)
             ];
         }

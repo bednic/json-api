@@ -53,7 +53,7 @@ class Paths implements Serializable
         return $this->items[$pattern] ?? null;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         return (object)$this->items;
     }

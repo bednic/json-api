@@ -18,7 +18,7 @@ abstract class CursorPagination implements PaginationInterface, PaginationParser
     private string $cursor;
 
     /**
-     * @param array|null $data
+     * @param array<string, mixed>|null $data
      *
      * @return PaginationInterface
      */

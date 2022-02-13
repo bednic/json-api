@@ -102,22 +102,22 @@ final class OpenAPISpecificationBuilder
      * @throws ReferencedObjectNotExistsException
      * @throws InvalidArgumentException
      */
-    private function registerSchemas()
+    private function registerSchemas(): void
     {
         // META
         $meta = DataType::object()
-            ->setAdditionalProperties(true)
-            ->setReadOnly(true)
-            ->setDescription('Where specified, a meta member can be used to include non-standard meta-information.');
+                        ->setAdditionalProperties(true)
+                        ->setReadOnly(true)
+                        ->setDescription('Where specified, a meta member can be used to include non-standard meta-information.');
         $this->oas->getComponents()->addSchema(self::shortName(Meta::class), $meta);
 
         // LINKS
         $this->oas->getComponents()->addSchema(self::shortName(Link::class), $this->createLink());
         $links = DataType::object()
-            ->setReadOnly(true)
-            ->addProperty('self', $this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)))
-            ->addProperty('related', $this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)))
-            ->setAdditionalProperties($this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)));
+                         ->setReadOnly(true)
+                         ->addProperty('self', $this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)))
+                         ->addProperty('related', $this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)))
+                         ->setAdditionalProperties($this->oas->getComponents()->createSchemaReference(self::shortName(Link::class)));
         $this->oas->getComponents()->addSchema('links', $links);
 
         foreach ($this->metadataRepository->getAll() as $classMetadata) {
@@ -126,7 +126,7 @@ final class OpenAPISpecificationBuilder
         }
     }
 
-    private static function shortName(string $className)
+    private static function shortName(string $className): string
     {
         return u($className)->afterLast('\\')->toString();
     }
@@ -141,11 +141,11 @@ final class OpenAPISpecificationBuilder
             [
                 DataType::string()->setFormat('url'),
                 DataType::object()
-                    ->addProperty('href', DataType::string()->setFormat('url'))
-                    ->addProperty(
-                        'meta',
-                        $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class))
-                    )
+                        ->addProperty('href', DataType::string()->setFormat('url'))
+                        ->addProperty(
+                            'meta',
+                            $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class))
+                        )
             ]
         );
     }
@@ -168,9 +168,9 @@ final class OpenAPISpecificationBuilder
             $relationships->addProperty($relationship->name, $this->relationshipToSchema($relationship));
         }
         $schema = DataType::object()
-            ->addProperty('attributes', $attributes)
-            ->addProperty('relationships', $relationships)
-            ->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
+                          ->addProperty('attributes', $attributes)
+                          ->addProperty('relationships', $relationships)
+                          ->addProperty('links', $this->oas->getComponents()->createSchemaReference('links'));
         return Schema::new()->setAllOf(
             [
                 $this->createResourceIdentifier($metadata),
@@ -209,20 +209,14 @@ final class OpenAPISpecificationBuilder
      */
     private function translateType(string $type): string
     {
-        switch ($type) {
-            case 'string':
-                return 'string';
-            case 'int':
-                return 'integer';
-            case 'bool':
-                return 'boolean';
-            case 'array':
-                return 'array';
-            case 'float':
-                return 'number';
-            default:
-                return 'object';
-        }
+        return match ($type) {
+            'string' => 'string',
+            'int'    => 'integer',
+            'bool'   => 'boolean',
+            'array'  => 'array',
+            'float'  => 'number',
+            default  => 'object',
+        };
     }
 
     /**
@@ -264,38 +258,38 @@ final class OpenAPISpecificationBuilder
     private function createResourceIdentifier(ClassMetadata $metadata): Schema
     {
         return DataType::object()
-            ->addProperty('id', DataType::string())
-            ->addProperty('type', DataType::string()->setEnum([$metadata->getType()]))
-            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)))
-            ->setRequired(['id', 'type']);
+                       ->addProperty('id', DataType::string())
+                       ->addProperty('type', DataType::string()->setEnum([$metadata->getType()]))
+                       ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)))
+                       ->setRequired(['id', 'type']);
     }
 
     /**
      * @throws ReferencedObjectNotExistsException
      */
-    private function registerResponses()
+    private function registerResponses(): void
     {
         $this->oas->getComponents()
-            ->addResponse(
-                (string)StatusCodeInterface::STATUS_ACCEPTED,
-                new Response('The request has been accepted for processing, but the processing has not been completed')
-            )
-            ->addResponse(
-                (string)StatusCodeInterface::STATUS_NO_CONTENT,
-                new Response('The request has been successfully processed, but is not returning any content')
-            )->addResponse(
-                (string)StatusCodeInterface::STATUS_FORBIDDEN,
-                new Response('The request was a legal request, but the server is refusing to respond to it')
-            )->addResponse(
-                (string)StatusCodeInterface::STATUS_NOT_FOUND,
-                new Response('The requested page could not be found but may be available again in the future')
-            )->addResponse(
-                (string)StatusCodeInterface::STATUS_CONFLICT,
-                new Response('The request could not be completed because of a conflict in the request')
-            )->addResponse(
-                (string)StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
-                $this->createErrorResponse()
-            );
+                  ->addResponse(
+                      (string)StatusCodeInterface::STATUS_ACCEPTED,
+                      new Response('The request has been accepted for processing, but the processing has not been completed')
+                  )
+                  ->addResponse(
+                      (string)StatusCodeInterface::STATUS_NO_CONTENT,
+                      new Response('The request has been successfully processed, but is not returning any content')
+                  )->addResponse(
+                      (string)StatusCodeInterface::STATUS_FORBIDDEN,
+                      new Response('The request was a legal request, but the server is refusing to respond to it')
+                  )->addResponse(
+                      (string)StatusCodeInterface::STATUS_NOT_FOUND,
+                      new Response('The requested page could not be found but may be available again in the future')
+                  )->addResponse(
+                      (string)StatusCodeInterface::STATUS_CONFLICT,
+                      new Response('The request could not be completed because of a conflict in the request')
+                  )->addResponse(
+                      (string)StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
+                      $this->createErrorResponse()
+                  );
     }
 
     /**
@@ -309,43 +303,43 @@ final class OpenAPISpecificationBuilder
             'errors',
             DataType::array(
                 DataType::object()
-                    ->addProperty(
-                        'id',
-                        DataType::string()
-                            ->setDescription('A unique identifier for this particular occurrence of the problem')
-                    )
-                    ->addProperty(
-                        'links',
-                        DataType::object()
-                            ->addProperty(
-                                'about',
-                                $this->createLink()
-                                    ->setDescription(
-                                        'A link that leads to further details
+                        ->addProperty(
+                            'id',
+                            DataType::string()
+                                    ->setDescription('A unique identifier for this particular occurrence of the problem')
+                        )
+                        ->addProperty(
+                            'links',
+                            DataType::object()
+                                    ->addProperty(
+                                        'about',
+                                        $this->createLink()
+                                             ->setDescription(
+                                                 'A link that leads to further details
                             about this particular occurrence of the problem'
+                                             )
                                     )
-                            )
-                    )
-                    ->addProperty(
-                        'status',
-                        DataType::string()
-                            ->setDescription(
-                                'The HTTP status code applicable to this problem, expressed as a string value'
-                            )
-                    )
-                    ->addProperty('code', DataType::string())
-                    ->addProperty('title', DataType::string())
-                    ->addProperty('detail', DataType::string())
-                    ->addProperty(
-                        'source',
-                        DataType::object()
-                            ->addProperty('pointer', DataType::string()->setFormat('JSON Pointer'))
-                            ->addProperty('parameter', DataType::string())
-                    )
-                    ->addProperty(
-                        'meta',
-                        $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class))
-                    )
+                        )
+                        ->addProperty(
+                            'status',
+                            DataType::string()
+                                    ->setDescription(
+                                        'The HTTP status code applicable to this problem, expressed as a string value'
+                                    )
+                        )
+                        ->addProperty('code', DataType::string())
+                        ->addProperty('title', DataType::string())
+                        ->addProperty('detail', DataType::string())
+                        ->addProperty(
+                            'source',
+                            DataType::object()
+                                    ->addProperty('pointer', DataType::string()->setFormat('JSON Pointer'))
+                                    ->addProperty('parameter', DataType::string())
+                        )
+                        ->addProperty(
+                            'meta',
+                            $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class))
+                        )
             )
         );
         $response = new Response('A generic error message, given when no more specific message is suitable');
@@ -377,8 +371,8 @@ final class OpenAPISpecificationBuilder
     private function createJsonApiObject(): Schema
     {
         return DataType::object()
-            ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
-            ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
+                       ->addProperty('version', DataType::string()->setEnum([Document::VERSION]))
+                       ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)));
     }
 
     /**
@@ -386,16 +380,16 @@ final class OpenAPISpecificationBuilder
      * @throws ExclusivityCheckException
      * @throws DuplicationEntryException
      */
-    private function registerParameters()
+    private function registerParameters(): void
     {
         // PARAMETERS
-        $id = new Parameter('id', In::PATH());
+        $id = new Parameter('id', In::PATH);
         $id->setDescription('Id of resource');
         $id->setSchema(DataType::string());
         $this->oas->getComponents()->addParameter('id', $id);
 
-        $inclusion = new Parameter('include', In::QUERY());
-        $inclusion->setStyle(Style::FORM());
+        $inclusion = new Parameter('include', In::QUERY);
+        $inclusion->setStyle(Style::FORM);
         $inclusion->setExplode(false);
         $inclusion->setDescription(
             'An endpoint MAY also support an **include** request parameter to allow the
@@ -405,8 +399,8 @@ final class OpenAPISpecificationBuilder
         $inclusion->setExample(['resource.relationship']);
         $this->oas->getComponents()->addParameter('include', $inclusion);
 
-        $fields = new Parameter('fields', In::QUERY());
-        $fields->setStyle(Style::DEEP_OBJECT());
+        $fields = new Parameter('fields', In::QUERY);
+        $fields->setStyle(Style::DEEP_OBJECT);
         $fields->setExplode(true);
         $fields->setDescription(
             'A client MAY request that an endpoint return only specific **fields** in the
@@ -416,8 +410,8 @@ final class OpenAPISpecificationBuilder
         $fields->setExample(['resource' => 'attribute,relationship']);
         $this->oas->getComponents()->addParameter('fields', $fields);
 
-        $sort = new Parameter('sort', In::QUERY());
-        $sort->setStyle(Style::FORM());
+        $sort = new Parameter('sort', In::QUERY);
+        $sort->setStyle(Style::FORM);
         $sort->setExplode(false);
         $sort->setDescription(
             'An endpoint MAY support requests to sort the primary data with a **sort** query
@@ -427,18 +421,18 @@ final class OpenAPISpecificationBuilder
         $sort->setExample(['attributeASC', '-attributeDESC']);
         $this->oas->getComponents()->addParameter('sort', $sort);
 
-        $pagination = new Parameter('page', In::QUERY());
+        $pagination = new Parameter('page', In::QUERY);
         $pagination->setDescription(
             'The **page** query parameter is reserved for pagination. Servers and clients
         SHOULD use this key for pagination operations.'
         );
-        $pagination->setStyle(Style::DEEP_OBJECT());
+        $pagination->setStyle(Style::DEEP_OBJECT);
         $pagination->setExplode(true);
         $pagination->setSchema(DataType::object()->setAdditionalProperties(DataType::string()));
         $pagination->setExample(['page[offset]' => 0, 'page[limit]' => 25]);
         $this->oas->getComponents()->addParameter('pagination', $pagination);
 
-        $filter = new Parameter('filter', In::QUERY());
+        $filter = new Parameter('filter', In::QUERY);
         $filter->setDescription(
             'The **filter** query parameter is reserved for filtering data. Servers and
         clients SHOULD use this key for filtering operations.'
@@ -454,7 +448,7 @@ final class OpenAPISpecificationBuilder
      * @throws ReferencedObjectNotExistsException
      * @throws DuplicationEntryException
      */
-    private function registerPaths()
+    private function registerPaths(): void
     {
         foreach ($this->metadataRepository->getAll() as $classMetadata) {
             $shortName = self::shortName($classMetadata->getClassName());
@@ -491,16 +485,14 @@ final class OpenAPISpecificationBuilder
                 // POST
                 $postOperation = new Operation();
                 $postOperation->setRequestBody($this->createRequestBodyFor($shortName));
+                $header = new Header('Location');
+                $header->setDescription('New resource endpoint url.');
+                $header->setSchema(DataType::string()->setFormat('url'));
                 $postOperation->setResponses(
                     $this->createCreateResponses()->addResponse(
                         (string)StatusCodeInterface::STATUS_CREATED,
                         $this->createDocumentResponse($this->oas->getComponents()->createSchemaReference($shortName))
-                            ->addHeader(
-                                'Location',
-                                (new Header('Location'))
-                                    ->setDescription('New resource endpoint url.')
-                                    ->setSchema(DataType::string()->setFormat('url'))
-                            )
+                             ->addHeader('Location', $header)
                     )
                 );
                 $collectionPathItem->setPost($postOperation);
@@ -512,13 +504,13 @@ final class OpenAPISpecificationBuilder
             $singlePathItem = new PathItem();
             $singlePathItem->addParameter($this->oas->getComponents()->createParameterReference('id'));
             $getOperation = Operation::new()
-                ->addParameter($this->oas->getComponents()->createParameterReference('fields'))
-                ->setResponses(
-                    $this->createReadResponses()->addResponse(
-                        (string)StatusCodeInterface::STATUS_OK,
-                        $this->createDocumentResponse($this->oas->getComponents()->createSchemaReference($shortName))
-                    )
-                );
+                                     ->addParameter($this->oas->getComponents()->createParameterReference('fields'))
+                                     ->setResponses(
+                                         $this->createReadResponses()->addResponse(
+                                             (string)StatusCodeInterface::STATUS_OK,
+                                             $this->createDocumentResponse($this->oas->getComponents()->createSchemaReference($shortName))
+                                         )
+                                     );
             if ($this->supportInclusion) {
                 $getOperation->addParameter($this->oas->getComponents()->createParameterReference('include'));
             }
@@ -526,15 +518,15 @@ final class OpenAPISpecificationBuilder
             if (!$classMetadata->isReadOnly()) {
                 $singlePathItem->setPatch(
                     Operation::new()->addParameter($this->oas->getComponents()->createParameterReference('fields'))
-                        ->setRequestBody($this->createRequestBodyFor($shortName))
-                        ->setResponses(
-                            $this->createUpdateResponses()->addResponse(
-                                (string)StatusCodeInterface::STATUS_OK,
-                                $this->createDocumentResponse(
-                                    $this->oas->getComponents()->createSchemaReference($shortName)
-                                )
-                            )
-                        )
+                             ->setRequestBody($this->createRequestBodyFor($shortName))
+                             ->setResponses(
+                                 $this->createUpdateResponses()->addResponse(
+                                     (string)StatusCodeInterface::STATUS_OK,
+                                     $this->createDocumentResponse(
+                                         $this->oas->getComponents()->createSchemaReference($shortName)
+                                     )
+                                 )
+                             )
                 );
                 $singlePathItem->setDelete(
                     Operation::new()->setResponses($this->createDeleteResponses())
@@ -557,46 +549,46 @@ final class OpenAPISpecificationBuilder
                     // GET, POST, PATCH, DELETE
                     $relationshipPathItem->setGet(
                         Operation::new()
-                            ->setResponses(
-                                $this->createReadResponses()->addResponse(
-                                    (string)StatusCodeInterface::STATUS_OK,
-                                    $this->createDocumentResponse(
-                                        DataType::array($this->createResourceIdentifier($relMetadata))
-                                    )
-                                )
-                            )
+                                 ->setResponses(
+                                     $this->createReadResponses()->addResponse(
+                                         (string)StatusCodeInterface::STATUS_OK,
+                                         $this->createDocumentResponse(
+                                             DataType::array($this->createResourceIdentifier($relMetadata))
+                                         )
+                                     )
+                                 )
                     );
                     $relationshipPathItem->setPost(
                         Operation::new()
-                            ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
-                            ->setResponses(
-                                $this->createCreateResponses()->addResponse(
-                                    (string)StatusCodeInterface::STATUS_OK,
-                                    $this->createDocumentResponse(
-                                        DataType::array(
-                                            $this->createResourceIdentifier(
-                                                $this->metadataRepository->getByClass($relationship->target)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
+                                 ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
+                                 ->setResponses(
+                                     $this->createCreateResponses()->addResponse(
+                                         (string)StatusCodeInterface::STATUS_OK,
+                                         $this->createDocumentResponse(
+                                             DataType::array(
+                                                 $this->createResourceIdentifier(
+                                                     $this->metadataRepository->getByClass($relationship->target)
+                                                 )
+                                             )
+                                         )
+                                     )
+                                 )
                     );
                     $relationshipPathItem->setPatch(
                         Operation::new()
-                            ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
-                            ->setResponses(
-                                $this->createCreateResponses()->addResponse(
-                                    (string)StatusCodeInterface::STATUS_OK,
-                                    $this->createDocumentResponse(
-                                        DataType::array(
-                                            $this->createResourceIdentifier(
-                                                $this->metadataRepository->getByClass($relationship->target)
-                                            )
-                                        )
-                                    )
-                                )
-                            )
+                                 ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
+                                 ->setResponses(
+                                     $this->createCreateResponses()->addResponse(
+                                         (string)StatusCodeInterface::STATUS_OK,
+                                         $this->createDocumentResponse(
+                                             DataType::array(
+                                                 $this->createResourceIdentifier(
+                                                     $this->metadataRepository->getByClass($relationship->target)
+                                                 )
+                                             )
+                                         )
+                                     )
+                                 )
                     );
                     $relationshipPathItem->setDelete(
                         Operation::new()->setResponses($this->createDeleteResponses())
@@ -605,40 +597,40 @@ final class OpenAPISpecificationBuilder
                     $relationPathItem->setGet(
                         Operation::new()->setResponses(
                             $this->createReadResponses()
-                                ->addResponse(
-                                    (string)StatusCodeInterface::STATUS_OK,
-                                    $this->createDocumentResponse(
-                                        DataType::array($this->createResourceIdentifier($relMetadata))
-                                    )
-                                )
+                                 ->addResponse(
+                                     (string)StatusCodeInterface::STATUS_OK,
+                                     $this->createDocumentResponse(
+                                         DataType::array($this->createResourceIdentifier($relMetadata))
+                                     )
+                                 )
                         )
                     );
                 } else { // toOne
                     //PATCH, GET
                     $relationshipPathItem->setGet(
                         Operation::new()
-                            ->setResponses(
-                                $this->createReadResponses()->addResponse(
-                                    (string)StatusCodeInterface::STATUS_OK,
-                                    $this->createDocumentResponse(
-                                        $this->createResourceIdentifier($relMetadata)
-                                    )
-                                )
-                            )
+                                 ->setResponses(
+                                     $this->createReadResponses()->addResponse(
+                                         (string)StatusCodeInterface::STATUS_OK,
+                                         $this->createDocumentResponse(
+                                             $this->createResourceIdentifier($relMetadata)
+                                         )
+                                     )
+                                 )
                     );
                     $relationshipPathItem->setPatch(
                         Operation::new()
-                            ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
-                            ->setResponses(
-                                $this->createCreateResponses()->addResponse(
-                                    (string)StatusCodeInterface::STATUS_OK,
-                                    $this->createDocumentResponse(
-                                        $this->createResourceIdentifier(
-                                            $this->metadataRepository->getByClass($relationship->target)
-                                        )
-                                    )
-                                )
-                            )
+                                 ->setRequestBody($this->createRequestBodyFor(self::shortName($relationship->target)))
+                                 ->setResponses(
+                                     $this->createCreateResponses()->addResponse(
+                                         (string)StatusCodeInterface::STATUS_OK,
+                                         $this->createDocumentResponse(
+                                             $this->createResourceIdentifier(
+                                                 $this->metadataRepository->getByClass($relationship->target)
+                                             )
+                                         )
+                                     )
+                                 )
                     );
 
                     $relationPathItem->setGet(
@@ -671,7 +663,7 @@ final class OpenAPISpecificationBuilder
         $responses->addResponse(
             (string)StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR,
             $this->oas->getComponents()
-                ->createResponseReference((string)StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR)
+                      ->createResponseReference((string)StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR)
         );
         return $responses;
     }
@@ -707,9 +699,9 @@ final class OpenAPISpecificationBuilder
         $content = new MediaType();
         $content->setSchema(
             DataType::object()
-                ->addProperty('jsonapi', $this->createJsonApiObject())
-                ->addProperty('data', $this->oas->getComponents()->createSchemaReference($shortClassName))
-                ->setRequired(['data'])
+                    ->addProperty('jsonapi', $this->createJsonApiObject())
+                    ->addProperty('data', $this->oas->getComponents()->createSchemaReference($shortClassName))
+                    ->setRequired(['data'])
         );
         return new RequestBody(Document::MEDIA_TYPE, $content);
     }

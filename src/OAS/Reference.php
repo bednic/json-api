@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\OAS;
 
+use JSONAPI\Exception\OAS\OpenAPIException;
+
 /**
  * Class Reference
  *
@@ -14,7 +16,7 @@ abstract class Reference
     /**
      * @var SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback
      */
-    protected $origin;
+    protected mixed $origin;
     /**
      * @var string
      */
@@ -29,13 +31,17 @@ abstract class Reference
      * @param SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback $origin
      *
      * @return static
+     * @throws OpenAPIException
      */
-    abstract public static function createReference(string $to, $origin);
+    abstract public static function createReference(
+        string $to,
+        mixed $origin
+    ): mixed;
 
     /**
      * @return bool
      */
-    public function isReference()
+    public function isReference(): bool
     {
         return $this->isRef;
     }
@@ -43,7 +49,7 @@ abstract class Reference
     /**
      * @return object
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         return (object)['$ref' => $this->ref];
     }
@@ -52,7 +58,7 @@ abstract class Reference
      * @param string                                                                            $to
      * @param SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback $origin
      */
-    protected function setRef(string $to, $origin)
+    protected function setRef(string $to, mixed $origin): void
     {
         $this->isRef = true;
         $this->ref = $to;

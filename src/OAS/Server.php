@@ -41,7 +41,7 @@ class Server implements Serializable
      * @param string         $name
      * @param ServerVariable $variable
      */
-    public function addVariable(string $name, ServerVariable $variable)
+    public function addVariable(string $name, ServerVariable $variable): void
     {
         $this->variables[$name] = $variable;
     }
@@ -57,7 +57,7 @@ class Server implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [
             'url' => $this->url

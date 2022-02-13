@@ -20,7 +20,7 @@ class Messages
      *
      * @return string The formatted message
      */
-    public static function expressionLexerUnterminatedStringLiteral(int $pos, string $text)
+    public static function expressionLexerUnterminatedStringLiteral(int $pos, string $text): string
     {
         return 'Unterminated string literal at position ' . $pos . ' in ' . $text;
     }
@@ -32,7 +32,7 @@ class Messages
      *
      * @return string The formatted message
      */
-    public static function expressionLexerDigitExpected(int $pos)
+    public static function expressionLexerDigitExpected(int $pos): string
     {
         return 'Digit expected at position ' . $pos;
     }
@@ -44,7 +44,7 @@ class Messages
      *
      * @return string The formatted message
      */
-    public static function expressionLexerSyntaxError(int $pos)
+    public static function expressionLexerSyntaxError(int $pos): string
     {
         return 'Syntax Error at position ' . $pos;
     }
@@ -57,7 +57,7 @@ class Messages
      *
      * @return string The formatted message
      */
-    public static function expressionLexerInvalidCharacter(string $ch, int $pos)
+    public static function expressionLexerInvalidCharacter(string $ch, int $pos): string
     {
         return "Invalid character '$ch' at position $pos";
     }
@@ -70,7 +70,7 @@ class Messages
      *
      * @return string The formatted message
      */
-    public static function expressionParserOperatorNotSupportNull(string $operator, int $pos)
+    public static function expressionParserOperatorNotSupportNull(string $operator, int $pos): string
     {
         return "The operator '$operator' at position $pos is not supported for the 'null' literal; only equality
         checks are supported";
@@ -85,7 +85,7 @@ class Messages
      *
      * @return string The formatted message
      */
-    public static function expressionParserUnrecognizedLiteral(string $type, string $literal, int $pos)
+    public static function expressionParserUnrecognizedLiteral(string $type, string $literal, int $pos): string
     {
         return "Unrecognized '$type' literal '$literal' in position '$pos'.";
     }
@@ -98,7 +98,7 @@ class Messages
      *
      * @return string The formatted message
      */
-    public static function expressionParserUnknownFunction(string $str, int $pos)
+    public static function expressionParserUnknownFunction(string $str, int $pos): string
     {
         return "Unknown function '$str' at position $pos";
     }
@@ -108,7 +108,7 @@ class Messages
      *
      * @return string The message
      */
-    public static function syntaxError()
+    public static function syntaxError(): string
     {
         return 'Bad Request - Error in query syntax';
     }
@@ -122,7 +122,7 @@ class Messages
      *
      * @return string The formatted message
      */
-    public static function failedToAccessProperty(string $propertyName, string $parentObjectName)
+    public static function failedToAccessProperty(string $propertyName, string $parentObjectName): string
     {
         return "Data Service failed to access or initialize the property [$propertyName] of [$parentObjectName]";
     }
@@ -134,7 +134,7 @@ class Messages
      *
      * @return string
      */
-    public static function operandOrFunctionNotImplemented(string $fnOrOp)
+    public static function operandOrFunctionNotImplemented(string $fnOrOp): string
     {
         return "Operand or function [{$fnOrOp}] not implemented.";
     }

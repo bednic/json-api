@@ -30,7 +30,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      *
      * @var mixed
      */
-    private $condition = null;
+    private mixed $condition = null;
 
     /**
      * ExpressionFilterParser constructor.
@@ -42,6 +42,9 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         $this->exp = $exp ?? new ClosureExpressionBuilder();
     }
 
+    /**
+     * @return array<string,string>
+     */
     public function getRequiredJoins(): array
     {
         if ($this->exp instanceof UseDottedIdentifier) {
@@ -65,7 +68,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         $this->lexer = null;
         $this->condition = null;
-        if ($data && is_string($data) && strlen($data) > 0) {
+        if ($data && is_string($data)) {
             $this->lexer = new ExpressionLexer($data);
             $this->condition = $this->parseExpression();
         }
@@ -131,7 +134,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             if ($comparisonToken->identifierIs(Constants::LOGICAL_IN)) {
                 $right = $this->parseArgumentList();
                 $left = $this->exp->{$comparisonToken->text}($left, $right);
-            } elseif ($this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::NULL_LITERAL())) {
+            } elseif ($this->lexer->getCurrentToken()->id === ExpressionTokenId::NULL_LITERAL) {
                 if ($comparisonToken->identifierIs(Constants::LOGICAL_EQUAL)) {
                     $left = $this->exp->isNull($left);
                 } elseif ($comparisonToken->identifierIs(Constants::LOGICAL_NOT_EQUAL)) {
@@ -205,13 +208,13 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseUnary(): mixed
     {
         if (
-            $this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::MINUS()) ||
+            $this->lexer->getCurrentToken()->id == ExpressionTokenId::MINUS ||
             $this->lexer->getCurrentToken()->identifierIs(Constants::LOGICAL_NOT)
         ) {
             $op = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
             if (
-                $op->id->equals(ExpressionTokenId::MINUS()) &&
+                $op->id === ExpressionTokenId::MINUS &&
                 ExpressionLexer::isNumeric($this->lexer->getCurrentToken()->id)
             ) {
                 $numberLiteral = $this->lexer->getCurrentToken();
@@ -223,7 +226,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
 
             $expr = $this->parseExpression();
 
-            if ($op->id->equals(ExpressionTokenId::MINUS())) {
+            if ($op->id === ExpressionTokenId::MINUS) {
                 $expr = '-' . $expr;
             } else {
                 $expr = $this->exp->not($expr);
@@ -249,29 +252,29 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parsePrimaryStart(): mixed
     {
         switch ($this->lexer->getCurrentToken()->id) {
-            case ExpressionTokenId::BOOLEAN_LITERAL():
+            case ExpressionTokenId::BOOLEAN_LITERAL:
                 return $this->parseBoolean();
-            case ExpressionTokenId::DATETIME_LITERAL():
+            case ExpressionTokenId::DATETIME_LITERAL:
                 return $this->parseDatetime();
-            case ExpressionTokenId::DECIMAL_LITERAL():
-            case ExpressionTokenId::DOUBLE_LITERAL():
-            case ExpressionTokenId::SINGLE_LITERAL():
+            case ExpressionTokenId::DECIMAL_LITERAL:
+            case ExpressionTokenId::DOUBLE_LITERAL:
+            case ExpressionTokenId::SINGLE_LITERAL:
                 return $this->parseFloat();
-            case ExpressionTokenId::NULL_LITERAL():
+            case ExpressionTokenId::NULL_LITERAL:
                 return $this->parseNull();
-            case ExpressionTokenId::IDENTIFIER():
+            case ExpressionTokenId::IDENTIFIER:
                 return $this->parseIdentifier();
-            case ExpressionTokenId::STRING_LITERAL():
+            case ExpressionTokenId::STRING_LITERAL:
                 return $this->parseString();
-            case ExpressionTokenId::INT64_LITERAL():
-            case ExpressionTokenId::INTEGER_LITERAL():
+            case ExpressionTokenId::INT64_LITERAL:
+            case ExpressionTokenId::INTEGER_LITERAL:
                 return $this->parseInteger();
-            case ExpressionTokenId::BINARY_LITERAL():
-            case ExpressionTokenId::GUID_LITERAL():
+            case ExpressionTokenId::BINARY_LITERAL:
+            case ExpressionTokenId::GUID_LITERAL:
                 throw new ExpressionException(
                     Messages::operandOrFunctionNotImplemented($this->lexer->getCurrentToken()->getIdentifier())
                 );
-            case ExpressionTokenId::OPENPARAM():
+            case ExpressionTokenId::OPEN_PARAM:
                 return $this->parseParentExpression();
             default:
                 throw new ExpressionException("Expression expected.");
@@ -345,10 +348,10 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     private function parseIdentifier(): mixed
     {
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::IDENTIFIER())) {
+        if ($this->lexer->getCurrentToken()->id !== ExpressionTokenId::IDENTIFIER) {
             throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
-        $isFunction = $this->lexer->peekNextToken()->id->equals(ExpressionTokenId::OPENPARAM());
+        $isFunction = $this->lexer->peekNextToken()->id === ExpressionTokenId::OPEN_PARAM;
         if ($isFunction) {
             return $this->parseIdentifierAsFunction();
         } else {
@@ -374,18 +377,18 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      * @throws ExpressionException
      */
     private function parseArgumentList(): array
     {
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::OPENPARAM())) {
+        if ($this->lexer->getCurrentToken()->id !== ExpressionTokenId::OPEN_PARAM) {
             throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
         $this->lexer->nextToken();
-        $args = $this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM()) ?
+        $args = $this->lexer->getCurrentToken()->id === ExpressionTokenId::CLOSE_PARAM ?
             [] : $this->parseArguments();
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM())) {
+        if ($this->lexer->getCurrentToken()->id !== ExpressionTokenId::CLOSE_PARAM) {
             throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
         $this->lexer->nextToken();
@@ -395,7 +398,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     # PARSERS
 
     /**
-     * @return array
+     * @return array<mixed>
      * @throws ExpressionException
      */
     private function parseArguments(): array
@@ -403,7 +406,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         $args = [];
         while (true) {
             $args[] = $this->parseExpression();
-            if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::COMMA())) {
+            if ($this->lexer->getCurrentToken()->id !== ExpressionTokenId::COMMA) {
                 break;
             }
             $this->lexer->nextToken();
@@ -458,12 +461,12 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     private function parseParentExpression(): mixed
     {
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::OPENPARAM())) {
+        if ($this->lexer->getCurrentToken()->id !== ExpressionTokenId::OPEN_PARAM) {
             throw new ExpressionException(Messages::syntaxError());
         }
         $this->lexer->nextToken();
         $expr = $this->parseExpression();
-        if (!$this->lexer->getCurrentToken()->id->equals(ExpressionTokenId::CLOSEPARAM())) {
+        if ($this->lexer->getCurrentToken()->id !== ExpressionTokenId::CLOSE_PARAM) {
             throw new ExpressionException(Messages::syntaxError());
         }
         $this->lexer->nextToken();

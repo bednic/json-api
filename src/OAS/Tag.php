@@ -64,7 +64,7 @@ class Tag implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [
             'name' => $this->name

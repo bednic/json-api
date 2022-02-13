@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Driver;
  */
 class ClassNotExist extends DriverException
 {
+    /**
+     * @var int
+     */
     protected $code = 533;
+    /**
+     * @var string
+     */
     protected $message = "Class %s does not exist.";
 
     /**

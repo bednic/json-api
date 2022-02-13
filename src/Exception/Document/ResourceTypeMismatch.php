@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Document;
  */
 class ResourceTypeMismatch extends DocumentException
 {
+    /**
+     * @var int
+     */
     protected $code = 523;
+    /**
+     * @var string
+     */
     protected $message = "Provided data resource type %s is not same as requested resource type %s.";
 
     /**

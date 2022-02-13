@@ -16,7 +16,13 @@ use function Symfony\Component\String\s;
  */
 abstract class JsonApiException extends Exception
 {
+    /**
+     * @var int
+     */
     protected $code = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
+    /**
+     * @var string
+     */
     protected $message = "Internal Server Error.";
 
     /**

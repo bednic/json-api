@@ -18,20 +18,22 @@ use Traversable;
  * Class Collection
  *
  * @package JSONAPI\Data
+ * @implements ArrayAccess<int|string,mixed>
+ * @implements IteratorAggregate<mixed>
  */
 class Collection implements ArrayAccess, Countable, IteratorAggregate
 {
     public const SORT_DESC = 'DESC';
     public const SORT_ASC = 'ASC';
     /**
-     * @var array
+     * @var array<int|string|null,mixed>
      */
     private array $items;
 
     /**
      * Collection constructor.
      *
-     * @param array $items
+     * @param array<mixed> $items
      */
     public function __construct(array $items = [])
     {
@@ -139,7 +141,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * Returns Collection as array
      *
-     * @return array
+     * @return array<mixed>
      */
     public function values(): array
     {
@@ -149,7 +151,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * Returns internal items as is
      *
-     * @return array
+     * @return array<mixed>
      */
     public function toArray(): array
     {
@@ -213,7 +215,7 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
     /**
      * Sort function for object collection
      *
-     * @param array $order
+     * @param array<mixed> $order
      *
      * @return Collection
      * @throws CollectionException

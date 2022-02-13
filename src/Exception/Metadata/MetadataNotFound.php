@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Metadata;
  */
 class MetadataNotFound extends MetadataException
 {
+    /**
+     * @var int
+     */
     protected $code = 546;
+    /**
+     * @var string
+     */
     protected $message = "ClassMetadata for [%s] does not exist.";
 
     /**

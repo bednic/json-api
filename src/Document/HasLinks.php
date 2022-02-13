@@ -17,7 +17,7 @@ interface HasLinks
     public function setLink(Link $link): void;
 
     /**
-     * @return array
+     * @return array<Link>
      */
     public function getLinks(): array;
 

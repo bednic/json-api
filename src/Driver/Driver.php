@@ -14,6 +14,7 @@ use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\ClassMetadata;
 use JSONAPI\Metadata\Field;
 use JSONAPI\Metadata\Relationship;
+use JSONAPI\Schema\Resource;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionMethod;
@@ -36,6 +37,7 @@ abstract class Driver
     /**
      * @param string $className
      *
+     * @phpstan-param class-string $className
      * @return ClassMetadata
      * @throws DriverException
      * @throws MetadataException
@@ -66,23 +68,24 @@ abstract class Driver
      * @return ReflectionNamedType|null
      */
     protected function getType(
-        ReflectionMethod | ReflectionProperty | ReflectionParameter $reflection
+        ReflectionMethod|ReflectionProperty|ReflectionParameter $reflection
     ): ?ReflectionNamedType {
+        /** @phpstan-ignore-next-line */
         return $reflection instanceof ReflectionMethod ? $reflection->getReturnType() : $reflection->getType();
     }
 
     /**
      * @param Attribute                           $attribute
      * @param ReflectionProperty|ReflectionMethod $reflection
-     * @param ReflectionClass                     $reflectionClass
+     * @param ReflectionClass<Resource|object>                     $reflectionClass
      *
      * @throws BadSignature
      */
     protected function fillUpAttribute(
         Attribute $attribute,
-        ReflectionProperty | ReflectionMethod $reflection,
+        ReflectionProperty|ReflectionMethod $reflection,
         ReflectionClass $reflectionClass
-    ) {
+    ): void {
         if (!$attribute->name) {
             $attribute->name = $this->getName($reflection);
         }
@@ -114,7 +117,7 @@ abstract class Driver
      *
      * @return string
      */
-    protected function getName(ReflectionMethod | ReflectionProperty $reflection): string
+    protected function getName(ReflectionMethod|ReflectionProperty $reflection): string
     {
         if ($reflection instanceof ReflectionProperty) {
             return $reflection->getName();
@@ -124,8 +127,8 @@ abstract class Driver
     }
 
     /**
-     * @param ReflectionClass $reflectionClass
-     * @param Field           $metadata
+     * @param ReflectionClass<Resource|object> $reflectionClass
+     * @param Field                            $metadata
      *
      * @return string|null
      */
@@ -160,7 +163,7 @@ abstract class Driver
      *
      * @return string|null
      */
-    protected function tryGetArrayType(ReflectionProperty | ReflectionMethod $reflection): ?string
+    protected function tryGetArrayType(ReflectionProperty|ReflectionMethod $reflection): ?string
     {
         if (
             preg_match(
@@ -177,16 +180,16 @@ abstract class Driver
     /**
      * @param Relationship                        $relationship
      * @param ReflectionProperty|ReflectionMethod $reflection
-     * @param ReflectionClass                     $reflectionClass
+     * @param ReflectionClass<Resource|object>    $reflectionClass
      *
      * @throws BadSignature
      * @throws MethodNotExist
      */
     protected function fillUpRelationship(
         Relationship $relationship,
-        ReflectionProperty | ReflectionMethod $reflection,
+        ReflectionProperty|ReflectionMethod $reflection,
         ReflectionClass $reflectionClass
-    ) {
+    ): void {
         if (!$relationship->name) {
             $relationship->name = $this->getName($reflection);
         }
@@ -210,21 +213,22 @@ abstract class Driver
      * @return bool
      * @throws BadSignature
      */
-    protected function isCollection(ReflectionMethod | ReflectionProperty $reflection): bool
+    protected function isCollection(ReflectionMethod|ReflectionProperty $reflection): bool
     {
         $type = $this->getType($reflection);
         if (is_null($type)) {
             throw new BadSignature($reflection->getName(), $reflection->getDeclaringClass()->getName());
         } elseif ($type->isBuiltin()) {
-            return 'array' === $type->getName();
+            $ret = 'array' === $type->getName();
         } elseif ($type->getName() === Collection::class) {
-            return true;
+            $ret = true;
         } else {
             try {
-                return (new ReflectionClass($type->getName()))->isSubclassOf(Collection::class);
+                $ret = (new ReflectionClass($type->getName()))->isSubclassOf(Collection::class);
             } catch (ReflectionException) {
-                return false;
+                $ret = false;
             }
         }
+        return $ret;
     }
 }

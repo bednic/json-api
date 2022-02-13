@@ -15,14 +15,14 @@ use JSONAPI\Exception\Document\ForbiddenDataType;
 final class Meta implements Serializable
 {
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     private array $properties = [];
 
     /**
      * Meta constructor.
      *
-     * @param array $properties
+     * @param array<string, mixed> $properties
      *
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
@@ -68,7 +68,7 @@ final class Meta implements Serializable
      * Specify data which should be serialized to JSON
      *
      * @link  https://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return array data which can be serialized by <b>json_encode</b>,
+     * @return array<string, mixed> data which can be serialized by <b>json_encode</b>,
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */

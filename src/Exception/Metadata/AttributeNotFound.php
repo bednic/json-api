@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Metadata;
  */
 class AttributeNotFound extends MetadataException
 {
+    /**
+     * @var int
+     */
     protected $code = 541;
+    /**
+     * @var string
+     */
     protected $message = "Attribute metadata name [%s] does not exist on resource [%s].";
 
     /**

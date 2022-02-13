@@ -68,7 +68,7 @@ class Contact implements Serializable
         return $this;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [];
         if ($this->name) {

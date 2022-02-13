@@ -19,15 +19,15 @@ class SecurityRequirement implements Serializable
      * required for the execution, and the list MAY be empty if authorization does not require a specified scope. For
      * other security scheme types, the array MUST be empty.
      *
-     * @var string[]
+     * @var array<string, array<string>>
      */
     private array $requirements = [];
 
     /**
      * @param string $name of SecurityScheme in Components
-     * @param array  $requirements
+     * @param array<string>  $requirements
      */
-    public function addRequirements(string $name, array $requirements)
+    public function addRequirements(string $name, array $requirements): void
     {
         $this->requirements[$name] = $requirements;
     }
@@ -35,7 +35,7 @@ class SecurityRequirement implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         return (object)$this->requirements;
     }

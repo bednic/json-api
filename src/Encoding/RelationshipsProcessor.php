@@ -142,7 +142,7 @@ class RelationshipsProcessor extends FieldsProcessor implements Processor
         \JSONAPI\Metadata\Relationship $field,
         Relationship $relationship,
         mixed $value
-    ) {
+    ): void {
         if ($field->isCollection) {
             if (!($value instanceof Collection)) {
                 $value = new Collection($value);

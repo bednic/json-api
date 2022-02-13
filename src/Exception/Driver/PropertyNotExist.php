@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Driver;
  */
 class PropertyNotExist extends DriverException
 {
+    /**
+     * @var int
+     */
     protected $code = 536;
+    /**
+     * @var string
+     */
     protected $message = "Property %s does not exist on class %s";
 
     /**

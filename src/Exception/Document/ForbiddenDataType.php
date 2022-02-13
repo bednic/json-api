@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Document;
  */
 class ForbiddenDataType extends DocumentException
 {
+    /**
+     * @var int
+     */
     protected $code = 522;
+    /**
+     * @var string
+     */
     protected $message = "Assigned data to %s has forbidden data type %s.";
 
     /**

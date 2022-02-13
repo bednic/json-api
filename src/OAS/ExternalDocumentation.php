@@ -46,7 +46,7 @@ class ExternalDocumentation implements Serializable
         $this->description = $description;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = ['url' => $this->url];
         if ($this->description) {

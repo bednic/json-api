@@ -11,7 +11,13 @@ namespace JSONAPI\Exception\Metadata;
  */
 class InvalidField extends MetadataException
 {
+    /**
+     * @var int
+     */
     protected $code = 542;
+    /**
+     * @var string
+     */
     protected $message = "Field [%s] is not Attribute nor Relationship";
 
     /**

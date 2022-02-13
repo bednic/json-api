@@ -13,6 +13,9 @@ use JSONAPI\Exception\HasParameter;
  */
 class UnsupportedParameter extends BadRequest implements HasParameter
 {
+    /**
+     * @var string
+     */
     protected $message = 'Parameter %s is not supported.';
     /**
      * @var string

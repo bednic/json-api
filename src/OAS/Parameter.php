@@ -7,6 +7,7 @@ namespace JSONAPI\OAS;
 use JSONAPI\Document\Serializable;
 use JSONAPI\Exception\OAS\ExclusivityCheckException;
 use JSONAPI\Exception\OAS\IncompleteObjectException;
+use JSONAPI\Exception\OAS\OpenAPIException;
 use JSONAPI\OAS\Type\In;
 use JSONAPI\OAS\Type\Style;
 use ReflectionClass;
@@ -94,19 +95,19 @@ class Parameter extends Reference implements Serializable
     public function __construct(string $name, In $in)
     {
         $this->name = $name;
-        $this->in = $in;
-        if ($in->equals(In::PATH())) {
+        $this->in   = $in;
+        if ($in === In::PATH) {
             $this->required = true;
-            $this->style = Style::SIMPLE();
+            $this->style    = Style::SIMPLE;
         }
-        if ($in->equals(In::QUERY())) {
-            $this->style = Style::FORM();
+        if ($in === In::QUERY) {
+            $this->style = Style::FORM;
         }
-        if ($in->equals(In::HEADER())) {
-            $this->style = Style::SIMPLE();
+        if ($in === In::HEADER) {
+            $this->style = Style::SIMPLE;
         }
-        if ($in->equals(In::COOKIE())) {
-            $this->style = Style::FORM();
+        if ($in === In::COOKIE) {
+            $this->style = Style::FORM;
         }
     }
 
@@ -115,13 +116,18 @@ class Parameter extends Reference implements Serializable
      * @param SecurityScheme|Schema|Response|RequestBody|Parameter|Header|Link|Example|Callback $origin
      *
      * @return Parameter
+     * @throws OpenAPIException
      */
     public static function createReference(string $to, $origin): Parameter
     {
-        /** @var Parameter $static */
-        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor();
-        $static->setRef($to, $origin);
-        return $static;
+        try {
+            /** @var Parameter $static */
+            $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor(); //NOSONAR
+            $static->setRef($to, $origin);
+            return $static;
+        } catch (\ReflectionException $exception) {
+            throw OpenAPIException::createFromPrevious($exception);
+        }
     }
 
     /**
@@ -132,7 +138,7 @@ class Parameter extends Reference implements Serializable
         if ($this->isReference()) {
             return $this->origin->getUID();
         }
-        return $this->name . $this->in->getValue();
+        return $this->name . $this->in->value;
     }
 
     /**
@@ -188,7 +194,7 @@ class Parameter extends Reference implements Serializable
     public function setStyle(Style $style): Parameter
     {
         $this->style = $style;
-        if ($style->equals(Style::FORM())) {
+        if ($style === Style::FORM) {
             $this->explode = true;
         }
         return $this;
@@ -270,7 +276,7 @@ class Parameter extends Reference implements Serializable
      */
     public function setContent(string $key, MediaType $content): Parameter
     {
-        $this->content = [];
+        $this->content       = [];
         $this->content[$key] = $content;
         return $this;
     }
@@ -279,7 +285,7 @@ class Parameter extends Reference implements Serializable
      * @return object
      * @throws IncompleteObjectException
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         if ($this->isReference()) {
             return parent::jsonSerialize();
@@ -304,7 +310,7 @@ class Parameter extends Reference implements Serializable
         if (!is_null($this->allowReserved)) {
             $ret['allowReserved'] = $this->allowReserved;
         }
-        if ($this->in->equals(In::QUERY()) && !is_null($this->allowEmptyValue)) {
+        if ($this->in === In::QUERY && !is_null($this->allowEmptyValue)) {
             $ret['allowEmptyValue'] = $this->allowEmptyValue;
         }
         if ($this->description) {

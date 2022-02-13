@@ -11,5 +11,8 @@ namespace JSONAPI\Exception;
  */
 interface HasPointer
 {
+    /**
+     * @return string
+     */
     public function getPointer(): string;
 }

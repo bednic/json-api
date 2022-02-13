@@ -13,6 +13,12 @@ use JSONAPI\Exception\JsonApiException;
  */
 class MetadataException extends JsonApiException
 {
+    /**
+     * @var int
+     */
     protected $code = 540;
+    /**
+     * @var string
+     */
     protected $message = "Unknown Metadata Exception";
 }

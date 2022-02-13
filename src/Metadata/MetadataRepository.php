@@ -14,7 +14,13 @@ use JSONAPI\Exception\Metadata\MetadataNotFound;
  */
 class MetadataRepository
 {
+    /**
+     * @var Collection<ClassMetadata>
+     */
     private Collection $collection;
+    /**
+     * @var Collection<ClassMetadata>
+     */
     private Collection $typeToClassMap;
 
     public function __construct()

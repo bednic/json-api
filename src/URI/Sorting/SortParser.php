@@ -15,7 +15,7 @@ use JSONAPI\URI\QueryPartInterface;
 class SortParser implements SortInterface, SortParserInterface
 {
     /**
-     * @var array
+     * @var array<string, string>
      */
     private array $sort = [];
 
@@ -50,7 +50,7 @@ class SortParser implements SortInterface, SortParserInterface
     }
 
     /**
-     * @return array associative array contains field as key and order as value
+     * @return array<string, string> associative array contains field as key and order as value
      * @example [
      *      "fieldA" => "DESC",
      *      "fieldB" => "ASC"

@@ -27,7 +27,7 @@ final class Relationship extends \JSONAPI\Metadata\Relationship
      * @inheritDoc
      */
     public function __construct(
-        ?string $target,
+        string $target,
         string $name = null,
         string $property = null,
         string $getter = null,
@@ -35,6 +35,6 @@ final class Relationship extends \JSONAPI\Metadata\Relationship
         ?bool $isCollection = null,
         ?bool $nullable = null
     ) {
-        parent::__construct($target, $name, $property, $getter, $setter, $isCollection, $nullable);
+        parent::__construct($target, $name, $property, $getter, $setter, $isCollection, $this->meta, $nullable);
     }
 }

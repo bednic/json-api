@@ -104,13 +104,14 @@ class DocumentParser
     }
 
     /**
-     * @param array $collection
+     * @param array<object> $collection
      *
-     * @return ResourceCollection
+     * @return ResourceCollection<ResourceObject|ResourceObjectIdentifier>
      * @throws AlreadyInUse
      * @throws Conflict
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
+     * @throws UnexpectedFieldDataType
      */
     private function parseCollection(array $collection): ResourceCollection
     {
@@ -162,7 +163,7 @@ class DocumentParser
     /**
      * @param object $object
      *
-     * @return array
+     * @return array<Attribute>
      * @throws ForbiddenCharacter
      * @throws UnexpectedFieldDataType
      */
@@ -219,7 +220,7 @@ class DocumentParser
     /**
      * @param object $object
      *
-     * @return array
+     * @return array<Relationship>
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws UnexpectedFieldDataType

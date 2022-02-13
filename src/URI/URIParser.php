@@ -141,7 +141,7 @@ final class URIParser
      *
      * @throws BadRequest
      */
-    private function check(ServerRequestInterface $request)
+    private function check(ServerRequestInterface $request): void
     {
         $this->logger->debug('Checking allowed query parts.');
         if (

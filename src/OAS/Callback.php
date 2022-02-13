@@ -46,7 +46,7 @@ class Callback extends Reference implements Serializable
         return $static;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         if ($this->isReference()) {
             return parent::jsonSerialize();

@@ -7,7 +7,9 @@ namespace JSONAPI\OAS;
 use JSONAPI\Document\Serializable;
 use JSONAPI\Exception\OAS\DuplicationEntryException;
 use JSONAPI\Exception\OAS\InvalidArgumentException;
+use JSONAPI\Exception\OAS\OpenAPIException;
 use JSONAPI\Exception\OAS\ReferencedObjectNotExistsException;
+use ReflectionException;
 
 /**
  * Class Components
@@ -49,7 +51,7 @@ class Components implements Serializable
      */
     private array $links = [];
     /**
-     * @var Callback[]
+     * @var array<Callback>
      */
     private array $callbacks = [];
 
@@ -61,9 +63,6 @@ class Components implements Serializable
      */
     public function addSchema(string $key, Schema $schema): Components
     {
-        if ($this->schemas === null) {
-            $this->schemas = [];
-        }
         $this->schemas[$key] = $schema;
         return $this;
     }
@@ -72,6 +71,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return Schema
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createSchemaReference(string $key): Schema
@@ -100,6 +100,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return Response
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createResponseReference(string $key): Response
@@ -138,6 +139,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return Parameter
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createParameterReference(string $key): Parameter
@@ -158,9 +160,6 @@ class Components implements Serializable
      */
     public function addExample(string $key, Example $example): Components
     {
-        if ($this->examples === null) {
-            $this->examples = [];
-        }
         $this->examples[$key] = $example;
         return $this;
     }
@@ -169,6 +168,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return Example
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createExampleReference(string $key): Example
@@ -189,9 +189,6 @@ class Components implements Serializable
      */
     public function addRequestBody(string $key, RequestBody $requestBody): Components
     {
-        if ($this->requestBodies === null) {
-            $this->requestBodies = [];
-        }
         $this->requestBodies[$key] = $requestBody;
         return $this;
     }
@@ -200,6 +197,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return RequestBody
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createRequestBodyReference(string $key): RequestBody
@@ -219,9 +217,6 @@ class Components implements Serializable
      */
     public function addHeader(Header $header): Components
     {
-        if ($this->headers === null) {
-            $this->headers = [];
-        }
         $this->headers[$header->getName()] = $header;
         return $this;
     }
@@ -230,6 +225,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return Header
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createHeaderReference(string $key): Header
@@ -250,9 +246,6 @@ class Components implements Serializable
      */
     public function addSecurityScheme(string $key, SecurityScheme $securityScheme): Components
     {
-        if ($this->securitySchemes === null) {
-            $this->securitySchemes = [];
-        }
         $this->securitySchemes[$key] = $securityScheme;
         return $this;
     }
@@ -261,6 +254,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return SecurityScheme
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createSecuritySchemeReference(string $key): SecurityScheme
@@ -289,6 +283,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return Link
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createLinkReference(string $key): Link
@@ -317,6 +312,7 @@ class Components implements Serializable
      * @param string $key
      *
      * @return Callback
+     * @throws OpenAPIException
      * @throws ReferencedObjectNotExistsException
      */
     public function createCallbackReference(string $key): Callback
@@ -329,7 +325,7 @@ class Components implements Serializable
         return Callback::createReference($to, $origin);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [];
         if ($this->schemas) {

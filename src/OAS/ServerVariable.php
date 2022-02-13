@@ -37,7 +37,7 @@ class ServerVariable implements Serializable
     }
 
     /**
-     * @param array $enum
+     * @param string[] $enum
      */
     public function setEnum(array $enum): void
     {
@@ -58,7 +58,7 @@ class ServerVariable implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [
             'default' => $this->default

@@ -33,7 +33,7 @@ class SecurityScheme extends Reference implements Serializable
     private string $name;
     /**
      * @var In
-     * @example In::QUERY(), In:HEADER(), In::COOKIE()
+     * @example In::QUERY, In:HEADER, In::COOKIE
      */
     private In $in;
     /**
@@ -75,7 +75,7 @@ class SecurityScheme extends Reference implements Serializable
         OAuthFlows $flows,
         string $openIdConnectUrl
     ) {
-        if ($in->equals(In::PATH())) {
+        if ($in === In::PATH) {
             throw new InvalidArgumentException();
         }
         if (filter_var($openIdConnectUrl, FILTER_VALIDATE_URL, FILTER_NULL_ON_FAILURE) === null) {
@@ -125,7 +125,7 @@ class SecurityScheme extends Reference implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         if ($this->isReference()) {
             return parent::jsonSerialize();

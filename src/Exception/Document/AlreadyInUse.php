@@ -13,8 +13,17 @@ use JSONAPI\Exception\HasPointer;
  */
 class AlreadyInUse extends DocumentException implements HasPointer
 {
+    /**
+     * @var int
+     */
     protected $code = 524;
+    /**
+     * @var string
+     */
     protected $message = "Field name %s is reserved or used yet. Please use different field name.";
+    /**
+     * @var string
+     */
     private string $field;
 
     /**

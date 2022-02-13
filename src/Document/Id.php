@@ -29,7 +29,7 @@ final class Id extends Field
     }
 
     /**
-     * @param string|null $data
+     * @param mixed $data
      *
      * @throws ForbiddenDataType
      */

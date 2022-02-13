@@ -21,10 +21,13 @@ use Traversable;
  */
 class DoctrineCollectionAdapter extends Collection
 {
+    /**
+     * @var DoctrineCollection<int|string, mixed>
+     */
     private DoctrineCollection $collection;
 
     /**
-     * @inheritDoc
+     * @param DoctrineCollection<int|string, mixed> $collection
      */
     public function __construct(DoctrineCollection $collection)
     {
@@ -175,7 +178,7 @@ class DoctrineCollectionAdapter extends Collection
     }
 
     /**
-     * @return DoctrineCollection
+     * @return DoctrineCollection<int|string, mixed>
      */
     public function getCollection(): DoctrineCollection
     {

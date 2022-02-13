@@ -14,7 +14,13 @@ use JSONAPI\Exception\JsonApiException;
  */
 class BadRequest extends JsonApiException
 {
+    /**
+     * @var int
+     */
     protected $code = StatusCodeInterface::STATUS_BAD_REQUEST;
+    /**
+     * @var string
+     */
     protected $message = "Bad Request";
 
     /**

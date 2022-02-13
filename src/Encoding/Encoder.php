@@ -15,6 +15,7 @@ use JSONAPI\Document\ResourceObjectIdentifier;
 use JSONAPI\Document\Type;
 use JSONAPI\Exception\Document\ForbiddenCharacter;
 use JSONAPI\Exception\Document\ForbiddenDataType;
+use JSONAPI\Exception\JsonApiException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Helper\DoctrineProxyTrait;
 use JSONAPI\Metadata\MetadataRepository;
@@ -50,7 +51,7 @@ class Encoder
      *
      * @param MetadataRepository   $metadataRepository
      * @param LoggerInterface|null $logger
-     * @param array                $processors
+     * @param Processor[]          $processors
      */
     public function __construct(
         MetadataRepository $metadataRepository,
@@ -77,6 +78,7 @@ class Encoder
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws MetadataNotFound
+     * @throws JsonApiException
      */
     public function encode(object $object): ResourceObject
     {
@@ -109,7 +111,7 @@ class Encoder
     /**
      * @param object $object
      *
-     * @return array
+     * @return array{Type, Id}
      * @throws ForbiddenCharacter
      * @throws ForbiddenDataType
      * @throws MetadataNotFound
@@ -124,7 +126,7 @@ class Encoder
         } else {
             $value = (string)call_user_func([$object, $metadata->getId()->getter]);
         }
-        $id       = new Id($value);
+        $id = new Id($value);
         return [$type, $id];
     }
 }

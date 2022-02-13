@@ -44,7 +44,7 @@ class Discriminator implements Serializable
         return $this;
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [
             'propertyName' => $this->propertyName

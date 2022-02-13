@@ -25,7 +25,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      *
      * @throws AlreadyInUse
      */
-    public function addAttribute(Attribute $attribute)
+    public function addAttribute(Attribute $attribute): void
     {
         $this->addField($attribute);
     }
@@ -35,7 +35,7 @@ final class ResourceObject extends ResourceObjectIdentifier implements HasLinks,
      *
      * @throws AlreadyInUse
      */
-    public function addRelationship(Relationship $relationship)
+    public function addRelationship(Relationship $relationship): void
     {
         $this->addField($relationship);
     }

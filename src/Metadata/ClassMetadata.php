@@ -36,7 +36,7 @@ final class ClassMetadata
     private Metadata\Id $id;
 
     /**
-     * @var Collection
+     * @var Collection<Field>
      */
     private Collection $fields;
     /**

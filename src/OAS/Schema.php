@@ -7,6 +7,7 @@ namespace JSONAPI\OAS;
 use JSONAPI\Document\Serializable;
 use JSONAPI\Exception\OAS\IncompleteObjectException;
 use JSONAPI\Exception\OAS\InvalidArgumentException;
+use JSONAPI\Exception\OAS\OpenAPIException;
 use ReflectionClass;
 
 /**
@@ -17,25 +18,25 @@ use ReflectionClass;
 class Schema extends Reference implements Serializable
 {
     /**
-     * @var string
+     * @var string|null
      */
     private ?string $title = null;
     /**
      * Greater then 0
      *
-     * @var int
+     * @var int|null
      */
     private ?int $multipleOf = null;
     /**
-     * @var int
+     * @var int|null
      */
     private ?int $maximum = null;
     /**
-     * @var bool
+     * @var bool|null
      */
     private ?bool $exclusiveMaximum = null;
     /**
-     * @var int
+     * @var int|null
      */
     private ?int $minimum = null;
     /**
@@ -45,23 +46,23 @@ class Schema extends Reference implements Serializable
     /**
      * Greater or equal to 0
      *
-     * @var int
+     * @var int|null
      */
     private ?int $maxLength = null;
     /**
-     * @var int
+     * @var int|null
      */
     private ?int $minLength = null;
     /**
-     * @var string
+     * @var string|null
      */
     private ?string $pattern = null;
     /**
-     * @var int
+     * @var int|null
      */
     private ?int $maxItems = null;
     /**
-     * @var int
+     * @var int|null
      */
     private ?int $minItems = null;
     /***
@@ -69,11 +70,11 @@ class Schema extends Reference implements Serializable
      */
     private ?bool $uniqueItems = null;
     /**
-     * @var int
+     * @var int|null
      */
     private ?int $maxProperties = null;
     /**
-     * @var int
+     * @var int|null
      */
     private ?int $minProperties = null;
     /**
@@ -81,7 +82,7 @@ class Schema extends Reference implements Serializable
      */
     private ?array $required = null;
     /**
-     * @var mixed[]
+     * @var array<string>
      */
     private array $enum = [];
     /**
@@ -102,13 +103,13 @@ class Schema extends Reference implements Serializable
      */
     private array $anyOf = [];
     /**
-     * @var Schema
+     * @var Schema|null
      */
     private ?Schema $not = null;
     /**
      * Must by present if ::type is 'array'
      *
-     * @var Schema
+     * @var Schema|null
      */
     private ?Schema $items = null;
     /**
@@ -116,49 +117,49 @@ class Schema extends Reference implements Serializable
      */
     private array $properties = [];
     /**
-     * @var bool|Schema[]|null
+     * @var bool|Schema|null
      */
-    private $additionalProperties = null;
+    private Schema|bool|null $additionalProperties = null;
     /**
-     * @var string
+     * @var string|null
      */
     private ?string $description = null;
     /**
-     * @var string
+     * @var string|null
      */
     private ?string $format = null;
     /**
      * @var mixed
      */
-    private $default = null;
+    private mixed $default = null;
     /**
-     * @var bool
+     * @var bool|null
      */
     private ?bool $nullable = null;
     /**
-     * @var Discriminator
+     * @var Discriminator|null
      */
     private ?Discriminator $discriminator = null;
     /**
-     * @var bool
+     * @var bool|null
      */
     private ?bool $readOnly = null;
     /**
-     * @var bool
+     * @var bool|null
      */
     private ?bool $writeOnly = null;
     /**
-     * @var XML
+     * @var XML|null
      */
     private ?XML $xml = null;
     /**
-     * @var ExternalDocumentation
+     * @var ExternalDocumentation|null
      */
     private ?ExternalDocumentation $externalDocs = null;
     /**
      * @var mixed
      */
-    private $example = null;
+    private mixed $example = null;
     /**
      * @var bool
      */
@@ -169,10 +170,14 @@ class Schema extends Reference implements Serializable
      */
     public static function createReference(string $to, $origin): Schema
     {
-        /** @var Schema $static */
-        $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor(); //NOSONAR
-        $static->setRef($to, $origin);
-        return $static;
+        try {
+            /** @var Schema $static */
+            $static = (new ReflectionClass(__CLASS__))->newInstanceWithoutConstructor(); //NOSONAR
+            $static->setRef($to, $origin);
+            return $static;
+        } catch (\ReflectionException $exception) {
+            throw OpenAPIException::createFromPrevious($exception);
+        }
     }
 
     public static function new(): Schema
@@ -435,18 +440,13 @@ class Schema extends Reference implements Serializable
     }
 
     /**
-     * @param Schema|bool $additionalProperties
+     * @param bool|Schema $additionalProperties
      *
      * @return Schema
-     * @throws InvalidArgumentException
      */
-    public function setAdditionalProperties($additionalProperties): Schema
+    public function setAdditionalProperties(Schema|bool $additionalProperties = true): Schema
     {
-        if ($additionalProperties instanceof Schema || is_bool($additionalProperties)) {
-            $this->additionalProperties = $additionalProperties;
-        } else {
-            throw new InvalidArgumentException();
-        }
+        $this->additionalProperties = $additionalProperties;
         return $this;
     }
 
@@ -571,7 +571,10 @@ class Schema extends Reference implements Serializable
         return $this;
     }
 
-    public function jsonSerialize()
+    /**
+     * @throws IncompleteObjectException
+     */
+    public function jsonSerialize(): object
     {
         if ($this->isReference()) {
             return parent::jsonSerialize();

@@ -1,111 +1,85 @@
 <?php
-
+//phpcs:ignoreFile
 declare(strict_types=1);
 
 namespace JSONAPI\URI\Filtering;
-
-use MyCLabs\Enum\Enum;
 
 /**
  * Class ExpressionTokenId
  *
  * @package JSONAPI\URI\Filtering
- * @method static ExpressionTokenId UNKNOWN()
- * @method static ExpressionTokenId END()
- * @method static ExpressionTokenId EQUAL()
- * @method static ExpressionTokenId IDENTIFIER()
- * @method static ExpressionTokenId NULL_LITERAL()
- * @method static ExpressionTokenId BOOLEAN_LITERAL()
- * @method static ExpressionTokenId STRING_LITERAL()
- * @method static ExpressionTokenId INTEGER_LITERAL()
- * @method static ExpressionTokenId INT64_LITERAL()
- * @method static ExpressionTokenId SINGLE_LITERAL()
- * @method static ExpressionTokenId DATETIME_LITERAL()
- * @method static ExpressionTokenId DECIMAL_LITERAL()
- * @method static ExpressionTokenId DOUBLE_LITERAL()
- * @method static ExpressionTokenId GUID_LITERAL()
- * @method static ExpressionTokenId BINARY_LITERAL()
- * @method static ExpressionTokenId EXCLAMATION()
- * @method static ExpressionTokenId OPENPARAM()
- * @method static ExpressionTokenId CLOSEPARAM()
- * @method static ExpressionTokenId COMMA()
- * @method static ExpressionTokenId MINUS()
- * @method static ExpressionTokenId SLASH()
- * @method static ExpressionTokenId QUESTION()
- * @method static ExpressionTokenId DOT()
- * @method static ExpressionTokenId STAR()
  */
-class ExpressionTokenId extends Enum
+enum ExpressionTokenId
 {
     //Unknown.
-    public const UNKNOWN = 1;
+    case UNKNOWN;
 
     //End of text.
-    public const END = 2;
+    case END;
 
     //'=' - equality character.
-    public const EQUAL = 3;
+    case EQUAL;
 
     //Identifier.
-    public const IDENTIFIER = 4;
+    case IDENTIFIER;
 
     //NullLiteral.
-    public const NULL_LITERAL = 5;
+    case NULL_LITERAL;
 
     //BooleanLiteral.
-    public const BOOLEAN_LITERAL = 6;
+    case BOOLEAN_LITERAL;
 
     //StringLiteral.
-    public const STRING_LITERAL = 7;
+    case STRING_LITERAL;
 
     //IntegerLiteral. (int32)
-    public const INTEGER_LITERAL = 8;
+    case INTEGER_LITERAL;
 
     //Int64 literal.
-    public const INT64_LITERAL = 9;
+    case INT64_LITERAL;
 
     //Single literal. (float)
-    public const SINGLE_LITERAL = 10;
+    case SINGLE_LITERAL;
 
     //DateTime literal.
-    public const DATETIME_LITERAL = 11;
+    case DATETIME_LITERAL;
 
     //Decimal literal.
-    public const DECIMAL_LITERAL = 12;
+    case DECIMAL_LITERAL;
 
     //Double literal.
-    public const DOUBLE_LITERAL = 13;
+    case DOUBLE_LITERAL;
 
     //GUID literal.
-    public const GUID_LITERAL = 14;
+    case GUID_LITERAL;
 
     //Binary literal.
-    public const BINARY_LITERAL = 15;
+    case BINARY_LITERAL;
 
     //Exclamation.
-    public const EXCLAMATION = 16;
+    case EXCLAMATION;
 
     //OpenParen.
-    public const OPENPARAM = 17;
+    case OPEN_PARAM;
 
     //CloseParen.
-    public const CLOSEPARAM = 18;
+    case CLOSE_PARAM;
 
     //Comma.
-    public const COMMA = 19;
+    case COMMA;
 
     //Minus.
-    public const MINUS = 20;
+    case MINUS;
 
     //Slash.
-    public const SLASH = 21;
+    case SLASH;
 
     //Question.
-    public const QUESTION = 22;
+    case QUESTION;
 
     //Dot.
-    public const DOT = 23;
+    case DOT;
 
     //Star.
-    public const STAR = 24;
+    case STAR;
 }

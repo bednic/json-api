@@ -11,8 +11,17 @@ namespace JSONAPI\Exception\Document;
  */
 abstract class FieldNotExist extends DocumentException
 {
+    /**
+     * @var int
+     */
     protected $code = 526;
+    /**
+     * @var string
+     */
     protected $message = "Field %s is not set.";
+    /**
+     * @var string
+     */
     protected string $field;
 
     /**

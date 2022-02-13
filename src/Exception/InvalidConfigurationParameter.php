@@ -18,6 +18,9 @@ use Throwable;
  */
 class InvalidConfigurationParameter extends InvalidArgumentException
 {
+    /**
+     * @var int
+     */
     protected $code = 551;
 
     /**

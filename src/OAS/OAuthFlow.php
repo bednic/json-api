@@ -26,7 +26,7 @@ class OAuthFlow implements Serializable
      */
     private ?string $refreshUrl = null;
     /**
-     * @var string[]
+     * @var array<string>
      */
     private array $scopes;
 
@@ -35,7 +35,7 @@ class OAuthFlow implements Serializable
      *
      * @param string $authorizationUrl
      * @param string $tokenUrl
-     * @param array  $scopes
+     * @param array<string>  $scopes
      */
     public function __construct(string $authorizationUrl, string $tokenUrl, array $scopes = [])
     {
@@ -70,7 +70,7 @@ class OAuthFlow implements Serializable
     /**
      * @inheritDoc
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): object
     {
         $ret = [
             'authorizationUrl' => $this->authorizationUrl,

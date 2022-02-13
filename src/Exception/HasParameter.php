@@ -11,5 +11,8 @@ namespace JSONAPI\Exception;
  */
 interface HasParameter
 {
+    /**
+     * @return string
+     */
     public function getParameter(): string;
 }

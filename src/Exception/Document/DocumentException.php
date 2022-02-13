@@ -13,6 +13,12 @@ use JSONAPI\Exception\JsonApiException;
  */
 class DocumentException extends JsonApiException
 {
+    /**
+     * @var int
+     */
     protected $code = 520;
+    /**
+     * @var string
+     */
     protected $message = "Unknown Document Exception.";
 }

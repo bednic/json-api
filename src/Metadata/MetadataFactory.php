@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Metadata;
 
+use Composer\Autoload\ClassMapGenerator;
 use JSONAPI\Driver\Driver;
 use JSONAPI\Exception\Driver\ClassNotExist;
 use JSONAPI\Exception\Driver\ClassNotResource;
@@ -15,7 +16,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Psr\SimpleCache\CacheInterface;
 use Psr\SimpleCache\InvalidArgumentException as CacheException;
-use Symfony\Component\ClassLoader\ClassMapGenerator;
 use Symfony\Component\String\Slugger\AsciiSlugger;
 
 /**
@@ -43,13 +43,9 @@ class MetadataFactory
     /**
      * @var LoggerInterface
      */
-    private LoggerInterface $logger;
+    private readonly LoggerInterface $logger;
     /**
-     * @var array
-     */
-    private array $typeToClassMap = [];
-    /**
-     * @var array
+     * @var array<ClassMetadata>
      */
     private array $metadata = [];
     /**
@@ -90,6 +86,7 @@ class MetadataFactory
      */
     private function load(): void
     {
+        $this->logger->debug("Start loading metadata.");
         $key = $this->slugger->slug(get_class($this))->toString();
         try {
             if ($this->cache->has($key)) {
@@ -102,23 +99,25 @@ class MetadataFactory
         } catch (CacheException $ignored) {
             // NO SONAR
         }
+        $this->logger->debug("Metadata loaded.");
     }
 
     /**
      * @param string $className
+     * @phpstan-param class-string $className
      *
      * @throws DriverException
      * @throws MetadataException
      */
-    private function loadMetadata(string $className)
+    private function loadMetadata(string $className): void
     {
         $classMetadata = $this->getMetadataByClass($className);
         $this->metadata[$className] = $classMetadata;
-        $this->typeToClassMap[$classMetadata->getType()] = $className;
     }
 
     /**
      * @param string $className
+     * @phpstan-param class-string $className
      *
      * @return ClassMetadata
      * @throws DriverException
@@ -152,7 +151,7 @@ class MetadataFactory
             if (!is_dir($path)) {
                 throw new InvalidArgumentException("Path '$path' is not directory.");
             }
-            $map = ClassMapGenerator::createMap($path); //todo: resolve this
+            $map = ClassMapGenerator::createMap($path);
             foreach ($map as $className => $file) {
                 try {
                     $this->loadMetadata($className);
@@ -169,7 +168,7 @@ class MetadataFactory
     }
 
     /**
-     * @param array                $paths
+     * @param array<string>                $paths
      * @param CacheInterface       $cache
      * @param Driver               $driver
      * @param LoggerInterface|null $logger
