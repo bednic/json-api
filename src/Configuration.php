@@ -9,13 +9,12 @@ declare(strict_types=1);
 
 namespace JSONAPI;
 
-use JSONAPI\Exception\InvalidArgumentException;
 use JSONAPI\Exception\InvalidConfigurationParameter;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Fieldset\FieldsetParser;
 use JSONAPI\URI\Fieldset\FieldsetParserInterface;
-use JSONAPI\URI\Filtering\ExpressionFilterParser;
 use JSONAPI\URI\Filtering\FilterParserInterface;
+use JSONAPI\URI\Filtering\OData\ExpressionFilterParser;
 use JSONAPI\URI\Inclusion\InclusionParser;
 use JSONAPI\URI\Inclusion\InclusionParserInterface;
 use JSONAPI\URI\Pagination\LimitOffsetPagination;

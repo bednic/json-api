@@ -10,10 +10,11 @@ use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\URI\Filtering\Constants;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
+use JSONAPI\URI\Filtering\OData\Constants;
+use JSONAPI\URI\Filtering\UseDottedIdentifier;
 use JSONAPI\URI\Path\PathInterface;
 use RuntimeException;
 

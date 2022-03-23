@@ -8,10 +8,10 @@ use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\Common\Collections\ExpressionBuilder as Expr;
-use JSONAPI\URI\Filtering\Constants;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
+use JSONAPI\URI\Filtering\OData\Constants;
 use RuntimeException;
 
 /**
@@ -355,5 +355,10 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(Constants::LOGICAL_HAS)
         );
+    }
+
+    public function parseIdentifier(string $identifier): mixed
+    {
+        return $identifier;
     }
 }

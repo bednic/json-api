@@ -15,7 +15,7 @@ use JSONAPI\Exception\InvalidConfigurationParameter;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
 use JSONAPI\URI\Fieldset\FieldsetParser;
-use JSONAPI\URI\Filtering\ExpressionFilterParser;
+use JSONAPI\URI\Filtering\OData\ExpressionFilterParser;
 use JSONAPI\URI\Inclusion\InclusionParser;
 use JSONAPI\URI\Pagination\LimitOffsetPagination;
 use JSONAPI\URI\Path\PathParser;

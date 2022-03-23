@@ -13,12 +13,11 @@ use JSONAPI\Configuration;
 use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\URI\Filtering\Builder\ClosureExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\DoctrineCriteriaExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\DoctrineQueryExpressionBuilder;
-use JSONAPI\URI\Filtering\ExpressionFilterParser;
+use JSONAPI\URI\Filtering\Builder\RichExpressionBuilder;
+use JSONAPI\URI\Filtering\OData\ExpressionFilterParser;
 use JSONAPI\URI\URIParser;
-use PHP_CodeSniffer\Config;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
 use stdClass;
@@ -127,7 +126,7 @@ class ExpressionFilterParserTest extends TestCase
             "boolProperty ne true" .
             " and " .
             "dateProperty eq datetime'2020-12-01'";
-        $parser              = new ExpressionFilterParser(new ClosureExpressionBuilder());
+        $parser              = new ExpressionFilterParser(new RichExpressionBuilder());
         $parser->parse($url);
         $visitor = new ClosureResolver();
         $filter  = $visitor->dispatch($parser->getCondition());

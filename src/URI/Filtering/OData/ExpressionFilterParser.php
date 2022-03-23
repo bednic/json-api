@@ -2,12 +2,17 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\URI\Filtering;
+namespace JSONAPI\URI\Filtering\OData;
 
 use DateTime;
 use Exception;
-use JSONAPI\URI\Filtering\Builder\ClosureExpressionBuilder;
-use JSONAPI\URI\Filtering\Builder\UseDottedIdentifier;
+use JSONAPI\URI\Filtering\ExpressionBuilder;
+use JSONAPI\URI\Filtering\ExpressionException;
+use JSONAPI\URI\Filtering\FilterInterface;
+use JSONAPI\URI\Filtering\FilterParserInterface;
+use JSONAPI\URI\Filtering\Messages;
+use JSONAPI\URI\Filtering\Builder\RichExpressionBuilder;
+use JSONAPI\URI\Filtering\UseDottedIdentifier;
 
 /**
  * Class ExpressionFilterParser
@@ -39,11 +44,12 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     public function __construct(ExpressionBuilder $exp = null)
     {
-        $this->exp = $exp ?? new ClosureExpressionBuilder();
+        $this->exp = $exp ?? new RichExpressionBuilder();
     }
 
     /**
      * @return array<string,string>
+     * @deprecated
      */
     public function getRequiredJoins(): array
     {
@@ -51,6 +57,11 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
             return $this->exp->getRequiredJoins();
         }
         return [];
+    }
+
+    public function getBuilder(): ExpressionBuilder
+    {
+        return $this->exp;
     }
 
     /**
@@ -420,11 +431,8 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     private function parsePropertyAccess(): mixed
     {
-        $property = $this->lexer->readDottedIdentifier();
-        if ($this->exp instanceof UseDottedIdentifier) {
-            $property = $this->exp->parseIdentifier($property);
-        }
-        return $property;
+        $identifier = $this->lexer->readDottedIdentifier();
+        return $this->exp->parseIdentifier($identifier);
     }
 
     /**

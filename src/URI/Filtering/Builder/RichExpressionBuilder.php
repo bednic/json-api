@@ -10,17 +10,18 @@ use ExpressionBuilder\Expression\Literal;
 use ExpressionBuilder\Expression\TBoolean;
 use ExpressionBuilder\Expression\TNumeric;
 use ExpressionBuilder\Expression\TString;
-use JSONAPI\URI\Filtering\Constants;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
+use JSONAPI\URI\Filtering\OData\Constants;
+use JSONAPI\URI\Filtering\UseDottedIdentifier;
 
 /**
  * Class ClosureExpressionBuilder
  *
  * @package JSONAPI\URI\Filtering\Builder
  */
-class ClosureExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
+class RichExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
 {
     /**
      * @inheritDoc

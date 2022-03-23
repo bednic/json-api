@@ -372,4 +372,11 @@ interface ExpressionBuilder
      * @throws ExpressionException
      */
     public function year(mixed $column): mixed;
+
+    /**
+     * @param string $identifier
+     *
+     * @return mixed
+     */
+    public function parseIdentifier(string $identifier): mixed;
 }
