@@ -6,12 +6,13 @@ namespace JSONAPI\URI\Filtering\OData;
 
 use DateTime;
 use Exception;
+use JSONAPI\URI\Filtering\Builder\RichExpressionBuilder;
+use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\FilterInterface;
 use JSONAPI\URI\Filtering\FilterParserInterface;
 use JSONAPI\URI\Filtering\Messages;
-use JSONAPI\URI\Filtering\Builder\RichExpressionBuilder;
 use JSONAPI\URI\Filtering\UseDottedIdentifier;
 
 /**
@@ -19,7 +20,7 @@ use JSONAPI\URI\Filtering\UseDottedIdentifier;
  *
  * @package JSONAPI\URI\Filtering
  */
-class ExpressionFilterParser implements FilterInterface, FilterParserInterface
+class ExpressionFilterParser implements FilterParserInterface
 {
     /**
      * @var ExpressionLexer|null
@@ -45,31 +46,6 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     public function __construct(ExpressionBuilder $exp = null)
     {
         $this->exp = $exp ?? new RichExpressionBuilder();
-    }
-
-    /**
-     * @return array<string,string>
-     * @deprecated
-     */
-    public function getRequiredJoins(): array
-    {
-        if ($this->exp instanceof UseDottedIdentifier) {
-            return $this->exp->getRequiredJoins();
-        }
-        return [];
-    }
-
-    public function getBuilder(): ExpressionBuilder
-    {
-        return $this->exp;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getCondition(): mixed
-    {
-        return $this->condition;
     }
 
     /**
@@ -104,7 +80,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseLogicalOr(): mixed
     {
         $left = $this->parseLogicalAnd();
-        while ($this->lexer->getCurrentToken()->identifierIs(Constants::LOGICAL_OR)) {
+        while ($this->lexer->getCurrentToken()->identifierIs(KeyWord::LOGICAL_OR)) {
             $this->lexer->nextToken();
             $right = $this->parseLogicalAnd();
             $left = $this->exp->or($left, $right);
@@ -122,7 +98,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     private function parseLogicalAnd(): mixed
     {
         $left = $this->parseComparison();
-        while ($this->lexer->getCurrentToken()->identifierIs(Constants::LOGICAL_AND)) {
+        while ($this->lexer->getCurrentToken()->identifierIs(KeyWord::LOGICAL_AND)) {
             $this->lexer->nextToken();
             $right = $this->parseComparison();
             $left = $this->exp->and($left, $right);
@@ -142,13 +118,13 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
         while ($this->lexer->getCurrentToken()->isComparisonOperator()) {
             $comparisonToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
-            if ($comparisonToken->identifierIs(Constants::LOGICAL_IN)) {
+            if ($comparisonToken->identifierIs(KeyWord::LOGICAL_IN)) {
                 $right = $this->parseArgumentList();
                 $left = $this->exp->{$comparisonToken->text}($left, $right);
             } elseif ($this->lexer->getCurrentToken()->id === ExpressionTokenId::NULL_LITERAL) {
-                if ($comparisonToken->identifierIs(Constants::LOGICAL_EQUAL)) {
+                if ($comparisonToken->identifierIs(KeyWord::LOGICAL_EQUAL)) {
                     $left = $this->exp->isNull($left);
-                } elseif ($comparisonToken->identifierIs(Constants::LOGICAL_NOT_EQUAL)) {
+                } elseif ($comparisonToken->identifierIs(KeyWord::LOGICAL_NOT_EQUAL)) {
                     $left = $this->exp->isNotNull($left);
                 } else {
                     throw new ExpressionException(
@@ -177,8 +153,8 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         $left = $this->parseMultiplicative();
         while (
-            $this->lexer->getCurrentToken()->identifierIs(Constants::ARITHMETIC_ADDITION) ||
-            $this->lexer->getCurrentToken()->identifierIs(Constants::ARITHMETIC_SUBTRACTION)
+            $this->lexer->getCurrentToken()->identifierIs(KeyWord::ARITHMETIC_ADDITION) ||
+            $this->lexer->getCurrentToken()->identifierIs(KeyWord::ARITHMETIC_SUBTRACTION)
         ) {
             $additiveToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
@@ -198,9 +174,9 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         $left = $this->parseUnary();
         while (
-            $this->lexer->getCurrentToken()->identifierIs(Constants::ARITHMETIC_MULTIPLICATION) ||
-            $this->lexer->getCurrentToken()->identifierIs(Constants::ARITHMETIC_DIVISION) ||
-            $this->lexer->getCurrentToken()->identifierIs(Constants::ARITHMETIC_MODULO)
+            $this->lexer->getCurrentToken()->identifierIs(KeyWord::ARITHMETIC_MULTIPLICATION) ||
+            $this->lexer->getCurrentToken()->identifierIs(KeyWord::ARITHMETIC_DIVISION) ||
+            $this->lexer->getCurrentToken()->identifierIs(KeyWord::ARITHMETIC_MODULO)
         ) {
             $multiplicativeToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
@@ -220,7 +196,7 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
     {
         if (
             $this->lexer->getCurrentToken()->id == ExpressionTokenId::MINUS ||
-            $this->lexer->getCurrentToken()->identifierIs(Constants::LOGICAL_NOT)
+            $this->lexer->getCurrentToken()->identifierIs(KeyWord::LOGICAL_NOT)
         ) {
             $op = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
@@ -298,8 +274,8 @@ class ExpressionFilterParser implements FilterInterface, FilterParserInterface
      */
     private function parseBoolean(): mixed
     {
-        $value = strcmp($this->lexer->getCurrentToken()->text, Constants::KEYWORD_TRUE) == 0;
-        $value = $this->exp->literal((bool)$value);
+        $value = KeyWord::tryFrom($this->lexer->getCurrentToken()->text) === KeyWord::RESERVED_TRUE;
+        $value = $this->exp->literal($value);
         $this->lexer->nextToken();
         return $value;
     }

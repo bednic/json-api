@@ -130,12 +130,12 @@ class Messages
     /**
      * Message thrown when operand or function is not implemented
      *
-     * @param string $fnOrOp operand or function string
+     * @param KeyWord $fnOrOp operand or function string
      *
      * @return string
      */
-    public static function operandOrFunctionNotImplemented(string $fnOrOp): string
+    public static function operandOrFunctionNotImplemented(KeyWord $fnOrOp): string
     {
-        return "Operand or function [{$fnOrOp}] not implemented.";
+        return "Operand or function [{$fnOrOp->value}] not implemented.";
     }
 }

@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace JSONAPI\URI\Filtering\OData;
 
 use Exception;
+use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
-
 use function JSONAPI\URI\Filtering\ctype_xdigit;
 
 /**
@@ -260,9 +260,9 @@ class ExpressionLexer
                 $this->token->id = ExpressionTokenId::DOUBLE_LITERAL;
             } elseif (self::isInfinityOrNanSingle($this->token->text)) {
                 $this->token->id = ExpressionTokenId::SINGLE_LITERAL;
-            } elseif ($this->token->text == Constants::KEYWORD_TRUE || $this->token->text == Constants::KEYWORD_FALSE) {
+            } elseif ($this->token->text == KeyWord::RESERVED_TRUE || $this->token->text == KeyWord::RESERVED_FALSE) {
                 $this->token->id = ExpressionTokenId::BOOLEAN_LITERAL;
-            } elseif ($this->token->text == Constants::KEYWORD_NULL) {
+            } elseif ($this->token->text == KeyWord::RESERVED_NULL) {
                 $this->token->id = ExpressionTokenId::NULL_LITERAL;
             }
         }
@@ -328,7 +328,7 @@ class ExpressionLexer
             $result = ExpressionTokenId::BINARY_LITERAL;
             do {
                 $this->nextChar();
-            } while (ctype_xdigit($this->ch));
+            } while (\ctype_xdigit($this->ch));
         } else {
             $result = ExpressionTokenId::INTEGER_LITERAL;
             while (self::isDigit($this->ch)) {
@@ -466,7 +466,7 @@ class ExpressionLexer
      */
     private static function isInfinityLiteralDouble(string $text): bool
     {
-        return strcmp($text, Constants::KEYWORD_INFINITY) == 0;
+        return KeyWord::tryFrom($text) === KeyWord::RESERVED_INFINITY;
     }
 
     /**
@@ -476,13 +476,14 @@ class ExpressionLexer
      *
      * @return bool true if the substring is equal using an ordinal comparison;
      *         false otherwise
+     * @todo Dude! WTF?
      */
     private static function isInfinityLiteralSingle(string $text): bool
     {
         return strlen($text) == 4
             && ($text[3] == ExpressionLexer::SINGLE_SUFFIX_LOWER
                 || $text[3] == ExpressionLexer::SINGLE_SUFFIX_UPPER)
-            && strncmp($text, Constants::KEYWORD_INFINITY, 3) == 0;
+            && strncmp($text, KeyWord::RESERVED_INFINITY->value, 3) == 0;
     }
 
     /**
@@ -553,7 +554,7 @@ class ExpressionLexer
             if ($tokenText[0] == 'I') {
                 return self::isInfinityLiteralDouble($tokenText);
             } elseif ($tokenText[0] == 'N') {
-                return strncmp($tokenText, Constants::KEYWORD_NOT_A_NUMBER, 3) == 0;
+                return strncmp($tokenText, KeyWord::RESERVED_NOT_A_NUMBER->value, 3) == 0;
             }
         }
 
@@ -575,7 +576,7 @@ class ExpressionLexer
             } elseif ($tokenText[0] == 'N') {
                 return ($tokenText[3] == ExpressionLexer::SINGLE_SUFFIX_LOWER
                         || $tokenText[3] == ExpressionLexer::SINGLE_SUFFIX_UPPER)
-                    && strncmp($tokenText, Constants::KEYWORD_NOT_A_NUMBER, 3) == 0;
+                    && strncmp($tokenText, KeyWord::RESERVED_NOT_A_NUMBER->value, 3) == 0;
             }
         }
 

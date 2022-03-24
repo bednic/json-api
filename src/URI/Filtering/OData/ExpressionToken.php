@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace JSONAPI\URI\Filtering\OData;
 
 use Exception;
+use JSONAPI\URI\Filtering\ExpressionException;
+use JSONAPI\URI\Filtering\KeyWord;
 
 /**
  * Class ExpressionToken
@@ -36,18 +38,14 @@ class ExpressionToken
      */
     public function isComparisonOperator(): bool
     {
-        return
-            $this->id === ExpressionTokenId::IDENTIFIER &&
-            (
-                strcmp($this->text, Constants::LOGICAL_EQUAL) === 0 ||
-                strcmp($this->text, Constants::LOGICAL_NOT_EQUAL) === 0 ||
-                strcmp($this->text, Constants::LOGICAL_LOWER_THAN) === 0 ||
-                strcmp($this->text, Constants::LOGICAL_LOWER_THAN_OR_EQUAL) === 0 ||
-                strcmp($this->text, Constants::LOGICAL_GREATER_THAN) === 0 ||
-                strcmp($this->text, Constants::LOGICAL_GREATER_THAN_OR_EQUAL) === 0 ||
-                strcmp($this->text, Constants::LOGICAL_HAS) === 0 ||
-                strcmp($this->text, Constants::LOGICAL_IN) === 0
-            );
+        $op = KeyWord::tryFrom($this->text);
+        return $op !== null && $this->id === ExpressionTokenId::IDENTIFIER && match ($op) {
+                KeyWord::LOGICAL_EQUAL, KeyWord::LOGICAL_NOT_EQUAL,
+                KeyWord::LOGICAL_LOWER_THAN, KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL,
+                KeyWord::LOGICAL_GREATER_THAN, KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL,
+                KeyWord::LOGICAL_IN => true,
+                default             => false
+        };
     }
 
     /**
@@ -59,13 +57,13 @@ class ExpressionToken
     public function isKeyValueToken(): bool
     {
         return match ($this->id) {
-            ExpressionTokenId::BINARY_LITERAL,
-            ExpressionTokenId::BOOLEAN_LITERAL,
-            ExpressionTokenId::DATETIME_LITERAL,
-            ExpressionTokenId::GUID_LITERAL,
-            ExpressionTokenId::STRING_LITERAL,
-            ExpressionTokenId::NULL_LITERAL => true,
-            default => false
+                   ExpressionTokenId::BINARY_LITERAL,
+                   ExpressionTokenId::BOOLEAN_LITERAL,
+                   ExpressionTokenId::DATETIME_LITERAL,
+                   ExpressionTokenId::GUID_LITERAL,
+                   ExpressionTokenId::STRING_LITERAL,
+                   ExpressionTokenId::NULL_LITERAL => true,
+                   default                         => false
         } || ExpressionLexer::isNumeric($this->id);
     }
 
@@ -75,7 +73,7 @@ class ExpressionToken
      * @return string
      * @throws Exception
      */
-    public function getIdentifier()
+    public function getIdentifier(): string
     {
         if ($this->id !== ExpressionTokenId::IDENTIFIER) {
             throw new ExpressionException(
@@ -89,13 +87,13 @@ class ExpressionToken
     /**
      * Checks that this token has the specified identifier.
      *
-     * @param string $keyWord Identifier to check
+     * @param KeyWord $keyWord Identifier to check
      *
      * @return bool true if this is an identifier with the specified text
      */
-    public function identifierIs(string $keyWord)
+    public function identifierIs(KeyWord $keyWord): bool
     {
-        return $this->id === ExpressionTokenId::IDENTIFIER
-            && strcmp($this->text, $keyWord) == 0;
+        $op = KeyWord::tryFrom($this->text);
+        return $this->id === ExpressionTokenId::IDENTIFIER && $op === $keyWord;
     }
 }

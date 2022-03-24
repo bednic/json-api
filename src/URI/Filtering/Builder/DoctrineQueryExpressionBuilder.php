@@ -6,14 +6,15 @@ namespace JSONAPI\URI\Filtering\Builder;
 
 use DateTimeInterface;
 use Doctrine\ORM\Query\Expr;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Metadata\MetadataRepository;
+use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
-use JSONAPI\URI\Filtering\OData\Constants;
 use JSONAPI\URI\Filtering\UseDottedIdentifier;
 use JSONAPI\URI\Path\PathInterface;
 use RuntimeException;
@@ -30,9 +31,9 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      */
     private Expr $exp;
     /**
-     * @var array<string, string>
+     * @var Collection<string, string>
      */
-    private array $joins = [];
+    private Collection $joins;
     /**
      * @var MetadataRepository
      */
@@ -50,6 +51,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
             );
         }
         $this->exp                = new Expr();
+        $this->joins              = new Collection();
         $this->metadataRepository = $metadataRepository;
         $this->path               = $path;
     }
@@ -129,16 +131,6 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function has(mixed $column, mixed $args): Expr\Func
-    {
-        throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::LOGICAL_HAS)
-        );
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function add(mixed $left, mixed $right): Expr\Math
     {
         return $this->exp->sum($left, $right);
@@ -173,7 +165,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      */
     public function mod(mixed $left, mixed $right): Expr\Math
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_MODULO));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::ARITHMETIC_MODULO));
     }
 
     /**
@@ -264,7 +256,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
      */
     public function indexOf(mixed $column, mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_INDEX_OF));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_INDEX_OF));
     }
 
     /**
@@ -273,7 +265,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     public function pattern(mixed $column, mixed $args): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_MATCHES_PATTERN)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_MATCHES_PATTERN)
         );
     }
 
@@ -283,7 +275,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     public function ceil(mixed $args): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_CEILING)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_CEILING)
         );
     }
 
@@ -293,7 +285,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     public function floor(mixed $args): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_FLOOR)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_FLOOR)
         );
     }
 
@@ -303,7 +295,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     public function round(mixed $args): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 
@@ -349,12 +341,12 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
         $parts         = [...explode(".", $identifier)];
         while ($part = array_shift($parts)) {
             if ($classMetadata->hasRelationship($part)) {
-                $rm                          = $this->metadataRepository->getByClass(
+                $rm = $this->metadataRepository->getByClass(
                     $classMetadata->getRelationship($part)->target
                 );
-                $this->joins[$rm->getType()] = $classMetadata->getType() . '.' . $part;
-                $identifier                  = $classMetadata->getType() . '.' . $part;
-                $classMetadata               = $this->metadataRepository->getByClass(
+                $this->joins->set($rm->getType(), $classMetadata->getType() . '.' . $part);
+                $identifier    = $classMetadata->getType() . '.' . $part;
+                $classMetadata = $this->metadataRepository->getByClass(
                     $classMetadata->getRelationship($part)->target
                 );
             } elseif ($classMetadata->hasAttribute($part) || $part === 'id') {
@@ -369,7 +361,7 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function getRequiredJoins(): array
+    public function getRequiredJoins(): Collection
     {
         return $this->joins;
     }
@@ -377,63 +369,56 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     public function date(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 
     public function day(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 
     public function hour(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 
     public function minute(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 
     public function month(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
-        );
-    }
-
-    public function now(): mixed
-    {
-        throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 
     public function second(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 
     public function time(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 
     public function year(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
     }
 }

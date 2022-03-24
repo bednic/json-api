@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace JSONAPI\URI\Filtering;
 
+use JSONAPI\Data\Collection;
+
 /**
  * Interface UseDottedIdentifier
  *
@@ -12,7 +14,7 @@ namespace JSONAPI\URI\Filtering;
 interface UseDottedIdentifier
 {
     /**
-     * @return array<string, string>
+     * @return Collection<string, string>
      */
-    public function getRequiredJoins(): array;
+    public function getRequiredJoins(): Collection;
 }

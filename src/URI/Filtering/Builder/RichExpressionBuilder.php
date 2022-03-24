@@ -8,20 +8,17 @@ use ExpressionBuilder\Ex;
 use ExpressionBuilder\Expression\Field;
 use ExpressionBuilder\Expression\Literal;
 use ExpressionBuilder\Expression\TBoolean;
+use ExpressionBuilder\Expression\TDateTime;
 use ExpressionBuilder\Expression\TNumeric;
 use ExpressionBuilder\Expression\TString;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
-use JSONAPI\URI\Filtering\ExpressionException;
-use JSONAPI\URI\Filtering\Messages;
-use JSONAPI\URI\Filtering\OData\Constants;
-use JSONAPI\URI\Filtering\UseDottedIdentifier;
 
 /**
  * Class ClosureExpressionBuilder
  *
  * @package JSONAPI\URI\Filtering\Builder
  */
-class RichExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
+class RichExpressionBuilder implements ExpressionBuilder
 {
     /**
      * @inheritDoc
@@ -93,14 +90,6 @@ class RichExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     public function in(mixed $column, mixed $args): TBoolean
     {
         return Ex::in($column, new Literal($args));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function has(mixed $column, mixed $args): TBoolean
-    {
-        return Ex::has($column, $args);
     }
 
 
@@ -267,22 +256,6 @@ class RichExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function isNull(mixed $column): TBoolean
-    {
-        return Ex::eq($column, new Literal(null));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isNotNull(mixed $column): TBoolean
-    {
-        return Ex::ne($column, new Literal(null));
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function literal(mixed $value): Literal
     {
         return Ex::literal($value);
@@ -291,7 +264,7 @@ class RichExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function date(mixed $column): TNumeric
+    public function date(mixed $column): TDateTime
     {
         return Ex::date($column);
     }
@@ -331,14 +304,6 @@ class RichExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function now(): mixed
-    {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_NOW));
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function second(mixed $column): TNumeric
     {
         return Ex::second($column);
@@ -347,7 +312,7 @@ class RichExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
     /**
      * @inheritDoc
      */
-    public function time(mixed $column): TNumeric
+    public function time(mixed $column): TDateTime
     {
         return Ex::time($column);
     }
@@ -365,14 +330,6 @@ class RichExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
      */
     public function parseIdentifier(string $identifier): Field
     {
-        return new Field($identifier);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getRequiredJoins(): array
-    {
-        return [];
+        return Ex::field($identifier);
     }
 }

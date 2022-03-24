@@ -8,10 +8,10 @@ use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
 use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\Common\Collections\ExpressionBuilder as Expr;
+use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
-use JSONAPI\URI\Filtering\OData\Constants;
 use RuntimeException;
 
 /**
@@ -111,7 +111,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function add(mixed $left, mixed $right): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_ADDITION));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::ARITHMETIC_ADDITION));
     }
 
     /**
@@ -119,7 +119,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function sub(mixed $left, mixed $right): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_SUBTRACTION));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::ARITHMETIC_SUBTRACTION));
     }
 
     /**
@@ -127,7 +127,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function mul(mixed $left, mixed $right): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_MULTIPLICATION));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::ARITHMETIC_MULTIPLICATION));
     }
 
     /**
@@ -135,7 +135,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function div(mixed $left, mixed $right): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_DIVISION));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::ARITHMETIC_DIVISION));
     }
 
     /**
@@ -143,7 +143,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function mod(mixed $left, mixed $right): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::ARITHMETIC_MODULO));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::ARITHMETIC_MODULO));
     }
 
     /**
@@ -151,7 +151,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function not(mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::LOGICAL_NOT));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::LOGICAL_NOT));
     }
 
     /**
@@ -159,7 +159,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function toupper(mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TO_UPPER));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_TO_UPPER));
     }
 
     /**
@@ -167,7 +167,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function tolower(mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TO_LOWER));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_TO_LOWER));
     }
 
     /**
@@ -175,7 +175,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function trim(mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TRIM));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_TRIM));
     }
 
     /**
@@ -183,7 +183,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function length(mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_LENGTH));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_LENGTH));
     }
 
     /**
@@ -191,7 +191,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function concat(mixed $column, mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_CONCAT));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_CONCAT));
     }
 
     /**
@@ -223,7 +223,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function substring(mixed $column, mixed $start, $end = null): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_SUBSTRING));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_SUBSTRING));
     }
 
     /**
@@ -231,7 +231,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function indexOf(mixed $column, mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_INDEX_OF));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_INDEX_OF));
     }
 
     /**
@@ -239,7 +239,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function pattern(mixed $column, mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_MATCHES_PATTERN));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_MATCHES_PATTERN));
     }
 
     /**
@@ -247,7 +247,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function ceil(mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_CEILING));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_CEILING));
     }
 
     /**
@@ -255,7 +255,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function floor(mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_FLOOR));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_FLOOR));
     }
 
     /**
@@ -263,20 +263,7 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
      */
     public function round(mixed $args): mixed
     {
-        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_ROUND));
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isNull(mixed $column): Comparison
-    {
-        return $this->exp->isNull($column);
-    }
-
-    public function isNotNull(mixed $column): Comparison
-    {
-        return new Comparison($column, Comparison::NEQ, new Value(null));
+        throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND));
     }
 
     /**
@@ -290,70 +277,56 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
     public function date(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_DATE)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_DATE)
         );
     }
 
     public function day(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_DAY)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_DAY)
         );
     }
 
     public function hour(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_HOUR)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_HOUR)
         );
     }
 
     public function minute(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_MINUTE)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_MINUTE)
         );
     }
 
     public function month(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_MONTH)
-        );
-    }
-
-    public function now(): mixed
-    {
-        throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_NOW)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_MONTH)
         );
     }
 
     public function second(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_SECOND)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_SECOND)
         );
     }
 
     public function time(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_TIME)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_TIME)
         );
     }
 
     public function year(mixed $column): mixed
     {
         throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::FUNCTION_YEAR)
-        );
-    }
-
-    public function has(mixed $column, mixed $args): mixed
-    {
-        throw new ExpressionException(
-            Messages::operandOrFunctionNotImplemented(Constants::LOGICAL_HAS)
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_YEAR)
         );
     }
 

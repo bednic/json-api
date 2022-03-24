@@ -94,15 +94,6 @@ interface ExpressionBuilder
     public function in(mixed $column, mixed $args): mixed;
 
     /**
-     * @param mixed $column
-     * @param mixed $args
-     *
-     * @return mixed
-     * @throws ExpressionException
-     */
-    public function has(mixed $column, mixed $args): mixed;
-
-    /**
      * Addition
      *
      * @param mixed $left
@@ -280,22 +271,6 @@ interface ExpressionBuilder
     public function round(mixed $args): mixed;
 
     /**
-     * @param mixed $column
-     *
-     * @return mixed
-     * @throws ExpressionException
-     */
-    public function isNull(mixed $column): mixed;
-
-    /**
-     * @param mixed $column
-     *
-     * @return mixed
-     * @throws ExpressionException
-     */
-    public function isNotNull(mixed $column): mixed;
-
-    /**
      * @param mixed $value
      *
      * @return mixed
@@ -342,12 +317,6 @@ interface ExpressionBuilder
      * @throws ExpressionException
      */
     public function month(mixed $column): mixed;
-
-    /**
-     * @return mixed
-     * @throws ExpressionException
-     */
-    public function now(): mixed;
 
     /**
      * @param mixed $column

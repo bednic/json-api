@@ -16,8 +16,8 @@ use JSONAPI\Data\Collection;
 use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Metadata\MetadataFactory;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\URI\Filtering\Builder\FieldExpressionBuilder;
-use JSONAPI\URI\Filtering\Quatrodot\FilterParser;
+use JSONAPI\URI\Filtering\Builder\FlatExpressionBuilder;
+use JSONAPI\URI\Filtering\QData\QuatrodotFilterParser;
 use JSONAPI\URI\URIParser;
 use PHPUnit\Framework\TestCase;
 use Slim\Psr7\Factory\ServerRequestFactory;
@@ -58,7 +58,7 @@ class FilterParserTest extends TestCase
     {
         $_SERVER["REQUEST_URI"] = '/getter?filter=name::contains::Bonus|category::eq::savings|category::eq::mortgages|inserted::gt::2015-01-13T02:13:40Z';
         $request                = ServerRequestFactory::createFromGlobals();
-        $parser                 = new FilterParser(new FieldExpressionBuilder());
+        $parser                 = new QuatrodotFilterParser(new FlatExpressionBuilder());
         $configuration          = new Configuration(
             self::$mr,
             self::$baseURL,
