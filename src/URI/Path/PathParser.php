@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JSONAPI\URI\Path;
 
 use Fig\Http\Message\RequestMethodInterface;
+use JSONAPI\Document\KeyWord;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Metadata\MetadataRepository;
 
@@ -58,7 +59,7 @@ class PathParser implements PathInterface, PathParserInterface
         string $baseURL
     ) {
         $this->metadataRepository = $metadataRepository;
-        $this->baseURL = $baseURL;
+        $this->baseURL            = $baseURL;
     }
 
     /**
@@ -70,29 +71,24 @@ class PathParser implements PathInterface, PathParserInterface
      */
     public function parse(string $data, string $method): PathInterface
     {
-        $this->method = $method;
-        $this->relationship = null;
+        $this->method         = $method;
+        $this->relationship   = null;
         $this->isRelationship = false;
-        $req = explode('/', $data);
-        $base = explode('/', parse_url($this->baseURL, PHP_URL_PATH) ?? '');
-        $diff = array_diff($req, $base);
-        $data = implode('/', $diff);
-        $resourceKey = 'resource';
-        $idKey = 'id';
-        $relationshipKey = 'relationship';
-        $relatedKey = 'related';
-        $pattern = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
+        $req                  = explode('/', $data);
+        $base                 = explode('/', parse_url($this->baseURL, PHP_URL_PATH) ?? '');
+        $diff                 = array_diff($req, $base);
+        $data                 = implode('/', $diff);
+        $pattern              = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
             . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
 
         if (preg_match($pattern, $data, $matches)) {
-            $this->resource = $matches[$resourceKey];
-            $this->id = $matches[$idKey] ?? null;
-            if (isset($matches[$relationshipKey]) && strlen($matches[$relationshipKey]) > 0) {
-                $this->isRelationship = true;
-                $this->relationship = $matches[$relationshipKey];
-            } elseif (isset($matches[$relatedKey]) && strlen($matches[$relatedKey]) > 0) {
-                $this->isRelationship = false;
-                $this->relationship = $matches[$relatedKey];
+            foreach (['resource', 'id', 'relationship', 'related'] as $key) {
+                if (isset($matches[$key]) && strlen($matches[$key]) > 0) {
+                    $this->$$key = $matches[$key];
+                    if ($key === 'relationship') {
+                        $this->isRelationship = true;
+                    }
+                }
             }
         } else {
             throw new BadRequest();

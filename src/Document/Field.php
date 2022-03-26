@@ -14,6 +14,9 @@ use JSONAPI\Exception\Document\ForbiddenDataType;
  */
 abstract class Field implements Serializable
 {
+
+    public const ID = 'id';
+    public const TYPE = 'type';
     public const KEY_REGEX = "/^([a-zA-Z0-9]+)([a-zA-Z-0-9_]*[a-zA-Z-0-9])?$/";
     /**
      * @var string
@@ -22,7 +25,7 @@ abstract class Field implements Serializable
     /**
      * @var mixed
      */
-    protected $data;
+    protected mixed $data;
 
     /**
      * FieldMetadata constructor.

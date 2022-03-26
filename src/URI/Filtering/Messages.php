@@ -38,6 +38,18 @@ class Messages
     }
 
     /**
+     * Format message for digit expected error
+     *
+     * @param int $pos Position at which digit is expected
+     *
+     * @return string The formatted message
+     */
+    public static function expressionLexerBooleanExpected(int $pos): string
+    {
+        return 'Boolean expected at position ' . $pos;
+    }
+
+    /**
      * Format message for syntax error
      *
      * @param int $pos Position at which syntax error found
@@ -124,7 +136,7 @@ class Messages
      */
     public static function failedToAccessProperty(string $propertyName, string $parentObjectName): string
     {
-        return "Data Service failed to access or initialize the property [$propertyName] of [$parentObjectName]";
+        return "Data Service failed to access the property [$propertyName] of [$parentObjectName]";
     }
 
     /**

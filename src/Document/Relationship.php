@@ -43,17 +43,17 @@ final class Relationship extends Field implements Serializable, HasLinks, HasMet
      */
     public function jsonSerialize(): object
     {
-        $ret = [];
+        $ret = new \stdClass();
         if ($this->hasData()) {
-            $ret['data'] = $this->getData();
+            $ret->data = $this->getData();
         }
         if ($this->hasLinks()) {
-            $ret['links'] = $this->getLinks();
+            $ret->links = $this->getLinks();
         }
         if ($this->hasMeta()) {
-            $ret['meta'] = $this->getMeta();
+            $ret->meta = $this->getMeta();
         }
-        return (object)$ret;
+        return $ret;
     }
 
     /**

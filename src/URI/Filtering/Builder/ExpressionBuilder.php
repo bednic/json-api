@@ -2,7 +2,9 @@
 
 declare(strict_types=1);
 
-namespace JSONAPI\URI\Filtering;
+namespace JSONAPI\URI\Filtering\Builder;
+
+use JSONAPI\URI\Filtering\ExpressionException;
 
 /**
  * Interface ExpressionBuilder
@@ -92,6 +94,15 @@ interface ExpressionBuilder
      * @throws ExpressionException
      */
     public function in(mixed $column, mixed $args): mixed;
+
+    /**
+     * @param mixed $column
+     * @param mixed $args
+     *
+     * @return mixed
+     * @throws ExpressionException
+     */
+    public function be(mixed $column, mixed $args): mixed;
 
     /**
      * Addition
@@ -347,5 +358,5 @@ interface ExpressionBuilder
      *
      * @return mixed
      */
-    public function parseIdentifier(string $identifier): mixed;
+    public function field(mixed $identifier): mixed;
 }

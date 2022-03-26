@@ -6,11 +6,9 @@ namespace JSONAPI\URI\Filtering\Builder;
 
 use Doctrine\Common\Collections\Expr\Comparison;
 use Doctrine\Common\Collections\Expr\CompositeExpression;
-use Doctrine\Common\Collections\Expr\Value;
 use Doctrine\Common\Collections\ExpressionBuilder as Expr;
-use JSONAPI\URI\Filtering\KeyWord;
-use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
+use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\Messages;
 use RuntimeException;
 
@@ -330,8 +328,15 @@ class DoctrineCriteriaExpressionBuilder implements ExpressionBuilder
         );
     }
 
-    public function parseIdentifier(string $identifier): mixed
+    public function field(mixed $identifier): mixed
     {
         return $identifier;
+    }
+
+    public function be(mixed $column, mixed $args): mixed
+    {
+        throw new ExpressionException(
+            Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_YEAR)
+        );
     }
 }

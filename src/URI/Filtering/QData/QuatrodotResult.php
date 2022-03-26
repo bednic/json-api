@@ -10,13 +10,11 @@ class QuatrodotResult implements FilterInterface
     /**
      * @param string|null     $origin
      * @param mixed           $condition
-     * @param Collection|null $joins
      * @param Collection|null $identifierExpressions
      */
     public function __construct(
         private ?string $origin = null,
         private mixed $condition = null,
-        private ?Collection $joins = null,
         private ?Collection $identifierExpressions = null
     ) {
     }
@@ -28,14 +26,6 @@ class QuatrodotResult implements FilterInterface
     public function getCondition(): mixed
     {
         return $this->condition;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getRequiredJoins(): Collection
-    {
-        return $this->joins ?? new Collection();
     }
 
     /**

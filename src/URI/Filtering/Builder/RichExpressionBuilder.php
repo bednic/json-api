@@ -11,7 +11,7 @@ use ExpressionBuilder\Expression\TBoolean;
 use ExpressionBuilder\Expression\TDateTime;
 use ExpressionBuilder\Expression\TNumeric;
 use ExpressionBuilder\Expression\TString;
-use JSONAPI\URI\Filtering\ExpressionBuilder;
+use JSONAPI\URI\Filtering\ExpressionException;
 
 /**
  * Class ClosureExpressionBuilder
@@ -89,9 +89,16 @@ class RichExpressionBuilder implements ExpressionBuilder
      */
     public function in(mixed $column, mixed $args): TBoolean
     {
-        return Ex::in($column, new Literal($args));
+        return Ex::in($column, $args);
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function be(mixed $column, mixed $args): TBoolean
+    {
+        return Ex::be($column, $args);
+    }
 
     /**
      * @inheritDoc
@@ -328,7 +335,7 @@ class RichExpressionBuilder implements ExpressionBuilder
     /**
      * @inheritDoc
      */
-    public function parseIdentifier(string $identifier): Field
+    public function field(mixed $identifier): Field
     {
         return Ex::field($identifier);
     }

@@ -7,6 +7,7 @@ namespace JSONAPI\OAS;
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Configuration;
 use JSONAPI\Document\Document;
+use JSONAPI\Document\KeyWord;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
@@ -258,8 +259,8 @@ final class OpenAPISpecificationBuilder
     private function createResourceIdentifier(ClassMetadata $metadata): Schema
     {
         return DataType::object()
-                       ->addProperty('id', DataType::string())
-                       ->addProperty('type', DataType::string()->setEnum([$metadata->getType()]))
+                       ->addProperty(KeyWord::ID, DataType::string())
+                       ->addProperty(KeyWord::TYPE, DataType::string()->setEnum([$metadata->getType()]))
                        ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)))
                        ->setRequired(['id', 'type']);
     }

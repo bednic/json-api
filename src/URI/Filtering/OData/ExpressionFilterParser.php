@@ -6,14 +6,17 @@ namespace JSONAPI\URI\Filtering\OData;
 
 use DateTime;
 use Exception;
+use JSONAPI\Exception\Metadata\MetadataException;
+use JSONAPI\Metadata\MetadataRepository;
+use JSONAPI\URI\Filtering\Builder\ExpressionBuilder;
 use JSONAPI\URI\Filtering\Builder\RichExpressionBuilder;
-use JSONAPI\URI\Filtering\KeyWord;
-use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\FilterInterface;
 use JSONAPI\URI\Filtering\FilterParserInterface;
+use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\Messages;
-use JSONAPI\URI\Filtering\UseDottedIdentifier;
+use JSONAPI\URI\Path\PathInterface;
+use Symfony\Component\Filesystem\Path;
 
 /**
  * Class ExpressionFilterParser
@@ -30,13 +33,14 @@ class ExpressionFilterParser implements FilterParserInterface
      * @var ExpressionBuilder
      */
     private ExpressionBuilder $exp;
-
     /**
-     * Contains composition of expressions
-     *
-     * @var mixed
+     * @var MetadataRepository metadataRepository
      */
-    private mixed $condition = null;
+    private MetadataRepository $repository;
+    /**
+     * @var PathInterface path
+     */
+    private PathInterface $path;
 
     /**
      * ExpressionFilterParser constructor.
@@ -54,12 +58,13 @@ class ExpressionFilterParser implements FilterParserInterface
     public function parse(mixed $data): FilterInterface
     {
         $this->lexer = null;
-        $this->condition = null;
+        $condition   = null;
         if ($data && is_string($data)) {
             $this->lexer = new ExpressionLexer($data);
-            $this->condition = $this->parseExpression();
+            $condition   = $this->parseExpression();
+            return new ExpressionFilterResult($data, $condition);
         }
-        return $this;
+        return new ExpressionFilterResult($data, $condition);
     }
 
     /**
@@ -83,7 +88,7 @@ class ExpressionFilterParser implements FilterParserInterface
         while ($this->lexer->getCurrentToken()->identifierIs(KeyWord::LOGICAL_OR)) {
             $this->lexer->nextToken();
             $right = $this->parseLogicalAnd();
-            $left = $this->exp->or($left, $right);
+            $left  = $this->exp->or($left, $right);
         }
 
         return $left;
@@ -101,13 +106,13 @@ class ExpressionFilterParser implements FilterParserInterface
         while ($this->lexer->getCurrentToken()->identifierIs(KeyWord::LOGICAL_AND)) {
             $this->lexer->nextToken();
             $right = $this->parseComparison();
-            $left = $this->exp->and($left, $right);
+            $left  = $this->exp->and($left, $right);
         }
         return $left;
     }
 
     /**
-     * Parse comparison operation (eq, ne, gt, gte, lt, lte, in)
+     * Parse comparison operation (eq, ne, gt, gte, lt, lte, in, be)
      *
      * @return mixed
      * @throws ExpressionException
@@ -118,27 +123,15 @@ class ExpressionFilterParser implements FilterParserInterface
         while ($this->lexer->getCurrentToken()->isComparisonOperator()) {
             $comparisonToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
-            if ($comparisonToken->identifierIs(KeyWord::LOGICAL_IN)) {
+            if (
+                $comparisonToken->identifierIs(KeyWord::LOGICAL_IN) ||
+                $comparisonToken->identifierIs(KeyWord::LOGICAL_BETWEEN)
+            ) {
                 $right = $this->parseArgumentList();
-                $left = $this->exp->{$comparisonToken->text}($left, $right);
-            } elseif ($this->lexer->getCurrentToken()->id === ExpressionTokenId::NULL_LITERAL) {
-                if ($comparisonToken->identifierIs(KeyWord::LOGICAL_EQUAL)) {
-                    $left = $this->exp->isNull($left);
-                } elseif ($comparisonToken->identifierIs(KeyWord::LOGICAL_NOT_EQUAL)) {
-                    $left = $this->exp->isNotNull($left);
-                } else {
-                    throw new ExpressionException(
-                        Messages::expressionParserOperatorNotSupportNull(
-                            $comparisonToken->text,
-                            $this->lexer->getPosition()
-                        )
-                    );
-                }
-                $this->lexer->nextToken();
             } else {
                 $right = $this->parseAdditive();
-                $left = $this->exp->{$comparisonToken->text}($left, $right);
             }
+            $left = $this->exp->{$comparisonToken->text}($left, $right);
         }
         return $left;
     }
@@ -159,7 +152,7 @@ class ExpressionFilterParser implements FilterParserInterface
             $additiveToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
             $right = $this->parseMultiplicative();
-            $left = $this->exp->{$additiveToken->text}($left, $right);
+            $left  = $this->exp->{$additiveToken->text}($left, $right);
         }
         return $left;
     }
@@ -181,7 +174,7 @@ class ExpressionFilterParser implements FilterParserInterface
             $multiplicativeToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
             $right = $this->parseUnary();
-            $left = $this->exp->{$multiplicativeToken->text}($left, $right);
+            $left  = $this->exp->{$multiplicativeToken->text}($left, $right);
         }
         return $left;
     }
@@ -204,8 +197,8 @@ class ExpressionFilterParser implements FilterParserInterface
                 $op->id === ExpressionTokenId::MINUS &&
                 ExpressionLexer::isNumeric($this->lexer->getCurrentToken()->id)
             ) {
-                $numberLiteral = $this->lexer->getCurrentToken();
-                $numberLiteral->text = '-' . $numberLiteral->text;
+                $numberLiteral           = $this->lexer->getCurrentToken();
+                $numberLiteral->text     = '-' . $numberLiteral->text;
                 $numberLiteral->position = $op->position;
                 $this->lexer->setCurrentToken($numberLiteral);
                 return $this->parsePrimary();
@@ -408,7 +401,26 @@ class ExpressionFilterParser implements FilterParserInterface
     private function parsePropertyAccess(): mixed
     {
         $identifier = $this->lexer->readDottedIdentifier();
-        return $this->exp->parseIdentifier($identifier);
+        try {
+            $classMetadata = $this->repository->getByType($this->path->getPrimaryResourceType());
+            $parts         = [...explode(".", $identifier)];
+            while ($part = array_shift($parts)) {
+                if ($classMetadata->hasRelationship($part)) {
+                    $classMetadata = $this->repository->getByClass(
+                        $classMetadata->getRelationship($part)->target
+                    );
+                } elseif ($classMetadata->hasAttribute($part) || $part === 'id') {
+                    continue;
+                } else {
+                    throw new ExpressionException(
+                        Messages::failedToAccessProperty($part, $classMetadata->getClassName())
+                    );
+                }
+            }
+        } catch (MetadataException $exception) {
+            throw new ExpressionException(Messages::syntaxError(), previous: $exception);
+        }
+        return $this->exp->field($identifier);
     }
 
     /**

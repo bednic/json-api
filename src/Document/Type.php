@@ -24,7 +24,7 @@ final class Type extends Field
      */
     public function __construct(string $type)
     {
-        parent::__construct('type');
+        parent::__construct(Field::TYPE);
         $this->setData($type);
     }
 

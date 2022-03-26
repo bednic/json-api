@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace JSONAPI\URI\Filtering\Builder;
 
 use ExpressionBuilder\Ex;
+use ExpressionBuilder\Exception\UnknownExpression;
 use ExpressionBuilder\Expression;
 use ExpressionBuilder\Expression\Field;
 use ExpressionBuilder\Expression\Literal;
@@ -18,7 +19,6 @@ use ExpressionBuilder\Expression\TDateTime;
 use ExpressionBuilder\Expression\TNumeric;
 use ExpressionBuilder\Expression\TString;
 use JSONAPI\Data\Collection;
-use JSONAPI\URI\Filtering\CanSplitExpression;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\Messages;
@@ -45,6 +45,24 @@ class FlatExpressionBuilder extends RichExpressionBuilder implements CanSplitExp
         $ex = Ex::eq($left, $right);
         $this->addFieldExpression($left, $ex);
         return $ex;
+    }
+
+    /**
+     * @param Field      $field
+     * @param Expression $expression
+     *
+     * @return void
+     */
+    private function addFieldExpression(Field $field, Expression $expression): void
+    {
+        $identifier = $field->getName();
+        if ($this->fields->hasKey($identifier)) {
+            $old = $this->fields->get($identifier);
+            $new = Ex::or($old, $expression);
+            $this->fields->set($identifier, $new);
+        } else {
+            $this->fields->set($identifier, $expression);
+        }
     }
 
     public function ne(mixed $left, mixed $right): TBoolean
@@ -238,31 +256,8 @@ class FlatExpressionBuilder extends RichExpressionBuilder implements CanSplitExp
         throw new ExpressionException(Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_YEAR));
     }
 
-    public function parseIdentifier(string $identifier): Field
-    {
-        return Ex::field($identifier);
-    }
-
     public function getFieldsExpressions(): Collection
     {
         return $this->fields;
-    }
-
-    /**
-     * @param Field      $field
-     * @param Expression $expression
-     *
-     * @return void
-     */
-    private function addFieldExpression(Field $field, Expression $expression): void
-    {
-        $identifier = $field->getName();
-        if ($this->fields->hasKey($identifier)) {
-            $old = $this->fields->get($identifier);
-            $new = Ex::or($old, $expression);
-            $this->fields->set($identifier, $new);
-        } else {
-            $this->fields->set($identifier, $expression);
-        }
     }
 }

@@ -70,10 +70,10 @@ class ExpressionToken
     /**
      * Gets the current identifier text
      *
-     * @return string
+     * @return KeyWord
      * @throws Exception
      */
-    public function getIdentifier(): string
+    public function getIdentifier(): KeyWord
     {
         if ($this->id !== ExpressionTokenId::IDENTIFIER) {
             throw new ExpressionException(
@@ -81,7 +81,7 @@ class ExpressionToken
             );
         }
 
-        return $this->text;
+        return KeyWord::tryFrom($this->text);
     }
 
     /**

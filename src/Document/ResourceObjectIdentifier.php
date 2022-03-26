@@ -57,8 +57,8 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
      */
     public function getId(): ?string
     {
-        if ($this->fields->get('id') !== null) {
-            return $this->fields->get('id')->getData();
+        if ($this->fields->get(Field::ID) !== null) {
+            return $this->fields->get(Field::ID)->getData();
         }
         return null;
     }
@@ -82,8 +82,8 @@ class ResourceObjectIdentifier implements Serializable, HasMeta, PrimaryData
     public function jsonSerialize(): object
     {
         $ret = new stdClass();
-        $ret->type = $this->fields->get('type');
-        $ret->id = $this->fields->get('id');
+        $ret->type = $this->fields->get(Field::TYPE);
+        $ret->id = $this->fields->get(Field::ID);
         if ($this->hasMeta()) {
             $ret->meta = $this->getMeta();
         }

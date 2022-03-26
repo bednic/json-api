@@ -11,11 +11,9 @@ use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Exception\Metadata\MetadataNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
 use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\URI\Filtering\KeyWord;
-use JSONAPI\URI\Filtering\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
+use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\Messages;
-use JSONAPI\URI\Filtering\UseDottedIdentifier;
 use JSONAPI\URI\Path\PathInterface;
 use RuntimeException;
 
@@ -24,7 +22,7 @@ use RuntimeException;
  *
  * @package JSONAPI\URI\Filtering\Builder
  */
-class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIdentifier
+class DoctrineQueryExpressionBuilder implements ExpressionBuilder
 {
     /**
      * @var Expr
@@ -302,68 +300,12 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
     /**
      * @inheritDoc
      */
-    public function isNull(mixed $column): string
-    {
-        return $this->exp->isNull($column);
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isNotNull(mixed $column): string
-    {
-        return $this->exp->isNotNull($column);
-    }
-
-    /**
-     * @inheritDoc
-     */
     public function literal(mixed $value): Expr\Literal
     {
         if ($value instanceof DateTimeInterface) {
             $value = $value->format(DATE_ATOM);
         }
         return $this->exp->literal($value);
-    }
-
-    /**
-     * @param string $identifier
-     *
-     * @return string
-     * @throws ExpressionException
-     * @throws MetadataException
-     * @throws MetadataNotFound
-     * @throws RelationNotFound
-     */
-    public function parseIdentifier(string $identifier): string
-    {
-        $classMetadata = $this->metadataRepository->getByType($this->path->getPrimaryResourceType());
-        $parts         = [...explode(".", $identifier)];
-        while ($part = array_shift($parts)) {
-            if ($classMetadata->hasRelationship($part)) {
-                $rm = $this->metadataRepository->getByClass(
-                    $classMetadata->getRelationship($part)->target
-                );
-                $this->joins->set($rm->getType(), $classMetadata->getType() . '.' . $part);
-                $identifier    = $classMetadata->getType() . '.' . $part;
-                $classMetadata = $this->metadataRepository->getByClass(
-                    $classMetadata->getRelationship($part)->target
-                );
-            } elseif ($classMetadata->hasAttribute($part) || $part === 'id') {
-                $identifier = $classMetadata->getType() . '.' . $part;
-            } else {
-                throw new ExpressionException(Messages::failedToAccessProperty($part, $classMetadata->getClassName()));
-            }
-        }
-        return $identifier;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function getRequiredJoins(): Collection
-    {
-        return $this->joins;
     }
 
     public function date(mixed $column): mixed
@@ -420,5 +362,15 @@ class DoctrineQueryExpressionBuilder implements ExpressionBuilder, UseDottedIden
         throw new ExpressionException(
             Messages::operandOrFunctionNotImplemented(KeyWord::FUNCTION_ROUND)
         );
+    }
+
+    public function field(mixed $identifier): mixed
+    {
+        return $identifier;
+    }
+
+    public function be(mixed $column, mixed $args): mixed
+    {
+        return $this->exp->between($column, ...$args);
     }
 }

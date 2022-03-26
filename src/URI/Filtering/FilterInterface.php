@@ -18,9 +18,4 @@ interface FilterInterface extends QueryPartInterface
      * @return mixed
      */
     public function getCondition(): mixed;
-
-    /**
-     * @return Collection
-     */
-    public function getRequiredJoins(): Collection;
 }

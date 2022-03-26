@@ -5,29 +5,36 @@ namespace JSONAPI\URI\Filtering\OData;
 use JSONAPI\Data\Collection;
 use JSONAPI\URI\Filtering\FilterInterface;
 
+/**
+ * Class ExpressionFilterResult
+ *
+ * @package JSONAPI\URI\Filtering\OData
+ */
 class ExpressionFilterResult implements FilterInterface
 {
-
+    /**
+     * @param string $origin
+     * @param mixed  $condition
+     */
     public function __construct(
         private string $origin,
-        private mixed $condition,
-        private ?Collection $joins = null,
-    )
-    {
+        private mixed $condition
+    ) {
     }
 
+    /**
+     * @return mixed
+     */
     public function getCondition(): mixed
     {
-        // TODO: Implement getCondition() method.
+        return $this->condition;
     }
 
-    public function getRequiredJoins(): Collection
-    {
-        // TODO: Implement getRequiredJoins() method.
-    }
-
+    /**
+     * @return string
+     */
     public function __toString(): string
     {
-        // TODO: Implement __toString() method.
+        return $this->origin;
     }
 }

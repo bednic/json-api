@@ -24,7 +24,7 @@ final class Id extends Field
      */
     public function __construct(?string $id)
     {
-        parent::__construct('id');
+        parent::__construct(Field::ID);
         $this->setData($id);
     }
 
@@ -38,7 +38,7 @@ final class Id extends Field
         if (is_string($data) || is_null($data)) {
             $this->data = $data;
         } else {
-            throw new ForbiddenDataType('id', gettype($data));
+            throw new ForbiddenDataType(Field::ID, gettype($data));
         }
     }
 }
