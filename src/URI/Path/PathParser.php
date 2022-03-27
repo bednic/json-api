@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JSONAPI\URI\Path;
 
 use Fig\Http\Message\RequestMethodInterface;
-use JSONAPI\Document\KeyWord;
 use JSONAPI\Exception\Http\BadRequest;
 use JSONAPI\Metadata\MetadataRepository;
 
@@ -84,7 +83,7 @@ class PathParser implements PathInterface, PathParserInterface
         if (preg_match($pattern, $data, $matches)) {
             foreach (['resource', 'id', 'relationship', 'related'] as $key) {
                 if (isset($matches[$key]) && strlen($matches[$key]) > 0) {
-                    $this->$$key = $matches[$key];
+                    $this->{$key} = $matches[$key];
                     if ($key === 'relationship') {
                         $this->isRelationship = true;
                     }

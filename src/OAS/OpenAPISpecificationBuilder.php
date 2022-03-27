@@ -7,6 +7,7 @@ namespace JSONAPI\OAS;
 use Fig\Http\Message\StatusCodeInterface;
 use JSONAPI\Configuration;
 use JSONAPI\Document\Document;
+use JSONAPI\Document\Field;
 use JSONAPI\Document\KeyWord;
 use JSONAPI\Document\Link;
 use JSONAPI\Document\Meta;
@@ -15,6 +16,7 @@ use JSONAPI\Exception\OAS\DuplicationEntryException;
 use JSONAPI\Exception\OAS\ExclusivityCheckException;
 use JSONAPI\Exception\OAS\InvalidArgumentException;
 use JSONAPI\Exception\OAS\InvalidFormatException;
+use JSONAPI\Exception\OAS\OpenAPIException;
 use JSONAPI\Exception\OAS\ReferencedObjectNotExistsException;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\Metadata\ClassMetadata;
@@ -254,13 +256,13 @@ final class OpenAPISpecificationBuilder
      * @param ClassMetadata $metadata
      *
      * @return Schema
-     * @throws ReferencedObjectNotExistsException
+     * @throws OpenAPIException
      */
     private function createResourceIdentifier(ClassMetadata $metadata): Schema
     {
         return DataType::object()
-                       ->addProperty(KeyWord::ID, DataType::string())
-                       ->addProperty(KeyWord::TYPE, DataType::string()->setEnum([$metadata->getType()]))
+                       ->addProperty(Field::ID, DataType::string())
+                       ->addProperty(Field::TYPE, DataType::string()->setEnum([$metadata->getType()]))
                        ->addProperty('meta', $this->oas->getComponents()->createSchemaReference(self::shortName(Meta::class)))
                        ->setRequired(['id', 'type']);
     }

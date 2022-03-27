@@ -17,7 +17,7 @@ use Traversable;
 /**
  * Class Collection
  *
- * @package JSONAPI\Data
+ * @package    JSONAPI\Data
  * @implements ArrayAccess<int|string,mixed>
  * @implements IteratorAggregate<mixed>
  */
@@ -232,13 +232,37 @@ class Collection implements ArrayAccess, Countable, IteratorAggregate
         foreach (array_reverse($order) as $field => $ordering) {
             $orientation = $ordering === self::SORT_DESC ? -1 : 1;
             $next        = static function ($a, $b) use ($field, $next, $orientation): int {
-                $accessor = new ObjectPropertyAccessor();
-                try {
-                    $aValue = $accessor($a, $field);
-                    $bValue = $accessor($b, $field);
-                } catch (ExpressionBuilderError $exception) {
-                    throw new CollectionException("Accessor error", 510, $exception);
-                }
+                $accessor = function (object $object, string $field) {
+                    $fields = explode('.', $field);
+                    $value  = $object;
+                    foreach ($fields as $field) {
+                        $found = false;
+                        if (property_exists($object, $field)) {
+                            $value = $object->{$field};
+                            $found = true;
+                        } elseif (method_exists($object, $field)) {
+                            $value = $object->$field();
+                            $found = true;
+                        } else {
+                            foreach (['get', 'is'] as $prefix) {
+                                $accessor = $prefix . ucfirst($field);
+                                if (method_exists($object, $accessor)) {
+                                    $value = $object->{$accessor}();
+                                    $found = true;
+                                }
+                            }
+                        }
+                        if (!$found) {
+                            throw new CollectionException(
+                                "Property $field on " . get_class($value) . " not found.",
+                                510
+                            );
+                        }
+                    }
+                    return $value;
+                };
+                $aValue   = $accessor($a, $field);
+                $bValue   = $accessor($b, $field);
                 if ($aValue === $bValue) {
                     return $next($a, $b);
                 }

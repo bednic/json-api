@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace JSONAPI\Metadata;
 
 use JSONAPI\Data\Collection;
-use JSONAPI\Document\KeyWord;
 use JSONAPI\Exception\Metadata\AlreadyInUse;
 use JSONAPI\Exception\Metadata\AttributeNotFound;
 use JSONAPI\Exception\Metadata\RelationNotFound;
@@ -73,8 +72,8 @@ final class ClassMetadata
         $this->type = $type;
         $this->readOnly = $readOnly;
         $this->meta = $resourceMeta;
-        $this->fields->set(KeyWord::ID, $id);
-        $this->fields->set(KeyWord::TYPE, $type);
+        $this->fields->set(\JSONAPI\Document\Field::ID, $id);
+        $this->fields->set(\JSONAPI\Document\Field::TYPE, $type);
         foreach ($attributes as $attribute) {
             if ($this->fields->hasKey($attribute->name)) {
                 throw new AlreadyInUse($attribute->name);

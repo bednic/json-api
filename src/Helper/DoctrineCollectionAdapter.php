@@ -7,7 +7,7 @@ namespace JSONAPI\Helper;
 use Closure;
 use Doctrine\Common\Collections\Collection as DoctrineCollection;
 use JSONAPI\Data\Collection;
-use RuntimeException;
+use LogicException;
 use Traversable;
 
 /**
@@ -32,7 +32,7 @@ class DoctrineCollectionAdapter extends Collection
     public function __construct(DoctrineCollection $collection)
     {
         if (!interface_exists('Doctrine\Common\Collections\Collection')) {
-            throw new RuntimeException(
+            throw new LogicException(
                 'For using ' . __CLASS__ . ' you need install [doctrine/orm] <i>composer require doctrine/orm</i>.'
             );
         }

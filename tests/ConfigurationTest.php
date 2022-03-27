@@ -50,6 +50,7 @@ class ConfigurationTest extends TestCase
     public function testConstruct()
     {
         $min  = new Configuration(self::$mr, self::$url);
+        $pp = new PathParser(self::$mr, self::$url);
         $full = new Configuration(
             self::$mr,
             self::$url,
@@ -60,10 +61,10 @@ class ConfigurationTest extends TestCase
             false,
             false,
             new FieldsetParser(),
-            new ExpressionFilterParser(),
+            new ExpressionFilterParser(self::$mr, $pp),
             new InclusionParser(),
             new LimitOffsetPagination(),
-            new PathParser(self::$mr, self::$url),
+            $pp,
             new SortParser(),
             new NullLogger()
         );

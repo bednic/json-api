@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\Resources\Valid;
 
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use JSONAPI\Annotation as API;
 use JSONAPI\Data\Collection;
@@ -54,6 +55,10 @@ class GettersExample implements Resource
      */
     private array $arrayProperty = [1, 2, 3];
     /**
+     * @var DateTimeInterface
+     */
+    private DateTimeInterface $dateProperty;
+    /**
      * @var DtoValue
      */
     private DtoValue $dtoProperty;
@@ -84,6 +89,7 @@ class GettersExample implements Resource
             ]
         );
         $this->dtoProperty = new DtoValue();
+        $this->dateProperty = new \DateTime('2022-01-01T00:00:00+02:00');
     }
 
     public static function getSchema(): ResourceSchema
@@ -98,6 +104,7 @@ class GettersExample implements Resource
                 Attribute::createByMethod('getArrayProperty', of: 'int'),
                 Attribute::createByMethod('isBoolProperty'),
                 Attribute::createByMethod('getDtoProperty'),
+                Attribute::createByMethod('getDateProperty'),
             ],
             [
                 Relationship::createByMethod('getRelation', DummyRelation::class),
@@ -225,6 +232,23 @@ class GettersExample implements Resource
     public function setDtoProperty(DtoValue $dtoProperty): void
     {
         $this->dtoProperty = $dtoProperty;
+    }
+
+    /**
+     * @return DateTimeInterface
+     */
+    #[API\Attribute]
+    public function getDateProperty(): DateTimeInterface
+    {
+        return $this->dateProperty;
+    }
+
+    /**
+     * @param DateTimeInterface $dateProperty
+     */
+    public function setDateProperty(DateTimeInterface $dateProperty): void
+    {
+        $this->dateProperty = $dateProperty;
     }
 
     /**

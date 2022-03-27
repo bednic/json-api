@@ -13,74 +13,73 @@ use DateTime;
 use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
-use JetBrains\PhpStorm\ArrayShape;
-use JSONAPI\Document\Field;
+use ExpressionBuilder\Ex;
+use ExpressionBuilder\Expression;
+use ExpressionBuilder\Expression\Field;
+use ExpressionBuilder\Expression\Literal;
+use ExpressionBuilder\Expression\Type\TBoolean;
+use ExpressionBuilder\Expression\Type\TDateTime;
+use ExpressionBuilder\Expression\Type\TNumeric;
+use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\Attribute;
-use JSONAPI\Metadata\MetadataRepository;
-use JSONAPI\URI\Filtering\Builder\CanSplitExpression;
-use JSONAPI\URI\Filtering\Builder\ExpressionBuilder;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\FilterInterface;
 use JSONAPI\URI\Filtering\FilterParserInterface;
 use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\Messages;
-use JSONAPI\URI\Path\PathInterface;
+use JSONAPI\URI\Filtering\Parser;
 
 /**
  * Class FilterParser
  *
  * @package JSONAPI\URI\Filtering\Quatrodot
  */
-class QuatrodotFilterParser implements FilterParserInterface
+class QuatrodotFilterParser extends Parser implements FilterParserInterface
 {
     /**
-     * @var ExpressionBuilder exp
+     * @var Collection
      */
-    private ExpressionBuilder $exp;
-    /**
-     * @var MetadataRepository repository
-     */
-    private MetadataRepository $repository;
-    /**
-     * @var PathInterface path
-     */
-    private PathInterface $path;
-
-    public function __construct(ExpressionBuilder $expressionBuilder)
-    {
-        $this->exp = $expressionBuilder;
-    }
+    private Collection $fieldsExpressions;
 
     public function parse(mixed $data): FilterInterface
     {
         if (is_string($data)) {
-            $phrases = explode(KeyWord::PHRASE_SEPARATOR->value, $data);
-            $tree    = [];
+            $this->fieldsExpressions = new Collection();
+            $phrases                 = explode(KeyWord::PHRASE_SEPARATOR->value, $data);
+            $tree                    = [];
             foreach ($phrases as $phrase) {
-                $tokens         = explode(KeyWord::VALUE_SEPARATOR->value, $phrase);
+                $tokens = explode(KeyWord::VALUE_SEPARATOR->value, $phrase);
                 $field          = array_shift($tokens);
                 $op             = array_shift($tokens);
                 $args           = $tokens;
                 $tree[$field][] = [$field, $op, $args];
             }
-            $condition = $this->parseAnd($tree);
-            $fields    = $this->exp instanceof CanSplitExpression ? $this->exp->getFieldsExpressions() : null;
-            return new QuatrodotResult($data, $condition, $fields);
+            $condition = $this->parseExpression($tree);
+            return new QuatrodotResult($data, $condition, $this->fieldsExpressions);
         }
         return new QuatrodotResult();
     }
 
     /**
+     * @return Expression Expression
      * @throws ExpressionException
      */
-    private function parseAnd(array $tree): mixed
+    private function parseExpression(array $expression): Expression
+    {
+        return $this->parseAnd($expression);
+    }
+
+    /**
+     * @throws ExpressionException
+     */
+    private function parseAnd(array $expressionTree): TBoolean
     {
         $left = null;
-        foreach ($tree as $expressions) {
+        foreach ($expressionTree as $expressions) {
             $right = $this->parseOr($expressions);
             if ($left) {
-                $left = $this->exp->and($left, $right);
+                $left = Ex::and($left, $right);
             } else {
                 $left = $right;
             }
@@ -91,13 +90,13 @@ class QuatrodotFilterParser implements FilterParserInterface
     /**
      * @throws ExpressionException
      */
-    private function parseOr(array $expressions): mixed
+    private function parseOr(array $expressions): TBoolean
     {
         $left = null;
         foreach ($expressions as $expression) {
-            $right = $this->parseExpression($expression);
+            $right = $this->parseComparison($expression);
             if ($left) {
-                $left = $this->exp->or($left, $right);
+                $left = Ex::or($left, $right);
             } else {
                 $left = $right;
             }
@@ -108,51 +107,70 @@ class QuatrodotFilterParser implements FilterParserInterface
     /**
      * @throws ExpressionException
      */
-    private function parseExpression(array $expression): mixed
+    private function parseComparison(array $expression): TBoolean
     {
-        $field = array_shift($expression);
-        $op    = array_shift($expression);
-        $args  = count($expression) == 1 ? array_shift($expression) : $expression;
-        list($left, $attribute) = $this->parseField($field);
+        $field   = array_shift($expression);
+        $op      = array_shift($expression);
+        $args    = array_shift($expression);
+        $left    = $this->parseField($field);
         $operand = KeyWord::tryFrom($op);
-        $right   = $this->parseArgs($args, $attribute);
-        return match ($operand) {
-            KeyWord::LOGICAL_EQUAL                 => $this->exp->eq($left, $right),
-            KeyWord::LOGICAL_NOT_EQUAL             => $this->exp->ne($left, $right),
-            KeyWord::LOGICAL_GREATER_THAN          => $this->exp->gt($left, $right),
-            KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL => $this->exp->ge($left, $right),
-            KeyWord::LOGICAL_LOWER_THAN            => $this->exp->lt($left, $right),
-            KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL   => $this->exp->le($left, $right),
-            KeyWord::LOGICAL_IN                    => $this->exp->in($left, $right),
-            KeyWord::LOGICAL_BETWEEN               => $this->exp->be($left, $right),
-            KeyWord::FUNCTION_CONTAINS             => $this->exp->contains($left, $right),
-            KeyWord::FUNCTION_STARTS_WITH          => $this->exp->startsWith($left, $right),
-            KeyWord::FUNCTION_ENDS_WITH            => $this->exp->endsWith($left, $right),
+        $right   = $this->parseArgs($args, $this->getAttributeForIdentifier($field));
+        $ex      = match ($operand) {
+            KeyWord::LOGICAL_EQUAL                 => Ex::eq($left, $right),
+            KeyWord::LOGICAL_NOT_EQUAL             => Ex::ne($left, $right),
+            KeyWord::LOGICAL_GREATER_THAN          => Ex::gt($left, $right),
+            KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL => Ex::ge($left, $right),
+            KeyWord::LOGICAL_LOWER_THAN            => Ex::lt($left, $right),
+            KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL   => Ex::le($left, $right),
+            KeyWord::LOGICAL_IN                    => Ex::in($left, $right),
+            KeyWord::LOGICAL_BETWEEN               => Ex::be($left, ...$right),
+            KeyWord::FUNCTION_CONTAINS             => Ex::contains($left, $right),
+            KeyWord::FUNCTION_STARTS_WITH          => Ex::startsWith($left, $right),
+            KeyWord::FUNCTION_ENDS_WITH            => Ex::endsWith($left, $right),
             default                                => throw new ExpressionException(
                 Messages::operandOrFunctionNotImplemented($op)
             )
         };
+        if ($this->fieldsExpressions->hasKey($field)) {
+            $old = $this->fieldsExpressions->get($field);
+            $new = Ex::or($old, $ex);
+            $this->fieldsExpressions->set($field, $new);
+        } else {
+            $this->fieldsExpressions->set($field, $ex);
+        }
+        return $ex;
     }
 
     /**
      * @param string $identifier
      *
-     * @return array
+     * @return Field
      * @throws ExpressionException
      */
-    private function parseField(string $identifier): array
+    private function parseField(string $identifier): Field
     {
-        $attribute = null;
+        $this->getAttributeForIdentifier($identifier);
+        return Ex::field($identifier);
+    }
+
+    /**
+     * @param string $identifier
+     *
+     * @return Attribute
+     * @throws ExpressionException
+     */
+    private function getAttributeForIdentifier(string $identifier): Attribute
+    {
         try {
+            $attribute     = null;
             $classMetadata = $this->repository->getByType($this->path->getPrimaryResourceType());
             $parts         = [...explode(".", $identifier)];
             while ($part = array_shift($parts)) {
                 if ($classMetadata->hasRelationship($part)) {
-                    $identifier    = $classMetadata->getType() . '.' . $part;
                     $classMetadata = $this->repository->getByClass(
                         $classMetadata->getRelationship($part)->target
                     );
-                } elseif ($classMetadata->hasAttribute($part) || $part === Field::ID) {
+                } elseif ($classMetadata->hasAttribute($part) || $part === \JSONAPI\Document\Field::ID) {
                     $attribute = $classMetadata->getAttribute($part);
                 } else {
                     throw new ExpressionException(
@@ -160,45 +178,45 @@ class QuatrodotFilterParser implements FilterParserInterface
                     );
                 }
             }
+            return $attribute;
         } catch (MetadataException $exception) {
             throw new ExpressionException(Messages::syntaxError(), previous: $exception);
         }
-        return [$this->exp->field($identifier), $attribute];
     }
 
     /**
      * @param mixed          $args
      * @param Attribute|null $attribute
      *
-     * @return mixed
+     * @return Literal|Literal[]
      * @throws ExpressionException
      */
-    private function parseArgs(mixed $args, ?Attribute $attribute): mixed
+    private function parseArgs(mixed $args, ?Attribute $attribute): Literal|array
     {
         if (!is_null($attribute)) {
-            $args = match ($attribute->type) {
+            return match ($attribute->type) {
                 'int'           => $this->parseInt($args),
                 'bool'          => $this->parseBoolean($args),
                 'float'         => $this->parseFloat($args),
                 'array'         => $this->parseArray($args, $attribute),
                 DateTimeInterface::class, DateTimeImmutable::class,
                 DateTime::class => $this->parseDate($args),
-                default         => $args
+                default         => Ex::literal($args)
             };
         }
-        return $this->exp->literal($args);
+        return Ex::literal($args);
     }
 
     /**
      * @param mixed $args
      *
-     * @return int
+     * @return TNumeric
      * @throws ExpressionException
      */
-    private function parseInt(mixed $args): int
+    private function parseInt(mixed $args): TNumeric
     {
-        if (($value = filter_var($args, FILTER_VALIDATE_INT)) !== false) {
-            return $value;
+        if (($value = filter_var(self::singleArgument($args), FILTER_VALIDATE_INT)) !== false) {
+            return Ex::literal($value);
         }
         throw new ExpressionException(Messages::expressionLexerDigitExpected(0));
     }
@@ -206,13 +224,13 @@ class QuatrodotFilterParser implements FilterParserInterface
     /**
      * @param mixed $args
      *
-     * @return bool
+     * @return TBoolean
      * @throws ExpressionException
      */
-    private function parseBoolean(mixed $args): bool
+    private function parseBoolean(mixed $args): TBoolean
     {
-        if (($value = filter_var($args, FILTER_VALIDATE_BOOL)) !== false) {
-            return $value;
+        if (($value = filter_var(self::singleArgument($args), FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE)) !== null) {
+            return Ex::literal($value);
         }
         throw new ExpressionException(Messages::expressionLexerBooleanExpected(0));
     }
@@ -220,13 +238,13 @@ class QuatrodotFilterParser implements FilterParserInterface
     /**
      * @param mixed $args
      *
-     * @return float
+     * @return TNumeric
      * @throws ExpressionException
      */
-    private function parseFloat(mixed $args): float
+    private function parseFloat(mixed $args): TNumeric
     {
-        if (($value = filter_var($args, FILTER_VALIDATE_FLOAT)) !== false) {
-            return $value;
+        if (($value = filter_var(self::singleArgument($args), FILTER_VALIDATE_FLOAT)) !== false) {
+            return Ex::literal($value);
         }
         throw new ExpressionException(Messages::expressionLexerDigitExpected(0));
     }
@@ -235,7 +253,7 @@ class QuatrodotFilterParser implements FilterParserInterface
      * @param mixed     $args
      * @param Attribute $attribute
      *
-     * @return array<mixed>
+     * @return Literal[]
      * @throws ExpressionException
      */
     private function parseArray(mixed $args, Attribute $attribute): array
@@ -251,60 +269,29 @@ class QuatrodotFilterParser implements FilterParserInterface
     /**
      * @param mixed $args
      *
-     * @return DateTimeInterface
+     * @return TDateTime
      * @throws ExpressionException
      */
-    private function parseDate(mixed $args): DateTimeInterface
+    private function parseDate(mixed $args): TDateTime
     {
         try {
-            return new DateTimeImmutable($args);
+            return Ex::literal(new DateTimeImmutable(self::singleArgument($args)));
         } catch (Exception $e) {
             throw new ExpressionException(Messages::expressionLexerUnterminatedStringLiteral(0, $args));
         }
     }
 
     /**
-     * eq, ne, gt, ge, lt, le, be
+     * @param array $args
      *
-     * @return mixed
+     * @return string|bool|int|float|DateTimeInterface|null
+     * @throws ExpressionException
      */
-    private function parseLogical(): mixed
+    private static function singleArgument(array $args): string|bool|int|float|null|DateTimeInterface
     {
-        return match ($operand) {
-            KeyWord::LOGICAL_EQUAL                 => $this->exp->eq($left, $right),
-            KeyWord::LOGICAL_NOT_EQUAL             => $this->exp->ne($left, $right),
-            KeyWord::LOGICAL_GREATER_THAN          => $this->exp->gt($left, $right),
-            KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL => $this->exp->ge($left, $right),
-            KeyWord::LOGICAL_LOWER_THAN            => $this->exp->lt($left, $right),
-            KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL   => $this->exp->le($left, $right),
-            KeyWord::LOGICAL_IN                    => $this->exp->in($left, $right),
-            KeyWord::LOGICAL_BETWEEN               => $this->exp->be($left, $right),
-            default                                => throw new ExpressionException(
-                Messages::operandOrFunctionNotImplemented($op)
-            )
-        };
-    }
-
-    /**
-     * contains, startsWith, endsWith
-     *
-     * @return mixed
-     */
-    private function parseStringFunction(array $expression): mixed
-    {
-        $field   = array_shift($expression);
-        $op      = array_shift($expression);
-        $args    = array_shift($expression);
-        $left    = $this->parseField($field);
-        $operand = KeyWord::tryFrom($op);
-        $right   = $this->parseArgs($args, null);
-        return match ($operand) {
-            KeyWord::FUNCTION_CONTAINS    => $this->exp->contains($left, $right),
-            KeyWord::FUNCTION_STARTS_WITH => $this->exp->startsWith($left, $right),
-            KeyWord::FUNCTION_ENDS_WITH   => $this->exp->endsWith($left, $right),
-            default                       => throw new ExpressionException(
-                Messages::operandOrFunctionNotImplemented($op)
-            )
-        };
+        if (count($args) != 1) {
+            throw new ExpressionException(/*todo*/);
+        }
+        return $args[0];
     }
 }

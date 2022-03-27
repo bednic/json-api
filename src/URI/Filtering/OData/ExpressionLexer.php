@@ -8,6 +8,7 @@ use Exception;
 use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
+
 use function JSONAPI\URI\Filtering\ctype_xdigit;
 
 /**
@@ -260,9 +261,12 @@ class ExpressionLexer
                 $this->token->id = ExpressionTokenId::DOUBLE_LITERAL;
             } elseif (self::isInfinityOrNanSingle($this->token->text)) {
                 $this->token->id = ExpressionTokenId::SINGLE_LITERAL;
-            } elseif ($this->token->text == KeyWord::RESERVED_TRUE || $this->token->text == KeyWord::RESERVED_FALSE) {
+            } elseif (
+                $this->token->text == KeyWord::RESERVED_TRUE->value ||
+                $this->token->text == KeyWord::RESERVED_FALSE->value
+            ) {
                 $this->token->id = ExpressionTokenId::BOOLEAN_LITERAL;
-            } elseif ($this->token->text == KeyWord::RESERVED_NULL) {
+            } elseif ($this->token->text == KeyWord::RESERVED_NULL->value) {
                 $this->token->id = ExpressionTokenId::NULL_LITERAL;
             }
         }
@@ -280,7 +284,7 @@ class ExpressionLexer
         $asciiVal = ord($char);
         return match ($asciiVal) {
             self::SPACE, self::TAB, self::CARRIAGE_RETURN, self::NEWLINE => true,
-            default => false
+            default                                                      => false
         };
     }
 
@@ -415,7 +419,7 @@ class ExpressionLexer
         return match ($id) {
             ExpressionTokenId::INTEGER_LITERAL, ExpressionTokenId::DECIMAL_LITERAL, ExpressionTokenId::DOUBLE_LITERAL,
             ExpressionTokenId::INT64_LITERAL, ExpressionTokenId::SINGLE_LITERAL => true,
-            default => false
+            default                                                             => false
         };
     }
 

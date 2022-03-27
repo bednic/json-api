@@ -71,7 +71,7 @@ class ExpressionToken
      * Gets the current identifier text
      *
      * @return KeyWord
-     * @throws Exception
+     * @throws ExpressionException
      */
     public function getIdentifier(): KeyWord
     {

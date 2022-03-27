@@ -35,7 +35,10 @@ class QuatrodotResult implements FilterInterface
      */
     public function getPartialCondition(string $identifier): mixed
     {
-        return $this->identifierExpressions?->get($identifier);
+        if ($this->identifierExpressions->hasKey($identifier)) {
+            return $this->identifierExpressions->get($identifier);
+        }
+        return null;
     }
 
     /**
@@ -43,6 +46,6 @@ class QuatrodotResult implements FilterInterface
      */
     public function __toString(): string
     {
-        return $this->origin;
+        return $this->origin ?? '';
     }
 }

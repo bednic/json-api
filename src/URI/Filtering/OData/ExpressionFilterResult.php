@@ -13,12 +13,12 @@ use JSONAPI\URI\Filtering\FilterInterface;
 class ExpressionFilterResult implements FilterInterface
 {
     /**
-     * @param string $origin
-     * @param mixed  $condition
+     * @param string|null $origin
+     * @param mixed       $condition
      */
     public function __construct(
-        private string $origin,
-        private mixed $condition
+        private ?string $origin = null,
+        private mixed $condition = null
     ) {
     }
 
@@ -35,6 +35,6 @@ class ExpressionFilterResult implements FilterInterface
      */
     public function __toString(): string
     {
-        return $this->origin;
+        return $this->origin ?? '';
     }
 }
