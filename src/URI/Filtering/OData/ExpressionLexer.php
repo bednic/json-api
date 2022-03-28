@@ -9,8 +9,6 @@ use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\Messages;
 
-use function JSONAPI\URI\Filtering\ctype_xdigit;
-
 /**
  * Class ExpressionLexer
  *
@@ -332,7 +330,7 @@ class ExpressionLexer
             $result = ExpressionTokenId::BINARY_LITERAL;
             do {
                 $this->nextChar();
-            } while (\ctype_xdigit($this->ch));
+            } while (ctype_xdigit($this->ch));
         } else {
             $result = ExpressionTokenId::INTEGER_LITERAL;
             while (self::isDigit($this->ch)) {

@@ -83,10 +83,13 @@ class PathParser implements PathInterface, PathParserInterface
         if (preg_match($pattern, $data, $matches)) {
             foreach (['resource', 'id', 'relationship', 'related'] as $key) {
                 if (isset($matches[$key]) && strlen($matches[$key]) > 0) {
-                    $this->{$key} = $matches[$key];
                     if ($key === 'relationship') {
                         $this->isRelationship = true;
                     }
+                    if ($key === 'related') {
+                        $key = 'relationship';
+                    }
+                    $this->{$key} = $matches[$key];
                 }
             }
         } else {

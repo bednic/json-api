@@ -141,12 +141,12 @@ class Configuration
         $this->supportSort       = $supportSort;
         $this->supportPagination = $supportPagination;
         $this->fieldsetParser    = $fieldsetParser ?? new FieldsetParser();
-        $this->pathParser        = $pathParser ?? new PathParser($metadataRepository, $baseURL);
-        $this->filterParser      = $filterParser ?? new ExpressionFilterParser($metadataRepository, $this->pathParser);
-        $this->inclusionParser   = $inclusionParser ?? new InclusionParser();
-        $this->paginationParser  = $paginationParser ?? new LimitOffsetPagination();
-        $this->sortParser        = $sortParser ?? new SortParser();
-        $this->logger            = $logger ?? new NullLogger();
+        $this->pathParser       = $pathParser ?? new PathParser($metadataRepository, $baseURL);
+        $this->filterParser     = $filterParser ?? new ExpressionFilterParser($metadataRepository);
+        $this->inclusionParser  = $inclusionParser ?? new InclusionParser();
+        $this->paginationParser = $paginationParser ?? new LimitOffsetPagination();
+        $this->sortParser       = $sortParser ?? new SortParser();
+        $this->logger           = $logger ?? new NullLogger();
     }
 
     /**

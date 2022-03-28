@@ -16,10 +16,11 @@ use Exception;
 use ExpressionBuilder\Ex;
 use ExpressionBuilder\Expression;
 use ExpressionBuilder\Expression\Field;
-use ExpressionBuilder\Expression\Literal;
 use ExpressionBuilder\Expression\Type\TBoolean;
 use ExpressionBuilder\Expression\Type\TDateTime;
 use ExpressionBuilder\Expression\Type\TNumeric;
+use ExpressionBuilder\Expression\Type\TString;
+use http\Message;
 use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\Attribute;
@@ -29,6 +30,7 @@ use JSONAPI\URI\Filtering\FilterParserInterface;
 use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\Messages;
 use JSONAPI\URI\Filtering\Parser;
+use JSONAPI\URI\Path\PathInterface;
 
 /**
  * Class FilterParser
@@ -42,18 +44,30 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
      */
     private Collection $fieldsExpressions;
 
-    public function parse(mixed $data): FilterInterface
+    /**
+     * @param mixed         $data
+     * @param PathInterface $path
+     *
+     * @return FilterInterface
+     * @throws ExpressionException
+     */
+    public function parse(mixed $data, PathInterface $path): FilterInterface
     {
+        $this->path = $path;
         if (is_string($data)) {
             $this->fieldsExpressions = new Collection();
             $phrases                 = explode(KeyWord::PHRASE_SEPARATOR->value, $data);
             $tree                    = [];
             foreach ($phrases as $phrase) {
-                $tokens         = explode(KeyWord::VALUE_SEPARATOR->value, $phrase);
-                $field          = array_shift($tokens);
-                $op             = array_shift($tokens);
-                $args           = $tokens;
-                $tree[$field][] = [$field, $op, $args];
+                $tokens = explode(KeyWord::VALUE_SEPARATOR->value, $phrase);
+                $field  = array_shift($tokens);
+                $op     = array_shift($tokens);
+                $args   = $tokens;
+                if ($field && $op && $args) {
+                    $tree[$field][] = [$field, $op, $args];
+                } else {
+                    throw new ExpressionException(Messages::syntaxError());
+                }
             }
             $condition = $this->parseExpression($tree);
             return new QuatrodotResult($data, $condition, $this->fieldsExpressions);
@@ -62,7 +76,9 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @return Expression Expression
+     * @param array<string, array<int, array<int,array<int, string>|string>>> $expression
+     *
+     * @return Expression
      * @throws ExpressionException
      */
     private function parseExpression(array $expression): Expression
@@ -71,6 +87,9 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
+     * @param array<array<string|array<string>>> $expressionTree
+     *
+     * @return TBoolean
      * @throws ExpressionException
      */
     private function parseAnd(array $expressionTree): TBoolean
@@ -88,6 +107,9 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
+     * @param array<string|array<string>> $expressions
+     *
+     * @return TBoolean
      * @throws ExpressionException
      */
     private function parseOr(array $expressions): TBoolean
@@ -105,6 +127,9 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
+     * @param array<string|array<string>> $expression
+     *
+     * @return TBoolean
      * @throws ExpressionException
      */
     private function parseComparison(array $expression): TBoolean
@@ -128,7 +153,7 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
             KeyWord::FUNCTION_STARTS_WITH          => Ex::startsWith($left, ...$right),
             KeyWord::FUNCTION_ENDS_WITH            => Ex::endsWith($left, ...$right),
             default                                => throw new ExpressionException(
-                Messages::operandOrFunctionNotImplemented($op)
+                Messages::operandOrFunctionNotImplemented($operand)
             )
         };
         if ($this->fieldsExpressions->hasKey($field)) {
@@ -185,32 +210,34 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @param mixed          $args
-     * @param Attribute|null $attribute
+     * @param string[]|string[][] $args
+     * @param Attribute|null      $attribute
      *
-     * @return Literal|Literal[]
+     * @return array<TBoolean|TString|TNumeric|TDateTime>
      * @throws ExpressionException
      */
-    private function parseArgs(mixed $args, ?Attribute $attribute): Literal|array
+    private function parseArgs(mixed $args, ?Attribute $attribute): array
     {
         if (!is_null($attribute)) {
+            $type = $attribute->type;
+            if ($attribute->type === 'array') {
+                $type = $attribute->of;
+            }
             $params = [];
             foreach ($args as $arg) {
-                $params[] = match ($attribute->type) {
-                    'int'                                                               => $this->parseInt($arg),
-                    'bool'                                                              => $this->parseBoolean($arg),
-                    'float'                                                             => $this->parseFloat($arg),
-                    'array'                                                             => $this->parseArray(
-                        $arg,
-                        $attribute
-                    ),
-                    DateTimeInterface::class, DateTimeImmutable::class, DateTime::class => $this->parseDate($arg),
-                    default                                                             => Ex::literal($arg)
+                $params[] = match ($type) {
+                    'int'           => $this->parseInt($arg),
+                    'bool'          => $this->parseBoolean($arg),
+                    'float'         => $this->parseFloat($arg),
+                    DateTimeInterface::class,
+                    DateTimeImmutable::class,
+                    DateTime::class => $this->parseDate($arg),
+                    default         => Ex::literal($arg)
                 };
             }
             return $params;
         } else {
-            return Ex::literal($args);
+            return [Ex::literal($args)];
         }
     }
 
@@ -257,24 +284,7 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @param array     $args
-     * @param Attribute $attribute
-     *
-     * @return Literal[]
-     * @throws ExpressionException
-     */
-    private function parseArray(array $args, Attribute $attribute): array
-    {
-        $ret             = [];
-        $attribute->type = $attribute->of;
-        foreach ($args as $arg) {
-            $ret[] = $this->parseArgs($arg, $attribute);
-        }
-        return $ret;
-    }
-
-    /**
-     * @param mixed $args
+     * @param string $args
      *
      * @return TDateTime
      * @throws ExpressionException
@@ -284,7 +294,10 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
         try {
             return Ex::literal(new DateTimeImmutable($args));
         } catch (Exception $e) {
-            throw new ExpressionException(Messages::expressionLexerUnterminatedStringLiteral(0, $args), previous: $e);
+            throw new ExpressionException(
+                Messages::expressionParserUnrecognizedLiteral('datetime', $args, 0),
+                previous: $e
+            );
         }
     }
 }

@@ -20,11 +20,9 @@ abstract class Parser
 
     /**
      * @param MetadataRepository $repository
-     * @param PathInterface      $path
      */
-    public function __construct(MetadataRepository $repository, PathInterface $path)
+    public function __construct(MetadataRepository $repository)
     {
         $this->repository = $repository;
-        $this->path       = $path;
     }
 }

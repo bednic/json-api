@@ -116,6 +116,19 @@ class Messages
     }
 
     /**
+     * Format message for an unknown operand
+     *
+     * @param string $op The unknown function name
+     * @param int    $pos Position at which unknown function-call found
+     *
+     * @return string The formatted message
+     */
+    public static function expressionParserUnknownOperand(string $op, int $pos): string
+    {
+        return "Unknown function '$op' at position $pos";
+    }
+
+    /**
      * Message to show error when there is a syntax error in the query
      *
      * @return string The message

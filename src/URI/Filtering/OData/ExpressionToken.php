@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JSONAPI\URI\Filtering\OData;
 
-use Exception;
 use JSONAPI\URI\Filtering\ExpressionException;
 use JSONAPI\URI\Filtering\KeyWord;
 

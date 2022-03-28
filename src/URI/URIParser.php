@@ -71,7 +71,8 @@ final class URIParser
             $request->getQueryParams()[QueryPartInterface::FIELDS_PART_KEY] ?? null
         );
         $filter     = $this->configuration->getFilterParser()->parse(
-            $request->getQueryParams()[QueryPartInterface::FILTER_PART_KEY] ?? null
+            $request->getQueryParams()[QueryPartInterface::FILTER_PART_KEY] ?? null,
+            $path
         );
         return new class ($fieldset, $filter, $inclusion, $pagination, $path, $sort) implements ParsedURI {
             public function __construct(
