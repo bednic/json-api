@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\URI\Filtering\OData;
 
 use JSONAPI\Data\Collection;

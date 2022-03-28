@@ -60,10 +60,10 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     /**
      * Parse logical or (or)
      *
-     * @return mixed
+     * @return TBoolean|Expression
      * @throws ExpressionException
      */
-    private function parseLogicalOr(): TBoolean
+    private function parseLogicalOr(): TBoolean|Expression
     {
         $left = $this->parseLogicalAnd();
         while ($this->lexer->getCurrentToken()->identifierIs(KeyWord::LOGICAL_OR)) {
@@ -78,10 +78,10 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     /**
      * Parse logical and (and)
      *
-     * @return mixed
+     * @return TBoolean|Expression
      * @throws ExpressionException
      */
-    private function parseLogicalAnd(): TBoolean
+    private function parseLogicalAnd(): TBoolean|Expression
     {
         $left = $this->parseComparison();
         while ($this->lexer->getCurrentToken()->identifierIs(KeyWord::LOGICAL_AND)) {
@@ -95,24 +95,25 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     /**
      * Parse comparison operation (eq, ne, gt, gte, lt, lte, in, be)
      *
-     * @return mixed
+     * @return TBoolean|Expression
      * @throws ExpressionException
      */
-    private function parseComparison(): TBoolean
+    private function parseComparison(): TBoolean|Expression
     {
         $left = $this->parseAdditive();
         while ($this->lexer->getCurrentToken()->isComparisonOperator()) {
             $comparisonToken = clone $this->lexer->getCurrentToken();
             $this->lexer->nextToken();
-            if (
-                $comparisonToken->identifierIs(KeyWord::LOGICAL_IN) ||
-                $comparisonToken->identifierIs(KeyWord::LOGICAL_BETWEEN)
-            ) {
+            if ($comparisonToken->identifierIs(KeyWord::LOGICAL_IN)) {
                 $right = $this->parseArgumentList();
+                $left  = Ex::{$comparisonToken->text}($left, $right);
+            } elseif ($comparisonToken->identifierIs(KeyWord::LOGICAL_BETWEEN)) {
+                $right = $this->parseArgumentList();
+                $left  = Ex::{$comparisonToken->text}($left, ...$right);
             } else {
                 $right = $this->parseAdditive();
+                $left  = Ex::{$comparisonToken->text}($left, $right);
             }
-            $left = Ex::{$comparisonToken->text}($left, $right);
         }
         return $left;
     }
@@ -120,10 +121,10 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     /**
      * Parse additive operation (add, sub).
      *
-     * @return mixed
+     * @return TNumeric|Expression
      * @throws ExpressionException
      */
-    private function parseAdditive(): TNumeric
+    private function parseAdditive(): TNumeric|Expression
     {
         $left = $this->parseMultiplicative();
         while (
@@ -147,10 +148,10 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     /**
      * Parse multiplicative operators (mul, div, mod)
      *
-     * @return mixed
+     * @return TNumeric|Expression
      * @throws ExpressionException
      */
-    private function parseMultiplicative(): TNumeric
+    private function parseMultiplicative(): TNumeric|Expression
     {
         $left = $this->parseUnary();
         while (
@@ -176,10 +177,10 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     /**
      * Parse unary operator (- ,not)
      *
-     * @return TNumeric|TBoolean
+     * @return TNumeric|TBoolean|Expression
      * @throws ExpressionException
      */
-    private function parseUnary(): TNumeric|TBoolean
+    private function parseUnary(): TNumeric|TBoolean|Expression
     {
         if (
             $this->lexer->getCurrentToken()->id == ExpressionTokenId::MINUS ||
@@ -201,7 +202,7 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
             $expr = $this->parseExpression();
 
             if ($op->id === ExpressionTokenId::MINUS) {
-                $expr = '-' . $expr->getValue();
+                $expr = Ex::literal('-' . $expr->getValue());
             } else {
                 $expr = Ex::not($expr);
             }
@@ -211,10 +212,10 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @return mixed
+     * @return TBoolean|TString|TNumeric|TDateTime|Expression
      * @throws ExpressionException
      */
-    private function parsePrimary(): mixed
+    private function parsePrimary(): TBoolean|TString|TNumeric|TDateTime|Expression
     {
         return $this->parsePrimaryStart();
     }
@@ -256,7 +257,7 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @return mixed
+     * @return TBoolean
      * @throws ExpressionException
      */
     private function parseBoolean(): TBoolean
@@ -268,7 +269,7 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @return mixed
+     * @return TDateTime
      * @throws ExpressionException
      */
     private function parseDatetime(): TDateTime
@@ -291,7 +292,7 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @return mixed
+     * @return TNumeric
      * @throws ExpressionException
      */
     private function parseFloat(): TNumeric
@@ -306,7 +307,7 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @return mixed
+     * @return Literal
      * @throws ExpressionException
      */
     private function parseNull(): Literal

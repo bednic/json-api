@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace JSONAPI\URI\Filtering\QData;
 
 use JSONAPI\Data\Collection;

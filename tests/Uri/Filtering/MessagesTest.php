@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\Test\URI\Filtering;
 
+use JSONAPI\URI\Filtering\KeyWord;
 use JSONAPI\URI\Filtering\Messages;
 use PHPUnit\Framework\TestCase;
 
@@ -31,7 +32,7 @@ class MessagesTest extends TestCase
 
     public function testOperandOrFunctionNotImplemented()
     {
-        $this->assertIsString(Messages::OperandOrFunctionNotImplemented('fnOrOp'));
+        $this->assertIsString(Messages::OperandOrFunctionNotImplemented(KeyWord::ARITHMETIC_ADDITION));
     }
 
     public function testExpressionLexerInvalidCharacter()

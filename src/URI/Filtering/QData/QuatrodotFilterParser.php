@@ -49,7 +49,7 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
             $phrases                 = explode(KeyWord::PHRASE_SEPARATOR->value, $data);
             $tree                    = [];
             foreach ($phrases as $phrase) {
-                $tokens = explode(KeyWord::VALUE_SEPARATOR->value, $phrase);
+                $tokens         = explode(KeyWord::VALUE_SEPARATOR->value, $phrase);
                 $field          = array_shift($tokens);
                 $op             = array_shift($tokens);
                 $args           = $tokens;
@@ -116,17 +116,17 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
         $operand = KeyWord::tryFrom($op);
         $right   = $this->parseArgs($args, $this->getAttributeForIdentifier($field));
         $ex      = match ($operand) {
-            KeyWord::LOGICAL_EQUAL                 => Ex::eq($left, $right),
-            KeyWord::LOGICAL_NOT_EQUAL             => Ex::ne($left, $right),
-            KeyWord::LOGICAL_GREATER_THAN          => Ex::gt($left, $right),
-            KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL => Ex::ge($left, $right),
-            KeyWord::LOGICAL_LOWER_THAN            => Ex::lt($left, $right),
-            KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL   => Ex::le($left, $right),
+            KeyWord::LOGICAL_EQUAL                 => Ex::eq($left, ...$right),
+            KeyWord::LOGICAL_NOT_EQUAL             => Ex::ne($left, ...$right),
+            KeyWord::LOGICAL_GREATER_THAN          => Ex::gt($left, ...$right),
+            KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL => Ex::ge($left, ...$right),
+            KeyWord::LOGICAL_LOWER_THAN            => Ex::lt($left, ...$right),
+            KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL   => Ex::le($left, ...$right),
             KeyWord::LOGICAL_IN                    => Ex::in($left, $right),
             KeyWord::LOGICAL_BETWEEN               => Ex::be($left, ...$right),
-            KeyWord::FUNCTION_CONTAINS             => Ex::contains($left, $right),
-            KeyWord::FUNCTION_STARTS_WITH          => Ex::startsWith($left, $right),
-            KeyWord::FUNCTION_ENDS_WITH            => Ex::endsWith($left, $right),
+            KeyWord::FUNCTION_CONTAINS             => Ex::contains($left, ...$right),
+            KeyWord::FUNCTION_STARTS_WITH          => Ex::startsWith($left, ...$right),
+            KeyWord::FUNCTION_ENDS_WITH            => Ex::endsWith($left, ...$right),
             default                                => throw new ExpressionException(
                 Messages::operandOrFunctionNotImplemented($op)
             )
@@ -194,69 +194,76 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     private function parseArgs(mixed $args, ?Attribute $attribute): Literal|array
     {
         if (!is_null($attribute)) {
-            return match ($attribute->type) {
-                'int'           => $this->parseInt($args),
-                'bool'          => $this->parseBoolean($args),
-                'float'         => $this->parseFloat($args),
-                'array'         => $this->parseArray($args, $attribute),
-                DateTimeInterface::class, DateTimeImmutable::class,
-                DateTime::class => $this->parseDate($args),
-                default         => Ex::literal($args)
-            };
+            $params = [];
+            foreach ($args as $arg) {
+                $params[] = match ($attribute->type) {
+                    'int'                                                               => $this->parseInt($arg),
+                    'bool'                                                              => $this->parseBoolean($arg),
+                    'float'                                                             => $this->parseFloat($arg),
+                    'array'                                                             => $this->parseArray(
+                        $arg,
+                        $attribute
+                    ),
+                    DateTimeInterface::class, DateTimeImmutable::class, DateTime::class => $this->parseDate($arg),
+                    default                                                             => Ex::literal($arg)
+                };
+            }
+            return $params;
+        } else {
+            return Ex::literal($args);
         }
-        return Ex::literal($args);
     }
 
     /**
-     * @param mixed $args
+     * @param string $arg
      *
      * @return TNumeric
      * @throws ExpressionException
      */
-    private function parseInt(mixed $args): TNumeric
+    private function parseInt(string $arg): TNumeric
     {
-        if (($value = filter_var(self::singleArgument($args), FILTER_VALIDATE_INT)) !== false) {
+        if (($value = filter_var($arg, FILTER_VALIDATE_INT)) !== false) {
             return Ex::literal($value);
         }
         throw new ExpressionException(Messages::expressionLexerDigitExpected(0));
     }
 
     /**
-     * @param mixed $args
+     * @param string $arg
      *
      * @return TBoolean
      * @throws ExpressionException
      */
-    private function parseBoolean(mixed $args): TBoolean
+    private function parseBoolean(string $arg): TBoolean
     {
-        if (($value = filter_var(self::singleArgument($args), FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE)) !== null) {
+        if (($value = filter_var($arg, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE)) !== null) {
             return Ex::literal($value);
         }
         throw new ExpressionException(Messages::expressionLexerBooleanExpected(0));
     }
 
     /**
-     * @param mixed $args
+     * @param string $arg
      *
      * @return TNumeric
      * @throws ExpressionException
      */
-    private function parseFloat(mixed $args): TNumeric
+    private function parseFloat(string $arg): TNumeric
     {
-        if (($value = filter_var(self::singleArgument($args), FILTER_VALIDATE_FLOAT)) !== false) {
+        if (($value = filter_var($arg, FILTER_VALIDATE_FLOAT)) !== false) {
             return Ex::literal($value);
         }
         throw new ExpressionException(Messages::expressionLexerDigitExpected(0));
     }
 
     /**
-     * @param mixed     $args
+     * @param array     $args
      * @param Attribute $attribute
      *
      * @return Literal[]
      * @throws ExpressionException
      */
-    private function parseArray(mixed $args, Attribute $attribute): array
+    private function parseArray(array $args, Attribute $attribute): array
     {
         $ret             = [];
         $attribute->type = $attribute->of;
@@ -272,26 +279,12 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
      * @return TDateTime
      * @throws ExpressionException
      */
-    private function parseDate(mixed $args): TDateTime
+    private function parseDate(string $args): TDateTime
     {
         try {
-            return Ex::literal(new DateTimeImmutable(self::singleArgument($args)));
+            return Ex::literal(new DateTimeImmutable($args));
         } catch (Exception $e) {
-            throw new ExpressionException(Messages::expressionLexerUnterminatedStringLiteral(0, $args));
+            throw new ExpressionException(Messages::expressionLexerUnterminatedStringLiteral(0, $args), previous: $e);
         }
-    }
-
-    /**
-     * @param array $args
-     *
-     * @return string|bool|int|float|DateTimeInterface|null
-     * @throws ExpressionException
-     */
-    private static function singleArgument(array $args): string|bool|int|float|null|DateTimeInterface
-    {
-        if (count($args) != 1) {
-            throw new ExpressionException(/*todo*/);
-        }
-        return $args[0];
     }
 }
