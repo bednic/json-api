@@ -11,8 +11,8 @@ use JSONAPI\URI\Filtering\FilterInterface;
 class QuatrodotResult implements FilterInterface
 {
     /**
-     * @param string|null     $origin
-     * @param mixed           $condition
+     * @param string|null                         $origin
+     * @param Expression|null                     $condition
      * @param Collection<string, Expression>|null $identifierExpressions
      */
     public function __construct(
@@ -24,7 +24,7 @@ class QuatrodotResult implements FilterInterface
 
 
     /**
-     * @inheritDoc
+     * @return Expression
      */
     public function getCondition(): Expression
     {

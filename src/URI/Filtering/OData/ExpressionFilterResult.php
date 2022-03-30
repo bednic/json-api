@@ -15,8 +15,8 @@ use JSONAPI\URI\Filtering\FilterInterface;
 class ExpressionFilterResult implements FilterInterface
 {
     /**
-     * @param string|null $origin
-     * @param mixed       $condition
+     * @param string|null     $origin
+     * @param Expression|null $condition
      */
     public function __construct(
         private ?string $origin = null,
@@ -25,7 +25,7 @@ class ExpressionFilterResult implements FilterInterface
     }
 
     /**
-     * @return mixed
+     * @return Expression
      */
     public function getCondition(): Expression
     {
