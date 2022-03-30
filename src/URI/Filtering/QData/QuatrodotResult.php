@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\URI\Filtering\QData;
 
+use ExpressionBuilder\Expression;
 use JSONAPI\Data\Collection;
 use JSONAPI\URI\Filtering\FilterInterface;
 
@@ -12,11 +13,11 @@ class QuatrodotResult implements FilterInterface
     /**
      * @param string|null     $origin
      * @param mixed           $condition
-     * @param Collection|null $identifierExpressions
+     * @param Collection<string, Expression>|null $identifierExpressions
      */
     public function __construct(
         private ?string $origin = null,
-        private mixed $condition = null,
+        private ?Expression $condition = null,
         private ?Collection $identifierExpressions = null
     ) {
     }
@@ -25,7 +26,7 @@ class QuatrodotResult implements FilterInterface
     /**
      * @inheritDoc
      */
-    public function getCondition(): mixed
+    public function getCondition(): Expression
     {
         return $this->condition;
     }
@@ -33,9 +34,9 @@ class QuatrodotResult implements FilterInterface
     /**
      * @param string $identifier
      *
-     * @return mixed
+     * @return Expression|null
      */
-    public function getPartialCondition(string $identifier): mixed
+    public function getPartialCondition(string $identifier): ?Expression
     {
         if ($this->identifierExpressions->hasKey($identifier)) {
             return $this->identifierExpressions->get($identifier);

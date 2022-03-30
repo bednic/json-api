@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace JSONAPI\URI\Filtering\OData;
 
-use JSONAPI\Data\Collection;
+use ExpressionBuilder\Expression;
 use JSONAPI\URI\Filtering\FilterInterface;
 
 /**
@@ -20,14 +20,14 @@ class ExpressionFilterResult implements FilterInterface
      */
     public function __construct(
         private ?string $origin = null,
-        private mixed $condition = null
+        private ?Expression $condition = null
     ) {
     }
 
     /**
      * @return mixed
      */
-    public function getCondition(): mixed
+    public function getCondition(): Expression
     {
         return $this->condition;
     }
