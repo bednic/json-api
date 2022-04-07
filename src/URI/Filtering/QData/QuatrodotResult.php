@@ -38,7 +38,7 @@ class QuatrodotResult implements FilterInterface
      */
     public function getPartialCondition(string $identifier): ?Expression
     {
-        if ($this->identifierExpressions->hasKey($identifier)) {
+        if ($this->identifierExpressions?->hasKey($identifier)) {
             return $this->identifierExpressions->get($identifier);
         }
         return null;
