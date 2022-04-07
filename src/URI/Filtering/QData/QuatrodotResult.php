@@ -24,9 +24,9 @@ class QuatrodotResult implements FilterInterface
 
 
     /**
-     * @return Expression
+     * @return Expression|null
      */
-    public function getCondition(): Expression
+    public function getCondition(): ?Expression
     {
         return $this->condition;
     }
@@ -49,6 +49,6 @@ class QuatrodotResult implements FilterInterface
      */
     public function __toString(): string
     {
-        return $this->origin ?? '';
+        return $this->origin ? 'filter=' . $this->origin : '';
     }
 }
