@@ -40,9 +40,9 @@ use JSONAPI\URI\Path\PathInterface;
 class QuatrodotFilterParser extends Parser implements FilterParserInterface
 {
     /**
-     * @var Collection
+     * @var QuatrodotResult${CARET}
      */
-    private Collection $fieldsExpressions;
+    private QuatrodotResult $result;
 
     /**
      * @param mixed         $data
@@ -53,11 +53,12 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
      */
     public function parse(mixed $data, PathInterface $path): FilterInterface
     {
-        $this->path = $path;
+        $this->path   = $path;
+        $this->result = new QuatrodotResult();
         if (is_string($data)) {
-            $this->fieldsExpressions = new Collection();
-            $phrases                 = explode(KeyWord::PHRASE_SEPARATOR->value, $data);
-            $tree                    = [];
+            $this->result->setOrigin($data);
+            $phrases = explode(KeyWord::PHRASE_SEPARATOR->value, $data);
+            $tree    = [];
             foreach ($phrases as $phrase) {
                 $tokens = explode(KeyWord::VALUE_SEPARATOR->value, $phrase);
                 $field  = array_shift($tokens);
@@ -70,9 +71,9 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
                 }
             }
             $condition = $this->parseExpression($tree);
-            return new QuatrodotResult($data, $condition, $this->fieldsExpressions);
+            $this->result->setCondition($condition);
         }
-        return new QuatrodotResult();
+        return $this->result;
     }
 
     /**
@@ -156,13 +157,7 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
                 Messages::operandOrFunctionNotImplemented($operand)
             )
         };
-        if ($this->fieldsExpressions->hasKey($field)) {
-            $old = $this->fieldsExpressions->get($field);
-            $new = Ex::or($old, $ex);
-            $this->fieldsExpressions->set($field, $new);
-        } else {
-            $this->fieldsExpressions->set($field, $ex);
-        }
+        $this->result->addConditionFor($field, $ex);
         return $ex;
     }
 

@@ -5,23 +5,45 @@ declare(strict_types=1);
 namespace JSONAPI\URI\Filtering\QData;
 
 use ExpressionBuilder\Expression;
-use JSONAPI\Data\Collection;
 use JSONAPI\URI\Filtering\FilterInterface;
 
+/**
+ * Class QuatrodotResult
+ *
+ * @package JSONAPI\URI\Filtering\QData
+ */
 class QuatrodotResult implements FilterInterface
 {
     /**
-     * @param string|null                         $origin
-     * @param Expression|null                     $condition
-     * @param Collection<string, Expression>|null $identifierExpressions
+     * @var Expression|null
      */
-    public function __construct(
-        private ?string $origin = null,
-        private ?Expression $condition = null,
-        private ?Collection $identifierExpressions = null
-    ) {
+    private ?Expression $condition = null;
+
+    /**
+     * @var array<string, array<int, Expression\Type\TBoolean>>
+     */
+    private array $tree = [];
+
+    /**
+     * @var string|null
+     */
+    private ?string $origin = null;
+
+    /**
+     * @param Expression $condition
+     */
+    public function setCondition(Expression $condition): void
+    {
+        $this->condition = $condition;
     }
 
+    /**
+     * @param string $origin
+     */
+    public function setOrigin(string $origin): void
+    {
+        $this->origin = $origin;
+    }
 
     /**
      * @return Expression|null
@@ -34,14 +56,19 @@ class QuatrodotResult implements FilterInterface
     /**
      * @param string $identifier
      *
-     * @return Expression|null
+     * @return Expression\Type\TBoolean[]
      */
-    public function getPartialCondition(string $identifier): ?Expression
+    public function getConditionsFor(string $identifier): array
     {
-        if ($this->identifierExpressions?->hasKey($identifier)) {
-            return $this->identifierExpressions->get($identifier);
+        if (isset($this->tree[$identifier])) {
+            return $this->tree[$identifier];
         }
-        return null;
+        return [];
+    }
+
+    public function addConditionFor(string $identifier, Expression\Type\TBoolean $expression): void
+    {
+        $this->tree[$identifier][] = $expression;
     }
 
     /**

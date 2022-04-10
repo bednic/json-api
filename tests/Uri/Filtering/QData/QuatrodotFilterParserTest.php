@@ -10,6 +10,7 @@ declare(strict_types=1);
 namespace JSONAPI\Test\URI\Filtering\QData;
 
 use ExpressionBuilder\Dispatcher\PostgresSQLResolver;
+use ExpressionBuilder\Ex;
 use JSONAPI\Configuration;
 use JSONAPI\Driver\SchemaDriver;
 use JSONAPI\Metadata\MetadataFactory;
@@ -94,8 +95,10 @@ class QuatrodotFilterParserTest extends TestCase
             $params
         );
         $dispatcher  = new PostgresSQLResolver();
-        $stringEx    = $result->getPartialCondition("stringProperty");
-        $stringWhere = $dispatcher->dispatch($stringEx);
+        $stringEx    = $result->getConditionsFor("stringProperty");
+        $this->assertCount(2, $stringEx);
+        $orEx = Ex::or(...$stringEx);
+        $stringWhere = $dispatcher->dispatch($orEx);
         $this->assertEquals("(stringProperty LIKE :0 OR stringProperty = :1)", $stringWhere);
         $this->assertEquals(["%Bonus%", "mortgages"], $dispatcher->getParams());
     }
