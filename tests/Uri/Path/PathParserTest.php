@@ -126,4 +126,12 @@ class PathParserTest extends TestCase
         $path = $parser->parse($test, RequestMethodInterface::METHOD_GET);
         $this->assertEquals('relation', $path->getRelationshipName());
     }
+
+    public function testIssue44()
+    {
+        $test = '/resource/uu.id/relationships/relation';
+        $parser = new PathParser(self::$mr, self::$baseUrl);
+        $path = $parser->parse($test, RequestMethodInterface::METHOD_GET);
+        $this->assertEquals('uu.id', $path->getId());
+    }
 }
