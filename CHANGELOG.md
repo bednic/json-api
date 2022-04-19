@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### [9.0.7](https://gitlab.com/bednic/json-api/compare/9.0.6...9.0.7) (2022-04-19)
 
+
+### Fixed
+
+ * fix issue 44 ([774fe6d9 ](https://gitlab.com/bednic/json-api/-/commit/774fe6d962e4bc8193b940e3a27e60dd8f63e6d1))
+
 ### [9.0.6](https://gitlab.com/bednic/json-api/compare/9.0.5...9.0.6) (2022-02-13)
 
 
