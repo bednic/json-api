@@ -76,9 +76,8 @@ class PathParser implements PathInterface, PathParserInterface
         $req                  = explode('/', $data);
         $base                 = explode('/', parse_url($this->baseURL, PHP_URL_PATH) ?? '');
         $diff                 = array_diff($req, $base);
-        $data                 = implode('/', $diff);
-        $pattern              = '/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_]+))?'
-            . '((\/relationships\/(?P<relationship>[a-zA-Z0-9-_]+))|(\/(?P<related>[a-zA-Z0-9-_]+)))?$/';
+        $data                 = '/' . ltrim(implode('/', $diff), '/');
+        $pattern              = '~^\/(?P<resource>[a-zA-Z0-9-_]+)(\/(?P<id>[a-zA-Z0-9-_\.]+)?((\/relationships\/(?P<relationship>[a-zA-Z-_]+))|(\/(?P<relation>[a-zA-Z-_]+)))?)?$~';
 
         if (preg_match($pattern, $data, $matches)) {
             foreach (['resource', 'id', 'relationship', 'related'] as $key) {
