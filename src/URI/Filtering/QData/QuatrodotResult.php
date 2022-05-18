@@ -76,6 +76,6 @@ class QuatrodotResult implements FilterInterface
      */
     public function __toString(): string
     {
-        return $this->origin ? 'filter=' . $this->origin : '';
+        return $this->origin ? 'filter=' . urlencode($this->origin) : '';
     }
 }

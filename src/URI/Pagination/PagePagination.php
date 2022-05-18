@@ -179,7 +179,7 @@ class PagePagination implements PaginationInterface, PaginationParserInterface, 
      */
     public function __toString(): string
     {
-        return rawurlencode('page[' . self::PAGE_START_KEY . ']') . '=' . $this->getNumber()
-            . '&' . rawurlencode('page[' . self::PAGE_SIZE_KEY . ']') . '=' . $this->getSize();
+        return urlencode('page[' . self::PAGE_START_KEY . ']') . '=' . $this->getNumber()
+            . '&' . urlencode('page[' . self::PAGE_SIZE_KEY . ']') . '=' . $this->getSize();
     }
 }

@@ -35,7 +35,7 @@ abstract class CursorPagination implements PaginationInterface, PaginationParser
      */
     public function __toString(): string
     {
-        return urlencode('page[cursor]=' . $this->getCursor());
+        return urlencode('page[cursor]=' . urlencode($this->getCursor()));
     }
 
     /**

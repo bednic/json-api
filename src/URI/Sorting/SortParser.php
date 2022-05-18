@@ -69,7 +69,7 @@ class SortParser implements SortInterface, SortParserInterface
         $str = '';
         if (count($this->sort) > 0) {
             foreach ($this->sort as $field => $sort) {
-                $str .= (strlen($str) > 0 ? ',' : '') . ($sort === 'DESC' ? '-' : '') . $field;
+                $str .= (strlen($str) > 0 ? ',' : '') . ($sort === SortInterface::DESC ? '-' : '') . urlencode($field);
             }
         }
         return $str;

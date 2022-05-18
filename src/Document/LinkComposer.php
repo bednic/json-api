@@ -57,7 +57,7 @@ class LinkComposer
      */
     private function getResourceLink(ResourceObjectIdentifier $resource): string
     {
-        return $this->baseURL . '/' . $resource->getType() . '/' . $resource->getId();
+        return $this->baseURL . '/' . rawurlencode($resource->getType()) . '/' . rawurlencode($resource->getId());
     }
 
     /**

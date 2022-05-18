@@ -108,6 +108,6 @@ class InclusionParser implements InclusionInterface, InclusionParserInterface
      */
     public function __toString(): string
     {
-        return $this->data ? 'include=' . $this->data : '';
+        return $this->data ? 'include=' . urlencode($this->data) : '';
     }
 }

@@ -109,14 +109,14 @@ class PathParser implements PathInterface, PathParserInterface
      */
     public function __toString(): string
     {
-        $str = '/' . $this->resource;
+        $str = '/' . rawurlencode($this->resource);
         if ($this->id) {
-            $str .= '/' . $this->id;
+            $str .= '/' . rawurlencode($this->id);
             if ($this->relationship) {
                 if ($this->isRelationship) {
                     $str .= '/relationships';
                 }
-                $str .= '/' . $this->relationship;
+                $str .= '/' . rawurlencode($this->relationship);
             }
         }
         return $str;
