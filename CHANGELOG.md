@@ -4,6 +4,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [10.0.0](https://gitlab.com/bednic/json-api/compare/9.0.6...10.0.0) (2022-05-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* FilterParserInterface::parse method signature changed
+* Filtering/Builder/* removed
+ExpressionFilterParser ctr
+changed
+
+### Changed
+
+* allow all chars except '/' for identifier ([3c18f0f](https://gitlab.com/bednic/json-api/commit/3c18f0fec1e92d3daa3fa5201fdccae447159492))
+* allow more special characters in ID ([b0e69a7](https://gitlab.com/bednic/json-api/commit/b0e69a7076cc0bf30870d664a9fe0312d4f82271))
+* Change passing PathInterface to FilterParser ([355154f](https://gitlab.com/bednic/json-api/commit/355154f46826261696d1cce7a0f25cc2bd946ab5))
+* QuatrodotResult ([e27a28b](https://gitlab.com/bednic/json-api/commit/e27a28bd4c96dd36f2eb750a445da44086a2804c))
+* Remove builders ([fd2f13c](https://gitlab.com/bednic/json-api/commit/fd2f13c7b6f919c97422ebe0d71526abe8813818))
+* specify return types ([3b8633b](https://gitlab.com/bednic/json-api/commit/3b8633b9766356d712a649a3455821df0781132d))
+
+
+### Fixed
+
+* fix issue 44 ([774fe6d](https://gitlab.com/bednic/json-api/commit/774fe6d962e4bc8193b940e3a27e60dd8f63e6d1))
+* fix pattern match ([88eedba](https://gitlab.com/bednic/json-api/commit/88eedbaae6d9c30e645c39c26c28f83220517c80))
+* null identifierExpressions handling ([aaca24a](https://gitlab.com/bednic/json-api/commit/aaca24a06b1d06e49b1d9043236d9cbbe9157e49))
+* null identifierExpressions handling ([509f689](https://gitlab.com/bednic/json-api/commit/509f68996d32e21542a87d85fbe0606b97964180))
+* safe url encode URI parts ([c97e5a4](https://gitlab.com/bednic/json-api/commit/c97e5a4d3722eabcc9f8858dbb270dc51e366efd)), closes [#45](https://gitlab.com/bednic/json-api/issues/45)
+* safe url encode URI parts ([0f6a045](https://gitlab.com/bednic/json-api/commit/0f6a045336833f92175d2c22ba2160708da977a1)), closes [#45](https://gitlab.com/bednic/json-api/issues/45)
+
 ### [9.0.8](https://gitlab.com/bednic/json-api/compare/9.0.7...9.0.8) (2022-04-19)
 
 
