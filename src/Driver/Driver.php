@@ -168,7 +168,7 @@ abstract class Driver
         if (
             $reflection->getDocComment() !== false &&
             preg_match(
-                '~@return ((null|array)\|)*?((?P<type>\w+)\[])(\|(null|array))*?~',
+                '~(@return|@var) ((null|array)\|)*?((?P<type>\w+)\[])(\|(null|array))*?~',
                 $reflection->getDocComment(),
                 $match
             )
