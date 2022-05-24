@@ -166,6 +166,7 @@ abstract class Driver
     protected function tryGetArrayType(ReflectionProperty|ReflectionMethod $reflection): ?string
     {
         if (
+            $reflection->getDocComment() !== false &&
             preg_match(
                 '~@return ((null|array)\|)*?((?P<type>\w+)\[])(\|(null|array))*?~',
                 $reflection->getDocComment(),
