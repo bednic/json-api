@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+### [10.0.3](https://gitlab.com/bednic/json-api/compare/10.0.2...10.0.3) (2022-05-24)
+
+
+### Fixed
+
+* fix Driver read array data type if docblock does not exist ([0039ac8](https://gitlab.com/bednic/json-api/commit/0039ac8048fe6825d11721011b464b6963e6919a))
+* fix Driver read array data type if docblock exist on property ([173b26a](https://gitlab.com/bednic/json-api/commit/173b26a80ac3a6931de489e07ce9a2c86d8f3973))
+* PathParser did not assign relationship name if related path ([432dccc](https://gitlab.com/bednic/json-api/commit/432dcccb2c2c62d88c9cece1988dabf8df9b62d1))
+
 ### [10.0.2](https://gitlab.com/bednic/json-api/compare/10.0.1...10.0.2) (2022-05-23)
 
 ### [10.0.1](https://gitlab.com/bednic/json-api/compare/10.0.0...10.0.1) (2022-05-23)
