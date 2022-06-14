@@ -7,9 +7,13 @@ namespace JSONAPI\URI\Filtering\OData;
 use DateTime;
 use Exception;
 use ExpressionBuilder\Ex;
+use ExpressionBuilder\Exception\ExpressionBuilderError;
 use ExpressionBuilder\Expression;
 use ExpressionBuilder\Expression\Field;
 use ExpressionBuilder\Expression\Literal;
+use ExpressionBuilder\Expression\Literal\ArrayValue;
+use ExpressionBuilder\Expression\Literal\NullValue;
+use ExpressionBuilder\Expression\Type\TArray;
 use ExpressionBuilder\Expression\Type\TBoolean;
 use ExpressionBuilder\Expression\Type\TDateTime;
 use ExpressionBuilder\Expression\Type\TNumeric;
@@ -287,22 +291,16 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
         throw new ExpressionException(Messages::expressionLexerDigitExpected($this->lexer->getPosition()));
     }
 
-    /**
-     * @return Literal
-     * @throws ExpressionException
-     */
-    private function parseNull(): Literal
+    private function parseNull(): NullValue
     {
+        /** @var NullValue $value */
         $value = Ex::literal(null);
         $this->lexer->nextToken();
         return $value;
     }
 
-    /**
-     * @return Field|TString|TNumeric|TBoolean|TDateTime
-     * @throws ExpressionException
-     */
-    private function parseIdentifier(): Field|TString|TNumeric|TBoolean|TDateTime
+
+    private function parseIdentifier()
     {
         if ($this->lexer->getCurrentToken()->id !== ExpressionTokenId::IDENTIFIER) {
             throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
@@ -354,10 +352,10 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @return array<TString|TBoolean|TNumeric|TDateTime>
+     * @return ArrayValue
      * @throws ExpressionException
      */
-    private function parseArgumentList(): array
+    private function parseArgumentList(): ArrayValue
     {
         if ($this->lexer->getCurrentToken()->id !== ExpressionTokenId::OPEN_PARAM) {
             throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
@@ -369,13 +367,13 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
             throw new ExpressionException(Messages::expressionLexerSyntaxError($this->lexer->getPosition()));
         }
         $this->lexer->nextToken();
-        return $args;
+        return new ArrayValue($args);
     }
 
     # PARSERS
 
     /**
-     * @return array<TString|TBoolean|TNumeric|TDateTime>
+     * @return array
      * @throws ExpressionException
      */
     private function parseArguments(): array
@@ -392,12 +390,13 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * @return Field
+     * @return TDateTime|TArray|TString|TBoolean|TNumeric
      * @throws ExpressionException
      */
-    private function parsePropertyAccess(): Field
+    private function parsePropertyAccess(): TDateTime|TArray|TString|TBoolean|TNumeric
     {
         $identifier = $this->lexer->readDottedIdentifier();
+        $type       = 'string';
         try {
             $classMetadata = $this->repository->getByType($this->path->getPrimaryResourceType());
             $parts         = [...explode(".", $identifier)];
@@ -406,18 +405,24 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
                     $classMetadata = $this->repository->getByClass(
                         $classMetadata->getRelationship($part)->target
                     );
-                } elseif ($classMetadata->hasAttribute($part) || $part === 'id') {
-                    continue;
+                } elseif ($classMetadata->hasAttribute($part)) {
+                    $type = $classMetadata->getAttribute($part)->type;
+                    if ($type == 'array') {
+                        $type = $classMetadata->getAttribute($part)->of . '[]';
+                    }
+                } elseif ($part === 'id') {
+                    $type = 'string';
                 } else {
                     throw new ExpressionException(
                         Messages::failedToAccessProperty($part, $classMetadata->getClassName())
                     );
                 }
             }
-        } catch (MetadataException $exception) {
+            return Ex::field($identifier, $type);
+        } catch (MetadataException|ExpressionBuilderError $exception) {
+            var_dump($identifier, $type);
             throw new ExpressionException(Messages::syntaxError(), previous: $exception);
         }
-        return Ex::field($identifier);
     }
 
     /**
@@ -440,11 +445,13 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     private function parseInteger(): TNumeric
     {
         $value = $this->lexer->getCurrentToken()->text;
+
         if (($value = filter_var($value, FILTER_VALIDATE_INT)) !== false) {
             $value = Ex::literal((int)$value);
             $this->lexer->nextToken();
             return $value;
         }
+
         throw new ExpressionException(Messages::expressionLexerDigitExpected($this->lexer->getPosition()));
     }
 
