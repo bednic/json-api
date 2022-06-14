@@ -11,8 +11,6 @@ use ExpressionBuilder\Exception\ExpressionBuilderError;
 use ExpressionBuilder\Exception\IncomparableExpressions;
 use ExpressionBuilder\Exception\InvalidArgument;
 use ExpressionBuilder\Expression;
-use ExpressionBuilder\Expression\Field;
-use ExpressionBuilder\Expression\Literal;
 use ExpressionBuilder\Expression\Literal\ArrayValue;
 use ExpressionBuilder\Expression\Literal\NullValue;
 use ExpressionBuilder\Expression\Type\TArray;
