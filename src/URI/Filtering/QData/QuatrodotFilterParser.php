@@ -14,14 +14,14 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Exception;
 use ExpressionBuilder\Ex;
+use ExpressionBuilder\Exception\IncomparableExpressions;
+use ExpressionBuilder\Exception\InvalidArgument;
 use ExpressionBuilder\Expression;
-use ExpressionBuilder\Expression\Field;
+use ExpressionBuilder\Expression\Literal\ArrayValue;
 use ExpressionBuilder\Expression\Type\TBoolean;
 use ExpressionBuilder\Expression\Type\TDateTime;
 use ExpressionBuilder\Expression\Type\TNumeric;
 use ExpressionBuilder\Expression\Type\TString;
-use http\Message;
-use JSONAPI\Data\Collection;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\URI\Filtering\ExpressionException;
@@ -40,7 +40,7 @@ use JSONAPI\URI\Path\PathInterface;
 class QuatrodotFilterParser extends Parser implements FilterParserInterface
 {
     /**
-     * @var QuatrodotResult${CARET}
+     * @var QuatrodotResult
      */
     private QuatrodotResult $result;
 
@@ -135,42 +135,54 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
      */
     private function parseComparison(array $expression): TBoolean
     {
-        $field   = array_shift($expression);
-        $op      = array_shift($expression);
-        $args    = array_shift($expression);
-        $left    = $this->parseField($field);
-        $operand = KeyWord::tryFrom($op);
-        $right   = $this->parseArgs($args, $this->getAttributeForIdentifier($field));
-        $ex      = match ($operand) {
-            KeyWord::LOGICAL_EQUAL                 => Ex::eq($left, ...$right),
-            KeyWord::LOGICAL_NOT_EQUAL             => Ex::ne($left, ...$right),
-            KeyWord::LOGICAL_GREATER_THAN          => Ex::gt($left, ...$right),
-            KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL => Ex::ge($left, ...$right),
-            KeyWord::LOGICAL_LOWER_THAN            => Ex::lt($left, ...$right),
-            KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL   => Ex::le($left, ...$right),
-            KeyWord::LOGICAL_IN                    => Ex::in($left, $right),
-            KeyWord::LOGICAL_BETWEEN               => Ex::be($left, ...$right),
-            KeyWord::FUNCTION_CONTAINS             => Ex::contains($left, ...$right),
-            KeyWord::FUNCTION_STARTS_WITH          => Ex::startsWith($left, ...$right),
-            KeyWord::FUNCTION_ENDS_WITH            => Ex::endsWith($left, ...$right),
-            default                                => throw new ExpressionException(
-                Messages::operandOrFunctionNotImplemented($operand)
-            )
-        };
-        $this->result->addConditionFor($field, $ex);
-        return $ex;
+        try {
+            $field   = array_shift($expression);
+            $op      = array_shift($expression);
+            $args    = array_shift($expression);
+            $left    = $this->parseField($field);
+            $operand = KeyWord::tryFrom($op);
+            $right   = $this->parseArgs($args, $this->getAttributeForIdentifier($field));
+            $ex      = match ($operand) {
+                KeyWord::LOGICAL_EQUAL                 => Ex::eq($left, ...$right),
+                KeyWord::LOGICAL_NOT_EQUAL             => Ex::ne($left, ...$right),
+                KeyWord::LOGICAL_GREATER_THAN          => Ex::gt($left, ...$right),
+                KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL => Ex::ge($left, ...$right),
+                KeyWord::LOGICAL_LOWER_THAN            => Ex::lt($left, ...$right),
+                KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL   => Ex::le($left, ...$right),
+                KeyWord::LOGICAL_IN                    => Ex::in($left, new ArrayValue($right)),
+                KeyWord::LOGICAL_BETWEEN               => Ex::be($left, ...$right),
+                KeyWord::FUNCTION_CONTAINS             => Ex::contains($left, ...$right),
+                KeyWord::FUNCTION_STARTS_WITH          => Ex::startsWith($left, ...$right),
+                KeyWord::FUNCTION_ENDS_WITH            => Ex::endsWith($left, ...$right),
+                default                                => throw new ExpressionException(
+                    Messages::operandOrFunctionNotImplemented($operand)
+                )
+            };
+            $this->result->addConditionFor($field, $ex);
+            return $ex;
+        } catch (InvalidArgument | IncomparableExpressions $exception) {
+            throw new ExpressionException($exception->getMessage());
+        }
     }
 
     /**
      * @param string $identifier
      *
-     * @return Field
+     * @return TBoolean|TString|TNumeric|TDateTime
      * @throws ExpressionException
      */
-    private function parseField(string $identifier): Field
+    private function parseField(string $identifier): TBoolean|TString|TNumeric|TDateTime
     {
-        $this->getAttributeForIdentifier($identifier);
-        return Ex::field($identifier);
+        $attribute = $this->getAttributeForIdentifier($identifier);
+        try {
+            $type = $attribute->type ?? 'string';
+            if ($type == 'array') {
+                $type = $attribute->of . '[]';
+            }
+            return Ex::field($identifier, $type);
+        } catch (InvalidArgument $exception) {
+            throw new ExpressionException(Messages::syntaxError(), previous: $exception);
+        }
     }
 
     /**
@@ -213,26 +225,30 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
      */
     private function parseArgs(mixed $args, ?Attribute $attribute): array
     {
-        if (!is_null($attribute)) {
-            $type = $attribute->type;
-            if ($attribute->type === 'array') {
-                $type = $attribute->of;
+        try {
+            if (!is_null($attribute)) {
+                $type = $attribute->type;
+                if ($attribute->type === 'array') {
+                    $type = $attribute->of;
+                }
+                $params = [];
+                foreach ($args as $arg) {
+                    $params[] = match ($type) {
+                        'int', 'integer'  => $this->parseInt($arg),
+                        'bool', 'boolean' => $this->parseBoolean($arg),
+                        'float', 'double' => $this->parseFloat($arg),
+                        DateTimeInterface::class,
+                        DateTimeImmutable::class,
+                        DateTime::class   => $this->parseDate($arg),
+                        default           => Ex::literal($arg)
+                    };
+                }
+                return $params;
+            } else {
+                return [Ex::literal($args)];
             }
-            $params = [];
-            foreach ($args as $arg) {
-                $params[] = match ($type) {
-                    'int'           => $this->parseInt($arg),
-                    'bool'          => $this->parseBoolean($arg),
-                    'float'         => $this->parseFloat($arg),
-                    DateTimeInterface::class,
-                    DateTimeImmutable::class,
-                    DateTime::class => $this->parseDate($arg),
-                    default         => Ex::literal($arg)
-                };
-            }
-            return $params;
-        } else {
-            return [Ex::literal($args)];
+        } catch (InvalidArgument $exception) {
+            throw new ExpressionException($exception->getMessage());
         }
     }
 
@@ -245,7 +261,11 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     private function parseInt(string $arg): TNumeric
     {
         if (($value = filter_var($arg, FILTER_VALIDATE_INT)) !== false) {
-            return Ex::literal($value);
+            try {
+                return Ex::literal($value);
+            } catch (InvalidArgument $exception) {
+                throw new ExpressionException($exception->getMessage());
+            }
         }
         throw new ExpressionException(Messages::expressionLexerDigitExpected(0));
     }
@@ -259,7 +279,11 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     private function parseBoolean(string $arg): TBoolean
     {
         if (($value = filter_var($arg, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE)) !== null) {
-            return Ex::literal($value);
+            try {
+                return Ex::literal($value);
+            } catch (InvalidArgument $exception) {
+                throw new ExpressionException($exception->getMessage());
+            }
         }
         throw new ExpressionException(Messages::expressionLexerBooleanExpected(0));
     }
@@ -273,7 +297,11 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     private function parseFloat(string $arg): TNumeric
     {
         if (($value = filter_var($arg, FILTER_VALIDATE_FLOAT)) !== false) {
-            return Ex::literal($value);
+            try {
+                return Ex::literal($value);
+            } catch (InvalidArgument $exception) {
+                throw new ExpressionException($exception->getMessage());
+            }
         }
         throw new ExpressionException(Messages::expressionLexerDigitExpected(0));
     }
@@ -287,12 +315,17 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
     private function parseDate(string $args): TDateTime
     {
         try {
-            return Ex::literal(new DateTimeImmutable($args));
+            $data = new DateTimeImmutable($args);
         } catch (Exception $e) {
             throw new ExpressionException(
                 Messages::expressionParserUnrecognizedLiteral('datetime', $args, 0),
                 previous: $e
             );
+        }
+        try {
+            return Ex::literal($data);
+        } catch (InvalidArgument $exception) {
+            throw new ExpressionException($exception->getMessage());
         }
     }
 }

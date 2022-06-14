@@ -56,6 +56,7 @@ class ExpressionFilterParserTest extends TestCase
         $filter .= "stringProperty eq 'mortgages') and ";
         $filter .= "boolProperty eq true and ";
         $filter .= "intProperty in (1,2,3) and ";
+        $filter .= "arrayProperty has 1 and ";
         $filter .= "dateProperty be (datetime'2015-01-13T02:13:40Z',datetime'2015-01-13T02:13:40Z')";
 
         $_SERVER["REQUEST_URI"] = $filter;
@@ -85,11 +86,11 @@ class ExpressionFilterParserTest extends TestCase
         $dispatcher = new PostgresSQLResolver();
         $where      = $dispatcher->dispatch($expression);
         $this->assertEquals(
-            "((((stringProperty LIKE :0 OR stringProperty = :1) AND boolProperty = :2) AND intProperty IN (:3,:4,:5)) AND (dateProperty BETWEEN :6 AND :7))",
+            "(((((stringProperty LIKE :0 OR stringProperty = :1) AND boolProperty = :2) AND intProperty IN (:3,:4,:5)) AND :6 = ANY(arrayProperty)) AND (dateProperty BETWEEN :7 AND :8))",
             $where
         );
         $this->assertEquals(
-            ["%Bonus%", "mortgages", true, 1, 2, 3, "2015-01-13T02:13:40+00:00", "2015-01-13T02:13:40+00:00"],
+            ["%Bonus%", "mortgages", true, 1, 2, 3, 1, "2015-01-13T02:13:40+00:00", "2015-01-13T02:13:40+00:00"],
             $dispatcher->getParams()
         );
     }
