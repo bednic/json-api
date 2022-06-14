@@ -95,7 +95,7 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
     }
 
     /**
-     * Parse comparison operation (eq, ne, gt, gte, lt, lte, in, be)
+     * Parse comparison operation (eq, ne, gt, gte, lt, lte, in, has, be)
      *
      * @return TBoolean|TString|TNumeric|TDateTime
      * @throws ExpressionException
@@ -108,10 +108,13 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
             $this->lexer->nextToken();
             if ($comparisonToken->identifierIs(KeyWord::LOGICAL_IN)) {
                 $right = $this->parseArgumentList();
-                $left  = Ex::{$comparisonToken->text}($left, $right);
+                $left  = Ex::in($left, $right);
+            } elseif ($comparisonToken->identifierIs(KeyWord::LOGICAL_HAS)) {
+                $right = $this->parsePrimary();
+                $left  = Ex::has($left, $right);
             } elseif ($comparisonToken->identifierIs(KeyWord::LOGICAL_BETWEEN)) {
                 $right = $this->parseArgumentList();
-                $left  = Ex::{$comparisonToken->text}($left, ...$right);
+                $left  = Ex::be($left, ...$right);
             } else {
                 $right = $this->parseAdditive();
                 $left  = Ex::{$comparisonToken->text}($left, $right);

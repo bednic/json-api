@@ -42,7 +42,7 @@ class ExpressionToken
                 KeyWord::LOGICAL_EQUAL, KeyWord::LOGICAL_NOT_EQUAL,
                 KeyWord::LOGICAL_LOWER_THAN, KeyWord::LOGICAL_LOWER_THAN_OR_EQUAL,
                 KeyWord::LOGICAL_GREATER_THAN, KeyWord::LOGICAL_GREATER_THAN_OR_EQUAL,
-                KeyWord::LOGICAL_IN, KeyWord::LOGICAL_BETWEEN => true,
+                KeyWord::LOGICAL_IN, KeyWord::LOGICAL_BETWEEN, KeyWord::LOGICAL_HAS => true,
                 default             => false
         };
     }

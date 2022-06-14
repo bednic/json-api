@@ -26,6 +26,7 @@ enum KeyWord: string
     case LOGICAL_OR = 'or';
     case LOGICAL_NOT = 'not';
     case LOGICAL_IN = 'in';
+    case LOGICAL_HAS = 'has';
     case LOGICAL_BETWEEN = 'be';
 
     // ARITHMETIC

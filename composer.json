@@ -38,7 +38,7 @@
         "swaggest/json-schema": "^0.12.29",
         "symfony/string": "^5.1",
         "symfony/translation-contracts": "^2.1",
-        "bednic/rich-expression-builder": "^1.0",
+        "bednic/rich-expression-builder": "^2.0",
         "composer/composer": "^2.2.6"
     },
     "require-dev": {
