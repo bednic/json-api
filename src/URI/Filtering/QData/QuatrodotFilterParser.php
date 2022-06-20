@@ -22,6 +22,7 @@ use ExpressionBuilder\Expression\Type\TBoolean;
 use ExpressionBuilder\Expression\Type\TDateTime;
 use ExpressionBuilder\Expression\Type\TNumeric;
 use ExpressionBuilder\Expression\Type\TString;
+use JSONAPI\Document\Field;
 use JSONAPI\Exception\Metadata\MetadataException;
 use JSONAPI\Metadata\Attribute;
 use JSONAPI\URI\Filtering\ExpressionException;
@@ -178,6 +179,14 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
             $type = $attribute->type ?? 'string';
             if ($type == 'array') {
                 $type = $attribute->of . '[]';
+            } else {
+                try {
+                    if ((new \ReflectionClass($type))->isIterable()) {
+                        $type = $attribute->of . '[]';
+                    }
+                } catch (\ReflectionException $exception) {
+                    // class does not exist
+                }
             }
             return Ex::field($identifier, $type);
         } catch (InvalidArgument $exception) {
@@ -202,7 +211,7 @@ class QuatrodotFilterParser extends Parser implements FilterParserInterface
                     $classMetadata = $this->repository->getByClass(
                         $classMetadata->getRelationship($part)->target
                     );
-                } elseif ($classMetadata->hasAttribute($part) || $part === \JSONAPI\Document\Field::ID) {
+                } elseif ($classMetadata->hasAttribute($part) || $part === Field::ID) {
                     $attribute = $classMetadata->getAttribute($part);
                 } else {
                     throw new ExpressionException(

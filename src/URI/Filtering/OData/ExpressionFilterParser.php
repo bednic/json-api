@@ -437,6 +437,14 @@ class ExpressionFilterParser extends Parser implements FilterParserInterface
                     $type = $classMetadata->getAttribute($part)->type;
                     if ($type == 'array') {
                         $type = $classMetadata->getAttribute($part)->of . '[]';
+                    } else {
+                        try {
+                            if ((new \ReflectionClass($type))->isIterable()) {
+                                $type = $classMetadata->getAttribute($part)->of . '[]';
+                            }
+                        } catch (\ReflectionException $exception) {
+                            // class does not exist
+                        }
                     }
                 } elseif ($part === 'id') {
                     $type = 'string';

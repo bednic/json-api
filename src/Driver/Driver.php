@@ -225,7 +225,7 @@ abstract class Driver
             $ret = true;
         } else {
             try {
-                $ret = (new ReflectionClass($type->getName()))->isSubclassOf(Collection::class);
+                $ret = (new ReflectionClass($type->getName()))->isIterable();
             } catch (ReflectionException) {
                 $ret = false;
             }
