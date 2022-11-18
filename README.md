@@ -1,5 +1,9 @@
 # JSON API Mapper
 
+>
+> ## Package is abandoned. Please use [JASPR Mapper](https://gitlab.com/jaspr/mapper) instead.
+>
+
 Implemtation of [JSON API Standard Specification](https://jsonapi.org/)
 
 This project goal is to create easy-to-use library to implement JSON API specification.

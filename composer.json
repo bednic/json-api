@@ -112,5 +112,6 @@
         "release": [
             "npx standard-version"
         ]
-    }
+    },
+    "abandoned": true
 }
